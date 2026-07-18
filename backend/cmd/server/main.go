@@ -202,6 +202,7 @@ func main() {
 		Store:         infra.NewCoordinatorRepository(db),
 		Tickets:       services.ticket,
 		Dispatch:      podOrchestrator,
+		PodTerminator: podCoordinator,
 		Platform:      coordinatorsvc.NewPlatformFactory(services.repository, services.user),
 		RunnerEnsurer: coordinatorEnsurer,
 		Logger:        appLogger.Logger,
@@ -214,9 +215,10 @@ func main() {
 
 	grpcResult := initPKIAndGRPCWiring(cfg, services, runnerConnMgr, podCoordinator, podRouter, sandboxQuerySvc, sandboxFsSvc, podOrchestrator, workflowOrchestrator, services.workflowRun, appLogger, relayTokenGenerator, db)
 
-	if grpcResult.server != nil {
-		wirePendingQueueSender(pendingQueueWiring, grpcserver.NewGRPCCommandSender(grpcResult.server.RunnerAdapter()))
+	if grpcResult.server == nil {
+		log.Fatal("gRPC server initialization failed")
 	}
+	wirePendingQueueSender(pendingQueueWiring, grpcserver.NewGRPCCommandSender(grpcResult.server.RunnerAdapter()))
 
 	versionChecker := runner.NewVersionChecker(redisClient)
 	if versionChecker != nil {
@@ -262,7 +264,9 @@ func main() {
 	})
 
 	router := rest.NewRouter(cfg, svc, db, appLogger.Logger, redisClient)
-	grpcResult.server = startGRPCServer(cfg, grpcResult.server)
+	if err := startGRPCServer(cfg, grpcResult.server); err != nil {
+		log.Fatalf("Failed to start gRPC server: %v", err)
+	}
 
 	cleanupMkt := startMarketplaceWorker(services)
 	defer cleanupMkt()

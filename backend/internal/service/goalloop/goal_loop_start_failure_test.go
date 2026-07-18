@@ -83,6 +83,23 @@ func TestStartRejectsStaleWorkerSnapshotBeforeClaim(t *testing.T) {
 	require.Nil(t, loop.VerificationError)
 }
 
+func TestStartRejectsLegacyGoalLoopWithoutResourceBinding(t *testing.T) {
+	loop := startableGoalLoop()
+	loop.OrchestrationResourceID = nil
+	loop.OrchestrationResourceRevision = nil
+	repo := newGoalLoopTestRepo(loop)
+	creator := &countingLoopPodCreator{}
+	service := startFailureService(repo, &goalLoopTerminator{})
+	service.podCreator = creator
+
+	started, err := service.Start(context.Background(), 1, 2, loop.Slug)
+
+	require.Nil(t, started)
+	require.ErrorIs(t, err, ErrInvalidState)
+	require.Equal(t, domain.StatusDraft, loop.Status)
+	require.Zero(t, creator.calls)
+}
+
 func TestStartTerminatesCreatedPodWhenCancelWins(t *testing.T) {
 	loop := startableGoalLoop()
 	repo := &cancelDuringStartRepo{goalLoopTestRepo: newGoalLoopTestRepo(loop)}
@@ -155,12 +172,16 @@ func TestStartFailureRetainsPodUntilCleanupCanBeRetried(t *testing.T) {
 }
 
 func startableGoalLoop() *domain.GoalLoop {
+	resourceID := int64(11)
+	resourceRevision := int64(3)
 	return &domain.GoalLoop{
 		ID: 1, OrganizationID: 1, CreatedByID: 2,
 		Slug: "checkout-fix", Name: "checkout-fix", Status: domain.StatusDraft,
 		WorkerSpecSnapshotID: 42, Objective: "fix checkout", AcceptanceCriteria: []byte(`["tests pass"]`),
 		VerificationCommand: "pnpm test", MaxIterations: 5, TimeoutMinutes: 60,
 		NoProgressLimit: 3, SameErrorLimit: 2, EscalationPolicy: domain.EscalationPause,
+		OrchestrationResourceID:       &resourceID,
+		OrchestrationResourceRevision: &resourceRevision,
 	}
 }
 

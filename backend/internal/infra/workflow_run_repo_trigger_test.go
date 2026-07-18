@@ -78,6 +78,7 @@ func TestRunRepository_TriggerRunAtomic(t *testing.T) {
 		AutopilotConfig: []byte("{}"), ConfigOverrides: []byte("{}"),
 		CreatedByID: 1,
 	}
+	bindWorkflowResourceForExecution(l, 101)
 	require.NoError(t, workflowRepo.Create(ctx, l))
 
 	t.Run("should create run atomically", func(t *testing.T) {
@@ -145,13 +146,15 @@ func TestRunRepository_TriggerRunAtomic_ConcurrencySkip(t *testing.T) {
 
 	l := &workflow.Workflow{
 		OrganizationID: 1, Name: "Skip Workflow", Slug: "skip-workflow",
-		PromptTemplate: "prompt",
-		ExecutionMode:  workflow.ExecutionModeAutopilot, Status: workflow.StatusEnabled,
+		PromptTemplate:  "Review {{scope}}",
+		PromptVariables: []byte(`{"scope":"authorization"}`),
+		ExecutionMode:   workflow.ExecutionModeAutopilot, Status: workflow.StatusEnabled,
 		SandboxStrategy: workflow.SandboxStrategyPersistent, ConcurrencyPolicy: workflow.ConcurrencyPolicySkip,
 		MaxConcurrentRuns: 1, TimeoutMinutes: 60,
 		AutopilotConfig: []byte("{}"), ConfigOverrides: []byte("{}"),
 		CreatedByID: 1,
 	}
+	bindWorkflowResourceForExecution(l, 102)
 	require.NoError(t, workflowRepo.Create(ctx, l))
 
 	pendingRun := &workflow.WorkflowRun{
@@ -164,6 +167,7 @@ func TestRunRepository_TriggerRunAtomic_ConcurrencySkip(t *testing.T) {
 		WorkflowID:    l.ID,
 		TriggerType:   workflow.RunTriggerCron,
 		TriggerSource: "cron",
+		TriggerParams: []byte(`{"scope":"billing"}`),
 	})
 	require.NoError(t, err)
 	require.NotNil(t, result)
@@ -172,6 +176,9 @@ func TestRunRepository_TriggerRunAtomic_ConcurrencySkip(t *testing.T) {
 	assert.NotNil(t, result.Run)
 	assert.Equal(t, workflow.RunStatusSkipped, result.Run.Status)
 	assert.Equal(t, 2, result.Run.RunNumber)
+	require.NotNil(t, result.Run.ResolvedPrompt)
+	assert.Equal(t, "Review billing", *result.Run.ResolvedPrompt)
+	assert.JSONEq(t, `{"scope":"billing"}`, string(result.Run.TriggerParams))
 }
 
 // TestRunRepository_GetTimedOutRuns_OrgFilter tests org filtering for timed-out runs.
@@ -195,6 +202,7 @@ func TestRunRepository_FinishRun(t *testing.T) {
 		AutopilotConfig: []byte("{}"), ConfigOverrides: []byte("{}"),
 		CreatedByID: 1,
 	}
+	bindWorkflowResourceForExecution(l, 103)
 	require.NoError(t, workflowRepo.Create(ctx, l))
 
 	now := time.Now()
@@ -268,6 +276,7 @@ func TestRunRepository_TriggerRunAtomic_TerminatedPodFreesSlot(t *testing.T) {
 		AutopilotConfig: []byte("{}"), ConfigOverrides: []byte("{}"),
 		CreatedByID: 1,
 	}
+	bindWorkflowResourceForExecution(l, 104)
 	require.NoError(t, workflowRepo.Create(ctx, l))
 
 	db.Exec(`INSERT INTO pods (pod_key, status) VALUES ('term-pod', 'terminated')`)

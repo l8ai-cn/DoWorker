@@ -1,0 +1,7 @@
+2026-07-17T13:38:01Z
+definition_hash: sha256:f4348e3bb9baf3973078c475b5ac724fab016d06c10673d927d21dd80a267bb8
+command: pnpm run web:test -- WorkerTemplateConfigurationPanel worker-template-plan-readiness
+result: 308 test files passed, 2283 tests passed
+command: pnpm run web:typecheck
+result: passed
+browser: DoAgent without a settings EnvironmentBundle displayed the localized configuration-document warning and disabled Generate Plan.

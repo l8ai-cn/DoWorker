@@ -42,11 +42,7 @@ export default function WorkspacePage() {
       return;
     }
     if (orgSlug) {
-      const qs = new URLSearchParams();
-      if (selection?.agentSlug) qs.set("image", selection.agentSlug);
-      if (selection?.prompt) qs.set("prompt", selection.prompt);
-      const query = qs.toString();
-      router.push(`/${orgSlug}/workers/new${query ? `?${query}` : ""}`);
+      router.push(`/${orgSlug}/workers/new?mode=template`);
       return;
     }
     setRecipe(selection ?? null);

@@ -1,0 +1,5 @@
+{"at":"2026-07-16T12:39:16+08:00","task_id":"verify-contract","result":"pass","evidence_ref":"evidence/aider-precreation-2026-07-16.json"}
+{"at":"2026-07-16T18:36:53+08:00","task_id":"verify-runtime","result":"pass","evidence_ref":"evidence/aider-precreation-2026-07-16.json"}
+{"at":"2026-07-16T18:36:53+08:00","task_id":"verify-precreation","result":"pass","evidence_ref":"evidence/aider-precreation-2026-07-16.json"}
+{"at":"2026-07-16T18:36:53+08:00","task_id":"review-precreation","result":"pass","evidence_ref":"evidence/aider-precreation-review-2026-07-16.json"}
+{"at":"2026-07-16T18:36:53+08:00","task_id":"verify-live-launch","result":"blocked_human_gate","blocker_code":"approval-missing","evidence_ref":"DECISIONS.md"}

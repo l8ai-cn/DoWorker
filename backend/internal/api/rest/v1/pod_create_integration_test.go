@@ -2,11 +2,14 @@ package v1
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
+	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	"github.com/gin-gonic/gin"
@@ -37,14 +40,9 @@ func TestPodCreateAPI_InvalidJSON(t *testing.T) {
 	assert.Contains(t, resp["error"], "invalid character")
 }
 
-func TestPodCreateAPI_MissingAgentSlug(t *testing.T) {
-	// Construct a minimal orchestrator with nil deps.
-	// The orchestrator validates AgentSlug == "" BEFORE touching any dependency,
-	// so nil deps are safe for this specific validation path.
-	orchestrator := agentpod.NewPodOrchestrator(&agentpod.PodOrchestratorDeps{})
-	handler := &PodHandler{orchestrator: orchestrator}
-
-	body := `{"runner_id": 1, "cols": 80, "rows": 24}`
+func TestPodCreateAPI_FreshCreateRequiresResourceApply(t *testing.T) {
+	handler := &PodHandler{}
+	body := `{"agent_slug":"codex-cli","runner_id":1,"cols":80,"rows":24}`
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 	c.Request = httptest.NewRequest(http.MethodPost, "/api/v1/organizations/test/pods", bytes.NewBufferString(body))
@@ -60,15 +58,14 @@ func TestPodCreateAPI_MissingAgentSlug(t *testing.T) {
 
 	handler.CreatePod(c)
 
-	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusConflict, w.Code)
 
 	var resp map[string]interface{}
 	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
-	assert.Equal(t, "MISSING_AGENT_SLUG", resp["code"])
+	assert.Equal(t, "WORKER_RESOURCE_APPLY_REQUIRED", resp["code"])
 }
 
-func TestPodCreateAPI_AliasTooLong(t *testing.T) {
-	// Alias validation happens in the handler before orchestrator is called.
+func TestPodCreateAPI_LegacyAliasUsesResourceApplyGate(t *testing.T) {
 	handler := &PodHandler{orchestrator: nil}
 
 	longAlias := string(make([]byte, 101))
@@ -89,24 +86,19 @@ func TestPodCreateAPI_AliasTooLong(t *testing.T) {
 
 	handler.CreatePod(c)
 
-	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusConflict, w.Code)
 
 	var resp map[string]interface{}
 	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
-	assert.Contains(t, resp["error"], "100 characters")
+	assert.Equal(t, "WORKER_RESOURCE_APPLY_REQUIRED", resp["code"])
 }
 
-func TestPodCreateAPI_EmptyAliasNormalized(t *testing.T) {
-	// An empty-string alias should be normalized to nil and not cause an error.
-	// This test verifies the normalization logic; it will proceed past alias
-	// validation and fail at the orchestrator (missing agent_slug) which confirms
-	// alias normalization worked.
-	orchestrator := agentpod.NewPodOrchestrator(&agentpod.PodOrchestratorDeps{})
-	handler := &PodHandler{orchestrator: orchestrator}
+func TestPodCreateAPI_EmptyAliasStillUsesResourceApplyGate(t *testing.T) {
+	handler := &PodHandler{}
 
 	emptyAlias := "   "
 	reqBody := CreatePodRequest{
-		AgentSlug: "", // intentionally empty to trigger ErrMissingAgentSlug
+		AgentSlug: "codex-cli",
 		Alias:     &emptyAlias,
 	}
 	bodyBytes, _ := json.Marshal(reqBody)
@@ -123,13 +115,11 @@ func TestPodCreateAPI_EmptyAliasNormalized(t *testing.T) {
 
 	handler.CreatePod(c)
 
-	// If alias validation didn't strip the whitespace, we'd get a different error.
-	// Instead we get MissingAgentSlug which means alias normalization passed.
-	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusConflict, w.Code)
 
 	var resp map[string]interface{}
 	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
-	assert.Equal(t, "MISSING_AGENT_SLUG", resp["code"])
+	assert.Equal(t, "WORKER_RESOURCE_APPLY_REQUIRED", resp["code"])
 }
 
 // Backend equivalent of clients/core/crates/types/src/pod.rs
@@ -138,7 +128,7 @@ func TestPodCreateAPI_EmptyAliasNormalized(t *testing.T) {
 // it from the source pod). A future `binding:"required"` on AgentSlug
 // would silently reintroduce the original PR #340 bug; this test red-flags it.
 func TestCreatePodRequest_ResumeWithoutAgentSlug_Unmarshals(t *testing.T) {
-	body := `{"source_pod_key":"pod-source-123","resume_agent_session":true,"runner_id":1,"cols":80,"rows":24}`
+	body := `{"source_pod_key":"pod-source-123","resume_agent_session":true,"cols":80,"rows":24}`
 
 	var req CreatePodRequest
 	err := json.Unmarshal([]byte(body), &req)
@@ -146,9 +136,94 @@ func TestCreatePodRequest_ResumeWithoutAgentSlug_Unmarshals(t *testing.T) {
 
 	assert.Empty(t, req.AgentSlug, "AgentSlug must accept missing field for resume mode")
 	assert.Equal(t, "pod-source-123", req.SourcePodKey)
-	assert.Equal(t, int64(1), req.RunnerID)
+	assert.Zero(t, req.RunnerID)
 	assert.Equal(t, int32(80), req.Cols)
 	assert.Equal(t, int32(24), req.Rows)
 	require.NotNil(t, req.ResumeAgentSession)
 	assert.True(t, *req.ResumeAgentSession)
+}
+
+func TestPodCreateAPI_ResumeRejectsRuntimeOverrides(t *testing.T) {
+	handler := &PodHandler{}
+	body := `{"source_pod_key":"pod-source-123","runner_id":1}`
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request = httptest.NewRequest(
+		http.MethodPost,
+		"/api/v1/organizations/test/pods",
+		bytes.NewBufferString(body),
+	)
+
+	handler.CreatePod(c)
+
+	assert.Equal(t, http.StatusConflict, w.Code)
+	var resp map[string]interface{}
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
+	assert.Equal(t, "WORKER_RESUME_LINEAGE_ONLY", resp["code"])
+}
+
+func TestPodCreateAPI_ResumeBuildsLineageOnlyRequest(t *testing.T) {
+	resume := true
+	creator := &recordingRESTPodCreator{
+		result: &agentpod.OrchestrateCreatePodResult{Pod: &podDomain.Pod{
+			PodKey: "resumed-pod",
+		}},
+	}
+	handler := &PodHandler{orchestrator: creator}
+	bodyBytes, err := json.Marshal(CreatePodRequest{
+		TicketSlug:         stringPointer("ticket-1"),
+		Cols:               120,
+		Rows:               40,
+		SourcePodKey:       "pod-source-123",
+		ResumeAgentSession: &resume,
+		QueueIfOffline:     true,
+		QueueTTLMinutes:    45,
+	})
+	require.NoError(t, err)
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request = httptest.NewRequest(
+		http.MethodPost,
+		"/api/v1/organizations/test/pods",
+		bytes.NewReader(bodyBytes),
+	)
+	c.Set("tenant", &middleware.TenantContext{
+		OrganizationID: 1,
+		UserID:         100,
+	})
+
+	handler.CreatePod(c)
+
+	assert.Equal(t, http.StatusCreated, w.Code)
+	require.NotNil(t, creator.request)
+	assert.Equal(t, int64(1), creator.request.OrganizationID)
+	assert.Equal(t, int64(100), creator.request.UserID)
+	assert.Equal(t, "pod-source-123", creator.request.SourcePodKey)
+	assert.Equal(t, &resume, creator.request.ResumeAgentSession)
+	assert.Equal(t, int32(120), creator.request.Cols)
+	assert.Equal(t, int32(40), creator.request.Rows)
+	assert.Equal(t, 45*time.Minute, creator.request.QueueTTL)
+	assert.Empty(t, creator.request.AgentSlug)
+	assert.Zero(t, creator.request.RunnerID)
+	assert.Nil(t, creator.request.AgentfileLayer)
+	assert.Nil(t, creator.request.ModelResourceID)
+	assert.Nil(t, creator.request.WorkerSpecDraft)
+	assert.Nil(t, creator.request.WorkerSpecSnapshotID)
+}
+
+type recordingRESTPodCreator struct {
+	request *agentpod.OrchestrateCreatePodRequest
+	result  *agentpod.OrchestrateCreatePodResult
+}
+
+func (c *recordingRESTPodCreator) CreatePod(
+	_ context.Context,
+	request *agentpod.OrchestrateCreatePodRequest,
+) (*agentpod.OrchestrateCreatePodResult, error) {
+	c.request = request
+	return c.result, nil
+}
+
+func stringPointer(value string) *string {
+	return &value
 }

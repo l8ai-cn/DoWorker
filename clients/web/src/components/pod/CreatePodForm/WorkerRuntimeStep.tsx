@@ -131,7 +131,7 @@ function hasTypeSpecificValues(draft: WorkerSpecDraft): boolean {
       draft.secret_refs.length ||
       draft.skill_ids.length ||
       draft.env_bundle_ids.length ||
-      draft.config_bundle_ids.length ||
+      draft.config_document_bindings.length ||
       draft.custom_resources,
   );
 }

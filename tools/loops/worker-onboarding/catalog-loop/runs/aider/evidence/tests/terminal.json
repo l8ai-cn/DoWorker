@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "status": "blocked",
+  "terminal_verifier": "aider-real-worker-e2e",
+  "verified_at": "2026-07-17T12:43:03Z",
+  "worker_slug": "aider",
+  "adapter_id": "aider-pty",
+  "runner": "dev-runner-aider",
+  "image": "agentsmesh-codex-loop-blockly-mvp-runner-aider@sha256:dc67337a330902f3b7896d6bd53cb41cfda23d0f15fcf0e73d316a24e4fa3d79",
+  "version_probe": "aider 0.86.2",
+  "interaction_mode": "pty",
+  "credential_free_invocation": {
+    "command_shape": "aider --yes --no-auto-commits --no-git --message <exact reply check>",
+    "timeout_seconds": 15,
+    "exit_code": 124,
+    "result": "missing-provider-credential"
+  },
+  "provider_completion": "blocked",
+  "blocker": "Aider waits for interactive provider login without an injected OPENAI_API_KEY or ANTHROPIC_API_KEY."
+}

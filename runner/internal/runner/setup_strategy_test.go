@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestLocalPathStrategy_ReturnsSandboxRoot(t *testing.T) {
+func TestLocalPathStrategy_DirectHostPathKeepsIsolatedSandbox(t *testing.T) {
 	localPath := t.TempDir()
 
 	strategy := NewLocalPathStrategy()
@@ -20,10 +20,8 @@ func TestLocalPathStrategy_ReturnsSandboxRoot(t *testing.T) {
 	})
 
 	require.NoError(t, err)
-	assert.Equal(t, localPath, result.SandboxRoot,
-		"LocalPathStrategy should return source sandbox path as SandboxRoot")
-	assert.Equal(t, localPath, result.WorkingDir,
-		"without workspace subdir, WorkingDir should be localPath itself")
+	assert.Empty(t, result.SandboxRoot)
+	assert.Equal(t, localPath, result.WorkingDir)
 }
 
 func TestLocalPathStrategy_WithWorkspace_ReturnsSandboxRoot(t *testing.T) {
@@ -37,8 +35,7 @@ func TestLocalPathStrategy_WithWorkspace_ReturnsSandboxRoot(t *testing.T) {
 	})
 
 	require.NoError(t, err)
-	assert.Equal(t, localPath, result.SandboxRoot,
-		"SandboxRoot should always be the localPath (source sandbox)")
+	assert.Equal(t, localPath, result.SandboxRoot)
 	assert.Equal(t, workspaceDir, result.WorkingDir,
 		"WorkingDir should be workspace subdir when it exists")
 }

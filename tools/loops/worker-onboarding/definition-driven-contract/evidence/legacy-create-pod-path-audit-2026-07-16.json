@@ -1,0 +1,57 @@
+{
+  "captured_at": "2026-07-16T18:02:00Z",
+  "scope": "Web Worker creation entry points",
+  "formal_flow": {
+    "route": "/{org}/workers/new",
+    "implementation": "ResourceEditorShell",
+    "model": "Worker references WorkerTemplate, and WorkerTemplate carries a versioned WorkerSpec snapshot"
+  },
+  "legacy_flow": {
+    "component": "clients/web/src/components/ide/CreatePodModal.tsx",
+    "reachable_from": [
+      "workspace",
+      "tickets",
+      "IDE shell",
+      "mobile sidebar",
+      "ticket panels"
+    ],
+    "implementation": [
+      "CreatePodForm",
+      "useCreatePodForm",
+      "useWorkerModelResources without a Definition requirement",
+      "submitCreatePod",
+      "createPod"
+    ],
+    "transport": "legacy direct pod create"
+  },
+  "browser_verification": {
+    "route": "/dev-org/workspace?ingest_kb=1",
+    "resulting_route": "/dev-org/workspace",
+    "rendered_dialog": "Create new Worker",
+    "rendered_steps": [
+      "runtime",
+      "agent configuration",
+      "workspace",
+      "review"
+    ],
+    "rendered_requirements": [
+      "compatible model",
+      "API key",
+      "agent type",
+      "runtime image",
+      "runner placement",
+      "resource allocation"
+    ],
+    "application_console_error_count": 0,
+    "application_console_warning_count": 0,
+    "form_submitted": false,
+    "worker_or_pod_created": false
+  },
+  "contract_gap": {
+    "static_model_protocol_map": "clients/web/src/components/pod/CreatePodForm/workerModelResources.ts::AGENT_PROTOCOLS",
+    "uses_versioned_worker_template": false,
+    "uses_backend_projected_named_config_documents": false,
+    "can_submit_document_id_to_config_bundle_binding": false
+  },
+  "conclusion": "The legacy direct pod modal remains user-reachable and cannot be considered a Definition-driven Worker creation path. It must be removed or migrated to the versioned WorkerTemplate flow during the configuration-document contract cutover; retaining it as a compatible path would preserve the unsupported anonymous configuration behavior."
+}

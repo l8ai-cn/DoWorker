@@ -1,0 +1,30 @@
+{
+  "at": "2026-07-17T08:04:19Z",
+  "worker_slug": "codex-cli",
+  "template": {
+    "name": "codex-real-worker-e2e",
+    "worker_spec_snapshot_id": 14,
+    "plan_status": "applied"
+  },
+  "worker": {
+    "name": "codex-real-worker-e2e-run",
+    "pod_key": "1-standalone-fd17dc70",
+    "status": "running",
+    "agent_status": "idle"
+  },
+  "popup": {
+    "route": "/popout/terminal/1-standalone-fd17dc70",
+    "before_fix": "TerminalPane rendered for ACP and could not send ACP prompts.",
+    "after_fix": "AgentPanel rendered, control lease acquired, and prompt input enabled.",
+    "source_paths": [
+      "clients/web/src/app/popout/terminal/[podKey]/page.tsx",
+      "clients/web/src/components/workspace/AgentPanel.tsx"
+    ]
+  },
+  "prompt": {
+    "text": "Reply with exactly: READY",
+    "delivery": "passed",
+    "completion": "blocked",
+    "failure": "OpenAI provider returned HTTP 403 for the Runner location."
+  }
+}

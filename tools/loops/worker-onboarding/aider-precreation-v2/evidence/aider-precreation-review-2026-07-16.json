@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-07-16T18:36:53+08:00",
+  "worker_slug": "aider",
+  "review_scope": "independent consistency review of local precreation evidence",
+  "verified_claims": [
+    "Definition, catalog image, Runner, browser template apply, and database snapshot agree on Aider.",
+    "The empty model binding is intentional and migration 221 accepts it.",
+    "No matching Worker launch or Pod exists."
+  ],
+  "rejected_claims": [
+    "Aider is supported.",
+    "Credential injection works.",
+    "Aider has a verified provider response.",
+    "Aider terminal data-plane works."
+  ],
+  "plaintext_credential_present": false,
+  "provider_response_present": false,
+  "verdict": "precreation_verified_not_supported",
+  "required_next_evidence": "Named non-production approval plus reference injection, disposable Pod, PTY, provider smoke, and cleanup."
+}

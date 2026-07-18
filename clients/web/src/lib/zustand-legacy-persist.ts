@@ -5,12 +5,14 @@ export function legacyPersistStorage(legacyKey: string) {
   return createJSONStorage(() => ({
     getItem: (name: string): string | null => {
       try {
+        const storage = browserStorage();
+        if (!storage) return null;
         const value = readStoredJson(name);
         if (value !== null) return value;
         const legacy = readStoredJson(legacyKey);
         if (legacy !== null) {
-          localStorage.setItem(name, legacy);
-          localStorage.removeItem(legacyKey);
+          storage.setItem(name, legacy);
+          storage.removeItem(legacyKey);
           return legacy;
         }
       } catch (error) {
@@ -19,24 +21,36 @@ export function legacyPersistStorage(legacyKey: string) {
       return null;
     },
     setItem: (name: string, value: string): void => {
-      localStorage.setItem(name, value);
+      browserStorage()?.setItem(name, value);
     },
     removeItem: (name: string): void => {
-      localStorage.removeItem(name);
-      localStorage.removeItem(legacyKey);
+      const storage = browserStorage();
+      storage?.removeItem(name);
+      storage?.removeItem(legacyKey);
     },
   }));
 }
 
 function readStoredJson(name: string): string | null {
-  const value = localStorage.getItem(name);
+  const storage = browserStorage();
+  if (!storage) return null;
+  const value = storage.getItem(name);
   if (value === null) return null;
   try {
     JSON.parse(value);
     return value;
   } catch {
     console.warn(`Discarding malformed persisted UI state "${name}".`);
-    localStorage.removeItem(name);
+    storage.removeItem(name);
+    return null;
+  }
+}
+
+function browserStorage(): Storage | null {
+  if (typeof window === "undefined") return null;
+  try {
+    return window.localStorage;
+  } catch {
     return null;
   }
 }

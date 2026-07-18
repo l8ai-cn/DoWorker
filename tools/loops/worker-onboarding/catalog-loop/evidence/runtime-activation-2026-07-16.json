@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-07-16T20:45:00+08:00",
+  "scope": "Local development runtime activation. No Worker or Pod was created and no provider credential was read.",
+  "safety_boundary": {
+    "provider_request": false,
+    "pod_create_rpc": false,
+    "credential_decryption": false
+  },
+  "runtime_catalog": {
+    "path": "deploy/dev/runtime/worker-runtime-catalog.local.json",
+    "revision": "local-dev-062e8636f10ae06b6d648702da2db23c10512fbfc7497c544b3fab7d1bd83eab",
+    "enabled_worker_types": [
+      "aider", "claude-code", "codex-cli", "cursor-cli", "do-agent",
+      "gemini-cli", "grok-build", "hermes", "minimax-cli", "openclaw",
+      "opencode", "seedance-expert"
+    ]
+  },
+  "runners": [
+    {"node_id":"dev-runner-grok","worker_type":"grok-build","version":"0.2.101","status":"online","tunnel_state":"connected"},
+    {"node_id":"dev-runner-hermes","worker_type":"hermes","version":"0.18.2","status":"online","tunnel_state":"connected"},
+    {"node_id":"dev-runner-minimax","worker_type":"minimax-cli","version":"1.0.16","status":"online","tunnel_state":"connected"},
+    {"node_id":"dev-runner-openclaw","worker_type":"openclaw","version":"2026.6.11","status":"online","tunnel_state":"connected"},
+    {"node_id":"dev-runner-opencode","worker_type":"opencode","version":"1.18.2","status":"online","tunnel_state":"connected"}
+  ],
+  "repairs": [
+    {
+      "root_cause": "Hermes postinstall requires Python 3.11 but runner-hermes used the base image.",
+      "fix": "runner-hermes now selects RUNTIME_BASE=python-runtime-base.",
+      "verification": "docker/agent-runtime/contract_test.sh and docker build plus hermes --version passed."
+    },
+    {
+      "root_cause": "MiniMax Compose Runner was absent from the idempotent dev seed Runner list.",
+      "fix": "seed.sql now pre-registers dev-runner-minimax.",
+      "verification": "Seed replay plus mTLS stream, initialization, agent probe, tunnel connection, and Backend runner attestation passed."
+    },
+    {
+      "root_cause": "The local catalog revision concatenated runtime slugs and reached 182 characters, exceeding the WorkerTemplate 128-character revision contract.",
+      "fix": "The generator now derives a fixed SHA-256 revision from sorted image identity and digest data.",
+      "verification": "Node catalog tests, Backend WorkerTemplate validation tests, catalog shape assertions, and Backend health checks passed."
+    }
+  ],
+  "browser_observation": {
+    "before_revision_fix": "OpenCode, Hermes, MiniMax CLI, OpenClaw, and Grok Build were visible and selectable after Backend catalog reload. Loopal remained disabled because no verified runtime image exists.",
+    "after_revision_fix": "Browser automation was interrupted by the environment security policy before rechecking the new revision. This recheck remains required."
+  },
+  "support_conclusion": "No Worker support status changed. A runtime image, connected Runner, or selectable type does not prove credential injection, Provider API access, Pod lifecycle, terminal access, or end-user success."
+}

@@ -170,6 +170,7 @@ func mapBundleError(err error) error {
 	case errors.Is(err, envbundleservice.ErrNameExists):
 		return connect.NewError(connect.CodeAlreadyExists, err)
 	case errors.Is(err, envbundleservice.ErrInvalidKind),
+		errors.Is(err, envbundleservice.ErrInvalidConfig),
 		errors.Is(err, envbundleservice.ErrInvalidScope):
 		return connect.NewError(connect.CodeInvalidArgument, err)
 	default:

@@ -125,17 +125,17 @@ does not count as progress.
 
 | Phase | Status | Evidence |
 | --- | --- | --- |
-| 0 | complete | Full backend verifier passes; inventory records 17 constructors: 13 legacy and 4 snapshot |
+| 0 | complete | Execution inventory remains machine-checked and currently records 16 constructors: 6 legacy, 2 plan, 5 snapshot, and 3 lineage |
 | 1 | complete | Strict JSON/YAML codecs, schema registry, ResourceRef and SecretReference tests pass |
 | 2 | complete | WorkerTemplate and Worker use persisted plans, immutable revisions, WorkerSpec snapshots, durable launch records, stale-plan checks, and typed Apply |
-| 3 | complete | Prompt, Expert, and Workflow Apply persist immutable resource revisions and pin WorkerSpec snapshots and resolved references |
-| 4 | in progress | GoalLoop has schema, reference resolution, and Plan artifact; typed Apply and resource-backed domain creation are not connected |
-| 5 | in progress | One Draft, form/YAML round trip, diff, bindings, and typed Apply UI are verified for supported kinds; GoalLoop form and Apply UI are absent |
-| 6 | in progress | Full backend, full web, Rust/WASM, build, docs, migration, and supported-kind browser checks pass; GoalLoop delivery remains open |
+| 3 | in progress | Prompt, Expert, Workflow, Worker, and GoalLoop pin resource revisions and WorkerSpec snapshots; resolved non-Secret model, repository, Skill, knowledge, environment, and placement facts still require a versioned dependency snapshot |
+| 4 | in progress | Expert/Workflow definition mutation guards, Workflow/GoalLoop create gates, full WorkflowRun manifests, snapshot-backed Mesh launch, Plan-only Quick Task/Runner MCP, durable Session create/fork/import ownership, and Coordinator atomic task claims are complete; Session switch replacement ownership and 6 legacy snapshot-binding constructors remain |
+| 5 | in progress | Draft concurrency, YAML gates, typed/redacted errors, Plan retirement, partial reference loading, mobile actions, exact numeric handling, Workflow create/new-revision editors, and locked identity have focused tests; Playwright execution remains frozen |
+| 6 | in progress | Focused backend, migration-static, documentation, and independent subtask reviews pass; PostgreSQL rehearsal, browser evidence, and final whole-goal review remain |
 
 ## Delivery Audit
 
-Audit date: 2026-07-15.
+Audit date: 2026-07-17.
 
 | Requirement | Status | Authoritative evidence |
 | --- | --- | --- |
@@ -145,30 +145,37 @@ Audit date: 2026-07-15.
 | Prompt typed Apply | proved | Prompt Apply service, immutable revision tests, protocol and web dispatch |
 | WorkerTemplate typed Apply | proved | snapshot compiler, Apply service, revision/snapshot PostgreSQL tests |
 | Worker typed Apply | proved | durable launch claim/completion, one-shot constraint, Pod result contract |
-| Expert typed Apply | proved | Expert projection stores resource revision and WorkerSpec snapshot |
-| Workflow typed Apply | proved | Workflow projection and runs pin resource revision and WorkerSpec snapshot |
-| GoalLoop typed Apply | missing | schema and Plan exist; no Apply RPC, service, projection, or frontend kind |
-| One form/YAML Draft | proved | reducer invalidates stale plans; YAML parse returns canonical draft |
+| Expert typed Apply | proved | Expert projection stores resource revision and WorkerSpec snapshot; old Update/Delete reject resource-managed definitions before store or Git mutation |
+| Workflow typed Apply | proved | Workflow projection and runs pin resource revision, WorkerSpec snapshot, trigger params, resolved prompt, and full execution manifest; runtime completion and timeout/idle scans do not read the latest Workflow; old AgentFile runtime builder is removed |
+| GoalLoop typed Apply | proved | `CreateGoalLoopFromPlan` creates a pinned draft without a Pod; public legacy Create and RunLoopProgram are gated while Start/Verify/Cancel remain explicit actions |
+| One form/YAML Draft | proved | YAML/form transition is atomic; parsed YAML is locally gated; stale responses cannot replace current state; expired or terminal Apply Plans cannot be replayed |
 | Semantic Diff | proved | server digest-only changes and dedicated redaction rendering tests |
-| Permission revalidation | proved | target and every resolved reference are reauthorized immediately before Apply |
+| Permission revalidation | in verification | target and resolved references are reauthorized; Apply transaction locks current membership/role and replay rechecks it. Unit tests pass; PostgreSQL concurrency tests are authored but frozen |
 | Secret reference protection | proved | reference-only schemas, non-echoing errors, digest/redacted Diff, reference-only UI test |
-| Migration integrity | proved | 000211/000212 constraints and PostgreSQL mutation/concurrency tests |
-| Public documentation | proved | product/API manuals, public docs route, multilingual page, desktop/mobile anonymous browser evidence |
+| Resolved dependency immutability | Plan builder proved; persistence frozen | Strict Artifact V1 and `WorkerTemplateBuild` codecs bind canonical WorkerSpec, exact Plan refs, typed ToolBinding model provenance, model/repository/content/image facts, ordered bundles, field ownership, and reference-only Secrets. Table and artifact-only runtime remain frozen |
+| Migration integrity | in verification | Formal release mainline is through 000224; local `000221_worker_spec_optional_model_binding` conflicts with formal `000221_add_expert_revision`. Sequence may restart at candidate 000225 only after owner ordering; DB execution is frozen |
+| Public documentation | in verification | Product/API/migration/YAML/Expert/Workflow manuals describe Apply-only definitions, explicit actions, snapshot consistency, Worker Definition credential/config-document bindings, REST lineage-only resume, Plan-only Quick Task and Runner MCP, and legacy entry-point errors; focused locale and docs checks pass |
 
-The active blocker is not a validation or documentation ambiguity. Completing
-the goal requires a typed GoalLoop Apply path that creates a GoalLoop domain
-record from the immutable plan artifact and pins its resource revision and
-WorkerSpec snapshot. Current coordination instructions prohibit editing
-GoalLoop or Runner files, so this path must remain explicit rather than falling
-back to the legacy GoalLoop create API.
+## Verification Snapshot
+
+The durable command-level and review evidence is maintained in
+[`2026-07-14-resource-native-orchestration-verification.md`](./2026-07-14-resource-native-orchestration-verification.md).
+This goal file remains the control contract and current status SSOT.
 
 ## Current Constraints
-
 - The current worktree contains extensive unrelated uncommitted work.
 - Implementation must not revert or reformat those changes.
 - Files already modified by another task require diff review before editing.
+- Mainline is at `000224`; the dirty local view through `000221` confers no
+  ownership of later numbers. Have the owner order work from candidate `000225`
+  before file creation. Do not add, renumber, run, or deploy while frozen.
+- Do not modify Runner or GoalLoop during the Loop/Seedance production release.
 - Runtime code must never fall back to legacy Agent, model, repository,
   AgentFile, or mutable Expert/Workflow fields.
+- Runtime code must not fall back from a missing resolved dependency artifact
+  to current model, repository, Skill, knowledge, environment, compute, or
+  resource-profile rows. Secret values remain live references and are never
+  materialized into snapshot JSON.
 - Plan `optionsRevision` is an opaque bounded string so target planners can
   bind native catalog or policy revision tokens without lossy numeric mapping.
 

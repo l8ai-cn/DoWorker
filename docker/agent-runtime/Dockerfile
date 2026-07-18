@@ -6,12 +6,16 @@
 # Shared `base` stage is built once as do-worker/runner-base:latest so apt/npm
 # layers are not re-run for every agent variant.
 
+ARG NODE_BASE_IMAGE=node:24-bookworm-slim
+ARG PYTHON_BASE_IMAGE=python:3.11-slim-bookworm
 ARG RUNTIME_EXTENSION_BASE=do-worker/runner-base:latest
-ARG RUNTIME_BASE=base
+ARG RUNTIME_EXTENSION_RUNTIME_BASE=runtime-extension-base
+ARG RUNTIME_SHARED_BASE=base
+ARG RUNTIME_BASE=runtime-shared-base
 ARG OPENCLAW_VERSION=2026.6.11
 ARG OPENCLAW_NODE_VERSION=24.18.0
 
-FROM node:24-bookworm-slim AS base
+FROM ${NODE_BASE_IMAGE} AS base
 
 ARG HTTP_PROXY=
 ARG HTTPS_PROXY=
@@ -39,6 +43,15 @@ RUN printf 'Acquire::http::Proxy "false";\nAcquire::https::Proxy "false";\n' \
     done; \
     test "$ok" = 1
 
+FROM ${PYTHON_BASE_IMAGE} AS python-runtime
+
+FROM ${RUNTIME_SHARED_BASE} AS runtime-shared-base
+
+FROM runtime-shared-base AS python-runtime-base
+COPY --from=python-runtime /usr/local /usr/local
+COPY --from=python-runtime /usr/lib/x86_64-linux-gnu/libsqlite3.so.0.8.6 /usr/lib/x86_64-linux-gnu/
+COPY --from=python-runtime /usr/lib/x86_64-linux-gnu/libsqlite3.so.0 /usr/lib/x86_64-linux-gnu/
+
 FROM ${RUNTIME_BASE} AS runtime
 
 ARG AGENT_RUNTIME=e2e-echo
@@ -47,20 +60,7 @@ ARG MINIMAX_CLI_VERSION=1.0.16
 ARG OPENCLAW_VERSION=2026.6.11
 ENV AGENT_RUNTIME=${AGENT_RUNTIME}
 
-RUN install_python_pip() { \
-      ok=0; \
-      for attempt in 1 2 3 4 5 6 7 8; do \
-        if apt-get update \
-          && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3-pip; then \
-          ok=1; \
-          break; \
-        fi; \
-        echo "python3-pip install attempt ${attempt} failed, retrying..." >&2; \
-        sleep 20; \
-      done; \
-      test "$ok" = 1; \
-    }; \
-    case "${AGENT_RUNTIME}" in \
+RUN case "${AGENT_RUNTIME}" in \
       claude-code) npm install -g @anthropic-ai/claude-code ;; \
       codex-cli) npm install -g @openai/codex ;; \
       cursor-cli) \
@@ -78,13 +78,9 @@ RUN install_python_pip() { \
       minimax-cli) npm install -g "mmx-cli@${MINIMAX_CLI_VERSION}" ;; \
       openclaw) npm install -g "openclaw@${OPENCLAW_VERSION}" ;; \
       hermes) \
-        install_python_pip \
-        && PIP_BREAK_SYSTEM_PACKAGES=1 npm install -g "hermes-agent@${HERMES_AGENT_VERSION}" \
-        && rm -rf /var/lib/apt/lists/* ;; \
+        npm install -g "hermes-agent@${HERMES_AGENT_VERSION}" ;; \
       aider) \
-        install_python_pip \
-        && pip3 install --break-system-packages aider-chat \
-        && rm -rf /var/lib/apt/lists/* ;; \
+        pip3 install --no-cache-dir aider-chat ;; \
       e2e-echo|loopal|do-agent) true ;; \
       *) echo "unsupported AGENT_RUNTIME=${AGENT_RUNTIME}" >&2; exit 1 ;; \
     esac \
@@ -131,7 +127,18 @@ USER runner
 WORKDIR /app
 ENTRYPOINT ["/usr/local/bin/runner-entrypoint.sh"]
 
-FROM ${RUNTIME_EXTENSION_BASE} AS runtime-extension
+FROM ${RUNTIME_EXTENSION_BASE} AS runtime-extension-base
+
+USER root
+
+FROM runtime-extension-base AS runtime-extension-python
+
+USER root
+COPY --from=python-runtime /usr/local /usr/local
+COPY --from=python-runtime /usr/lib/x86_64-linux-gnu/libsqlite3.so.0.8.6 /usr/lib/x86_64-linux-gnu/
+COPY --from=python-runtime /usr/lib/x86_64-linux-gnu/libsqlite3.so.0 /usr/lib/x86_64-linux-gnu/
+
+FROM ${RUNTIME_EXTENSION_RUNTIME_BASE} AS runtime-extension
 
 USER root
 
@@ -147,18 +154,7 @@ RUN case "${AGENT_RUNTIME}" in \
         && npm install -g --omit=dev "openclaw@${OPENCLAW_VERSION}" \
         && ln -sf /usr/local/lib/node_modules/node/lib/node_modules/openclaw/openclaw.mjs /usr/local/bin/openclaw ;; \
       hermes) \
-        ok=0; \
-        for attempt in 1 2 3 4 5 6 7 8; do \
-          if apt-get update \
-            && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3-pip; then \
-            ok=1; \
-            break; \
-          fi; \
-          sleep 20; \
-        done; \
-        test "$ok" = 1 \
-        && PIP_BREAK_SYSTEM_PACKAGES=1 npm install -g --omit=dev "hermes-agent@${HERMES_AGENT_VERSION}" \
-        && rm -rf /var/lib/apt/lists/* ;; \
+        npm install -g --omit=dev "hermes-agent@${HERMES_AGENT_VERSION}" ;; \
       *) echo "runtime-extension only supports AGENT_RUNTIME=openclaw|hermes" >&2; exit 1 ;; \
     esac \
     && npm cache clean --force \

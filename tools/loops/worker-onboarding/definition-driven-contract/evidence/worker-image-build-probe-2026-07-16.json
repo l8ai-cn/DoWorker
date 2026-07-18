@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-07-16T18:20:18Z",
+  "scope": "Independent audit-tag image rebuild. No Provider credential, Worker, Pod, or running image was changed.",
+  "command": "IMAGE_PREFIX=agentsmesh-worker-audit/runner BASE_IMAGE=agentsmesh-worker-audit/base:latest BUILD_RETRIES=1 ./docker/agent-runtime/build.sh all",
+  "result": "blocked_before_runtime_build",
+  "failed_stage": "shared-base-image-metadata",
+  "failed_image": "node:24-bookworm-slim",
+  "docker_error": "DeadlineExceeded while resolving source metadata from registry-1.docker.io",
+  "network_probe": {
+    "command": "curl --connect-timeout 10 --max-time 20 https://registry-1.docker.io/v2/",
+    "result": "timeout",
+    "http_status": 0
+  },
+  "local_base_probe": {
+    "command": "docker image inspect node:24-bookworm-slim",
+    "result": "not_present"
+  },
+  "worker_runtime_results": {
+    "attempted": [],
+    "not_attempted": [
+      "claude-code",
+      "codex-cli",
+      "cursor-cli",
+      "gemini-cli",
+      "aider",
+      "opencode",
+      "loopal",
+      "do-agent",
+      "grok-build",
+      "minimax-cli",
+      "openclaw",
+      "hermes"
+    ],
+    "reason": "The shared Docker base could not be resolved, so no Worker-specific build started."
+  },
+  "loopal": {
+    "status": "separately_blocked",
+    "reason": "A real LOOPAL_BINARY remains required; mock artifacts are rejected by the staging guard."
+  },
+  "next_action": "Restore Docker registry connectivity or provide the exact audited base image through the approved image supply chain, then rerun the same command."
+}

@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-07-16T15:46:31+08:00",
+  "scope": "local development, WorkerTemplate validation and plan only",
+  "worker_slug": "seedance-expert",
+  "safety_boundary": {
+    "provider_request": false,
+    "provider_credential_read": false,
+    "pod_create_rpc": false,
+    "terminal_data_plane": false
+  },
+  "definition_contract": {
+    "executable": "do-agent",
+    "adapter_id": "do-agent-acp",
+    "interaction_modes": [
+      "pty",
+      "acp"
+    ],
+    "primary_model_protocol_adapters": [
+      "openai-compatible",
+      "anthropic"
+    ],
+    "required_tool_model": {
+      "role": "seedance-video",
+      "provider_key": "doubao",
+      "protocol_adapter": "openai-compatible",
+      "modality": "video",
+      "capability": "video-generation",
+      "environment_targets": [
+        "SEEDANCE_API_KEY",
+        "SEEDANCE_BASE_URL",
+        "SEEDANCE_MODEL"
+      ]
+    }
+  },
+  "runtime": {
+    "image_slug": "do-agent-local",
+    "image_id": 3,
+    "image_reference": "docker-daemon://agentsmesh-codex-loop-blockly-mvp-runner-do-agent:latest@sha256:55976d9ff21970af62034d932eb7be4d797472fe13a30d8b9adfa8458b87a32f",
+    "version_probe": "do-agent 0.2.7",
+    "runner": {
+      "node_id": "dev-runner-do-agent",
+      "status": "online",
+      "tunnel_state": "connected",
+      "last_heartbeat_at": "2026-07-16T07:46:01.430587Z",
+      "available_agents": [
+        "do-agent",
+        "seedance-expert"
+      ],
+      "agent_version": "0.2.7"
+    }
+  },
+  "resource_contract": {
+    "template_chain": "WorkerTemplate.spec.toolRefs[role] -> ToolBinding.spec.modelRef -> ModelBinding.spec.resourceId -> AI model resource",
+    "current_bindings": [
+      "ModelBinding/qa-primary-model -> resourceId 1"
+    ],
+    "current_tool_bindings": [],
+    "current_organization_model_resource": {
+      "provider_key": "openai",
+      "model_id": "gpt-5",
+      "modality": "chat",
+      "capability": "text-generation"
+    },
+    "selection_result": "No selectable resource satisfies doubao + video + video-generation."
+  },
+  "browser": {
+    "worker_template_route": "/dev-org/workers/new",
+    "selected_worker_type": "Seedance Expert",
+    "selected_runtime_image": "DoAgent (local development)",
+    "selected_interaction_mode": "ACP",
+    "selected_primary_model_binding": "qa-primary-model",
+    "template_validation": "passed before plan",
+    "template_plan_before_fix": "/spec: Worker template contains an invalid field.",
+    "template_plan_after_fix": "/spec/toolModelResourceIds/seedance-video: Worker template contains an invalid field.",
+    "credential_route": "/dev-org/settings?scope=organization&tab=ai-resources",
+    "credential_form": {
+      "provider": "Volcengine Doubao",
+      "default_base_url": "https://ark.cn-beijing.volces.com/api/v3",
+      "required_secret_field": "API key",
+      "plaintext_reveal": false
+    },
+    "model_resource_form": {
+      "supports_modality": "video",
+      "supports_capability": "video-generation"
+    },
+    "console_errors": [],
+    "failed_xhr_or_fetch_requests": []
+  },
+  "corrected_defect": {
+    "root_cause": "workerIssuePath rejected the valid hyphenated tool role seedance-video and collapsed its path to /spec.",
+    "code_change": "worker_creation_compiler.go now permits hyphens in identifier path segments.",
+    "regression_test": "TestWorkerCreationCompilerPreservesHyphenatedToolModelRolePath",
+    "test_command": "go test ./internal/service/orchestrationworker -count=1",
+    "test_exit_code": 0
+  },
+  "database_postconditions": {
+    "seedance_pod_count": 0,
+    "orchestration_worker_launch_count": 0,
+    "seedance_template_resource_count": 0
+  },
+  "next_authorized_action": "Configure an organization-scoped Doubao connection with a named non-production API key, create a Seedance video-generation model resource, create its ModelBinding and ToolBinding, then repeat template plan, apply, Worker launch, terminal, and cleanup verification.",
+  "conclusion": "Seedance Expert has a live image and connected Runner through the shared DoAgent runtime, and its required tool-model contract is enforced. It is not supported: the required Doubao video resource and ToolBinding are absent, no provider credential was read, and no Worker or Pod was created."
+}

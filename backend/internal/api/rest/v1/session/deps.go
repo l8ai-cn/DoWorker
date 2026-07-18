@@ -2,7 +2,10 @@ package sessionapi
 
 import (
 	"context"
+	"time"
 
+	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	sessionDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
 	agentservice "github.com/anthropics/agentsmesh/backend/internal/service/agent"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	sessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
@@ -34,6 +37,33 @@ type sessionPodOrchestrator interface {
 		context.Context,
 		*agentpod.OrchestrateCreatePodRequest,
 	) (*agentpod.OrchestrateCreatePodResult, error)
+	DispatchDeferredPod(
+		context.Context,
+		*agentpod.OrchestrateCreatePodRequest,
+		*agentpod.OrchestrateCreatePodResult,
+	) (*agentpod.OrchestrateCreatePodResult, error)
+}
+
+type sessionPodLifecycle interface {
+	TerminatePod(context.Context, string) error
+	TerminatePodDeleteBranch(context.Context, string) error
+}
+
+type sessionDeferredCommitter interface {
+	CommitCreate(
+		context.Context,
+		*sessionDomain.Session,
+		*podDomain.PendingCommand,
+		int,
+		func(*itemsvc.Service) error,
+	) error
+}
+
+type sessionDispatchQueue interface {
+	AllowsDurableCommand(int64) bool
+	MaxPerRunner() int
+	SendPromptTTL() time.Duration
+	TriggerDrain(int64)
 }
 
 type Deps struct {
@@ -50,7 +80,9 @@ type Deps struct {
 	Stream             *SessionStreamPublisher
 	PodOrchestrator    sessionPodOrchestrator
 	Pod                *agentpod.PodService
-	PodCoordinator     *runnerservice.PodCoordinator
+	DeferredCommitter  sessionDeferredCommitter
+	DispatchQueue      sessionDispatchQueue
+	PodCoordinator     sessionPodLifecycle
 	CommandSender      runnerservice.RunnerCommandSender
 	RelayManager       *relayservice.Manager
 	RelayTokens        *relayservice.TokenGenerator

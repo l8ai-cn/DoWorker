@@ -3,13 +3,14 @@
   "worker_slug": "cursor-cli",
   "definition_hash": "sha256:338b2fef7a6fefbb9034268f14ecdf529ed99438a3885a93598e607ae4144c5a",
   "platform": "linux/amd64",
-  "observed_at": "2026-07-12T23:09:26.180Z",
-  "image_reference": "do-worker/runner-cursor-cli:latest",
-  "image_id": "sha256:03668efd62dd082bbaf9f1760cd70fba145c952a71575a12ea4b206fb6db7034",
+  "observed_at": "2026-07-16T16:32:39.682Z",
+  "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-cursor-cli:latest",
+  "image_id": "sha256:1007420cafeca5c81a2c0b396d180a08858f144ed763161ae503b9613bac23fb",
   "probe_command": [
     "agent",
     "--version"
   ],
+  "network": "none",
   "status": "passed",
   "exit_code": 0,
   "output": "2026.07.09-a3815c0"

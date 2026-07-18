@@ -6,8 +6,9 @@ import (
 )
 
 var (
-	ErrExpertNameRequired  = errors.New("expert name is required")
-	ErrExpertAgentRequired = errors.New("agent_slug is required")
+	ErrExpertNameRequired           = errors.New("expert name is required")
+	ErrExpertAgentRequired          = errors.New("agent_slug is required")
+	ErrExpertManagedByResourceApply = errors.New("expert definition changes must go through resource validate-plan-apply")
 )
 
 func validateExpertBasics(agentSlug, name string) error {

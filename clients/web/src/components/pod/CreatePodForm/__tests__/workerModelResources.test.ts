@@ -64,6 +64,41 @@ describe("workerModelResources", () => {
     ]);
   });
 
+  it("uses Definition protocol adapters when they are provided", () => {
+    const providers: ProviderDefinition[] = [
+      { ...geminiProvider, key: "openai", protocolAdapter: "openai-compatible" },
+      { ...geminiProvider, key: "anthropic", protocolAdapter: "anthropic" },
+    ];
+    const resources = providers.map((provider, index) => ({
+      ...geminiResource,
+      connection: {
+        ...geminiResource.connection!,
+        id: index + 1,
+        providerKey: provider.key,
+      },
+      resource: {
+        ...geminiResource.resource!,
+        id: index + 10,
+        providerConnectionId: index + 1,
+      },
+    }));
+    const compatibleForDefinition = compatibleModelResources as unknown as (
+      agentSlug: string,
+      values: EffectiveResource[],
+      definitions: ProviderDefinition[],
+      requirement: { required: boolean; protocolAdapters: string[] },
+    ) => EffectiveResource[];
+
+    expect(
+      compatibleForDefinition(
+        "new-definition-worker",
+        resources,
+        providers,
+        { required: true, protocolAdapters: ["anthropic"] },
+      ),
+    ).toEqual([resources[1]]);
+  });
+
   it.each(["openclaw", "hermes"])("%s only accepts its declared OpenAI-compatible resource", (agentSlug) => {
     const providers: ProviderDefinition[] = [
       { ...geminiProvider, key: "openai", protocolAdapter: "openai-compatible" },
@@ -87,6 +122,35 @@ describe("workerModelResources", () => {
     expect(agentRequiresModelResource(agentSlug)).toBe(true);
     expect(compatibleModelResources(agentSlug, resources, providers)).toEqual([resources[0]]);
   });
+
+  it.each(["do-agent", "seedance-expert"])(
+    "%s excludes MiniMax when its Definition only allows OpenAI-compatible and Anthropic models",
+    (agentSlug) => {
+      const providers: ProviderDefinition[] = [
+        { ...geminiProvider, key: "openai", protocolAdapter: "openai-compatible" },
+        { ...geminiProvider, key: "anthropic", protocolAdapter: "anthropic" },
+        minimaxProvider,
+      ];
+      const resources = providers.map((provider, index) => ({
+        ...geminiResource,
+        connection: {
+          ...geminiResource.connection!,
+          id: index + 1,
+          providerKey: provider.key,
+        },
+        resource: {
+          ...geminiResource.resource!,
+          id: index + 10,
+          providerConnectionId: index + 1,
+        },
+      }));
+
+      expect(compatibleModelResources(agentSlug, resources, providers)).toEqual([
+        resources[0],
+        resources[1],
+      ]);
+    },
+  );
 
   it("allows selectable MiniMax resources for MiniMax CLI", () => {
     const minimaxResource: EffectiveResource = {

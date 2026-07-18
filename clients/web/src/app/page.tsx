@@ -1,43 +1,8 @@
-"use client";
-
-import { useEffect, useMemo } from "react";
-
-import { useRouter } from "next/navigation";
 import { Navbar, FinalCTA, Footer } from "@/components/landing";
+import { HomeSessionRedirect } from "@/components/landing/HomeSessionRedirect";
 import { ExpertHome } from "@/components/landing/expert-home/ExpertHome";
-import { getDefaultRoute } from "@/lib/default-route";
-import { useLightSession } from "@/hooks/useLightSession";
 
 export default function Home() {
-  const router = useRouter();
-  const { session, hydrated } = useLightSession();
-
-  const shouldRedirect = useMemo(() => {
-    if (!hydrated) return false;
-    if (!session?.isAuthenticated || !session.currentOrgSlug) return false;
-
-    if (typeof window !== "undefined") {
-      const referrer = document.referrer;
-      const isInternalNavigation = referrer && new URL(referrer).origin === window.location.origin;
-      return !isInternalNavigation;
-    }
-    return false;
-  }, [hydrated, session]);
-
-  useEffect(() => {
-    if (shouldRedirect && session?.currentOrgSlug) {
-      router.replace(getDefaultRoute(session.currentOrgSlug));
-    }
-  }, [shouldRedirect, session, router]);
-
-  if (!hydrated || shouldRedirect) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
@@ -45,7 +10,7 @@ export default function Home() {
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web, Linux, macOS, Windows",
     description:
-      "Do Worker builds, governs, distributes, and operates reusable Agents for enterprise teams, OPC founders, and higher-education digital employee programs.",
+      "Do Worker builds, governs, distributes, and operates reusable Agents for enterprise teams, OPC founders, and higher-education digital employee pilots.",
     alternateName: ["AgentMesh", "Agents Mesh"],
     url: "https://agentsmesh.ai",
     keywords:
@@ -65,6 +30,7 @@ export default function Home() {
 
   return (
     <div className="azure-theme expert-home min-h-screen bg-[var(--expert-bg)]">
+      <HomeSessionRedirect />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

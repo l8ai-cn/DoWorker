@@ -1,0 +1,10 @@
+{
+  "worker_slug": "gemini-cli",
+  "adapter_id": "gemini-acp",
+  "command": ["gemini", "--experimental-acp"],
+  "version": "0.50.0",
+  "acp_initialize": "passed",
+  "auth_methods": ["oauth-personal", "gemini-api-key", "vertex-ai", "gateway"],
+  "acp_session_new": "failed",
+  "failure": "Gemini API key is missing or not configured."
+}

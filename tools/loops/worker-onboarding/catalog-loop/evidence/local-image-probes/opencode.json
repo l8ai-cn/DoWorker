@@ -3,14 +3,15 @@
   "worker_slug": "opencode",
   "definition_hash": "sha256:734be0fcd980d77c644cbcec4c3add77882c62f80b0c2efba4037ae7253406f6",
   "platform": "linux/amd64",
-  "observed_at": "2026-07-12T23:09:34.802Z",
-  "image_reference": "do-worker/runner-opencode:latest",
-  "image_id": "sha256:a1fcd74b5ec43505bac73e836a48407b0076777c99995997444a406b1a366837",
+  "observed_at": "2026-07-16T16:32:52.220Z",
+  "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-opencode:latest",
+  "image_id": "sha256:43867120a535a7fab891413dcfc1d79b0e2b35b3d862261040021e58793f7969",
   "probe_command": [
     "opencode",
     "--version"
   ],
+  "network": "none",
   "status": "passed",
   "exit_code": 0,
-  "output": "1.17.18"
+  "output": "1.18.2"
 }

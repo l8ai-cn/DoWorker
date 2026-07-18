@@ -48,7 +48,14 @@ func (repo *aiResourceRepo) SaveConnection(ctx context.Context, connection *aire
 	err := repo.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		row := connectionRow(connection)
 		result := tx.Model(&providerConnectionRow{}).
-			Where("id = ? AND revision = ? AND owner_scope = ? AND owner_id = ?", connection.ID, connection.Revision, connection.OwnerScope, connection.OwnerID).
+			Where(
+				"id = ? AND revision = ? AND updated_at = ? AND owner_scope = ? AND owner_id = ?",
+				connection.ID,
+				connection.Revision,
+				connection.UpdatedAt,
+				connection.OwnerScope,
+				connection.OwnerID,
+			).
 			Updates(map[string]any{
 				"identifier": row.Identifier, "provider_key": row.ProviderKey, "name": row.Name,
 				"base_url": row.BaseURL, "credentials_encrypted": row.CredentialsEncrypted,
@@ -87,7 +94,7 @@ func (repo *aiResourceRepo) SaveConnection(ctx context.Context, connection *aire
 	return nil
 }
 
-func (repo *aiResourceRepo) DeleteConnection(ctx context.Context, id, expectedRevision int64) error {
+func (repo *aiResourceRepo) DeleteConnection(ctx context.Context, id, expectedRevision int64, expectedUpdatedAt time.Time) error {
 	return repo.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		resourceIDs := tx.Model(&modelResourceRow{}).
 			Select("id").Where("provider_connection_id = ?", id)
@@ -106,7 +113,12 @@ func (repo *aiResourceRepo) DeleteConnection(ctx context.Context, id, expectedRe
 		if err := tx.Where("provider_connection_id = ?", id).Delete(&modelResourceRow{}).Error; err != nil {
 			return err
 		}
-		result := tx.Where("id = ? AND revision = ?", id, expectedRevision).Delete(&providerConnectionRow{})
+		result := tx.Where(
+			"id = ? AND revision = ? AND updated_at = ?",
+			id,
+			expectedRevision,
+			expectedUpdatedAt,
+		).Delete(&providerConnectionRow{})
 		if result.Error != nil {
 			return result.Error
 		}

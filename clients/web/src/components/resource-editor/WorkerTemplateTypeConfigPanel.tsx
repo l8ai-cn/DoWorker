@@ -1,18 +1,23 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { AlertMessage } from "@/components/ui/alert-message";
 import { FormField, FormFieldGroup } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
-import { ResourceReferenceMapField } from "./ResourceReferenceMapField";
+import type { WorkerCredentialRequirement } from "@/lib/api/facade/podConnect";
+import { WorkerTemplateCredentialBundleBindingsField } from "./WorkerTemplateCredentialBundleBindingsField";
 import { WorkerTemplateValuesField } from "./WorkerTemplateValuesField";
 import type { WorkerTemplatePanelProps } from "./worker-template-panel-props";
 
 export function WorkerTemplateTypeConfigPanel({
   draft,
   catalog,
+  credentialRequirements,
+  requiredCredentialFields,
   onChange,
-}: WorkerTemplatePanelProps) {
+}: WorkerTemplatePanelProps & {
+  credentialRequirements: WorkerCredentialRequirement[];
+  requiredCredentialFields: Set<string>;
+}) {
   const t = useTranslations("resourceEditor");
   const typeConfig = draft.spec.typeConfig;
   const update = (patch: Partial<typeof typeConfig>) => {
@@ -48,15 +53,9 @@ export function WorkerTemplateTypeConfigPanel({
         value={typeConfig.values}
         onChange={(values) => update({ values })}
       />
-      <AlertMessage
-        type="info"
-        message={t("secrets.referenceOnly")}
-      />
-      <ResourceReferenceMapField
-        id="secret-reference"
-        label={t("fields.secretRefs")}
-        keyLabel={t("fields.configKey")}
-        kind="EnvironmentBundle"
+      <WorkerTemplateCredentialBundleBindingsField
+        requirements={credentialRequirements}
+        requiredFields={requiredCredentialFields}
         value={typeConfig.secretRefs}
         catalog={catalog}
         onChange={(secretRefs) => update({ secretRefs })}

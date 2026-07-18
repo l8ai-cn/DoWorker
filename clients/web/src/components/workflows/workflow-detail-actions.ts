@@ -5,9 +5,8 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useWorkflowStore } from "@/stores/workflow";
-import { useConfirmDialog } from "@/components/ui/confirm-dialog";
 
-export function useWorkflowDetailActions(slug: string, orgSlug: string, embedded?: boolean) {
+export function useWorkflowDetailActions(slug: string, orgSlug: string) {
   const t = useTranslations();
   const router = useRouter();
 
@@ -15,17 +14,10 @@ export function useWorkflowDetailActions(slug: string, orgSlug: string, embedded
   const cancelRun = useWorkflowStore((s) => s.cancelRun);
   const enableWorkflow = useWorkflowStore((s) => s.enableWorkflow);
   const disableWorkflow = useWorkflowStore((s) => s.disableWorkflow);
-  const deleteWorkflow = useWorkflowStore((s) => s.deleteWorkflow);
   const loadMoreRuns = useWorkflowStore((s) => s.loadMoreRuns);
 
-  const [editOpen, setEditOpen] = useState(false);
+  const [revisionOpen, setRevisionOpen] = useState(false);
   const [triggering, setTriggering] = useState(false);
-
-  const deleteDialog = useConfirmDialog({
-    title: t("workflows.deleteConfirm"),
-    confirmText: t("common.delete"),
-    variant: "destructive",
-  });
 
   const handleTrigger = useCallback(async () => {
     setTriggering(true);
@@ -79,33 +71,15 @@ export function useWorkflowDetailActions(slug: string, orgSlug: string, embedded
     }
   }, [slug, disableWorkflow, t]);
 
-  const handleDelete = useCallback(async () => {
-    const confirmed = await deleteDialog.confirm();
-    if (!confirmed) return;
-    try {
-      await deleteWorkflow(slug);
-      toast.success(t("workflows.deleted"));
-      if (!embedded) router.push(`/${orgSlug}/workflows`);
-    } catch (err) {
-      const message = (err as Error).message;
-      const isActiveRunsError = message.includes("active runs");
-      toast.error(t("workflows.deleteFailed"), {
-        description: isActiveRunsError ? t("workflows.deleteHasActiveRuns") : message,
-      });
-    }
-  }, [slug, deleteWorkflow, deleteDialog, router, orgSlug, t, embedded]);
-
   return {
-    editOpen,
-    setEditOpen,
+    revisionOpen,
+    setRevisionOpen,
     triggering,
-    deleteDialog,
     handleTrigger,
     handleLoadMore,
     handleCancelRun,
     handleOpenRun,
     handleEnable,
     handleDisable,
-    handleDelete,
   };
 }

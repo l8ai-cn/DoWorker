@@ -80,6 +80,9 @@ func (s *Service) Update(ctx context.Context, req *UpdateExpertRequest) (*expert
 	if err != nil {
 		return nil, err
 	}
+	if row.IsResourceManaged() {
+		return nil, ErrExpertManagedByResourceApply
+	}
 	if req.Name != nil {
 		name := strings.TrimSpace(*req.Name)
 		if name == "" {

@@ -17,11 +17,16 @@ type TicketService interface {
 	CreateTicket(ctx context.Context, req *ticketSvc.CreateTicketRequest) (*ticketDomain.Ticket, error)
 	GetTicket(ctx context.Context, ticketID int64) (*ticketDomain.Ticket, error)
 	UpdateStatus(ctx context.Context, ticketID int64, status string) error
+	DeleteTicket(ctx context.Context, ticketID int64) error
 }
 
 // PodDispatcher is satisfied by *agentpod.PodOrchestrator.
 type PodDispatcher interface {
 	CreatePod(ctx context.Context, req *agentpodSvc.OrchestrateCreatePodRequest) (*agentpodSvc.OrchestrateCreatePodResult, error)
+}
+
+type PodTerminator interface {
+	TerminatePod(ctx context.Context, podKey string) error
 }
 
 type RepoResolver interface {
@@ -42,6 +47,7 @@ type Service struct {
 	store         coordinatordom.Repository
 	tickets       TicketService
 	dispatch      PodDispatcher
+	podTerminator PodTerminator
 	platform      PlatformFactory
 	runnerEnsurer *RunnerEnsurer
 	logger        *slog.Logger
@@ -51,6 +57,7 @@ type Deps struct {
 	Store         coordinatordom.Repository
 	Tickets       TicketService
 	Dispatch      PodDispatcher
+	PodTerminator PodTerminator
 	Platform      PlatformFactory
 	RunnerEnsurer *RunnerEnsurer
 	Logger        *slog.Logger
@@ -65,6 +72,7 @@ func NewService(deps Deps) *Service {
 		store:         deps.Store,
 		tickets:       deps.Tickets,
 		dispatch:      deps.Dispatch,
+		podTerminator: deps.PodTerminator,
 		platform:      deps.Platform,
 		runnerEnsurer: deps.RunnerEnsurer,
 		logger:        logger.With("component", "coordinator"),

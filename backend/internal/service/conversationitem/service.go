@@ -53,6 +53,12 @@ func (s *Service) Append(ctx context.Context, row *domain.Item) error {
 	return s.db.WithContext(ctx).Create(row).Error
 }
 
+func (s *Service) DeleteBySession(ctx context.Context, sessionID string) error {
+	return s.db.WithContext(ctx).
+		Where("session_id = ?", sessionID).
+		Delete(&domain.Item{}).Error
+}
+
 type Page struct {
 	Items   []domain.Item
 	HasMore bool

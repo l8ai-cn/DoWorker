@@ -78,3 +78,6 @@ Browser verification must cover:
 - Existing runtime builders are unreachable from the new resource paths.
 - Migration rehearsal, API/Rust/Web bindings, user docs, and browser evidence
   pass before the feature is called complete.
+
+The remaining non-domain entry points are specified in
+`2026-07-16-resource-native-phase-4b-execution-cutover.md`.

@@ -2,10 +2,8 @@ package orchestrationcontrol
 
 import (
 	"context"
-	"fmt"
 
 	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	resource "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
 )
 
 func (service *Service) GetResource(
@@ -37,13 +35,21 @@ func (service *Service) ListResources(
 	scope control.Scope,
 	filter ResourceListFilter,
 ) (ResourceListPage, error) {
-	if service == nil || service.repository == nil || service.authorizer == nil {
+	if service == nil || service.repository == nil || service.authorizer == nil ||
+		service.workerDefinitions == nil {
 		return ResourceListPage{}, ErrUnavailable
 	}
-	if err := validateResourceListFilter(scope, filter); err != nil {
+	if err := filter.Validate(scope); err != nil {
 		return ResourceListPage{}, err
 	}
 	if err := service.authorizer.AuthorizeList(ctx, scope); err != nil {
+		return ResourceListPage{}, err
+	}
+	filter, err := service.applyWorkerDefinitionPolicy(filter)
+	if err != nil {
+		return ResourceListPage{}, err
+	}
+	if err := filter.Validate(scope); err != nil {
 		return ResourceListPage{}, err
 	}
 	page, err := service.repository.ListResources(ctx, scope, filter)
@@ -54,8 +60,9 @@ func (service *Service) ListResources(
 		return ResourceListPage{}, control.ErrCorrupt
 	}
 	result := ResourceListPage{
-		Items: append([]control.ResourceHead{}, page.Items...),
-		Total: page.Total,
+		Items:         append([]control.ResourceHead{}, page.Items...),
+		Total:         page.Total,
+		AppliedFilter: filter,
 	}
 	for _, head := range result.Items {
 		if err := head.Validate(scope); err != nil ||
@@ -101,27 +108,6 @@ func validateQueriedResource(
 	if err := head.Validate(scope); err != nil ||
 		head.Identity.ResourceTarget != target {
 		return control.ErrCorrupt
-	}
-	return nil
-}
-
-func validateResourceListFilter(
-	scope control.Scope,
-	filter ResourceListFilter,
-) error {
-	if err := scope.Validate(); err != nil {
-		return err
-	}
-	if filter.Limit <= 0 || filter.Limit > 100 || filter.Offset < 0 {
-		return fmt.Errorf("%w: invalid resource list pagination", control.ErrInvalid)
-	}
-	if filter.Kind != "" {
-		if err := (resource.TypeMeta{
-			APIVersion: resource.APIVersionV1Alpha1,
-			Kind:       filter.Kind,
-		}).Validate(); err != nil {
-			return fmt.Errorf("%w: invalid resource list kind", control.ErrInvalid)
-		}
 	}
 	return nil
 }

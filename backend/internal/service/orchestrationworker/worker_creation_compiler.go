@@ -130,8 +130,15 @@ func workerPlanIssue(
 		Severity: severity,
 		Path:     workerIssuePath(source.Field),
 		Code:     code,
-		Message:  message,
+		Message:  workerIssueMessage(source.Field, message),
 	}
+}
+
+func workerIssueMessage(field, fallback string) string {
+	if field == "worker_spec.model_resource_id" {
+		return "The selected model is incompatible with this Worker type."
+	}
+	return fallback
 }
 
 func workerIssuePath(field string) string {
@@ -155,7 +162,7 @@ func workerIssuePath(field string) string {
 
 func isWorkerIssuePathSegment(value string) bool {
 	for _, char := range value {
-		if char != '_' && (char < 'a' || char > 'z') &&
+		if char != '_' && char != '-' && (char < 'a' || char > 'z') &&
 			(char < '0' || char > '9') {
 			return false
 		}

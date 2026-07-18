@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "worker_slug": "do-agent",
+  "adapter_id": "do-agent-acp",
+  "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-do-agent:latest",
+  "image_digest": "sha256:b652fdfcb27a7cb08c9c030b5e433d513ad903d2a13019905e4e50633f43778b",
+  "upstream_version": "0.2.7",
+  "probe_command": "do-agent --version",
+  "probe_evidence": "evidence/tests/runner-runtime.txt",
+  "adapter_source_path": "runner/internal/agents/doagent/transport.go"
+}

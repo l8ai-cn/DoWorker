@@ -12,6 +12,7 @@ const (
 	ValidateResourceProcedure         = "/" + serviceName + "/ValidateResource"
 	PlanResourceProcedure             = "/" + serviceName + "/PlanResource"
 	GetResourceProcedure              = "/" + serviceName + "/GetResource"
+	GetResourceCapabilitiesProcedure  = "/" + serviceName + "/GetResourceCapabilities"
 	ListResourcesProcedure            = "/" + serviceName + "/ListResources"
 	ExportResourceProcedure           = "/" + serviceName + "/ExportResource"
 	GetResourcePlanProcedure          = "/" + serviceName + "/GetResourcePlan"
@@ -42,6 +43,11 @@ func Mount(mux *http.ServeMux, server *Server, options ...connect.HandlerOption)
 	mux.Handle(GetResourceProcedure, connect.NewUnaryHandler(
 		GetResourceProcedure,
 		server.GetResource,
+		options...,
+	))
+	mux.Handle(GetResourceCapabilitiesProcedure, connect.NewUnaryHandler(
+		GetResourceCapabilitiesProcedure,
+		server.GetResourceCapabilities,
 		options...,
 	))
 	mux.Handle(ListResourcesProcedure, connect.NewUnaryHandler(

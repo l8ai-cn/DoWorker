@@ -38,6 +38,10 @@ async fn orchestration_resource_service_rejects_invalid_binary_requests_without_
     assert!(service.validate_resource_connect(&[0xff]).await.is_err());
     assert!(service.plan_resource_connect(&[0xff]).await.is_err());
     assert!(service.get_resource_connect(&[0xff]).await.is_err());
+    assert!(service
+        .get_resource_capabilities_connect(&[0xff])
+        .await
+        .is_err());
     assert!(service.list_resources_connect(&[0xff]).await.is_err());
     assert!(service.export_resource_connect(&[0xff]).await.is_err());
     assert!(service.get_resource_plan_connect(&[0xff]).await.is_err());
@@ -117,15 +121,19 @@ async fn orchestration_resource_service_returns_decodable_binary_responses() {
 
     let list_request = resource::ListResourcesRequest {
         org_slug: "acme".into(),
-        kind: Some("Widget".into()),
+        kind: Some("EnvironmentBundle".into()),
         offset: Some(0),
         limit: Some(10),
+        environment_bundle_filter: Some(environment_bundle_filter()),
+        model_binding_filter: None,
     };
     let list_response = resource::ListResourcesResponse {
         items: vec![sample_resource()],
         total: 1,
         limit: 10,
         offset: 0,
+        applied_environment_bundle_filter: Some(environment_bundle_filter()),
+        applied_model_binding_filter: None,
     };
     mount(
         &server,
@@ -241,12 +249,21 @@ async fn orchestration_resource_service_returns_decodable_binary_responses() {
         .list_resources_connect(&list_request.encode_to_vec())
         .await
         .unwrap();
+    let list_response = resource::ListResourcesResponse::decode(&*list_bytes).unwrap();
+    assert_eq!(list_response.items[0].display_name, "Widget One");
     assert_eq!(
-        resource::ListResourcesResponse::decode(&*list_bytes)
-            .unwrap()
-            .items[0]
-            .display_name,
-        "Widget One"
+        list_response
+            .applied_environment_bundle_filter
+            .as_ref()
+            .map(|filter| filter.worker_type.as_str()),
+        Some("do-agent")
+    );
+    assert_eq!(
+        list_response
+            .applied_environment_bundle_filter
+            .as_ref()
+            .map(|filter| filter.target_name.as_str()),
+        Some("DO_API_KEY")
     );
 
     let export_bytes = service
@@ -308,6 +325,14 @@ async fn mount(server: &MockServer, procedure: &'static str, request: Vec<u8>, r
         .respond_with(ResponseTemplate::new(200).set_body_bytes(response))
         .mount(server)
         .await;
+}
+
+fn environment_bundle_filter() -> resource::EnvironmentBundleReferenceFilter {
+    resource::EnvironmentBundleReferenceFilter {
+        purpose: resource::EnvironmentBundlePurpose::Credential as i32,
+        worker_type: "do-agent".into(),
+        target_name: "DO_API_KEY".into(),
+    }
 }
 
 fn sample_source() -> resource::ResourceSource {

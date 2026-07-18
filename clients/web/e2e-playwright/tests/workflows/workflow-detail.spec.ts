@@ -1,48 +1,41 @@
-// Migrated R5+: Connect-RPC only (no REST middle layer).
 import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
+import {
+  ensureResourceWorkflowFixture,
+  resetResourceWorkflowFixture,
+} from "../../helpers/resource-workflow-fixture";
+
 test.describe("Workflow Detail Page", () => {
-  test.beforeEach(async () => { clearAuthRateLimit(); });
-
-  let createdSlug: string | null = null;
-
-  test.afterEach(async ({ api }) => {
-    if (createdSlug) {
-      const cc = await api.connect();
-      await cc.workflow.deleteWorkflow({ orgSlug: TEST_ORG_SLUG, workflowSlug: createdSlug }).catch(() => null);
-      createdSlug = null;
-    }
+  test.beforeEach(async ({ db }) => {
+    clearAuthRateLimit();
+    ensureResourceWorkflowFixture(db);
+    resetResourceWorkflowFixture(db);
   });
 
-  test("API: get workflow detail returns entity", async ({ api }) => {
+  test("API: get workflow detail returns entity", async ({ api, db }) => {
     const cc = await api.connect();
-    const created = await cc.workflow.createWorkflow({
+    const fixture = ensureResourceWorkflowFixture(db);
+    const workflow = await cc.workflow.getWorkflow({
       orgSlug: TEST_ORG_SLUG,
-      name: `E2E Workflow Detail ${Date.now()}`,
-      slug: `e2e-workflow-detail-${Date.now()}`,
-      agentSlug: "claude-code",
-      cronExpression: "0 * * * *",
-      promptTemplate: "echo test",
-    }) as { slug: string };
-    createdSlug = created.slug;
+      workflowSlug: fixture.slug,
+    }) as { agentSlug: string; slug: string };
 
-    const workflow = await cc.workflow.getWorkflow({ orgSlug: TEST_ORG_SLUG, workflowSlug: createdSlug }) as { slug: string };
-    expect(workflow.slug).toBe(createdSlug);
+    expect(workflow.slug).toBe(fixture.slug);
+    expect(workflow.agentSlug).toBe("resource-native");
   });
 
-  test("UI: workflow detail page renders without errors", async ({ page, api }) => {
-    const cc = await api.connect();
-    const created = await cc.workflow.createWorkflow({
-      orgSlug: TEST_ORG_SLUG,
-      name: `E2E Workflow UI ${Date.now()}`,
-      slug: `e2e-workflow-ui-${Date.now()}`,
-      agentSlug: "claude-code",
-      cronExpression: "0 * * * *",
-      promptTemplate: "echo test",
-    }) as { slug: string };
-    createdSlug = created.slug;
-    await page.goto(`/${TEST_ORG_SLUG}/workflows/${createdSlug}`);
-    await page.waitForLoadState("load");
+  test("UI: workflow detail page renders resource-managed entity", async ({
+    page,
+    db,
+  }) => {
+    const fixture = ensureResourceWorkflowFixture(db);
+    await page.goto(`/${TEST_ORG_SLUG}/workflows/${fixture.slug}`);
+
+    await expect(page.getByRole("heading", {
+      level: 1,
+      name: fixture.name,
+    })).toBeVisible();
+    await expect(page.getByText("resource-native")).toBeVisible();
   });
 });

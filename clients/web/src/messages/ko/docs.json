@@ -906,8 +906,8 @@
           "descriptionHeader": "Description",
           "paramsHeader": "Parameters",
           "createPod": "create_pod",
-          "createPodDesc": "Create a new AgentPod",
-          "createPodParams": "agent_slug (required), runner_id?, ticket_slug?, prompt?, model?, automation_level?",
+          "createPodDesc": "검증된 Worker Plan으로 Worker 생성",
+          "createPodParams": "plan_id (필수)",
           "description": "Pod 생성, 관찰 및 제어를 위한 도구. 관찰 및 입력 도구는 적절한 범위의 활성 바인딩이 필요합니다.",
           "getPodSnapshot": "get_pod_snapshot",
           "getPodSnapshotDesc": "다른 Pod의 터미널 출력 스냅샷 가져오기 (pod:read 필요)",
@@ -1165,18 +1165,18 @@
       },
       "pods": {
         "title": "Pods API",
-        "description": "프로그래밍 방식으로 AgentPod를 관리합니다. REST API를 통해 Pod를 생성, 목록 조회, 종료할 수 있습니다.",
+        "description": "REST API로 Pod를 조회하고 소스 계보에서 재개하며 종료합니다. 새 Worker는 리소스 네이티브 Validate, Plan, Apply를 사용합니다.",
         "endpoints": {
           "title": "엔드포인트",
           "list": "모든 Pod 목록 조회",
           "get": "키로 Pod 상세 조회",
-          "create": "새 Pod 생성",
+          "create": "소스 계보에서 Pod 재개",
           "terminate": "Pod 종료"
         },
         "examples": {
           "title": "코드 예제",
           "listPods": "실행 중인 모든 Pod 목록 조회",
-          "createPod": "새 Pod 생성"
+          "createPod": "Pod 재개"
         },
         "details": {
           "title": "엔드포인트 상세",
@@ -1198,25 +1198,15 @@
           },
           "createPod": {
             "title": "POST /pods",
-            "description": "지정된 Runner에 새 AgentPod를 생성합니다. Pod는 주어진 구성으로 초기화되어 실행을 시작합니다.",
+            "description": "기존 Pod의 변경 불가능한 소스 계보에서 Worker를 재개합니다. 새 Worker 생성과 런타임 재정의는 거부됩니다.",
             "fields": {
-              "runner_id": "Pod를 생성할 Runner ID",
-              "agent_slug": "에이전트 타입 식별자 (예: claude-code, aider)",
-              "prompt": "에이전트에 대한 초기 프롬프트 또는 태스크",
-              "repository_id": "Pod에 연결할 저장소",
-              "branch": "작업할 Git 브랜치",
-              "ticket_slug": "연결할 티켓 식별자 (예: AM-123)",
-              "channel_id": "Pod에 연결할 채널",
-              "sandbox_type": "샌드박스 유형: worktree 또는 tempdir",
-              "environment_variables": "환경 변수의 키-값 쌍",
-              "custom_agent_command": "에이전트를 실행할 사용자 정의 명령어",
-              "custom_agent_args": "사용자 정의 에이전트 명령어의 인수",
-              "custom_mcp_config": "사용자 정의 MCP 서버 구성 (JSON)",
-              "auto_close": "태스크 완료 후 Pod를 자동 종료할지 여부",
-              "auto_close_delay_seconds": "자동 종료 전 지연 시간 (초)",
-              "pod_timeout_minutes": "Pod의 최대 수명 (분)",
-              "max_turns": "에이전트의 최대 턴 수",
-              "automation_level": "통합 자동화 티어: interactive, auto_edit 또는 autonomous(기본값). 서버에서 각 에이전트 고유 권한 설정으로 매핑됩니다."
+              "source_pod_key": "실행 계보를 소유한 필수 소스 Pod 키",
+              "resume_agent_session": "지원되는 경우 소스 에이전트 세션 재개",
+              "cols": "터미널 열 수",
+              "rows": "터미널 행 수",
+              "queue_if_offline": "사용 가능한 Runner가 없을 때 재개 요청 대기",
+              "queue_ttl_minutes": "대기 최대 시간(분), 기본값 30",
+              "ticket_slug": "재개된 Pod에 연결할 선택적 티켓 식별자"
             }
           },
           "terminatePod": {
@@ -1478,14 +1468,11 @@
       },
       "workflows": {
         "title": "Workflows API",
-        "description": "자동화된 Workflow 작업과 실행을 관리합니다. REST API를 통해 Workflow 생성, 트리거 구��, 실행 모니터링을 수행합니다.",
+        "description": "리소스로 관리되는 Workflow를 REST로 조회하고 실행 작업을 수행합니다. 선언 생성과 리비전은 리소스 편집기 또는 오케스트레이션 validate-plan-apply API를 사용합니다.",
         "endpoints": {
           "title": "Endpoints",
           "list": "List all workflows",
-          "create": "Create a new workflow",
           "get": "Get workflow by slug",
-          "update": "Update a workflow",
-          "delete": "Delete a workflow",
           "enable": "Enable a workflow",
           "disable": "Disable a workflow",
           "trigger": "Manually trigger a run",
@@ -1495,7 +1482,6 @@
         },
         "examples": {
           "title": "Code Examples",
-          "createWorkflow": "Create a scheduled workflow",
           "triggerRun": "Trigger a run with variables"
         },
         "details": {
@@ -1504,49 +1490,11 @@
             "title": "GET /workflows",
             "description": "Retrieve all workflows in the organization. Returns workflows sorted by creation date."
           },
-          "createWorkflow": {
-            "title": "POST /workflows",
-            "description": "Create a new workflow with the specified configuration.",
-            "fields": {
-              "name": "Workflow name (required, 1-255 characters)",
-              "description": "Optional description",
-              "agent_slug": "Built-in agent slug to use",
-              "custom_agent_slug": "Custom agent slug (alternative to agent_slug)",
-              "prompt_template": "Task prompt with {{variable}} placeholders (required)",
-              "prompt_variables": "Default values for prompt variables (JSON object)",
-              "repository_id": "Repository to clone into the sandbox",
-              "runner_id": "Preferred runner for execution",
-              "branch_name": "Git branch to check out",
-              "execution_mode": "autopilot or direct (default: autopilot)",
-              "cron_expression": "Cron schedule (e.g., '0 9 * * *'). If set, workflow triggers on schedule",
-              "sandbox_strategy": "persistent or fresh (default: persistent)",
-              "session_persistence": "Keep agent session across runs (default: true)",
-              "concurrency_policy": "skip, queue, or replace (default: skip)",
-              "max_concurrent_runs": "Maximum concurrent runs (default: 1)",
-              "timeout_minutes": "Run timeout in minutes (default: 60)",
-              "callback_url": "Webhook URL for run completion notifications",
-              "autopilot_config": "Autopilot parameters (max_iterations, iteration_timeout_sec)"
-            }
-          },
           "getWorkflow": {
             "title": "GET /workflows/:slug",
             "description": "Retrieve detailed information about a specific workflow by its slug.",
             "params": {
               "slug": "Workflow slug (auto-generated from name)"
-            }
-          },
-          "updateWorkflow": {
-            "title": "PUT /workflows/:slug",
-            "description": "Update an existing workflow. All fields are optional — only provided fields will be updated.",
-            "params": {
-              "slug": "Workflow slug"
-            }
-          },
-          "deleteWorkflow": {
-            "title": "DELETE /workflows/:slug",
-            "description": "Permanently delete a workflow and all its run history. This action cannot be undone.",
-            "params": {
-              "slug": "Workflow slug"
             }
           },
           "enableWorkflow": {
@@ -2093,7 +2041,7 @@
       "workflows": {
         "title": "튜토리얼: Workflow으로 자동화하기",
         "difficulty": "중급 — 10분",
-        "description": "스케줄에 따라 Pod를 생성하는 자동화 Workflow를 설정하는 방법을 알아보세요. Workflow는 코드 리뷰, 의존성 업데이트, 테스트 실행, 모니터링과 같은 반복 작업에 완벽합니다.",
+        "description": "불변 WorkerSpec snapshot에서 실행되는 자동화 Workflow를 리소스로 선언하고 검토한 뒤 Apply하는 방법을 알아보세요.",
         "whatAreWorkflows": {
           "title": "Workflow이란?",
           "description": "Workflow는 사전 정의된 설정으로 주기적으로 AgentPod를 생성하는 예약 자동화입니다. AI 에이전트용 cron 작업이라고 생각하면 됩니다 — 스케줄에 따라 프롬프트를 실행하며, 매번 새로운 Pod를 생성합니다.",
@@ -2108,15 +2056,15 @@
         },
         "step2": {
           "title": "새 Workflow 생성",
-          "description": "새 Workflow를 클릭하고 자동화를 설정하세요:",
-          "fields": "Workflow 설정을 입력하세요:",
-          "field1": "이름 — 설명적인 이름. 예: \"일일 코드 리뷰\"",
-          "field2": "에이전트 — 사용할 AI 에이전트 (예: Claude Code)",
-          "field3": "Runner — Workflow를 실행할 Runner",
-          "field4": "리포지토리 — 에이전트가 작업할 리포지토리",
-          "field5": "브랜치 — 체크아웃할 브랜치 (기본값은 main)",
-          "field6": "프롬프트 — 에이전트에게 줄 작업. 예: \"최근 커밋의 코드 품질 이슈를 검토하세요. 보안 취약점, 성능 문제, 스타일 불일치를 확인하세요. 채널에 요약을 게시하세요.\"",
-          "field7": "스케줄 — cron 스케줄 설정 (예: 매일 오전 9시, 매주 월요일)"
+          "description": "새 Workflow를 클릭해 리소스 편집기를 여세요:",
+          "fields": "Workflow 리소스 정의를 입력하세요:",
+          "field1": "리소스 이름 — 안정적인 식별자. 예: \"daily-code-review\"",
+          "field2": "WorkerTemplate — 실행할 버전 관리 Worker 구성",
+          "field3": "Prompt — 각 실행에 사용할 버전 관리 작업 템플릿",
+          "field4": "입력 — Prompt 변수의 선택적 값",
+          "field5": "실행 — 모드, 샌드박스 전략, 세션 유지",
+          "field6": "스케줄 — cron 스케줄 설정",
+          "field7": "검토 — Validate, 의미 Plan 검토, revision Apply"
         },
         "step3": {
           "title": "스케줄 설정",
@@ -2138,11 +2086,11 @@
         "step5": {
           "title": "Workflow 관리",
           "description": "Workflow 대시보드에서 Workflow를 관리할 수 있습니다:",
-          "item1": "일시 중지 — Workflow를 삭제하지 않고 새 Pod 생성을 일시적으로 중지",
-          "item2": "재개 — 일시 중지된 Workflow를 다시 시작",
-          "item3": "편집 — 프롬프트, 스케줄 또는 설정을 업데이트",
+          "item1": "비활성화 — 정의를 바꾸지 않고 새 예약 실행 중지",
+          "item2": "활성화 — 비활성화된 Workflow의 트리거 재개",
+          "item3": "새 Revision — 리소스를 편집하고 Validate, Plan, Apply",
           "item4": "지금 실행 — 다음 스케줄을 기다리지 않고 즉시 실행 트리거",
-          "item5": "삭제 — Workflow를 영구적으로 제거"
+          "item5": "기록 — 고정된 revision, snapshot, Prompt, Pod, 결과 확인"
         },
         "commonPatterns": {
           "title": "일반적인 Workflow 패턴",

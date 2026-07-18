@@ -24,7 +24,7 @@ CERTS_DIR="${CONFIG_DIR}/certs"
 CONFIG_FILE="${CONFIG_DIR}/config.yaml"
 
 case "${AGENT_RUNTIME}" in
-    claude-code|codex-cli|gemini-cli|minimax-cli|e2e-echo|loopal|do-agent|aider|opencode|grok-build|openclaw|hermes) ;;
+    claude-code|codex-cli|cursor-cli|gemini-cli|minimax-cli|e2e-echo|loopal|do-agent|aider|opencode|grok-build|openclaw|hermes) ;;
     *)
         echo "✗ Unsupported AGENT_RUNTIME=${AGENT_RUNTIME}" >&2
         exit 1
@@ -242,7 +242,7 @@ main() {
     init_runner_ssh
     init_ai_cli_configs
     create_config
-    echo "启动 Runner (bazel-built binary)..."
+    echo "启动 Runner..."
     exec /usr/local/bin/do-worker-runner run --config "$CONFIG_FILE"
 }
 main "$@"

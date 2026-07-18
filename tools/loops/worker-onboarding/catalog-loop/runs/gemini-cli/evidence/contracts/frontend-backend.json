@@ -1,0 +1,16 @@
+{
+  "definition_hash": "sha256:deed6b7513abcc40aca9e7cc5f09ca90dd3bab5a54233efdd3422bee09f582e8",
+  "model_requirement": {
+    "required": true,
+    "protocol_adapters": ["gemini"]
+  },
+  "credential_target": "GEMINI_API_KEY",
+  "incompatible_model_plan_behavior": {
+    "path": "/spec/modelResourceId",
+    "message": "The selected model is incompatible with this Worker type."
+  },
+  "verification": [
+    "go test ./internal/service/workerspec ./internal/service/workercreation ./internal/service/orchestrationworker",
+    "browser template plan"
+  ]
+}

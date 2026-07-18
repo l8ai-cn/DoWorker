@@ -127,7 +127,7 @@ export function useCommands(t: (key: string) => string): {
         icon: <Plus className="w-4 h-4" />,
         keywords: ["new", "create", "pod", "terminal"],
         action: () => {
-          router.push(`/${orgSlug}/workers/new`);
+          router.push(`/${orgSlug}/workers/new?mode=template`);
         },
       },
       {

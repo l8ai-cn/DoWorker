@@ -13,14 +13,9 @@ import (
 	ticketSvc "github.com/anthropics/agentsmesh/backend/internal/service/ticket"
 )
 
-// claimAndDispatch claims a single task on the platform, syncs it to a ticket,
-// spawns a do-agent pod, and records the execution. Returns false (no error)
-// when the task was already synced or is owned by another coordinator.
 func (s *Service) claimAndDispatch(ctx context.Context, project *coordinatordom.Project, platform TaskPlatform, repo string, task ExternalTask) (bool, error) {
-	if _, err := s.store.GetLinkByExternalID(ctx, project.OrganizationID, project.PlatformType, task.ExternalID); err == nil {
-		return false, nil
-	} else if !errors.Is(err, coordinatordom.ErrNotFound) {
-		return false, fmt.Errorf("lookup external link: %w", err)
+	if s.podTerminator == nil {
+		return false, errors.New("coordinator: pod terminator unavailable")
 	}
 
 	claimKey := fmt.Sprintf("project=%d task=%s", project.ID, task.ExternalID)
@@ -33,9 +28,59 @@ func (s *Service) claimAndDispatch(ctx context.Context, project *coordinatordom.
 		return false, nil
 	}
 
-	ticket, err := s.syncTicket(ctx, project, task)
+	var execution *coordinatordom.Execution
+	created := false
+	createdTicketID := int64(0)
+	err = s.store.WithinProjectDispatch(ctx, project.ID, func(store coordinatordom.Repository) error {
+		if _, activeErr := store.GetActiveExecutionByProjectAndExternalID(
+			ctx,
+			project.ID,
+			task.ExternalID,
+		); activeErr == nil {
+			return nil
+		} else if !errors.Is(activeErr, coordinatordom.ErrNotFound) {
+			return fmt.Errorf("lookup active execution: %w", activeErr)
+		}
+		active, countErr := store.CountActiveExecutions(ctx, project.ID)
+		if countErr != nil {
+			return fmt.Errorf("count active executions: %w", countErr)
+		}
+		maxConcurrent := project.MaxConcurrent
+		if maxConcurrent <= 0 {
+			maxConcurrent = 1
+		}
+		if active >= int64(maxConcurrent) {
+			return nil
+		}
+
+		ticket, ticketCreated, ticketErr := s.loadOrCreateTicket(ctx, store, project, task)
+		if ticketErr != nil {
+			return ticketErr
+		}
+		if ticketCreated {
+			createdTicketID = ticket.ID
+		}
+		execution = &coordinatordom.Execution{
+			OrganizationID: project.OrganizationID,
+			ProjectID:      project.ID,
+			TicketID:       ticket.ID,
+			Status:         coordinatordom.ExecutionStatusClaimed,
+			Stage:          "claimed",
+			ClaimMarker:    claim.Marker,
+			ExternalID:     task.ExternalID,
+		}
+		if createErr := store.CreateExecution(ctx, execution); createErr != nil {
+			return createErr
+		}
+		created = true
+		return nil
+	})
 	if err != nil {
-		return false, fmt.Errorf("sync ticket: %w", err)
+		cleanupErr := s.deleteCreatedTicket(ctx, createdTicketID)
+		return false, fmt.Errorf("create claimed execution: %w", errors.Join(err, cleanupErr))
+	}
+	if !created {
+		return false, nil
 	}
 
 	pod, err := s.dispatch.CreatePod(ctx, &agentpodSvc.OrchestrateCreatePodRequest{
@@ -43,36 +88,46 @@ func (s *Service) claimAndDispatch(ctx context.Context, project *coordinatordom.
 		UserID:         project.CreatedByID,
 		AgentSlug:      project.AgentSlug,
 		RepositoryID:   &project.RepositoryID,
-		TicketID:       &ticket.ID,
+		TicketID:       &execution.TicketID,
 		AgentfileLayer: ptr(buildAgentfileLayer(repo, task)),
 		Cols:           120,
 		Rows:           40,
 	})
 	if err != nil {
-		return false, fmt.Errorf("dispatch pod: %w", err)
+		return false, s.failClaimedExecution(ctx, execution, "dispatch_failed", fmt.Errorf("dispatch pod: %w", err))
 	}
 
-	execution := &coordinatordom.Execution{
-		OrganizationID: project.OrganizationID,
-		ProjectID:      project.ID,
-		TicketID:       ticket.ID,
-		PodID:          &pod.Pod.ID,
-		PodKey:         &pod.Pod.PodKey,
-		Status:         coordinatordom.ExecutionStatusRunning,
-		Stage:          "dispatched",
-		ClaimMarker:    claim.Marker,
-		ExternalID:     task.ExternalID,
-		StartedAt:      &pod.Pod.CreatedAt,
-	}
-	if err := s.store.CreateExecution(ctx, execution); err != nil {
-		return false, fmt.Errorf("create execution: %w", err)
+	if err := s.attachExecutionPod(ctx, execution, pod); err != nil {
+		return false, err
 	}
 	s.logger.Info("dispatched coordinator task",
-		"project_id", project.ID, "ticket_id", ticket.ID, "pod_key", pod.Pod.PodKey, "external_id", task.ExternalID)
+		"project_id", project.ID, "ticket_id", execution.TicketID, "pod_key", pod.Pod.PodKey, "external_id", task.ExternalID)
 	return true, nil
 }
 
-func (s *Service) syncTicket(ctx context.Context, project *coordinatordom.Project, task ExternalTask) (*ticketDomain.Ticket, error) {
+func (s *Service) loadOrCreateTicket(
+	ctx context.Context,
+	store coordinatordom.Repository,
+	project *coordinatordom.Project,
+	task ExternalTask,
+) (*ticketDomain.Ticket, bool, error) {
+	link, err := store.GetLinkByExternalID(
+		ctx,
+		project.OrganizationID,
+		project.PlatformType,
+		task.ExternalID,
+	)
+	if err == nil {
+		ticket, loadErr := s.tickets.GetTicket(ctx, link.TicketID)
+		if loadErr != nil {
+			return nil, false, fmt.Errorf("load linked ticket: %w", loadErr)
+		}
+		return ticket, false, nil
+	}
+	if !errors.Is(err, coordinatordom.ErrNotFound) {
+		return nil, false, fmt.Errorf("lookup external link: %w", err)
+	}
+
 	repoID := project.RepositoryID
 	content := task.Description
 	created, err := s.tickets.CreateTicket(ctx, &ticketSvc.CreateTicketRequest{
@@ -85,19 +140,28 @@ func (s *Service) syncTicket(ctx context.Context, project *coordinatordom.Projec
 		Labels:         task.Labels,
 	})
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
-	link := &coordinatordom.TicketExternalLink{
+	createdLink := &coordinatordom.TicketExternalLink{
 		OrganizationID: project.OrganizationID,
 		TicketID:       created.ID,
 		PlatformType:   project.PlatformType,
 		ExternalID:     task.ExternalID,
 		ExternalURL:    task.URL,
 	}
-	if err := s.store.CreateLink(ctx, link); err != nil {
-		return nil, fmt.Errorf("create external link: %w", err)
+	if err := store.CreateLink(ctx, createdLink); err != nil {
+		return nil, false, fmt.Errorf("create external link: %w", err)
 	}
-	return created, nil
+	return created, true, nil
+}
+
+func (s *Service) deleteCreatedTicket(ctx context.Context, ticketID int64) error {
+	if ticketID == 0 {
+		return nil
+	}
+	cleanupCtx, cancel := coordinatorCompensationContext(ctx)
+	defer cancel()
+	return s.tickets.DeleteTicket(cleanupCtx, ticketID)
 }
 
 func ticketTitle(task ExternalTask) string {

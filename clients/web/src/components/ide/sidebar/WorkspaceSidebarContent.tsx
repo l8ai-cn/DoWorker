@@ -35,7 +35,7 @@ export function WorkspaceSidebarContent({ className, onCreatePod, onTerminatePod
 
   const handleCreatePod = useCallback(() => {
     if (s.currentOrg?.slug) {
-      router.push(`/${s.currentOrg.slug}/workers/new`);
+      router.push(`/${s.currentOrg.slug}/workers/new?mode=template`);
       return;
     }
     onCreatePod?.();

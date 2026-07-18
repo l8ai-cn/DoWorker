@@ -35,18 +35,23 @@ type WorkerTemplateTypeConfigSpec struct {
 }
 
 type WorkerTemplateWorkspaceSpec struct {
-	RepositoryRef         *Reference                     `json:"repositoryRef,omitempty" yaml:"repositoryRef,omitempty"`
-	Branch                string                         `json:"branch" yaml:"branch"`
-	SkillRefs             []Reference                    `json:"skillRefs" yaml:"skillRefs"`
-	KnowledgeMounts       []WorkerTemplateKnowledgeMount `json:"knowledgeMounts" yaml:"knowledgeMounts"`
-	EnvironmentBundleRefs []Reference                    `json:"environmentBundleRefs" yaml:"environmentBundleRefs"`
-	ConfigBundleRefs      []Reference                    `json:"configBundleRefs" yaml:"configBundleRefs"`
-	Instructions          string                         `json:"instructions" yaml:"instructions"`
+	RepositoryRef          *Reference                            `json:"repositoryRef,omitempty" yaml:"repositoryRef,omitempty"`
+	Branch                 string                                `json:"branch" yaml:"branch"`
+	SkillRefs              []Reference                           `json:"skillRefs" yaml:"skillRefs"`
+	KnowledgeMounts        []WorkerTemplateKnowledgeMount        `json:"knowledgeMounts" yaml:"knowledgeMounts"`
+	EnvironmentBundleRefs  []Reference                           `json:"environmentBundleRefs" yaml:"environmentBundleRefs"`
+	ConfigDocumentBindings []WorkerTemplateConfigDocumentBinding `json:"configDocumentBindings" yaml:"configDocumentBindings"`
+	Instructions           string                                `json:"instructions" yaml:"instructions"`
 }
 
 type WorkerTemplateKnowledgeMount struct {
 	Ref  Reference                     `json:"ref" yaml:"ref"`
 	Mode workerspec.KnowledgeMountMode `json:"mode" yaml:"mode"`
+}
+
+type WorkerTemplateConfigDocumentBinding struct {
+	DocumentID      string    `json:"documentId" yaml:"documentId"`
+	ConfigBundleRef Reference `json:"configBundleRef" yaml:"configBundleRef"`
 }
 
 type WorkerTemplateLifecycleSpec struct {

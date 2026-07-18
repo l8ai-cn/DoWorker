@@ -14,7 +14,7 @@ func modelResourceEnvironment(agentSlug string, resource *resourcesvc.ResolvedRe
 	modelID := strings.TrimSpace(resource.Resource.ModelID)
 	baseURL := strings.TrimSpace(resource.Connection.BaseURL)
 	switch agentSlug {
-	case "codex-cli", "openclaw", "hermes":
+	case "codex-cli", "openclaw", "hermes", "opencode":
 		return compactEnv(map[string]string{
 			"OPENAI_API_KEY":  apiKey,
 			"OPENAI_BASE_URL": baseURL,

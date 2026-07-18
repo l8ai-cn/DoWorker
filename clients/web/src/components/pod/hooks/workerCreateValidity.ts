@@ -15,7 +15,10 @@ export function workerCreateValidity(
 ): WorkerCreateValidity {
   const runtime = options.status === "ready" && runtimeSelectionsValid(draft, options.data);
   const typeConfig = runtime && draft.type_schema_version > 0;
-  const workspace = typeConfig && dependenciesReady && workspaceValid(draft);
+  const workspace = typeConfig && dependenciesReady && workspaceValid(
+    draft,
+    options.status === "ready" ? options.data : undefined,
+  );
   return {
     runtime,
     typeConfig,
@@ -60,12 +63,31 @@ function customResourcesValid(resources: NonNullable<WorkerSpecDraft["custom_res
     resources.storage_limit_bytes >= resources.storage_request_bytes;
 }
 
-function workspaceValid(draft: WorkerSpecDraft): boolean {
+function workspaceValid(
+  draft: WorkerSpecDraft,
+  options?: WorkerCreateOptions,
+): boolean {
   if (draft.repository_id && !draft.branch.trim()) return false;
   if (draft.termination_policy === "idle" && draft.idle_timeout_minutes <= 0) {
     return false;
   }
-  return true;
+  const type = options?.worker_types.find(
+    (option) => option.slug === draft.worker_type_slug,
+  );
+  if (!type) return false;
+  const expected = new Set(
+    type.config_document_requirements.map((requirement) => requirement.document_id),
+  );
+  const seen = new Set<string>();
+  for (const binding of draft.config_document_bindings) {
+    if (
+      !expected.has(binding.document_id) ||
+      seen.has(binding.document_id) ||
+      binding.config_bundle_id <= 0
+    ) return false;
+    seen.add(binding.document_id);
+  }
+  return seen.size === expected.size;
 }
 
 function selectable<T extends { selectable: boolean }, V>(

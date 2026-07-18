@@ -24,8 +24,9 @@ func TestWorkerSpecResourceRequirementsUseExactIDs(t *testing.T) {
 		},
 	}
 
-	envBundleIDs, skillIDs := workerSpecResourceRequirements(spec)
+	envBundleIDs, skillIDs, configBindings := workerSpecResourceRequirements(spec)
 
 	assert.Equal(t, []int64{4, 6}, envBundleIDs)
 	assert.Equal(t, []int64{3, 9}, skillIDs)
+	assert.Empty(t, configBindings)
 }

@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "worker_slug": "do-agent",
+  "categories": {
+    "installation": {
+      "conclusion": "The development runtime builds a linux/amd64 sidecar and installs it as /usr/local/bin/do-agent.",
+      "evidence_refs": ["source:runner-contract"]
+    },
+    "version": {
+      "conclusion": "The active dedicated Runner image reports do-agent 0.2.7.",
+      "evidence_refs": ["source:do-agent-cli"]
+    },
+    "license": {
+      "conclusion": "This integration has no verified publishable upstream license assertion; release or support promotion is blocked pending independent license verification.",
+      "evidence_refs": ["source:runner-contract"]
+    },
+    "protocol": {
+      "conclusion": "Do Agent exposes an ACP JSON-RPC 2.0 server over stdio and the Runner uses the exact do-agent-acp transport.",
+      "evidence_refs": ["source:do-agent-cli", "source:runner-contract"]
+    },
+    "authentication": {
+      "conclusion": "The Definition accepts OpenAI-compatible or Anthropic model resources and injects only the corresponding provider environment reference.",
+      "evidence_refs": ["source:runner-contract"]
+    },
+    "configuration": {
+      "conclusion": "Do Agent exposes configuration management and receives a generated JSON settings document through the Definition-required settings binding.",
+      "evidence_refs": ["source:do-agent-cli", "source:runner-contract"]
+    },
+    "persistence": {
+      "conclusion": "Do Agent exposes session resume under .agent/sessions and memory import/export operations; the Runner creates an isolated Do Agent home for each Worker.",
+      "evidence_refs": ["source:do-agent-cli", "source:runner-contract"]
+    },
+    "platforms": {
+      "conclusion": "This verified development artifact is built and run as linux/amd64 in the dedicated Runner container.",
+      "evidence_refs": ["source:runner-contract"]
+    }
+  }
+}

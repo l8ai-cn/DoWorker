@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-07-16T04:33:47+08:00",
+  "scope": "Read-only development Runner attestation. No Pod was created and no provider was called.",
+  "safety_boundary": {
+    "provider_request": false,
+    "pod_create_rpc": false,
+    "credential_decryption": false,
+    "operations": [
+      "authenticated GET /v1/runners",
+      "authenticated GET /v1/agents",
+      "docker inspect active development Runner containers",
+      "docker exec Runner and Worker version probes"
+    ]
+  },
+  "session_api": {
+    "endpoint": "http://[::1]:10000/v1/runners",
+    "response_shape": "{ data: [{ runner_id, online, harnesses }] }",
+    "online_runner_ids": [
+      "dev-runner-codex",
+      "dev-runner-do-agent",
+      "dev-runner-gemini",
+      "dev-runner-minimax",
+      "dev-runner-openclaw"
+    ]
+  },
+  "online_runners": [
+    {
+      "runner_id": "dev-runner-codex",
+      "harnesses": ["codex-cli"],
+      "container": "agentsmesh-main-runner-codex-cli-1",
+      "container_image_id": "sha256:2fb8b9c273dce5e5da8e4ad42e8868625a989c736478ce9f41aeff18f6cad661",
+      "runner": {
+        "path": "/usr/local/bin/do-worker-runner",
+        "version": "Do Worker Runner dev (built unknown)",
+        "sha256": "2e6e696409c1fb3f8b2e3ee8285c9a90160c926f2d9a2d36dd30965b98afd0cf"
+      },
+      "worker_binary": {
+        "path": "/usr/local/bin/codex",
+        "version": "codex-cli 0.144.1"
+      }
+    },
+    {
+      "runner_id": "dev-runner-do-agent",
+      "harnesses": ["do-agent", "seedance-expert"],
+      "container": "agentsmesh-main-runner-do-agent-1",
+      "container_image_id": "sha256:829180daccfa2428a908a2c12877e658ccaf4c9214fbf0269c40136a4c291f3f",
+      "runner": {
+        "path": "/usr/local/bin/do-worker-runner",
+        "version": "Do Worker Runner dev (built unknown)",
+        "sha256": "110c762c03c3684be4e2be37e9554e569bebecfe7f4f58b7c32eb7e8647699ce"
+      },
+      "worker_binary": {
+        "path": "/usr/local/bin/do-agent",
+        "version": "do-agent 0.2.7"
+      }
+    },
+    {
+      "runner_id": "dev-runner-gemini",
+      "harnesses": ["gemini-cli"],
+      "container": "agentsmesh-main-runner-gemini-cli-1",
+      "container_image_id": "sha256:b5d3cb4662e6ab57615d1ff1805305c5489ac3505ef06af9f6ea21f1cedc5233",
+      "runner": {
+        "path": "/usr/local/bin/do-worker-runner",
+        "version": "Do Worker Runner dev (built unknown)",
+        "sha256": "110c762c03c3684be4e2be37e9554e569bebecfe7f4f58b7c32eb7e8647699ce"
+      },
+      "worker_binary": {
+        "path": "/usr/local/bin/gemini",
+        "version": "0.50.0"
+      }
+    },
+    {
+      "runner_id": "dev-runner-minimax",
+      "harnesses": ["minimax-cli"],
+      "container": "agentsmesh-main-runner-minimax-cli-1",
+      "container_image_id": "sha256:21a4b56779e673ac8a1c43c894b38e464800c0a01401b6f5d0037ee6c0a7ba61",
+      "runner": {
+        "path": "/usr/local/bin/do-worker-runner",
+        "version": "Do Worker Runner dev (built unknown)",
+        "sha256": "7c6c0d09f45988297790c95059c9fa918c9088745fcaae15d83e4fa795647115"
+      },
+      "worker_binary": {
+        "path": "/usr/local/bin/mmx",
+        "version": "mmx 1.0.16"
+      }
+    },
+    {
+      "runner_id": "dev-runner-openclaw",
+      "harnesses": ["openclaw"],
+      "container": "agentsmesh-main-runner-openclaw-1",
+      "container_image_id": "sha256:9b39f542d943504931bfd38fc5aa6acaae90205b0be021409dc8ef5dd5453d2f",
+      "runner": {
+        "path": "/usr/local/bin/do-worker-runner",
+        "version": "Do Worker Runner dev (built unknown)",
+        "sha256": "110c762c03c3684be4e2be37e9554e569bebecfe7f4f58b7c32eb7e8647699ce"
+      },
+      "worker_binary": {
+        "path": "/usr/local/bin/openclaw",
+        "version": "OpenClaw 2026.6.11 (e085fa1)"
+      }
+    }
+  ],
+  "agent_projection": {
+    "endpoint": "http://[::1]:10000/v1/agents",
+    "available_worker_slugs": [
+      "codex-cli",
+      "do-agent",
+      "gemini-cli",
+      "minimax-cli",
+      "openclaw",
+      "seedance-expert"
+    ],
+    "important_boundary": "supported_modes and capabilities are Backend Definition projections. They are not returned by Runner InitializedConfirm."
+  },
+  "runner_protocol_contract": {
+    "source_files": [
+      "proto/runner/v1/runner.proto",
+      "runner/internal/client/agent_probe.go",
+      "backend/internal/api/grpc/runner_adapter_message_helpers.go",
+      "backend/internal/service/workercreation/options.go"
+    ],
+    "reported_fields": [
+      "available_agents",
+      "agent_versions[].slug",
+      "agent_versions[].version",
+      "agent_versions[].path"
+    ],
+    "missing_attestation_fields": [
+      "adapter_id",
+      "interaction_modes",
+      "runtime_image_digest"
+    ],
+    "selection_behavior": "ListWorkerCreateOptions calls HasAvailableRunnerForAgent with the Worker slug only."
+  },
+  "release_catalog": {
+    "lock_path": "backend/internal/domain/workerruntime/runtime_catalog.lock.json",
+    "revision": "runtime-catalog-2026-07-13-release-gated",
+    "enabled_worker_type_slugs": [],
+    "published_entries": [
+      {"slug": "codex-cli-stable", "enabled": false},
+      {"slug": "claude-code-stable", "enabled": false},
+      {"slug": "gemini-cli-stable", "enabled": false}
+    ]
+  },
+  "conclusion": "The five online development Runners prove only that matching executable slugs are currently present. They do not prove Definition adapter compatibility, interaction-mode support, immutable release image provenance, credentials/config materialization, Pod lifecycle, provider interaction, or browser flow. No Worker support status may be promoted from this evidence."
+}

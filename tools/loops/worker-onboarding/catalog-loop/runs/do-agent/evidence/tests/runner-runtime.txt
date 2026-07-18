@@ -1,0 +1,7 @@
+2026-07-17T13:38:01Z
+container: agentsmesh-codex-loop-blockly-mvp-runner-do-agent-1
+image: agentsmesh-codex-loop-blockly-mvp-runner-do-agent@sha256:b652fdfcb27a7cb08c9c030b5e433d513ad903d2a13019905e4e50633f43778b
+command: do-agent --version
+result: do-agent 0.2.7
+adapter: do-agent-acp
+runtime configuration: runner-do-agent is an ACP Worker Runner and does not use a mock-agent binary.

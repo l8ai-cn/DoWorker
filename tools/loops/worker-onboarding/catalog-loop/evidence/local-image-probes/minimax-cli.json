@@ -1,15 +1,16 @@
 {
   "schema_version": 1,
   "worker_slug": "minimax-cli",
-  "definition_hash": "sha256:2978f587049d22e83397032c9e3fb1c94dfecfd7f1966b0ef0e0d3c2ec5526a2",
+  "definition_hash": "sha256:d7c0fe3c67243528c4bf4b8fe7cffb0fee29406188d0a833c92603cea01cf2be",
   "platform": "linux/amd64",
-  "observed_at": "2026-07-12T23:09:31.896Z",
-  "image_reference": "do-worker/runner-minimax-cli:latest",
-  "image_id": "sha256:213ff9115942b8614b342afb7bb814db3b1b19e258c36f823c297b4f7814c9aa",
+  "observed_at": "2026-07-16T16:32:48.911Z",
+  "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-minimax-cli:latest",
+  "image_id": "sha256:987127f57f37c559a7ff989e189cf1b7606a6c112d86a55748eab4381b0877bc",
   "probe_command": [
     "mmx",
     "--version"
   ],
+  "network": "none",
   "status": "passed",
   "exit_code": 0,
   "output": "mmx 1.0.16"

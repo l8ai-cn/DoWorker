@@ -17,9 +17,7 @@ import type {
   WorkerDraftFillResult,
   WorkerPreflightIssue,
   WorkerPreflightResult,
-  WorkerResourceRequest,
   WorkerSpecDraft,
-  WorkerToolModelRequirement,
 } from "./podWorkerCreationTypes";
 
 export async function listWorkerCreateOptions(
@@ -52,6 +50,7 @@ export async function listWorkerCreateOptions(
       config_schema: parseConfigSchema(option.configSchemaJson),
       supported_interaction_modes: option.supportedInteractionModes,
       requires_model_resource: option.requiresModelResource,
+      model_protocol_adapters: option.modelProtocolAdapters,
       tool_model_requirements: option.toolModelRequirements.map((requirement) => ({
         role: requirement.role,
         provider_keys: requirement.providerKeys,
@@ -59,6 +58,21 @@ export async function listWorkerCreateOptions(
         modality: requirement.modality,
         capability: requirement.capability,
       })),
+      credential_requirements: option.credentialRequirements.map((requirement) => ({
+        id: requirement.id,
+        source_kind: requirement.sourceKind,
+        source_ref: requirement.sourceRef,
+        target_kind: requirement.targetKind,
+        target_name: requirement.targetName,
+      })),
+      config_document_requirements: option.configDocumentRequirements.map(
+        (requirement) => ({
+          document_id: requirement.documentId,
+          format: requirement.format,
+          target_path: requirement.targetPath,
+          required: requirement.required,
+        }),
+      ),
       selectable: option.selectable,
       blocking_reason: option.blockingReason,
     })),
@@ -192,10 +206,14 @@ export { workerDraftFromProto, workerDraftToProto };
 export type {
   WorkerCreateOptions,
   WorkerCreateOptionsFilter,
+  WorkerConfigDocumentBinding,
+  WorkerConfigDocumentRequirement,
+  WorkerCredentialRequirement,
   WorkerDraftFillResult,
   WorkerPreflightIssue,
   WorkerPreflightResult,
   WorkerResourceRequest,
   WorkerSpecDraft,
   WorkerToolModelRequirement,
+  WorkerTypeOption,
 } from "./podWorkerCreationTypes";

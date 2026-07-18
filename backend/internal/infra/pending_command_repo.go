@@ -45,6 +45,46 @@ func (r *pendingCommandRepo) Enqueue(ctx context.Context, cmd *agentpod.PendingC
 	return nil
 }
 
+func (r *pendingCommandRepo) EnqueueWithinCapacity(
+	ctx context.Context,
+	cmd *agentpod.PendingCommand,
+	maxPerRunner int,
+) error {
+	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if tx.Name() == "postgres" {
+			if err := tx.Exec(
+				"SELECT pg_advisory_xact_lock(hashtextextended(?, 0))",
+				agentpod.PendingCommandRunnerLockName(cmd.RunnerID),
+			).Error; err != nil {
+				return err
+			}
+		}
+		var existing int64
+		if err := tx.Model(&agentpod.PendingCommand{}).
+			Where("command_id = ?", cmd.CommandID).
+			Count(&existing).Error; err != nil {
+			return err
+		}
+		if existing > 0 {
+			return agentpod.ErrDuplicateCommand
+		}
+		var count int64
+		if err := tx.Model(&agentpod.PendingCommand{}).
+			Where("runner_id = ?", cmd.RunnerID).
+			Count(&count).Error; err != nil {
+			return err
+		}
+		if int(count) >= maxPerRunner {
+			return agentpod.ErrQueueFull
+		}
+		return tx.Create(cmd).Error
+	})
+	if isUniqueViolation(err) {
+		return agentpod.ErrDuplicateCommand
+	}
+	return err
+}
+
 func (r *pendingCommandRepo) ExistsCommandID(ctx context.Context, commandID string) (bool, error) {
 	var count int64
 	err := r.db.WithContext(ctx).Model(&agentpod.PendingCommand{}).

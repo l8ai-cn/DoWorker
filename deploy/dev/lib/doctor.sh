@@ -1,10 +1,5 @@
 # shellcheck shell=bash
-# doctor.sh — fail-fast prereq check (Go + Docker + pnpm; no Bazel).
-
-check_ibazel_doctor() {
-    # Name kept for call-site compatibility in lifecycle.sh / bootstrap.
-    check_dev_doctor
-}
+# doctor.sh — fail-fast prereq check (Go + Docker + pnpm).
 
 check_dev_doctor() {
     local missing=()
@@ -37,12 +32,10 @@ check_dev_doctor() {
     fi
 }
 
-# macOS apps (e.g. Baidu netdisk) sometimes bind 127.0.0.1:HTTP_PORT while
-# Traefik listens on *:HTTP_PORT. Web dev now proxies API to BACKEND_HTTP_PORT
-# directly; this warns so operators know why 127.0.0.1:10000 may not reach Traefik.
-warn_loopback_port_conflict() {
+# Docker Desktop can bind the wildcard address while another app owns the
+# IPv4 loopback address. In that state `localhost` reaches the wrong process.
+require_unshadowed_loopback_port() {
     local http_port="${HTTP_PORT:-10000}"
-    local backend_port="${BACKEND_HTTP_PORT:-10015}"
     local occupier=""
     while IFS= read -r line; do
         local proc addr
@@ -55,7 +48,8 @@ warn_loopback_port_conflict() {
     done < <(lsof -nP -iTCP:"$http_port" -sTCP:LISTEN 2>/dev/null || true)
 
     if [[ -n "$occupier" ]]; then
-        warn "127.0.0.1:$http_port 被 ${occupier} 占用（Traefik 仍可通过 localhost:$http_port 访问）"
-        info "Web API 代理已配置为直连 backend :$backend_port，登录/API 不受影响"
+        error "127.0.0.1:$http_port 被 ${occupier} 占用，localhost 不会到达 Do Worker Traefik"
+        error "停止该进程或为当前 worktree 分配其他 HTTP_PORT 后再启动"
+        return 1
     fi
 }

@@ -3,8 +3,6 @@ package goalloopconnect
 import (
 	"context"
 	"encoding/json"
-	"errors"
-	"strings"
 	"testing"
 	"time"
 
@@ -100,11 +98,11 @@ func TestCompileLoopProgramWorksWithoutExecutionService(t *testing.T) {
 	require.Empty(t, response.Msg.Diagnostics)
 }
 
-func TestRunLoopProgramCompilesCreatesAndStartsGoalLoop(t *testing.T) {
+func TestRunLoopProgramRequiresResourceApplyBeforeExplicitStart(t *testing.T) {
 	service := &loopGoalLoopService{}
 	server := NewServer(service, loopOrgService{})
 
-	response, err := server.RunLoopProgram(
+	_, err := server.RunLoopProgram(
 		loopContext(), connect.NewRequest(&goalloopv1.RunLoopProgramRequest{
 			OrgSlug:              "acme",
 			Source:               loopSource,
@@ -112,16 +110,11 @@ func TestRunLoopProgramCompilesCreatesAndStartsGoalLoop(t *testing.T) {
 		}),
 	)
 
-	require.NoError(t, err)
-	require.Equal(t, domain.StatusActive, response.Msg.Status)
-	require.Equal(t, int64(7), service.createReq.OrganizationID)
-	require.Equal(t, int64(9), service.createReq.CreatedByID)
-	require.Equal(t, int64(42), service.createReq.WorkerSpecSnapshotID)
-	require.Equal(t, int64(42), service.validatedSnapshotID)
-	require.Equal(t, "fix checkout tax", service.createReq.Objective)
-	require.Equal(t, []string{"tests pass"}, service.createReq.AcceptanceCriteria)
-	require.Empty(t, service.createReq.Slug)
-	require.Equal(t, "checkout-fix", service.startedSlug)
+	require.Equal(t, connect.CodeFailedPrecondition, connect.CodeOf(err))
+	require.Contains(t, err.Error(), "validate-plan-apply")
+	require.Contains(t, err.Error(), "Start")
+	require.Zero(t, service.createCalls)
+	require.Zero(t, service.startCalls)
 }
 
 func TestRunLoopProgramRejectsInvalidSourceWithoutCreating(t *testing.T) {
@@ -136,8 +129,10 @@ func TestRunLoopProgramRejectsInvalidSourceWithoutCreating(t *testing.T) {
 		}),
 	)
 
-	require.Equal(t, connect.CodeInvalidArgument, connect.CodeOf(err))
+	require.Equal(t, connect.CodeFailedPrecondition, connect.CodeOf(err))
+	require.Contains(t, err.Error(), "validate-plan-apply")
 	require.Zero(t, service.createCalls)
+	require.Zero(t, service.startCalls)
 }
 
 func TestRunLoopProgramRequiresWorkerSnapshot(t *testing.T) {
@@ -151,76 +146,12 @@ func TestRunLoopProgramRequiresWorkerSnapshot(t *testing.T) {
 		}),
 	)
 
-	require.Equal(t, connect.CodeInvalidArgument, connect.CodeOf(err))
-	require.Contains(t, err.Error(), "worker_spec_snapshot_id")
+	require.Equal(t, connect.CodeFailedPrecondition, connect.CodeOf(err))
+	require.Contains(t, err.Error(), "validate-plan-apply")
+	require.Contains(t, err.Error(), "Start")
 	require.Zero(t, service.validateCalls)
 	require.Zero(t, service.createCalls)
-}
-
-func TestRunLoopProgramRejectsUnavailableWorkerWithoutStarting(t *testing.T) {
-	service := &loopGoalLoopService{createErr: goalloopsvc.ErrInvalidInput}
-	server := NewServer(service, loopOrgService{})
-
-	_, err := server.RunLoopProgram(
-		loopContext(), connect.NewRequest(&goalloopv1.RunLoopProgramRequest{
-			OrgSlug:              "acme",
-			Source:               loopSource,
-			WorkerSpecSnapshotId: 42,
-		}),
-	)
-
-	require.Equal(t, connect.CodeInvalidArgument, connect.CodeOf(err))
-	require.Empty(t, service.startedSlug)
-}
-
-func TestRunLoopProgramRejectsStaleWorkerWithoutCreating(t *testing.T) {
-	service := &loopGoalLoopService{validateErr: goalloopsvc.ErrInvalidInput}
-	server := NewServer(service, loopOrgService{})
-
-	_, err := server.RunLoopProgram(
-		loopContext(), connect.NewRequest(&goalloopv1.RunLoopProgramRequest{
-			OrgSlug:              "acme",
-			Source:               loopSource,
-			WorkerSpecSnapshotId: 42,
-		}),
-	)
-
-	require.Equal(t, connect.CodeInvalidArgument, connect.CodeOf(err))
-	require.Zero(t, service.createCalls)
-	require.Empty(t, service.startedSlug)
-}
-
-func TestRunLoopProgramRejectsUnavailableExecutionWithoutCreating(t *testing.T) {
-	service := &loopGoalLoopService{readyErr: goalloopsvc.ErrExecutionUnavailable}
-	server := NewServer(service, loopOrgService{})
-
-	_, err := server.RunLoopProgram(
-		loopContext(), connect.NewRequest(&goalloopv1.RunLoopProgramRequest{
-			OrgSlug:              "acme",
-			Source:               loopSource,
-			WorkerSpecSnapshotId: 42,
-		}),
-	)
-
-	require.Equal(t, connect.CodeUnavailable, connect.CodeOf(err))
-	require.Zero(t, service.createCalls)
-}
-
-func TestRunLoopProgramStartFailureReportsCreatedLoopSlug(t *testing.T) {
-	service := &loopGoalLoopService{startErr: errors.New("dispatch failed")}
-	server := NewServer(service, loopOrgService{})
-
-	_, err := server.RunLoopProgram(
-		loopContext(), connect.NewRequest(&goalloopv1.RunLoopProgramRequest{
-			OrgSlug:              "acme",
-			Source:               loopSource,
-			WorkerSpecSnapshotId: 42,
-		}),
-	)
-
-	require.Equal(t, connect.CodeInternal, connect.CodeOf(err))
-	require.True(t, strings.Contains(err.Error(), "checkout-fix"), err.Error())
-	require.Equal(t, 1, service.createCalls)
+	require.Zero(t, service.startCalls)
 }
 
 func TestToProtoRejectsNilGoalLoop(t *testing.T) {
@@ -236,6 +167,7 @@ type loopGoalLoopService struct {
 	createErr           error
 	createCalls         int
 	startedSlug         string
+	startCalls          int
 	created             *domain.GoalLoop
 	startErr            error
 	validateErr         error
@@ -284,6 +216,7 @@ func (s *loopGoalLoopService) Create(_ context.Context, req goalloopsvc.CreateRe
 func (s *loopGoalLoopService) Start(
 	_ context.Context, _, _ int64, slug string,
 ) (*domain.GoalLoop, error) {
+	s.startCalls++
 	s.startedSlug = slug
 	if s.startErr != nil {
 		return nil, s.startErr

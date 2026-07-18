@@ -10,6 +10,8 @@ import (
 	domain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 	sessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
+	itemsvc "github.com/anthropics/agentsmesh/backend/internal/service/conversationitem"
+	runnerservice "github.com/anthropics/agentsmesh/backend/internal/service/runner"
 	"github.com/gin-gonic/gin"
 )
 
@@ -29,7 +31,9 @@ type createSessionBody struct {
 }
 
 func (d *Deps) handleCreateSession(c *gin.Context) {
-	if d.PodOrchestrator == nil || d.Sessions == nil {
+	if d.PodOrchestrator == nil || d.PodCoordinator == nil ||
+		d.DeferredCommitter == nil || d.DispatchQueue == nil ||
+		d.Sessions == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "session service unavailable", "code": "unavailable"})
 		return
 	}
@@ -76,6 +80,7 @@ func (d *Deps) handleCreateSession(c *gin.Context) {
 	workspace := strings.TrimSpace(body.Workspace)
 
 	orchReq := sessionCreatePodRequest(tenant.UserID, tenant.OrganizationID, body, layer, workspace)
+	orchReq.DeferRunnerDispatch = true
 	// pty_only sessions must stay on PTY. Default automation (autonomous)
 	// appends MODE acp and would override the MODE pty layer above.
 	if ptyOnly {
@@ -91,6 +96,16 @@ func (d *Deps) handleCreateSession(c *gin.Context) {
 	result, err := d.PodOrchestrator.CreatePod(c.Request.Context(), orchReq)
 	if err != nil {
 		writeOrchestratorError(c, err)
+		return
+	}
+	if !d.DispatchQueue.AllowsDurableCommand(result.Pod.RunnerID) {
+		cleanupErr := d.terminateCreatedSessionPod(c.Request.Context(), result.Pod.PodKey)
+		writeSessionCreationCommitFailure(
+			c,
+			"runner unavailable",
+			runnerservice.ErrRunnerNotConnected,
+			cleanupErr,
+		)
 		return
 	}
 	title := body.Title
@@ -109,18 +124,35 @@ func (d *Deps) handleCreateSession(c *gin.Context) {
 		ParentSessionID: body.ParentSessionID,
 		Status:          "idle",
 	}
-	if err := d.Sessions.Create(c.Request.Context(), row); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to persist session"})
+	command, err := pendingSessionCreateCommand(result, d.DispatchQueue.SendPromptTTL())
+	if err != nil {
+		cleanupErr := d.terminateCreatedSessionPod(c.Request.Context(), result.Pod.PodKey)
+		writeSessionCreationFailure(c, "failed to prepare session dispatch", cleanupErr)
 		return
 	}
-	d.persistInitialUserItems(c.Request.Context(), row.ID, body.InitialItems)
-	if layer != nil && strings.Contains(*layer, "PROMPT ") {
-		d.beginAssistantTurn(row.ID)
+	var persistedInputs []persistedSessionInput
+	err = d.DeferredCommitter.CommitCreate(
+		c.Request.Context(),
+		row,
+		command,
+		d.DispatchQueue.MaxPerRunner(),
+		func(store *itemsvc.Service) error {
+			var writeErr error
+			persistedInputs, writeErr = persistInitialUserItems(
+				c.Request.Context(),
+				store,
+				row.ID,
+				body.InitialItems,
+			)
+			return writeErr
+		},
+	)
+	if err != nil {
+		cleanupErr := d.terminateCreatedSessionPod(c.Request.Context(), result.Pod.PodKey)
+		writeSessionCreationCommitFailure(c, "failed to persist session", err, cleanupErr)
+		return
 	}
-	if d.Stream != nil {
-		d.Stream.PublishPodStatus(c.Request.Context(), result.Pod.PodKey, result.Pod.Status, result.Pod.AgentStatus)
-	}
-	c.JSON(http.StatusOK, d.sessionWire(row, result.Pod, nil))
+	d.completeCreatedSession(c, row, result, persistedInputs, layer)
 }
 
 func (d *Deps) beginAssistantTurn(sessionID string) {

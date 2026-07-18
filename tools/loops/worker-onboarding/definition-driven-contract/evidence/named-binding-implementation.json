@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-07-16",
+  "status": "verified",
+  "contract": {
+    "worker_spec_field": "config_document_bindings",
+    "worker_template_field": "configDocumentBindings",
+    "legacy_positional_read": false,
+    "migration_policy": "fail_closed_on_ambiguous_historical_snapshots"
+  },
+  "verification": {
+    "focused_contract_tests": "passed",
+    "rust_proto_wire_tests": "2 passed",
+    "wasm_rebuild": "passed",
+    "backend_packages": [
+      "workercreation",
+      "connect/pod",
+      "workerspec",
+      "workerconfigmigration"
+    ]
+  },
+  "current_dev_database": {
+    "apply_status": "blocked",
+    "reason": "Two historical records lack the required settings binding and one pending WorkerTemplate plan must be regenerated.",
+    "automatic_repair": false
+  }
+}

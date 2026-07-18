@@ -91,7 +91,6 @@ it("owns the Web ACP transport and sends correlated commands", async () => {
     updatedInput: { answers: { format: ["PPTX", "MP4"] } },
   });
   expect(deps.removePermission).toHaveBeenCalledWith("pod-1", "permission-1");
-
   runtime.close(runtime.sessionId);
   expect(deps.relay.unsubscribe).toHaveBeenCalledWith(
     "pod-1",
@@ -137,7 +136,6 @@ it("projects actionable ACP configuration into the shared workspace", () => {
     ],
   });
 });
-
 it("rejects configuration commands when the agent declares no control capability", async () => {
   const deps = dependencies();
   const runtime = new WebAcpSessionRuntime({
@@ -155,7 +153,6 @@ it("rejects configuration commands when the agent declares no control capability
   ).rejects.toThrow("configuration control");
   expect(deps.relay.sendAcpCommand).not.toHaveBeenCalled();
 });
-
 it("reports a Relay subscription failure through the snapshot without rejecting open", async () => {
   const deps = dependencies();
   deps.relay.subscribe.mockRejectedValueOnce(new Error("Relay unavailable"));
@@ -174,7 +171,6 @@ it("reports a Relay subscription failure through the snapshot without rejecting 
     error: "Relay unavailable",
   });
 });
-
 it("starts a fresh Relay subscription after StrictMode closes a pending open", async () => {
   const deps = dependencies();
   let resolveFirst = () => undefined;
@@ -213,7 +209,6 @@ it("starts a fresh Relay subscription after StrictMode closes a pending open", a
   );
   expect(deps.subscribeSession).toHaveBeenCalledTimes(2);
 });
-
 it("reports a disconnected snapshot after the runtime closes", async () => {
   const deps = dependencies();
   const runtime = new WebAcpSessionRuntime({
@@ -233,7 +228,6 @@ it("reports a disconnected snapshot after the runtime closes", async () => {
     "disconnected",
   );
 });
-
 it("surfaces an immediate Relay command failure in the runtime snapshot", async () => {
   const deps = dependencies();
   deps.relay.sendAcpCommand.mockRejectedValueOnce(new Error("Relay write failed"));
@@ -302,6 +296,43 @@ it("discovers existing Worker artifacts when the ACP workspace opens", async () 
       expect.objectContaining({
         kind: "artifact",
         artifactId: "workspace:output/demo.mp4",
+      }),
+    ]),
+  );
+});
+
+it("discovers completed Worker artifacts without opening Relay", async () => {
+  const deps = dependencies();
+  deps.listWorkspaceArtifacts.mockResolvedValueOnce([
+    {
+      id: "workspace-discovery:artifact:0",
+      kind: "artifact",
+      artifactId: "workspace:deliverables/video/pattern-preview.mp4",
+      filename: "pattern-preview.mp4",
+      mimeType: "video/mp4",
+      status: "completed",
+    },
+  ]);
+  const runtime = new WebAcpSessionRuntime({
+    agentLabel: "Pattern Designer",
+    deps,
+    live: false,
+    paneId: "pane-1",
+    podKey: "pod-1",
+    title: "Pattern preview",
+  });
+
+  await runtime.open(runtime.sessionId);
+
+  expect(runtime.getSnapshot(runtime.sessionId)).toMatchObject({
+    connection: "disconnected",
+    error: null,
+  });
+  expect(deps.relay.subscribe).not.toHaveBeenCalled();
+  expect(runtime.getSnapshot(runtime.sessionId).items).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        artifactId: "workspace:deliverables/video/pattern-preview.mp4",
       }),
     ]),
   );

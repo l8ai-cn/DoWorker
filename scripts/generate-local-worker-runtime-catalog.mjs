@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 
 const localRuntimeMetadata = {
@@ -30,6 +31,41 @@ const localRuntimeMetadata = {
     name: "DoAgent (local development)",
     workerTypeSlugs: ["do-agent", "seedance-expert"],
   },
+  aider: {
+    id: 6,
+    slug: "aider-local",
+    name: "Aider (local development)",
+  },
+  "claude-code": {
+    id: 7,
+    slug: "claude-code-local",
+    name: "Claude Code (local development)",
+  },
+  "cursor-cli": {
+    id: 8,
+    slug: "cursor-cli-local",
+    name: "Cursor CLI (local development)",
+  },
+  "grok-build": {
+    id: 9,
+    slug: "grok-build-local",
+    name: "Grok Build (local development)",
+  },
+  hermes: {
+    id: 10,
+    slug: "hermes-local",
+    name: "Hermes (local development)",
+  },
+  loopal: {
+    id: 11,
+    slug: "loopal-local",
+    name: "Loopal (local development)",
+  },
+  opencode: {
+    id: 12,
+    slug: "opencode-local",
+    name: "OpenCode (local development)",
+  },
 };
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
@@ -56,9 +92,22 @@ export function buildLocalRuntimeCatalog({ runtimeImages, inspectImage }) {
   if (images.length === 0) return undefined;
   return {
     schema_version: 1,
-    revision: `local-dev-${images.map((image) => image.slug).join("-")}`,
+    revision: localCatalogRevision(images),
     images,
   };
+}
+
+function localCatalogRevision(images) {
+  const identity = images
+    .map((image) => ({
+      digest: image.digest,
+      slug: image.slug,
+      worker_type_slugs: image.worker_type_slugs,
+    }))
+    .sort((left, right) => left.slug.localeCompare(right.slug));
+  return `local-dev-${createHash("sha256")
+    .update(JSON.stringify(identity))
+    .digest("hex")}`;
 }
 
 function main(argv) {

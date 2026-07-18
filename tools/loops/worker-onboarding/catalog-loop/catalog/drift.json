@@ -4,10 +4,10 @@
     {
       "slug": "aider",
       "layer": "runtime-catalog",
-      "observed": "Debian apt repositories returned repeated HTTP 502 responses while installing python3-pip after eight bounded retries.",
+      "observed": "A local runtime smoke result exists, but no published immutable runtime image digest is locked.",
       "target": "Definition, immutable runtime, Runner, product-path, and browser evidence must all pass before support.",
       "status": "blocked",
-      "blocker_code": "upstream-apt-repository",
+      "blocker_code": "missing-immutable-runtime-image",
       "evidence_refs": [
         "catalog/worker-evidence-matrix.json",
         "evidence/runtime-builds/aider.json",
@@ -95,10 +95,10 @@
     {
       "slug": "hermes",
       "layer": "runtime-catalog",
-      "observed": "Debian apt returned HTTP 502 responses across all eight bounded python3-pip installation attempts.",
+      "observed": "A local runtime smoke result exists, but no published immutable runtime image digest is locked.",
       "target": "Definition, immutable runtime, Runner, product-path, and browser evidence must all pass before support.",
       "status": "blocked",
-      "blocker_code": "upstream-apt-repository",
+      "blocker_code": "missing-immutable-runtime-image",
       "evidence_refs": [
         "catalog/worker-evidence-matrix.json",
         "evidence/runtime-builds/hermes.json",
@@ -154,6 +154,19 @@
       "evidence_refs": [
         "catalog/worker-evidence-matrix.json",
         "evidence/runtime-builds/opencode.json",
+        "evidence/runtime-lock-probes.json"
+      ]
+    },
+    {
+      "slug": "seedance-expert",
+      "layer": "runtime-catalog",
+      "observed": "A local runtime smoke result exists, but no published immutable runtime image digest is locked.",
+      "target": "Definition, immutable runtime, Runner, product-path, and browser evidence must all pass before support.",
+      "status": "blocked",
+      "blocker_code": "missing-immutable-runtime-image",
+      "evidence_refs": [
+        "catalog/worker-evidence-matrix.json",
+        "evidence/runtime-builds/seedance-expert.json",
         "evidence/runtime-lock-probes.json"
       ]
     }

@@ -41,6 +41,7 @@ export interface WebAcpRuntimeDeps {
 export interface WebAcpSessionRuntimeInput {
   agentLabel: string;
   deps?: WebAcpRuntimeDeps;
+  live?: boolean;
   paneId: string;
   podKey: string;
   title: string;

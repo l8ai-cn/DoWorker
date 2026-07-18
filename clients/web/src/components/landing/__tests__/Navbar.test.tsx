@@ -49,6 +49,11 @@ describe("Navbar", () => {
       "aria-current",
       "page",
     );
-    expect(screen.getByRole("button", { name: "Open navigation" })).toBeVisible();
+
+    const desktopHomeLink = screen.getAllByRole("link", { name: "Home" })[0];
+    expect(desktopHomeLink.parentElement).toHaveClass("lg:flex");
+
+    const menuButton = screen.getByRole("button", { name: "Open navigation" });
+    expect(menuButton).toHaveClass("lg:hidden");
   });
 });

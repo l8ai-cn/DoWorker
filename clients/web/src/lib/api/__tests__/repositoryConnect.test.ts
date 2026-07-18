@@ -5,10 +5,7 @@
 // when the proto SSOT changes.
 //
 // Note: this test file imports @proto/repository/v1/repository_pb which
-// resolves via vitest.config.ts. Under `bazel test //clients/web:unit`
-// the `proto/gen` tree is in .bazelignore so the import fails — the
-// test runs under `pnpm test:run` (or once ts_proto_library lands;
-// see runbook "TS proto codegen toolchain").
+// resolves via vitest.config.ts / pnpm workspace.
 
 import { describe, it, expect } from "vitest";
 import { create } from "@bufbuild/protobuf";

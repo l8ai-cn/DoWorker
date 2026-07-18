@@ -15,6 +15,14 @@ var internalPrefixes = []string{
 	"GRPC_GO_",     // gRPC library debug vars
 }
 
+var internalNames = map[string]struct{}{
+	"CODEX_CI":                           {},
+	"CODEX_INTERNAL_ORIGINATOR_OVERRIDE": {},
+	"CODEX_PERMISSION_PROFILE":           {},
+	"CODEX_SHELL":                        {},
+	"CODEX_THREAD_ID":                    {},
+}
+
 // FilterEnv returns a copy of env with Runner-internal variables removed.
 func FilterEnv(env []string) []string {
 	result := make([]string, 0, len(env))
@@ -29,6 +37,10 @@ func FilterEnv(env []string) []string {
 
 // shouldFilter returns true if the env entry matches any internal prefix.
 func shouldFilter(entry string) bool {
+	name, _, _ := strings.Cut(entry, "=")
+	if _, ok := internalNames[name]; ok {
+		return true
+	}
 	for _, prefix := range internalPrefixes {
 		if strings.HasPrefix(entry, prefix) {
 			return true

@@ -1,0 +1,78 @@
+[
+  {
+    "context_scope": "shared",
+    "id": "orchestrator",
+    "may_modify": [
+      "PROGRESS.md",
+      "state.json",
+      "tasks.json",
+      "evidence/"
+    ],
+    "model_class": "strong_reasoning",
+    "responsibilities": [
+      "maintain state",
+      "enforce gates",
+      "integrate verified changes"
+    ],
+    "role": "orchestrator"
+  },
+  {
+    "context_scope": "task_private",
+    "id": "worker",
+    "may_modify": [
+      "source files",
+      "tests",
+      "evidence/"
+    ],
+    "model_class": "fast_worker",
+    "responsibilities": [
+      "implement one isolated contract slice",
+      "run focused checks"
+    ],
+    "role": "worker"
+  },
+  {
+    "context_scope": "review_private",
+    "id": "reviewer",
+    "may_modify": [
+      "ACCEPTANCE.md",
+      "evidence/"
+    ],
+    "model_class": "strong_reasoning",
+    "responsibilities": [
+      "reject incomplete evidence",
+      "review migration and API boundaries"
+    ],
+    "role": "reviewer"
+  },
+  {
+    "context_scope": "shared",
+    "id": "decision-proxy",
+    "may_modify": [
+      "DECISIONS.md",
+      "PROGRESS.md",
+      "state.json"
+    ],
+    "model_class": "strong_reasoning",
+    "responsibilities": [
+      "choose low-risk evidence sequencing",
+      "record blocked states"
+    ],
+    "role": "decision_proxy"
+  },
+  {
+    "context_scope": "shared",
+    "id": "loop-supervisor",
+    "may_modify": [
+      "monitoring-plan.json",
+      "PROGRESS.md"
+    ],
+    "model_class": "strong_reasoning",
+    "responsibilities": [
+      "monitor drift",
+      "enforce no-progress exits",
+      "escalate gates"
+    ],
+    "role": "supervisor"
+  }
+]

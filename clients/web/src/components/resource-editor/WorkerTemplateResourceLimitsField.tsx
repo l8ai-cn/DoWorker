@@ -24,8 +24,8 @@ interface WorkerTemplateResourceLimitsFieldProps {
 }
 
 const DEFAULT_RESOURCES: WorkerTemplateResources = {
-  cpuRequestMillicpu: 500,
-  cpuLimitMillicpu: 1000,
+  cpuRequestMilliCPU: 500,
+  cpuLimitMilliCPU: 1000,
   memoryRequestBytes: 536870912,
   memoryLimitBytes: 1073741824,
   storageRequestBytes: 1073741824,
@@ -52,7 +52,7 @@ export function WorkerTemplateResourceLimitsField({
   };
   return (
     <div className="space-y-4">
-      <FormField label={t("fields.resourceMode")}>
+      <FormField label={t("fields.resourceMode")} htmlFor="resource-mode">
         <Select
           value={mode}
           onValueChange={(next) => onChange(next === "custom"
@@ -62,7 +62,7 @@ export function WorkerTemplateResourceLimitsField({
             }
             : { customResources: undefined })}
         >
-          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectTrigger id="resource-mode"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="profile">{t("options.profile")}</SelectItem>
             <SelectItem value="custom">{t("options.custom")}</SelectItem>
@@ -82,14 +82,16 @@ export function WorkerTemplateResourceLimitsField({
       ) : (
         <div className="space-y-3">
           <ResourceRow
+            ids={["cpu-request", "cpu-limit"]}
             labels={[t("fields.cpuRequest"), t("fields.cpuLimit")]}
-            values={[resources.cpuRequestMillicpu, resources.cpuLimitMillicpu]}
+            values={[resources.cpuRequestMilliCPU, resources.cpuLimitMilliCPU]}
             onChange={[
-              (value) => setResource("cpuRequestMillicpu", value),
-              (value) => setResource("cpuLimitMillicpu", value),
+              (value) => setResource("cpuRequestMilliCPU", value),
+              (value) => setResource("cpuLimitMilliCPU", value),
             ]}
           />
           <ResourceRow
+            ids={["memory-request", "memory-limit"]}
             labels={[t("fields.memoryRequest"), t("fields.memoryLimit")]}
             values={[resources.memoryRequestBytes, resources.memoryLimitBytes]}
             onChange={[
@@ -98,6 +100,7 @@ export function WorkerTemplateResourceLimitsField({
             ]}
           />
           <ResourceRow
+            ids={["storage-request", "storage-limit"]}
             labels={[t("fields.storageRequest"), t("fields.storageLimit")]}
             values={[resources.storageRequestBytes, resources.storageLimitBytes]}
             onChange={[
@@ -106,6 +109,7 @@ export function WorkerTemplateResourceLimitsField({
             ]}
           />
           <ResourceRow
+            ids={["gpu-request", "gpu-limit"]}
             labels={[t("fields.gpuRequest"), t("fields.gpuLimit")]}
             values={[resources.gpuRequest ?? 0, resources.gpuLimit ?? 0]}
             onChange={[
@@ -121,11 +125,13 @@ export function WorkerTemplateResourceLimitsField({
 }
 
 function ResourceRow({
+  ids,
   labels,
   values,
   onChange,
   optional,
 }: {
+  ids: [string, string];
   labels: [string, string];
   values: [number, number];
   onChange: [(value: string) => void, (value: string) => void];
@@ -134,8 +140,14 @@ function ResourceRow({
   return (
     <FormRow>
       {labels.map((label, index) => (
-        <FormField key={label} label={label} className="flex-1">
+        <FormField
+          key={ids[index]}
+          label={label}
+          htmlFor={ids[index]}
+          className="flex-1"
+        >
           <Input
+            id={ids[index]}
             type="number"
             min={optional ? 0 : 1}
             value={values[index] || ""}

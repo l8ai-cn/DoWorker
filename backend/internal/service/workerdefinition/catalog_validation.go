@@ -15,8 +15,8 @@ func validateSchema(root string) error {
 		return fmt.Errorf("read worker definition schema: %w", err)
 	}
 	var schema struct {
-		Type       string         `json:"type"`
-		Properties map[string]any `json:"properties"`
+		Type       string                     `json:"type"`
+		Properties map[string]json.RawMessage `json:"properties"`
 	}
 	if err := json.Unmarshal(raw, &schema); err != nil {
 		return fmt.Errorf("decode worker definition schema: %w", err)
@@ -35,7 +35,63 @@ func validateSchema(root string) error {
 			return fmt.Errorf("worker definition schema is missing %q", field)
 		}
 	}
+	if err := validateConfigDocumentSchema(schema.Properties["config_documents"]); err != nil {
+		return err
+	}
 	return nil
+}
+
+func validateConfigDocumentSchema(raw json.RawMessage) error {
+	var documents struct {
+		Type  string          `json:"type"`
+		Items json.RawMessage `json:"items"`
+	}
+	if err := json.Unmarshal(raw, &documents); err != nil {
+		return fmt.Errorf("decode config document schema: %w", err)
+	}
+	if documents.Type != "array" {
+		return fmt.Errorf("config document schema must describe an array")
+	}
+	var item struct {
+		Type       string                     `json:"type"`
+		Required   []string                   `json:"required"`
+		Properties map[string]json.RawMessage `json:"properties"`
+	}
+	if err := json.Unmarshal(documents.Items, &item); err != nil {
+		return fmt.Errorf("decode config document item schema: %w", err)
+	}
+	if item.Type != "object" {
+		return fmt.Errorf("config document item schema must describe an object")
+	}
+	for _, field := range []string{"id", "format", "target_path", "required"} {
+		if !containsSchemaField(item.Required, field) {
+			return fmt.Errorf("config document item schema must require %q", field)
+		}
+	}
+	var format struct {
+		Const string `json:"const"`
+	}
+	if err := json.Unmarshal(item.Properties["format"], &format); err != nil ||
+		format.Const != "json" {
+		return fmt.Errorf("config document schema format must be json")
+	}
+	var required struct {
+		Type string `json:"type"`
+	}
+	if err := json.Unmarshal(item.Properties["required"], &required); err != nil ||
+		required.Type != "boolean" {
+		return fmt.Errorf("config document schema required must be boolean")
+	}
+	return nil
+}
+
+func containsSchemaField(fields []string, wanted string) bool {
+	for _, field := range fields {
+		if field == wanted {
+			return true
+		}
+	}
+	return false
 }
 
 func validateCatalogEntries(entries []catalogWorker) error {

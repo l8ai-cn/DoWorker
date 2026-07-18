@@ -13,6 +13,7 @@ vi.mock("./use-resource-reference-options", () => ({
   useResourceReferenceOptions: () => ({
     loading: false,
     error: null,
+    errorsByKind: {},
     byKind: {
       WorkerTemplate: [{
         name: "code-reviewer",
@@ -108,7 +109,7 @@ describe("GoalLoopConfigurationPanel", () => {
     const user = userEvent.setup();
     render(<GoalLoopPanelHarness />);
 
-    await user.type(
+    await user.selectOptions(
       screen.getByRole("combobox", { name: /^Worker template/ }),
       "code-reviewer",
     );
@@ -185,6 +186,7 @@ function GoalLoopPanelHarness() {
         orgSlug="acme"
         draft={draft}
         onChange={(next: ResourceDraft) => setDraft(next as GoalLoopDraft)}
+        onPlanBlockChange={vi.fn()}
       />
       <output data-testid="goal-loop-draft">{JSON.stringify(draft)}</output>
     </>

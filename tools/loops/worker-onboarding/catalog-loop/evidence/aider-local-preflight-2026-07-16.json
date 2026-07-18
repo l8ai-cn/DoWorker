@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-07-16T12:39:16+08:00",
+  "scope": "local development, pre-creation only",
+  "worker_slug": "aider",
+  "safety_boundary": {
+    "provider_request": false,
+    "provider_credential_read": false,
+    "pod_create_rpc": false,
+    "terminal_data_plane": false
+  },
+  "image": {
+    "reference": "agentsmesh-codex-loop-blockly-mvp-runner-aider:latest",
+    "digest": "sha256:53111c566cc367417211ccc7994dc3f1573a6eafd10a0c4ca932a21b559d86f4",
+    "runtime_base": "python-runtime-base",
+    "probe": {
+      "command": "docker run --rm --entrypoint aider <image> --version",
+      "exit_code": 0,
+      "version": "0.86.2"
+    }
+  },
+  "runtime_catalog": {
+    "revision": "local-dev-codex-cli-local-aider-local",
+    "image_slug": "aider-local",
+    "image_id": 6
+  },
+  "runner": {
+    "node_id": "dev-runner-aider",
+    "status": "online",
+    "tunnel_state": "connected",
+    "available_agents": [
+      "aider"
+    ],
+    "agent_version": "0.86.2",
+    "heartbeat_intervals_verified": 3
+  },
+  "api": {
+    "procedure": "PodService/ListWorkerCreateOptions",
+    "status_code": 200,
+    "aider_selectable": true
+  },
+  "browser": {
+    "route": "/dev-org/workers/new",
+    "worker_type_count": 13,
+    "selectable_worker_types": [
+      "codex-cli",
+      "aider"
+    ],
+    "selected_worker_type": "Aider",
+    "selected_runtime_image": "Aider (local development)",
+    "selected_interaction_mode": "pty",
+    "unassociated_html_labels": [],
+    "console_errors": [],
+    "failed_xhr_or_fetch_requests": []
+  },
+  "conclusion": "Aider has current local image, Runner, API, and browser-selection evidence. It remains not_supported because no Pod lifecycle, terminal data-plane, credential injection, or provider execution was authorized or tested."
+}

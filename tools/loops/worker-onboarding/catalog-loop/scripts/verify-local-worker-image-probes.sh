@@ -5,6 +5,12 @@ LOOP_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REPO_ROOT="$(git -C "${LOOP_ROOT}" rev-parse --show-toplevel)"
 PROBES="${LOOP_ROOT}/evidence/local-image-probes"
 CATALOG="${REPO_ROOT}/config/worker-types/catalog.json"
+DEV_ENV="${REPO_ROOT}/deploy/dev/.env"
+COMPOSE_PROJECT_NAME="$(sed -nE 's/^COMPOSE_PROJECT_NAME=([a-z0-9][a-z0-9_-]*)$/\1/p' "$DEV_ENV")"
+[[ -n "$COMPOSE_PROJECT_NAME" ]] || {
+  echo "deploy/dev/.env must define COMPOSE_PROJECT_NAME" >&2
+  exit 1
+}
 
 while IFS= read -r slug; do
   probe="${PROBES}/${slug}.json"
@@ -14,7 +20,7 @@ while IFS= read -r slug; do
     .worker_types[] | select(.slug == $slug) | .definition_hash
   ' "$CATALOG")"
   image_runtime="$(jq -r '.image.runtime' "$definition")"
-  expected_image="do-worker/runner-${image_runtime}:latest"
+  expected_image="${COMPOSE_PROJECT_NAME}-runner-${image_runtime}:latest"
 
   jq -e --arg slug "$slug" --arg hash "$definition_hash" --arg image "$expected_image" '
     .schema_version == 1 and

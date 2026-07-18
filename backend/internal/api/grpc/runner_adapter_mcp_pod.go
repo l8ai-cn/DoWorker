@@ -1,103 +1,112 @@
 package grpc
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
+	"io"
 
+	"github.com/google/uuid"
+
+	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	agentsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	controlservice "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
 	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 )
 
-// ==================== Pod MCP Methods ====================
-
-// mcpCreatePod handles the "create_pod" MCP method.
-// Delegates to PodOrchestrator for the full creation flow (DB + config + Runner command).
-// `agentfile_layer` is the SSOT for everything Pod-specific (MODE, CONFIG, REPO,
-// USE_ENV_BUNDLE, …). `repository_id` is kept as a separate platform-level ID
-// reference that can't be expressed inside the AgentFile.
-func (a *GRPCRunnerAdapter) mcpCreatePod(ctx context.Context, tc *middleware.TenantContext, payload []byte) (interface{}, *mcpError) {
-	var params struct {
-		AgentSlug          string  `json:"agent_slug"`
-		RunnerID           int64   `json:"runner_id"`
-		TicketSlug         *string `json:"ticket_slug"`
-		Alias              *string `json:"alias"`
-		AgentfileLayer     *string `json:"agentfile_layer"`
-		Cols               int32   `json:"cols"`
-		Rows               int32   `json:"rows"`
-		SourcePodKey       string  `json:"source_pod_key"`
-		ResumeAgentSession *bool   `json:"resume_agent_session"`
-		// Platform-level ID reference (cannot be expressed as AgentFile declarations)
-		RepositoryID *int64 `json:"repository_id"`
-	}
-	if err := unmarshalPayload(payload, &params); err != nil {
-		return nil, err
-	}
-
-	if err := slugkit.Validate(params.AgentSlug); err != nil {
-		return nil, newMcpError(400, "agent_slug: "+err.Error())
-	}
-
-	// Delegate to PodOrchestrator for the complete creation flow
-	result, err := a.podOrchestrator.CreatePod(ctx, &agentpod.OrchestrateCreatePodRequest{
-		OrganizationID:     tc.OrganizationID,
-		UserID:             tc.UserID,
-		RunnerID:           params.RunnerID,
-		AgentSlug:          params.AgentSlug,
-		RepositoryID:       params.RepositoryID,
-		TicketSlug:         params.TicketSlug,
-		Alias:              params.Alias,
-		AgentfileLayer:     params.AgentfileLayer,
-		Cols:               params.Cols,
-		Rows:               params.Rows,
-		SourcePodKey:       params.SourcePodKey,
-		ResumeAgentSession: params.ResumeAgentSession,
-	})
-	if err != nil {
-		return nil, mapOrchestratorErrorToMCP(err)
-	}
-
-	resp := map[string]interface{}{
-		"pod": map[string]interface{}{
-			"pod_key": result.Pod.PodKey,
-			"status":  result.Pod.Status,
-		},
-	}
-	if result.Warning != "" {
-		resp["warning"] = result.Warning
-	}
-
-	return resp, nil
+type mcpWorkerPlanPayload struct {
+	PlanID string `json:"plan_id"`
 }
 
-// mapOrchestratorErrorToMCP maps PodOrchestrator errors to MCP error responses.
-func mapOrchestratorErrorToMCP(err error) *mcpError {
+func (a *GRPCRunnerAdapter) mcpCreatePod(
+	ctx context.Context,
+	tenant *middleware.TenantContext,
+	payload []byte,
+) (interface{}, *mcpError) {
+	params, decodeErr := decodeMCPWorkerPlanPayload(payload)
+	if decodeErr != nil {
+		return nil, decodeErr
+	}
+	if a.workerPlanAuthorizer == nil ||
+		a.workerPlanApplier == nil ||
+		a.workerPodReader == nil {
+		return nil, newMcpError(503, "Worker apply service is unavailable")
+	}
+	scope := control.Scope{
+		OrganizationID: tenant.OrganizationID,
+		OrganizationSlug: slugkit.Slug(
+			tenant.OrganizationSlug,
+		),
+		ActorID: tenant.UserID,
+	}
+	if err := scope.Validate(); err != nil {
+		return nil, newMcpError(500, "organization scope is unavailable")
+	}
+	if err := a.workerPlanAuthorizer.AuthorizeApply(
+		ctx,
+		scope,
+		params.PlanID,
+	); err != nil {
+		return nil, mapWorkerPlanErrorToMCP(err)
+	}
+	applied, err := a.workerPlanApplier.Apply(ctx, scope, params.PlanID)
+	if err != nil {
+		return nil, mapWorkerPlanErrorToMCP(err)
+	}
+	pod, err := a.workerPodReader.GetPod(ctx, applied.PodKey)
+	if err != nil || pod == nil || pod.PodKey != applied.PodKey {
+		return nil, newMcpError(500, "failed to load applied Worker Pod")
+	}
+	return map[string]interface{}{
+		"pod": map[string]interface{}{
+			"pod_key": pod.PodKey,
+			"status":  pod.Status,
+		},
+	}, nil
+}
+
+func decodeMCPWorkerPlanPayload(
+	payload []byte,
+) (mcpWorkerPlanPayload, *mcpError) {
+	var params mcpWorkerPlanPayload
+	decoder := json.NewDecoder(bytes.NewReader(payload))
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&params); err != nil {
+		return params, newMcpError(400, "invalid request payload")
+	}
+	if err := decoder.Decode(&struct{}{}); !errors.Is(err, io.EOF) {
+		return params, newMcpError(400, "invalid request payload")
+	}
+	parsed, err := uuid.Parse(params.PlanID)
+	if err != nil || parsed == uuid.Nil || parsed.String() != params.PlanID {
+		return params, newMcpError(400, "plan_id must be a canonical UUID")
+	}
+	return params, nil
+}
+
+func mapWorkerPlanErrorToMCP(err error) *mcpError {
 	switch {
-	case errors.Is(err, agentpod.ErrCreateResourceUnavailable):
-		return newMcpError(400, "Selected repository is unavailable")
-	case errors.Is(err, agentpod.ErrMissingRunnerID):
-		return newMcpError(400, "runner_id is required")
-	case errors.Is(err, agentpod.ErrMissingAgentSlug):
-		return newMcpError(400, "agent_slug is required")
-	case errors.Is(err, agentpod.ErrSourcePodNotTerminated):
-		return newMcpError(400, "source pod is not terminated")
-	case errors.Is(err, agentpod.ErrResumeRunnerMismatch):
-		return newMcpError(400, "resume requires same runner")
-	case errors.Is(err, agentpod.ErrInvalidAgentfileLayer):
-		return newMcpError(400, err.Error())
-	case errors.Is(err, agentpod.ErrSourcePodAccessDenied):
-		return newMcpError(403, "source pod access denied")
-	case errors.Is(err, agentpod.ErrSourcePodNotFound):
-		return newMcpError(404, "source pod not found")
-	case errors.Is(err, agentpod.ErrSourcePodAlreadyResumed):
-		return newMcpError(409, "source pod already resumed")
-	case errors.Is(err, agentpod.ErrSandboxAlreadyResumed):
-		return newMcpError(409, "sandbox already resumed")
-	case errors.Is(err, agentpod.ErrConfigBuildFailed):
-		return newMcpError(500, "failed to build pod configuration")
-	case errors.Is(err, agentpod.ErrRunnerDispatchFailed):
-		return newMcpError(502, "failed to dispatch pod to runner")
+	case errors.Is(err, control.ErrInvalid):
+		return newMcpError(400, "Worker plan is invalid")
+	case errors.Is(err, controlservice.ErrForbidden):
+		return newMcpError(403, "Worker plan access is forbidden")
+	case errors.Is(err, control.ErrNotFound):
+		return newMcpError(404, "Worker plan was not found")
+	case errors.Is(err, control.ErrConflict),
+		errors.Is(err, control.ErrStale),
+		errors.Is(err, control.ErrExpired),
+		errors.Is(err, control.ErrConsumed):
+		return newMcpError(409, "Worker plan state changed; create a new plan")
+	case errors.Is(err, podDomain.ErrQueueFull):
+		return newMcpError(429, "Runner pending queue is full")
+	case errors.Is(err, agentsvc.ErrNoAvailableRunner):
+		return newMcpError(422, "No runner is available for the Worker snapshot")
+	case errors.Is(err, controlservice.ErrUnavailable):
+		return newMcpError(503, "Worker apply service is unavailable")
 	default:
-		return newMcpErrorf(500, "failed to create pod: %v", err)
+		return newMcpError(500, "failed to apply Worker plan")
 	}
 }

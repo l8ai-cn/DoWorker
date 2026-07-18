@@ -31,7 +31,42 @@ func validateWorkspace(workspace Workspace) error {
 	for index, id := range workspace.EnvBundleIDs {
 		ids[index] = int64(id)
 	}
-	return validateUniqueIDs("workspace env_bundle_ids", ids)
+	if err := validateUniqueIDs("workspace env_bundle_ids", ids); err != nil {
+		return err
+	}
+	return validateConfigDocumentBindings(workspace.ConfigDocumentBindings)
+}
+
+func validateConfigDocumentBindings(bindings []ConfigDocumentBinding) error {
+	documents := make(map[string]struct{}, len(bindings))
+	bundles := make(map[int64]struct{}, len(bindings))
+	for _, binding := range bindings {
+		if binding.DocumentID == "" ||
+			strings.TrimSpace(binding.DocumentID) != binding.DocumentID {
+			return fmt.Errorf("workspace config document id must be normalized")
+		}
+		if _, exists := documents[binding.DocumentID]; exists {
+			return fmt.Errorf(
+				"workspace config_document_bindings contains duplicate document %q",
+				binding.DocumentID,
+			)
+		}
+		if binding.ConfigBundleID <= 0 {
+			return fmt.Errorf(
+				"workspace config document %q bundle id must be positive",
+				binding.DocumentID,
+			)
+		}
+		if _, exists := bundles[binding.ConfigBundleID]; exists {
+			return fmt.Errorf(
+				"workspace config_document_bindings contains duplicate bundle id %d",
+				binding.ConfigBundleID,
+			)
+		}
+		documents[binding.DocumentID] = struct{}{}
+		bundles[binding.ConfigBundleID] = struct{}{}
+	}
+	return nil
 }
 
 func validateKnowledgeMounts(mounts []KnowledgeMount) error {

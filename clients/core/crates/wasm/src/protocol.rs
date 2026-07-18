@@ -1,4 +1,4 @@
-use agentsmesh_protocol::{decode_message, encode_message, encode_resize, MsgType};
+use agentsmesh_protocol::{MsgType, decode_message, encode_message, encode_resize};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]

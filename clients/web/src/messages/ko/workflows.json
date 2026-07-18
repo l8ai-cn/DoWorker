@@ -2,6 +2,8 @@
   "workflows": {
     "searchPlaceholder": "Search workflows...",
     "createWorkflow": "Create Workflow",
+    "newRevision": "새 리비전",
+    "revisionLoadFailed": "활성 Workflow 선언을 불러오지 못했습니다.",
     "editWorkflow": "Edit Workflow",
     "noMatch": "No workflows match your search",
     "emptyState": "No workflows yet",

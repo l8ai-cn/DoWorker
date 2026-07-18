@@ -5,9 +5,7 @@ import type { WebAcpRuntimeDeps, WebAcpSessionRuntimeInput } from "./webAcpRunti
 import { WebAcpArtifactDiscovery } from "./webAcpArtifactDiscovery";
 import { retainWebAcpPodSubscription } from "./webAcpPodSubscription";
 import { projectWebAcpSnapshot } from "./webAcpSnapshot";
-
 export type { WebAcpRuntimeDeps } from "./webAcpRuntimeTypes";
-
 export class WebAcpSessionRuntime implements AgentSessionRuntime {
   readonly sessionId: string;
   private readonly listeners = new Set<() => void>();
@@ -26,7 +24,6 @@ export class WebAcpSessionRuntime implements AgentSessionRuntime {
     this.subscriptionBase = `agent-workspace-${input.paneId}`;
     this.artifacts = new WebAcpArtifactDiscovery(input.podKey, () => this.deps(), () => this.notify());
   }
-
   async open(sessionId: string): Promise<void> {
     this.assertSession(sessionId);
     if (this.cleanup || this.opening) return this.opening ?? Promise.resolve();
@@ -34,35 +31,42 @@ export class WebAcpSessionRuntime implements AgentSessionRuntime {
     const openId = ++this.nextSubscription;
     const subscriptionId = `${this.subscriptionBase}-${openId}`;
     this.activeOpen = openId;
-    const sharedSubscription = retainWebAcpPodSubscription(
-      deps,
-      this.input.podKey,
-      subscriptionId,
-      {
-        onStatus: (status) => {
-          this.connection = relayConnection(status);
-          this.notify();
-        },
-      },
-    );
+    const sharedSubscription =
+      this.input.live === false
+        ? null
+        : retainWebAcpPodSubscription(
+            deps,
+            this.input.podKey,
+            subscriptionId,
+            {
+              onStatus: (status) => {
+                this.connection = relayConnection(status);
+                this.notify();
+              },
+            },
+          );
+    if (!sharedSubscription) this.connection = "disconnected";
     const cleanups = [
       deps.subscribeSession(() => {
         this.artifacts.observe(deps.readSession(this.input.podKey)?.state ?? "idle");
         this.notify();
       }),
-      sharedSubscription.release,
+      ...(sharedSubscription ? [sharedSubscription.release] : []),
     ];
     this.cleanup = () => cleanups.splice(0).forEach((cleanup) => cleanup());
-    const opening = sharedSubscription.ready
-      .then(async () => {
+    const opening = Promise.allSettled([
+      sharedSubscription?.ready ?? Promise.resolve(),
+      this.artifacts.open(deps.readSession(this.input.podKey)?.state ?? "idle"),
+    ])
+      .then(([relayResult]) => {
         if (this.activeOpen !== openId) return;
-        this.error = null;
-        await this.artifacts.open(deps.readSession(this.input.podKey)?.state ?? "idle");
-      })
-      .catch((cause: unknown) => {
-        if (this.activeOpen !== openId) return;
-        this.connection = "disconnected";
-        this.error = cause instanceof Error ? cause.message : String(cause);
+        if (relayResult.status === "rejected") {
+          this.connection = "disconnected";
+          const reason = relayResult.reason;
+          this.error = reason instanceof Error ? reason.message : String(reason);
+        } else {
+          this.error = null;
+        }
         this.notify();
       })
       .finally(() => {
@@ -97,18 +101,15 @@ export class WebAcpSessionRuntime implements AgentSessionRuntime {
     };
     return this.snapshot;
   }
-
   subscribe(sessionId: string, listener: () => void): () => void {
     this.assertSession(sessionId);
     this.listeners.add(listener);
     return () => this.listeners.delete(listener);
   }
-
   sendMessage(sessionId: string, commandId: string, input: { text: string }): Promise<void> {
     this.assertSession(sessionId);
     return this.send({ type: "prompt", prompt: input.text, requestId: commandId });
   }
-
   sendSlashCommand(
     sessionId: string,
     commandId: string,

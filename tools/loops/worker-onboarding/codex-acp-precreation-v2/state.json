@@ -1,0 +1,17 @@
+{
+  "schema_version": "2.0",
+  "loop_id": "codex-acp-precreation-2026-07-16",
+  "loop_name": "Codex ACP Precreation Verification Loop",
+  "status": "blocked_human_gate",
+  "active_loop_node_id": "live-launch-gate",
+  "active_task_id": "verify-live-launch",
+  "iteration": 4,
+  "token_estimate": 28000,
+  "last_verifier_id": "codex-precreation",
+  "last_verifier_exit_code": 0,
+  "last_no_progress_fingerprint": "codex-cli|verify-live-launch|approval-missing",
+  "stale_iterations": 0,
+  "started_at": "2026-07-16T19:07:52+08:00",
+  "updated_at": "2026-07-16T19:07:52+08:00",
+  "terminal_reason": "Named non-production authorization is required for model-resource credential use and live launch."
+}

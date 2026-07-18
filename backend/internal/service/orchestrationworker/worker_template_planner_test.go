@@ -28,8 +28,8 @@ func TestWorkerTemplatePlannerExtractsEveryDirectReference(t *testing.T) {
 		"/spec/runtime/computeTargetRef",
 		"/spec/runtime/resourceProfileRef",
 		"/spec/toolRefs/video-generation",
-		"/spec/typeConfig/secretRefs/api-token",
-		"/spec/workspace/configBundleRefs/0",
+		"/spec/typeConfig/secretRefs/CURSOR_API_KEY",
+		"/spec/workspace/configDocumentBindings/0/configBundleRef",
 		"/spec/workspace/environmentBundleRefs/0",
 		"/spec/workspace/knowledgeMounts/0/ref",
 		"/spec/workspace/repositoryRef",
@@ -67,14 +67,17 @@ func TestWorkerTemplatePlannerCompilesResourceRefsIntoWorkerDraft(t *testing.T) 
 	assert.Equal(t, int64(31), draft.Runtime.RuntimeImageID)
 	assert.Equal(t, int64(103), draft.Runtime.ComputeTargetID)
 	assert.Equal(t, int64(104), draft.Runtime.ResourceProfileID)
-	assert.Equal(t, int64(105), draft.TypeConfig.SecretRefs["api-token"].ID)
-	assert.Equal(t, slugkit.MustNewForTest("env-bundle"), draft.TypeConfig.SecretRefs["api-token"].Kind)
+	assert.Equal(t, int64(105), draft.TypeConfig.SecretRefs["CURSOR_API_KEY"].ID)
+	assert.Equal(t, slugkit.MustNewForTest("env-bundle"), draft.TypeConfig.SecretRefs["CURSOR_API_KEY"].Kind)
 	require.NotNil(t, draft.Workspace.RepositoryID)
 	assert.Equal(t, int64(106), *draft.Workspace.RepositoryID)
 	assert.Equal(t, []int64{107}, draft.Workspace.SkillIDs)
 	assert.Equal(t, int64(108), draft.Workspace.KnowledgeMounts[0].KnowledgeBaseID)
 	assert.Equal(t, []workerspec.RuntimeEnvBundleID{109}, draft.Workspace.EnvBundleIDs)
-	assert.Equal(t, []int64{110}, draft.Workspace.ConfigBundleIDs)
+	assert.Equal(t, []workerspec.ConfigDocumentBinding{{
+		DocumentID:     "settings",
+		ConfigBundleID: 110,
+	}}, draft.Workspace.ConfigDocumentBindings)
 	assert.Empty(t, draft.Workspace.InitialTask)
 }
 
@@ -186,9 +189,9 @@ func workerTemplateSpecForTest() resource.WorkerTemplateSpec {
 			DeploymentMode:   workerspec.DeploymentModeDedicated, ResourceProfileRef: &profile,
 		},
 		TypeConfig: resource.WorkerTemplateTypeConfigSpec{
-			SchemaVersion: 1, Values: map[string]any{"approval-mode": "never"},
+			SchemaVersion: 1, Values: map[string]any{"APPROVAL_MODE": "never"},
 			SecretRefs: map[string]resource.Reference{
-				"api-token": workerReference(resource.KindEnvironmentBundle, "secret-bundle"),
+				"CURSOR_API_KEY": workerReference(resource.KindEnvironmentBundle, "secret-bundle"),
 			},
 			InteractionMode: workerspec.InteractionModeACP,
 			AutomationLevel: workerspec.AutomationLevelAutonomous,
@@ -203,9 +206,13 @@ func workerTemplateSpecForTest() resource.WorkerTemplateSpec {
 			EnvironmentBundleRefs: []resource.Reference{
 				workerReference(resource.KindEnvironmentBundle, "runtime-environment"),
 			},
-			ConfigBundleRefs: []resource.Reference{
-				workerReference(resource.KindEnvironmentBundle, "config-environment"),
-			},
+			ConfigDocumentBindings: []resource.WorkerTemplateConfigDocumentBinding{{
+				DocumentID: "settings",
+				ConfigBundleRef: workerReference(
+					resource.KindEnvironmentBundle,
+					"config-environment",
+				),
+			}},
 			Instructions: "Review before editing.",
 		},
 		Lifecycle: resource.WorkerTemplateLifecycleSpec{

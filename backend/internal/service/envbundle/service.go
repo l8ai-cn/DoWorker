@@ -12,6 +12,7 @@ import (
 var (
 	ErrNotFound      = errors.New("env bundle not found")
 	ErrNameExists    = errors.New("env bundle with this name already exists")
+	ErrInvalidConfig = errors.New("invalid config bundle data")
 	ErrInvalidKind   = errors.New("invalid env bundle kind")
 	ErrInvalidScope  = errors.New("invalid owner scope")
 )

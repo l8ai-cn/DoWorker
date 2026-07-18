@@ -56,10 +56,10 @@
       "runtime_catalog": {
         "status": "blocked_no_published_digest"
       },
-      "runtime_evidence": "blocked_external_apt_repository",
-      "runner": "unverified",
-      "product_path": "unverified",
-      "browser": "missing_runtime_image_guard_verified",
+      "runtime_evidence": "runtime_smoke_verified",
+      "runner": "unverified_current",
+      "product_path": "not_revalidated_current_loop",
+      "browser": "blocked_browser_runtime",
       "support_status": "not_supported"
     },
     {
@@ -123,9 +123,9 @@
         "probe_status": "not_found"
       },
       "runtime_evidence": "runtime_smoke_verified",
-      "runner": "adapter_unit_verified",
-      "product_path": "blocked_missing_model_resource_verified",
-      "browser": "missing_model_resource_guard_verified",
+      "runner": "unverified_current",
+      "product_path": "not_revalidated_current_loop",
+      "browser": "blocked_browser_runtime",
       "support_status": "not_supported"
     },
     {
@@ -178,9 +178,9 @@
         "probe_status": "not_found"
       },
       "runtime_evidence": "runtime_smoke_verified",
-      "runner": "create_and_acp_prompt_verified",
-      "product_path": "created_acp_prompt_and_cleanup_verified",
-      "browser": "created_acp_prompt_and_cleanup_verified",
+      "runner": "slug_presence_verified_adapter_unattested_current",
+      "product_path": "preflight_passed_not_created",
+      "browser": "blocked_browser_runtime",
       "support_status": "not_supported"
     },
     {
@@ -229,9 +229,9 @@
         "status": "blocked_no_published_digest"
       },
       "runtime_evidence": "runtime_smoke_verified",
-      "runner": "adapter_unit_verified",
-      "product_path": "unverified",
-      "browser": "missing_runtime_image_guard_verified",
+      "runner": "unverified_current",
+      "product_path": "not_revalidated_current_loop",
+      "browser": "blocked_browser_runtime",
       "support_status": "not_supported"
     },
     {
@@ -300,9 +300,9 @@
         "status": "blocked_no_published_digest"
       },
       "runtime_evidence": "runtime_smoke_verified",
-      "runner": "adapter_unit_verified",
-      "product_path": "unverified",
-      "browser": "missing_runtime_image_guard_verified",
+      "runner": "slug_presence_verified_adapter_unattested_current",
+      "product_path": "preflight_passed_not_created",
+      "browser": "blocked_browser_runtime",
       "support_status": "not_supported"
     },
     {
@@ -355,9 +355,9 @@
         "probe_status": "not_found"
       },
       "runtime_evidence": "runtime_smoke_verified",
-      "runner": "adapter_unit_verified",
-      "product_path": "blocked_missing_model_resource_verified",
-      "browser": "missing_model_resource_guard_verified",
+      "runner": "slug_presence_verified_adapter_unattested_current",
+      "product_path": "preflight_blocked_missing_compatible_model",
+      "browser": "blocked_browser_runtime",
       "support_status": "not_supported"
     },
     {
@@ -406,9 +406,9 @@
         "status": "blocked_no_published_digest"
       },
       "runtime_evidence": "runtime_smoke_verified",
-      "runner": "adapter_unit_verified",
-      "product_path": "unverified",
-      "browser": "missing_runtime_image_guard_verified",
+      "runner": "unverified_current",
+      "product_path": "not_revalidated_current_loop",
+      "browser": "blocked_browser_runtime",
       "support_status": "not_supported"
     },
     {
@@ -457,10 +457,10 @@
       "runtime_catalog": {
         "status": "blocked_no_published_digest"
       },
-      "runtime_evidence": "blocked_external_apt_repository",
-      "runner": "unverified",
-      "product_path": "unverified",
-      "browser": "missing_runtime_image_guard_verified",
+      "runtime_evidence": "runtime_smoke_verified",
+      "runner": "unverified_current",
+      "product_path": "not_revalidated_current_loop",
+      "browser": "blocked_browser_runtime",
       "support_status": "not_supported"
     },
     {
@@ -531,9 +531,9 @@
         "status": "blocked_no_published_digest"
       },
       "runtime_evidence": "blocked_missing_real_artifact",
-      "runner": "unverified",
-      "product_path": "unverified",
-      "browser": "missing_runtime_image_guard_verified",
+      "runner": "unverified_current",
+      "product_path": "not_revalidated_current_loop",
+      "browser": "blocked_browser_runtime",
       "support_status": "not_supported"
     },
     {
@@ -553,7 +553,7 @@
         "runner-evidence",
         "product-evidence"
       ],
-      "definition_hash": "sha256:2978f587049d22e83397032c9e3fb1c94dfecfd7f1966b0ef0e0d3c2ec5526a2",
+      "definition_hash": "sha256:d7c0fe3c67243528c4bf4b8fe7cffb0fee29406188d0a833c92603cea01cf2be",
       "executable": "mmx",
       "adapter_id": "minimax-pty",
       "interaction_modes": [
@@ -583,9 +583,9 @@
         "status": "blocked_no_published_digest"
       },
       "runtime_evidence": "runtime_smoke_verified",
-      "runner": "unverified",
-      "product_path": "unverified",
-      "browser": "missing_runtime_image_guard_verified",
+      "runner": "slug_presence_verified_adapter_unattested_current",
+      "product_path": "preflight_passed_not_created",
+      "browser": "blocked_browser_runtime",
       "support_status": "not_supported"
     },
     {
@@ -605,7 +605,7 @@
         "runner-evidence",
         "product-evidence"
       ],
-      "definition_hash": "sha256:7b639374c7b430ed67dd59ff59f9a7da2aa2dfca2f2132abb66f1573dd642765",
+      "definition_hash": "sha256:6dd46e7bf44d30cd5ececc7e7d87f317559d3892415dec9ab86aabe3b5a57518",
       "executable": "openclaw",
       "adapter_id": "openclaw-pty",
       "interaction_modes": [
@@ -630,14 +630,20 @@
           }
         }
       ],
-      "config_documents": [],
+      "config_documents": [
+        {
+          "id": "openclaw-json",
+          "format": "json",
+          "target_path": "openclaw-home/.openclaw/openclaw.json"
+        }
+      ],
       "runtime_catalog": {
         "status": "blocked_no_published_digest"
       },
       "runtime_evidence": "runtime_smoke_verified",
-      "runner": "unverified",
-      "product_path": "unverified",
-      "browser": "missing_runtime_image_guard_verified",
+      "runner": "slug_presence_verified_adapter_unattested_current",
+      "product_path": "preflight_passed_not_created",
+      "browser": "blocked_browser_runtime",
       "support_status": "not_supported"
     },
     {
@@ -674,9 +680,80 @@
         "status": "blocked_no_published_digest"
       },
       "runtime_evidence": "runtime_smoke_verified",
-      "runner": "adapter_unit_verified",
-      "product_path": "unverified",
-      "browser": "missing_runtime_image_guard_verified",
+      "runner": "unverified_current",
+      "product_path": "not_revalidated_current_loop",
+      "browser": "blocked_browser_runtime",
+      "support_status": "not_supported"
+    },
+    {
+      "slug": "seedance-expert",
+      "source_refs": [
+        "config/worker-types/seedance-expert/definition.json",
+        "config/worker-types/seedance-expert/AgentFile",
+        "backend/internal/domain/workerruntime/runtime_catalog.lock.json",
+        "tools/loops/worker-onboarding/catalog-loop/catalog/worker-evidence-matrix.json",
+        "tools/loops/worker-onboarding/catalog-loop/evidence/runtime-builds/seedance-expert.json",
+        "tools/loops/worker-onboarding/catalog-loop/evidence/runtime-lock-probes.json"
+      ],
+      "layers": [
+        "definition",
+        "runtime-catalog",
+        "runtime-evidence",
+        "runner-evidence",
+        "product-evidence"
+      ],
+      "definition_hash": "sha256:71097d3d9e94b5752e0417eb1dd41e1472b885f8be2b279eba8ce31f7cbe1fc9",
+      "executable": "do-agent",
+      "adapter_id": "do-agent-acp",
+      "interaction_modes": [
+        "pty",
+        "acp"
+      ],
+      "model_requirement": {
+        "required": true,
+        "protocol_adapters": [
+          "openai-compatible",
+          "anthropic"
+        ]
+      },
+      "credential_bindings": [
+        {
+          "id": "openai",
+          "source": {
+            "kind": "model_resource",
+            "ref": "openai-compatible"
+          },
+          "target": {
+            "kind": "env",
+            "name": "OPENAI_API_KEY"
+          }
+        },
+        {
+          "id": "anthropic",
+          "source": {
+            "kind": "model_resource",
+            "ref": "anthropic"
+          },
+          "target": {
+            "kind": "env",
+            "name": "ANTHROPIC_API_KEY"
+          }
+        }
+      ],
+      "config_documents": [
+        {
+          "id": "settings",
+          "format": "json",
+          "target_path": "DO_AGENT_SETTINGS"
+        }
+      ],
+      "runtime_catalog": {
+        "status": "blocked_no_published_digest"
+      },
+      "runtime_evidence": "shared_do_agent_runtime_verified",
+      "runner": "slug_presence_verified_adapter_unattested_current",
+      "product_path": "preflight_blocked_disabled_tool_model",
+      "browser": "blocked_browser_runtime",
       "support_status": "not_supported"
     }
   ]

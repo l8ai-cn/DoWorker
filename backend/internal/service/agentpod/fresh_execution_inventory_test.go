@@ -1,7 +1,6 @@
 package agentpod
 
 import (
-	"encoding/json"
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -48,21 +47,17 @@ func TestFreshExecutionInventory(t *testing.T) {
 	got := discoverFreshExecutionInventory(t)
 
 	expected := map[string]freshExecutionInventoryEntry{
-		"backend/internal/api/connect/pod/create_pod.go:CreatePod": {
-			Mode:   "legacy",
-			Fields: []string{"RunnerID", "AgentSlug", "RepositoryID", "AgentfileLayer", "SourcePodKey", "ModelResourceID", "KnowledgeMounts", "AutomationLevel"},
+		"backend/internal/api/connect/pod/create_pod_request.go:buildResumePodRequest": {
+			Mode:   "lineage",
+			Fields: []string{"SourcePodKey"},
 		},
-		"backend/internal/api/grpc/runner_adapter_mcp_pod.go:mcpCreatePod": {
-			Mode:   "legacy",
-			Fields: []string{"RunnerID", "AgentSlug", "RepositoryID", "AgentfileLayer", "SourcePodKey"},
+		"backend/internal/api/connect/pod/create_pod_request.go:buildWorkerSpecPodRequest": {
+			Mode:   "plan",
+			Fields: []string{"WorkerSpecDraft"},
 		},
-		"backend/internal/api/rest/v1/pod_create.go:CreatePod": {
-			Mode:   "legacy",
-			Fields: []string{"RunnerID", "AgentSlug", "RepositoryID", "AgentfileLayer", "SourcePodKey", "ModelResourceID", "AutomationLevel"},
-		},
-		"backend/internal/api/rest/v1/quick_task.go:CreateQuickTask": {
-			Mode:   "legacy",
-			Fields: []string{"RunnerID", "AgentSlug", "RepositoryID", "AgentfileLayer"},
+		"backend/internal/api/rest/v1/pod_create_resume.go:buildRESTResumePodRequest": {
+			Mode:   "lineage",
+			Fields: []string{"SourcePodKey"},
 		},
 		"backend/internal/api/rest/v1/session/hosts.go:handleBindHostRunner": {
 			Mode:   "legacy",
@@ -80,7 +75,7 @@ func TestFreshExecutionInventory(t *testing.T) {
 			Mode:   "legacy",
 			Fields: []string{"AgentSlug", "AgentfileLayer"},
 		},
-		"backend/internal/api/rest/v1/session/session_message_pod.go:ensureMessagePod": {Mode: "legacy", Fields: []string{"AgentSlug", "SourcePodKey"}},
+		"backend/internal/api/rest/v1/session/session_message_pod.go:ensureMessagePod": {Mode: "lineage", Fields: []string{"SourcePodKey"}},
 		"backend/internal/api/rest/v1/session/session_switch.go:rebuildSessionPod": {
 			Mode:   "legacy",
 			Fields: []string{"RunnerID", "AgentSlug", "AgentfileLayer"},
@@ -98,18 +93,21 @@ func TestFreshExecutionInventory(t *testing.T) {
 			Fields: []string{"WorkerSpecSnapshotID", "WorkerSpecPromptOverride"},
 		},
 		"backend/internal/service/mesh/ticket_pod_orchestration.go:CreatePodForTicket": {
-			Mode:   "legacy",
-			Fields: []string{"RunnerID", "AgentSlug", "AgentfileLayer", "AutomationLevel"},
+			Mode:   "snapshot",
+			Fields: []string{"WorkerSpecSnapshotID", "WorkerSpecPromptOverride"},
 		},
 		"backend/cmd/server/orchestration_worker_launcher.go:MaterializeWorkerPod": {
 			Mode:   "snapshot",
 			Fields: []string{"WorkerSpecSnapshotID", "WorkerSpecPromptOverride"},
 		},
-		"backend/internal/service/workflow/workflow_pod_request.go:buildWorkflowCreatePodRequest": {
-			Mode:   "legacy",
-			Fields: []string{"RunnerID", "AgentSlug", "AgentfileLayer", "SourcePodKey", "ModelResourceID"},
+		"backend/internal/service/workflow/workflow_pod_request.go:buildWorkflowRunLineagePodRequest": {
+			Mode:   "lineage",
+			Fields: []string{"WorkerSpecPromptOverride", "SourcePodKey"},
 		},
-		"backend/internal/service/workflow/workflow_pod_request.go:buildWorkflowRunPodRequest": {Mode: "snapshot", Fields: []string{"WorkerSpecSnapshotID", "WorkerSpecPromptOverride", "SourcePodKey"}},
+		"backend/internal/service/workflow/workflow_pod_request.go:buildWorkflowRunSnapshotPodRequest": {
+			Mode:   "snapshot",
+			Fields: []string{"WorkerSpecSnapshotID", "WorkerSpecPromptOverride"},
+		},
 	}
 
 	if len(expected) == 0 {
@@ -135,7 +133,15 @@ func assertFreshExecutionFieldRules(t *testing.T, key string, entry freshExecuti
 	if entry.Mode == "snapshot" && !containsField(entry.Fields, "WorkerSpecSnapshotID") {
 		t.Errorf("%s snapshot mode must include WorkerSpecSnapshotID", key)
 	}
-	if entry.Mode == "snapshot" || entry.Mode == "plan" {
+	if entry.Mode == "plan" && !containsField(entry.Fields, "WorkerSpecDraft") {
+		t.Errorf("%s plan mode must include WorkerSpecDraft", key)
+	}
+	if entry.Mode == "lineage" && !containsField(entry.Fields, "SourcePodKey") {
+		t.Errorf("%s lineage mode must include SourcePodKey", key)
+	}
+	if entry.Mode == "snapshot" ||
+		entry.Mode == "plan" ||
+		entry.Mode == "lineage" {
 		for _, field := range entry.Fields {
 			if _, ok := forbiddenForSnapshotOrPlan[field]; ok {
 				t.Errorf("%s mode %s must not include %s", key, entry.Mode, field)
@@ -266,6 +272,29 @@ func classifyMode(relPath, funcName string) string {
 	) && funcName == "MaterializeWorkerPod" {
 		return "snapshot"
 	}
+	if strings.HasSuffix(
+		relPath,
+		"internal/api/connect/pod/create_pod_request.go",
+	) {
+		switch funcName {
+		case "buildWorkerSpecPodRequest":
+			return "plan"
+		case "buildResumePodRequest":
+			return "lineage"
+		}
+	}
+	if strings.HasSuffix(
+		relPath,
+		"internal/api/rest/v1/pod_create_resume.go",
+	) && funcName == "buildRESTResumePodRequest" {
+		return "lineage"
+	}
+	if strings.HasSuffix(
+		relPath,
+		"internal/api/rest/v1/session/session_message_pod.go",
+	) && funcName == "ensureMessagePod" {
+		return "lineage"
+	}
 	if strings.HasSuffix(relPath, "internal/service/goalloop/goal_loop_start.go") && funcName == "Start" {
 		return "snapshot"
 	}
@@ -273,125 +302,16 @@ func classifyMode(relPath, funcName string) string {
 		return "snapshot"
 	}
 	if strings.HasSuffix(relPath, "internal/service/workflow/workflow_pod_request.go") &&
-		funcName == "buildWorkflowRunPodRequest" {
+		(funcName == "buildWorkflowRunSnapshotPodRequest" ||
+			funcName == "buildWorkflowRunLineagePodRequest") {
+		if funcName == "buildWorkflowRunLineagePodRequest" {
+			return "lineage"
+		}
+		return "snapshot"
+	}
+	if strings.HasSuffix(relPath, "internal/service/mesh/ticket_pod_orchestration.go") &&
+		funcName == "CreatePodForTicket" {
 		return "snapshot"
 	}
 	return "legacy"
-}
-
-func collectFreshExecutionInventoryFields(elements []ast.Expr) []string {
-	present := map[string]struct{}{}
-	for _, elem := range elements {
-		pair, ok := elem.(*ast.KeyValueExpr)
-		if !ok {
-			continue
-		}
-		name, ok := freshExecutionFieldName(pair.Key)
-		if !ok {
-			continue
-		}
-		present[name] = struct{}{}
-	}
-	out := make([]string, 0, len(freshExecutionInventoryFields))
-	for _, field := range freshExecutionInventoryFields {
-		if _, ok := present[field]; ok {
-			out = append(out, field)
-		}
-	}
-	return out
-}
-
-func freshExecutionFieldName(expr ast.Expr) (string, bool) {
-	switch value := expr.(type) {
-	case *ast.Ident:
-		return value.Name, true
-	case *ast.SelectorExpr:
-		return value.Sel.Name, true
-	default:
-		return "", false
-	}
-}
-
-func isOrchestrateCreatePodRequest(expression ast.Expr) bool {
-	switch value := expression.(type) {
-	case *ast.Ident:
-		return value.Name == "OrchestrateCreatePodRequest"
-	case *ast.SelectorExpr:
-		return value.Sel.Name == "OrchestrateCreatePodRequest"
-	default:
-		return false
-	}
-}
-
-func detectBackendDir(t *testing.T) string {
-	t.Helper()
-	path, err := os.Getwd()
-	if err != nil {
-		t.Fatalf("detect backend root: %v", err)
-	}
-	for {
-		if filepath.Base(path) == "backend" {
-			return path
-		}
-		parent := filepath.Dir(path)
-		if parent == path {
-			t.Fatalf("cannot locate backend directory from cwd")
-		}
-		path = parent
-	}
-}
-
-func containsField(items []string, target string) bool {
-	for _, item := range items {
-		if item == target {
-			return true
-		}
-	}
-	return false
-}
-
-func formatInventory(inventory map[string]freshExecutionInventoryEntry) string {
-	lines := make([]string, 0, len(inventory))
-	keys := keysFromMap(inventory)
-	sort.Strings(keys)
-	for _, key := range keys {
-		lines = append(lines, fmt.Sprintf("%s: %s", key, toJSON(inventory[key])))
-	}
-	return strings.Join(lines, "\n")
-}
-
-func keysFromMap(values map[string]freshExecutionInventoryEntry) []string {
-	out := make([]string, 0, len(values))
-	for key := range values {
-		out = append(out, key)
-	}
-	return out
-}
-
-func unionStrings(left, right []string) []string {
-	seen := map[string]struct{}{}
-	out := make([]string, 0, len(left)+len(right))
-	for _, key := range left {
-		if _, ok := seen[key]; ok {
-			continue
-		}
-		seen[key] = struct{}{}
-		out = append(out, key)
-	}
-	for _, key := range right {
-		if _, ok := seen[key]; ok {
-			continue
-		}
-		seen[key] = struct{}{}
-		out = append(out, key)
-	}
-	return out
-}
-
-func toJSON(value any) string {
-	data, err := json.Marshal(value)
-	if err != nil {
-		return "<marshal-error>"
-	}
-	return string(data)
 }

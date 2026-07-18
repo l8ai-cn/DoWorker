@@ -46,6 +46,19 @@ func TestCreateFiles_Directory(t *testing.T) {
 	assert.True(t, info.IsDir())
 }
 
+func TestCreateFiles_AllowsExplicitWorkingDirectory(t *testing.T) {
+	sandbox := t.TempDir()
+	workDir := t.TempDir()
+	b := testBuilder(&runnerv1.CreatePodCommand{
+		FilesToCreate: []*runnerv1.FileToCreate{
+			{Path: "{{.sandbox.work_dir}}/.codex/mcp.json", Content: "{}"},
+		},
+	})
+
+	require.NoError(t, b.createFiles(sandbox, workDir))
+	require.FileExists(t, filepath.Join(workDir, ".codex", "mcp.json"))
+}
+
 func TestCreateFiles_PathTraversal_DotDot(t *testing.T) {
 	sandbox := t.TempDir()
 	b := testBuilder(&runnerv1.CreatePodCommand{
@@ -72,6 +85,22 @@ func TestCreateFiles_PathTraversal_AbsolutePath(t *testing.T) {
 	var podErr *client.PodError
 	require.ErrorAs(t, err, &podErr)
 	assert.Equal(t, client.ErrCodeFileCreate, podErr.Code)
+}
+
+func TestCreateFiles_PathTraversal_Symlink(t *testing.T) {
+	sandbox := t.TempDir()
+	outside := t.TempDir()
+	require.NoError(t, os.Symlink(outside, filepath.Join(sandbox, "outside")))
+	b := testBuilder(&runnerv1.CreatePodCommand{
+		FilesToCreate: []*runnerv1.FileToCreate{
+			{Path: rootTpl + "/outside/escape.txt", Content: "evil"},
+		},
+	})
+
+	err := b.createFiles(sandbox, sandbox)
+
+	require.Error(t, err)
+	require.NoFileExists(t, filepath.Join(outside, "escape.txt"))
 }
 
 func TestCreateFiles_CustomMode(t *testing.T) {
@@ -133,6 +162,35 @@ func TestCreateFilesFromProto_PathTraversal(t *testing.T) {
 	var podErr *client.PodError
 	require.ErrorAs(t, err, &podErr)
 	assert.Equal(t, client.ErrCodeFileCreate, podErr.Code)
+}
+
+func TestCreateFilesFromProto_AllowsExplicitWorkingDirectory(t *testing.T) {
+	sandbox := t.TempDir()
+	workDir := t.TempDir()
+	target := filepath.Join(workDir, ".codex", "mcp.json")
+	b := testBuilder(&runnerv1.CreatePodCommand{})
+
+	err := b.createFilesFromProto([]*runnerv1.FileToCreate{
+		{Path: target, Content: "{}"},
+	}, sandbox, workDir)
+
+	require.NoError(t, err)
+	require.FileExists(t, target)
+}
+
+func TestCreateFilesFromProto_PathTraversal_Symlink(t *testing.T) {
+	sandbox := t.TempDir()
+	outside := t.TempDir()
+	require.NoError(t, os.Symlink(outside, filepath.Join(sandbox, "outside")))
+	target := filepath.Join(sandbox, "outside", "escape.txt")
+	b := testBuilder(&runnerv1.CreatePodCommand{})
+
+	err := b.createFilesFromProto([]*runnerv1.FileToCreate{
+		{Path: target, Content: "evil"},
+	}, sandbox, sandbox)
+
+	require.Error(t, err)
+	require.NoFileExists(t, filepath.Join(outside, "escape.txt"))
 }
 
 func TestCreateFilesFromProto_EmptyList(t *testing.T) {

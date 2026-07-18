@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"hash/fnv"
-	"strconv"
 	"time"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
@@ -79,13 +78,15 @@ func acquirePromptLocks(tx *gorm.DB, runnerID int64, sessionID string) error {
 	if tx.Name() != "postgres" {
 		return nil
 	}
-	for _, key := range []int64{
-		promptLockKey("runner", strconv.FormatInt(runnerID, 10)),
-		promptLockKey("session", sessionID),
-	} {
-		if err := tx.Exec("SELECT pg_advisory_xact_lock(?)", key).Error; err != nil {
-			return fmt.Errorf("acquire prompt outbox lock: %w", err)
-		}
+	if err := tx.Exec(
+		"SELECT pg_advisory_xact_lock(hashtextextended(?, 0))",
+		agentpod.PendingCommandRunnerLockName(runnerID),
+	).Error; err != nil {
+		return fmt.Errorf("acquire prompt outbox runner lock: %w", err)
+	}
+	key := promptLockKey("session", sessionID)
+	if err := tx.Exec("SELECT pg_advisory_xact_lock(?)", key).Error; err != nil {
+		return fmt.Errorf("acquire prompt outbox session lock: %w", err)
 	}
 	return nil
 }

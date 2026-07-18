@@ -6,8 +6,12 @@ import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import type { ResourceReference } from "./resource-editor-types";
-import type { ResourceReferenceCatalog } from "./resource-reference-options";
+import {
+  isResourceReferenceCatalogReadOnly,
+  type ResourceReferenceCatalog,
+} from "./resource-reference-options";
 import { ResourceReferenceField } from "./ResourceReferenceField";
+import { useResourceEditorRowKeys } from "./use-resource-editor-row-keys";
 
 interface ResourceReferenceMapFieldProps {
   id: string;
@@ -30,6 +34,12 @@ export function ResourceReferenceMapField({
 }: ResourceReferenceMapFieldProps) {
   const t = useTranslations("resourceEditor");
   const entries = Object.entries(value);
+  const rows = useResourceEditorRowKeys(entries.length);
+  const readOnly = isResourceReferenceCatalogReadOnly(
+    catalog,
+    kind,
+    entries.map(([, reference]) => reference.name),
+  );
   const replace = (
     index: number,
     nextKey: string,
@@ -49,10 +59,15 @@ export function ResourceReferenceMapField({
           size="icon"
           title={t("collections.add")}
           aria-label={`${t("collections.add")} ${label}`}
-          onClick={() => onChange({
-            ...value,
-            [nextMapKey(value)]: { kind, name: "" },
-          })}
+          disabled={readOnly}
+          onClick={() => {
+            if (readOnly) return;
+            rows.appendKey();
+            onChange({
+              ...value,
+              [nextMapKey(value)]: { kind, name: "" },
+            });
+          }}
         >
           <Plus className="h-4 w-4" />
         </Button>
@@ -64,7 +79,7 @@ export function ResourceReferenceMapField({
       )}
       {entries.map(([key, reference], index) => (
         <div
-          key={`${key}-${index}`}
+          key={rows.keys[index]}
           className="grid gap-3 border-l-2 border-border pl-3 md:grid-cols-[12rem_minmax(0,1fr)_2.5rem]"
         >
           <FormField
@@ -75,7 +90,9 @@ export function ResourceReferenceMapField({
             <Input
               id={`${id}-key-${index}`}
               value={key}
+              disabled={readOnly}
               onChange={(event) => {
+                if (readOnly) return;
                 replace(index, event.target.value, reference);
               }}
             />
@@ -98,9 +115,14 @@ export function ResourceReferenceMapField({
             className="self-start md:mt-7"
             title={t("collections.remove")}
             aria-label={`${t("collections.remove")} ${label} ${index + 1}`}
-            onClick={() => onChange(Object.fromEntries(
-              entries.filter((_, item) => item !== index),
-            ))}
+            disabled={readOnly}
+            onClick={() => {
+              if (readOnly) return;
+              rows.removeKey(index);
+              onChange(Object.fromEntries(
+                entries.filter((_, item) => item !== index),
+              ));
+            }}
           >
             <Trash2 className="h-4 w-4" />
           </Button>

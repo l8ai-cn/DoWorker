@@ -195,6 +195,8 @@ push_runners() {
   docker build --platform linux/amd64 --target runtime \
     -f "${REPO_ROOT}/docker/agent-runtime/Dockerfile" \
     --build-arg AGENT_RUNTIME=e2e-echo \
+    --build-arg "NODE_BASE_IMAGE=${NODE_BASE_IMAGE:-node:24-bookworm-slim}" \
+    --build-arg "PYTHON_BASE_IMAGE=${PYTHON_BASE_IMAGE:-python:3.11-slim-bookworm}" \
     -t do-worker/runner-e2e-echo:latest \
     "${REPO_ROOT}/docker/agent-runtime/_context"
   if docker image inspect "do-worker/runner-minimax-cli:latest" >/dev/null 2>&1; then
@@ -205,6 +207,8 @@ push_runners() {
     docker build --platform linux/amd64 --target runtime \
       -f "${REPO_ROOT}/docker/agent-runtime/Dockerfile" \
       --build-arg AGENT_RUNTIME=minimax-cli \
+      --build-arg "NODE_BASE_IMAGE=${NODE_BASE_IMAGE:-node:24-bookworm-slim}" \
+      --build-arg "PYTHON_BASE_IMAGE=${PYTHON_BASE_IMAGE:-python:3.11-slim-bookworm}" \
       -t do-worker/runner-minimax-cli:latest \
       "${REPO_ROOT}/docker/agent-runtime/_context"
   fi

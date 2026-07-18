@@ -6,7 +6,7 @@ import (
 )
 
 // registerExtPodWorkerRoutes mounts the same handlers at /pods and /workers.
-// "Worker" is the product term; "Pod" is kept for backward-compatible integrations.
+// "Worker" is the product term; "Pod" remains a route alias.
 func registerExtPodWorkerRoutes(rg *gin.RouterGroup, podHandler *PodHandler) {
 	for _, base := range []string{"/pods", "/workers"} {
 		read := rg.Group(base)

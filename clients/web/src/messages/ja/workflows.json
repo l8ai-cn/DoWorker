@@ -2,6 +2,8 @@
   "workflows": {
     "searchPlaceholder": "Search workflows...",
     "createWorkflow": "Create Workflow",
+    "newRevision": "新しいリビジョン",
+    "revisionLoadFailed": "有効な Workflow 宣言を読み込めませんでした。",
     "editWorkflow": "Edit Workflow",
     "noMatch": "No workflows match your search",
     "emptyState": "No workflows yet",

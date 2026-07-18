@@ -62,6 +62,7 @@ func (o *PodOrchestrator) handleResumeMode(ctx context.Context, req *Orchestrate
 	if err := o.inheritResumeState(ctx, req, sourcePod); err != nil {
 		return nil, "", err
 	}
+	appendWorkerSpecPromptOverride(req)
 	req.Perpetual = sourcePod.Perpetual
 
 	var sessionID string

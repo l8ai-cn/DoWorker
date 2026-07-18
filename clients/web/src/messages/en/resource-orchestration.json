@@ -73,6 +73,7 @@
       }
     },
     "yamlTitle": "YAML example",
+    "yamlLimits": "YAML source and exported YAML are limited to 256 KiB per document and 64 KiB per physical line. The parser also rejects multiple documents, aliases, anchors, custom tags, unsafe integers, and structures beyond the supported depth or node count.",
     "securityTitle": "Secret and permission boundaries",
     "securityDescription": "Resource YAML describes references, not plaintext credentials. Namespace is an identity field and never replaces authorization.",
     "security": {

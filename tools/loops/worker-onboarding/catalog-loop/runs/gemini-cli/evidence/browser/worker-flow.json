@@ -1,0 +1,18 @@
+{
+  "at": "2026-07-17T07:42:24Z",
+  "route": "/dev-org/workers/new?mode=template",
+  "worker_type": "gemini-cli",
+  "selected_model_binding": {
+    "name": "qa-primary-model",
+    "provider": "openai",
+    "model_id": "gpt-5"
+  },
+  "plan_issue": {
+    "path": "/spec/modelResourceId",
+    "message": "The selected model is incompatible with this Worker type."
+  },
+  "side_effect_check": {
+    "orchestration_resources_named_gemini-provider-contract-e2e": 0,
+    "pods_aliased_gemini-provider-contract-e2e": 0
+  }
+}

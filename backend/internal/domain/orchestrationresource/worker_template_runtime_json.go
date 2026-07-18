@@ -42,6 +42,9 @@ func (spec WorkerTemplateRuntimeSpec) MarshalJSON() ([]byte, error) {
 }
 
 func (spec *WorkerTemplateRuntimeSpec) UnmarshalJSON(source []byte) error {
+	if err := rejectWorkerTemplateRuntimeNulls(source); err != nil {
+		return err
+	}
 	decoder := json.NewDecoder(bytes.NewReader(source))
 	decoder.DisallowUnknownFields()
 	var wire workerTemplateRuntimeJSON

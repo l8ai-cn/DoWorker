@@ -98,6 +98,8 @@ export function resourceDraftReducer(
     case "plan_loading":
       return {
         ...state,
+        apply: { status: "idle" },
+        validation: { status: "idle" },
         plan: {
           status: "loading",
           requestId: action.requestId,
@@ -109,6 +111,12 @@ export function resourceDraftReducer(
       return {
         ...state,
         mode: "plan",
+        draft: action.draft,
+        source: {
+          text: action.sourceText,
+          dirty: false,
+          error: null,
+        },
         plan: { status: "ready", response: action.response, version: action.version },
       };
     case "plan_failed":
@@ -118,7 +126,11 @@ export function resourceDraftReducer(
       if (state.apply.status === "loading" || state.plan.status !== "ready") {
         return state;
       }
-      return { ...state, plan: { status: "expired" } };
+      return {
+        ...state,
+        plan: { status: "expired", response: state.plan.response,
+          version: state.plan.version },
+      };
     case "apply_loading":
       if (action.version !== state.version) return state;
       return {
@@ -183,8 +195,5 @@ function matchesApply(
     state.version === version;
 }
 
-export {
-  resourceDraftCanApply,
-  resourceDraftCanSubmit,
-  resourceDraftCanSubmitDraft,
-} from "./resource-draft-selectors";
+export { resourceDraftCanApply, resourceDraftCanSubmit,
+  resourceDraftCanSubmitDraft } from "./resource-draft-selectors";

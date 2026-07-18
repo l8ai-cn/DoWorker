@@ -53,7 +53,8 @@ type WorkflowRun struct {
 
 	TriggerParams json.RawMessage `gorm:"type:jsonb;default:'{}'" json:"trigger_params,omitempty"`
 
-	ResolvedPrompt *string `gorm:"type:text" json:"resolved_prompt,omitempty"`
+	ResolvedPrompt    *string         `gorm:"type:text" json:"resolved_prompt,omitempty"`
+	ExecutionManifest json.RawMessage `gorm:"type:jsonb" json:"execution_manifest,omitempty"`
 
 	OrchestrationResourceID       *int64 `json:"orchestration_resource_id,omitempty"`
 	OrchestrationResourceRevision *int64 `json:"orchestration_resource_revision,omitempty"`

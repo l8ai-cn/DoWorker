@@ -1,0 +1,9 @@
+[
+  {
+    "id": "aider-precreation-2026-07-16",
+    "name": "Aider Precreation Verification Loop",
+    "objective": "Create a verifier-backed Aider Worker integration record without claiming provider execution before it is authorized.",
+    "primitive": "goal-based evidence loop with a human launch gate",
+    "status": "blocked_human_gate"
+  }
+]

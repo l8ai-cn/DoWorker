@@ -3,8 +3,11 @@ import {
   toBinary,
 } from "@bufbuild/protobuf";
 import {
+  type EnvironmentBundlePurpose,
   ExportResourceRequestSchema,
   ExportResourceResponseSchema,
+  GetResourceCapabilitiesRequestSchema,
+  GetResourceCapabilitiesResponseSchema,
   GetResourcePlanRequestSchema,
   GetResourceRequestSchema,
   ListResourcesRequestSchema,
@@ -46,6 +49,14 @@ export interface ResourceListInput {
   kind?: string;
   offset?: number;
   limit?: number;
+  environmentBundleFilter?: {
+    purpose: EnvironmentBundlePurpose;
+    workerType: string;
+    targetName?: string;
+  };
+  modelBindingFilter?: {
+    workerType: string;
+  };
 }
 
 function source(document: ResourceDocument) {
@@ -98,6 +109,23 @@ export function getResource(orgSlug: string, input: ResourceTargetInput) {
     ResourceSchema,
     toBinary(GetResourceRequestSchema, request),
     (bytes) => getOrchestrationResourceService().getResourceConnect(bytes),
+  );
+}
+
+export function getResourceCapabilities(
+  orgSlug: string,
+  input: ResourceTargetInput,
+) {
+  const request = create(GetResourceCapabilitiesRequestSchema, {
+    orgSlug,
+    target: target(input),
+  });
+  return call(
+    GetResourceCapabilitiesResponseSchema,
+    toBinary(GetResourceCapabilitiesRequestSchema, request),
+    (bytes) => (
+      getOrchestrationResourceService().getResourceCapabilitiesConnect(bytes)
+    ),
   );
 }
 

@@ -178,10 +178,13 @@ func (m *PodDaemonManager) RecoverSessions() ([]*PodDaemonState, error) {
 
 	var sessions []*PodDaemonState
 	for _, entry := range entries {
-		if !entry.IsDir() {
+		if !entry.IsDir() || strings.HasPrefix(entry.Name(), ".") {
 			continue
 		}
 		sandboxPath := filepath.Join(m.sandboxesDir, entry.Name())
+		if _, err := os.Stat(StatePath(sandboxPath)); err != nil {
+			continue
+		}
 		state, err := LoadState(sandboxPath)
 		if err != nil {
 			continue // No state file or corrupt

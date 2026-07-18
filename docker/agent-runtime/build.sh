@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Build one or all Do Worker agent-runtime Docker images (runner + pre-installed CLI).
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -23,10 +22,11 @@ AGENT_RUNTIMES=(
 RUNTIME="${1:-all}"
 IMAGE_PREFIX="${IMAGE_PREFIX:-do-worker/runner}"
 BASE_IMAGE="${BASE_IMAGE:-do-worker/runner-base:latest}"
+NODE_BASE_IMAGE="${NODE_BASE_IMAGE:-node:24-bookworm-slim}"
+PYTHON_BASE_IMAGE="${PYTHON_BASE_IMAGE:-python:3.11-slim-bookworm}"
 PLATFORM="${PLATFORM:-linux/amd64}"
 STAGING="${STAGING_DIR:-${SCRIPT_DIR}/_context}"
 BUILD_RETRIES="${BUILD_RETRIES:-3}"
-
 usage() {
   cat <<EOF
 用法: build.sh [all|<agent-runtime>]
@@ -50,6 +50,8 @@ Agent runtimes:
 环境变量:
   IMAGE_PREFIX    镜像名前缀 (默认 do-worker/runner)
   BASE_IMAGE      共享 base 镜像 (默认 do-worker/runner-base:latest)
+  NODE_BASE_IMAGE Node 基础镜像；可设 Alibaba/Tencent 的完整仓库地址
+  PYTHON_BASE_IMAGE Python 基础镜像；可设 Alibaba/Tencent 的完整仓库地址
   PLATFORM        docker build --platform (默认 linux/amd64)
   STAGING_DIR     二进制 staging 目录
   FORCE_REBUILD   设为 1 强制重建已有镜像
@@ -100,6 +102,7 @@ build_base() {
   docker_build_with_retry docker build --platform "$PLATFORM" \
     --target base \
     -f "${SCRIPT_DIR}/Dockerfile" \
+    --build-arg "NODE_BASE_IMAGE=${NODE_BASE_IMAGE}" \
     --build-arg "HTTP_PROXY=" \
     --build-arg "HTTPS_PROXY=" \
     --build-arg "http_proxy=" \
@@ -119,8 +122,15 @@ build_one() {
   )
   if [[ -n "${RUNTIME_EXTENSION_BASE:-}" ]]; then
     build_cmd+=(--target runtime-extension --build-arg "RUNTIME_EXTENSION_BASE=${RUNTIME_EXTENSION_BASE}")
+    if [[ "$rt" == "hermes" ]]; then
+      build_cmd+=(--build-arg "RUNTIME_EXTENSION_RUNTIME_BASE=runtime-extension-python")
+    fi
   else
     build_cmd+=(--target runtime)
+    build_cmd+=(--build-arg "RUNTIME_SHARED_BASE=${BASE_IMAGE}")
+    if [[ "$rt" == "aider" || "$rt" == "hermes" ]]; then
+      build_cmd+=(--build-arg "RUNTIME_BASE=python-runtime-base")
+    fi
   fi
   if [[ "${FORCE_REBUILD:-0}" != "1" ]] && docker image inspect "$tag" >/dev/null 2>&1; then
     echo "⏭ ${tag} 已存在 (FORCE_REBUILD=1 可强制重建)"
@@ -133,6 +143,8 @@ build_one() {
   echo "=========================================="
   build_cmd+=(
     --build-arg "AGENT_RUNTIME=${rt}"
+    --build-arg "NODE_BASE_IMAGE=${NODE_BASE_IMAGE}"
+    --build-arg "PYTHON_BASE_IMAGE=${PYTHON_BASE_IMAGE}"
     --build-arg "HTTP_PROXY="
     --build-arg "HTTPS_PROXY="
     --build-arg "http_proxy="

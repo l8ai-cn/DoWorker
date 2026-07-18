@@ -107,13 +107,19 @@ Content-Type: application/json
 PATCH /experts/{slug}
 ```
 
-只提交需要修改的字段。
+只提交需要修改的字段。若 Expert 已绑定
+`orchestration_resource_id/revision`，接口返回 `409
+EXPERT_MANAGED_BY_RESOURCE_APPLY`；应编辑 Expert 资源并执行
+`Validate -> Plan -> ApplyExpertPlan`。
 
 ### Delete
 
 ```http
 DELETE /experts/{slug}
 ```
+
+资源托管 Expert 同样返回 `409 EXPERT_MANAGED_BY_RESOURCE_APPLY`，不能绕过
+不可变 resource revision 删除领域投影。
 
 ### Run
 
@@ -126,13 +132,15 @@ Content-Type: application/json
 {
   "alias": "review-run-1",
   "prompt_override": "Focus on SQL injection this time.",
-  "runner_id": 2,
   "cols": 120,
   "rows": 40
 }
 ```
 
-成功响应为 `201`，并返回正在初始化的 Pod。
+只有绑定 WorkerSpec snapshot 的 Expert 可以运行。成功响应为 `201`，并返回
+正在初始化的 Pod；缺少 snapshot 的历史草稿会要求重新发布或改用
+resource-native Expert。Run 请求不能覆盖 Runner 或执行节点，实际执行目标由
+该 Expert 绑定的 WorkerSpec snapshot 决定。
 
 ## Publish from Worker
 

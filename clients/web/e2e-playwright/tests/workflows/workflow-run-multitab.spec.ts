@@ -9,25 +9,30 @@ import { test, expect } from "../../fixtures/index";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { terminateAllPods } from "../../helpers/pod-cleanup";
 import { TEST_ORG_SLUG } from "../../helpers/env";
+import {
+  ensureResourceWorkflowFixture,
+  resetResourceWorkflowFixture,
+} from "../../helpers/resource-workflow-fixture";
 
 test.describe("Workflow run · multi-tab UI propagation", () => {
-  test.beforeEach(async () => { clearAuthRateLimit(); });
-  test.afterEach(async () => { await terminateAllPods(); });
+  test.beforeEach(async ({ db }) => {
+    clearAuthRateLimit();
+    await terminateAllPods();
+    ensureResourceWorkflowFixture(db);
+    resetResourceWorkflowFixture(db);
+  });
+  test.afterEach(async ({ db }) => {
+    await terminateAllPods();
+    resetResourceWorkflowFixture(db);
+  });
 
-  test("tab A trigger run → tab B run-history list adds card", async ({ context, api }) => {
+  test("tab A trigger run → tab B run-history list adds card", async ({
+    context,
+    api,
+    db,
+  }) => {
     const cc = await api.connect();
-
-    const stamp = Date.now().toString(36);
-    const workflowName = `e2e-rt-workflow-${stamp}`;
-    const workflow = (await cc.workflow.createWorkflow({
-      orgSlug: TEST_ORG_SLUG,
-      name: workflowName,
-      slug: workflowName,
-      agentSlug: "e2e-echo",
-      promptTemplate: "echo hi",
-      executionMode: "direct",
-      timeoutMinutes: 1,
-    } as never)) as { slug: string };
+    const workflow = ensureResourceWorkflowFixture(db);
 
     const tabA = await context.newPage();
     const tabB = await context.newPage();
@@ -41,8 +46,14 @@ test.describe("Workflow run · multi-tab UI propagation", () => {
     // realtime handler (which reads currentWorkflow synchronously) will route
     // the upcoming workflow_run:started event correctly.
     await Promise.all([
-      expect(tabA.getByRole("heading", { level: 1, name: workflowName })).toBeVisible({ timeout: 30_000 }),
-      expect(tabB.getByRole("heading", { level: 1, name: workflowName })).toBeVisible({ timeout: 30_000 }),
+      expect(tabA.getByRole("heading", {
+        level: 1,
+        name: workflow.name,
+      })).toBeVisible({ timeout: 30_000 }),
+      expect(tabB.getByRole("heading", {
+        level: 1,
+        name: workflow.name,
+      })).toBeVisible({ timeout: 30_000 }),
     ]);
 
     // EventSubscriptionManager bootstrap window so both tabs are subscribed

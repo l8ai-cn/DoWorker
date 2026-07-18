@@ -106,7 +106,26 @@ func convertTypeSchema(
 			Description: "引用已有凭据，不在这里填写明文密钥。",
 		}
 	}
-	return specdomain.TypeSchema{Version: workerTypeSchemaVersion, Fields: fields}, nil
+	return specdomain.TypeSchema{
+		Version:                 workerTypeSchemaVersion,
+		Fields:                  fields,
+		SecretRequirementGroups: secretRequirementGroups(definition),
+	}, nil
+}
+
+func secretRequirementGroups(
+	definition workerdefinition.Definition,
+) []specdomain.SecretRequirementGroup {
+	groups := make(
+		[]specdomain.SecretRequirementGroup,
+		len(definition.CredentialRequirementGroups),
+	)
+	for index, group := range definition.CredentialRequirementGroups {
+		groups[index] = specdomain.SecretRequirementGroup{
+			ID: group.ID, AnyOf: append([]string{}, group.AnyOf...),
+		}
+	}
+	return groups
 }
 
 func typeFieldKind(value string) (specdomain.TypeFieldKind, error) {

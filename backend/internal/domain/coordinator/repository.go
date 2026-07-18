@@ -20,8 +20,10 @@ type Repository interface {
 	CreateLink(ctx context.Context, link *TicketExternalLink) error
 
 	CreateExecution(ctx context.Context, execution *Execution) error
+	WithinProjectDispatch(ctx context.Context, projectID int64, fn func(Repository) error) error
 	GetExecution(ctx context.Context, id int64) (*Execution, error)
 	GetExecutionByPodKey(ctx context.Context, podKey string) (*Execution, error)
+	GetActiveExecutionByProjectAndExternalID(ctx context.Context, projectID int64, externalID string) (*Execution, error)
 	ListExecutions(ctx context.Context, projectID int64, limit int) ([]*Execution, error)
 	UpdateExecution(ctx context.Context, id int64, updates map[string]any) error
 	CountActiveExecutions(ctx context.Context, projectID int64) (int64, error)

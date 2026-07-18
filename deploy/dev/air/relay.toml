@@ -1,4 +1,4 @@
-# air hot-reload for relay (DEV_NO_BAZEL=1 / dev-lite.sh).
+# air hot-reload for relay.
 
 root = "."
 tmp_dir = "deploy/dev/runtime/relay/air"

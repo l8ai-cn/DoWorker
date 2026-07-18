@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "slug": "cursor-cli",
-  "status": "planned",
-  "definition_hash": "sha256:338b2fef7a6fefbb9034268f14ecdf529ed99438a3885a93598e607ae4144c5a",
+  "status": "blocked",
+  "definition_hash": "sha256:8e8284ba68d3a15ed74906926b7491dc8f1ef86e00bd14ac43950188cfe06d2e",
   "source_refs": [
     "config/worker-types/catalog.json"
   ]

@@ -53,17 +53,29 @@ func (s *Service) UpdateResource(ctx context.Context, actor Actor, resourceID in
 	if err := validateResourceDefinition(provider, input.Modalities, input.Capabilities); err != nil {
 		return ResourceView{}, err
 	}
-	resource.ModelID, resource.DisplayName = input.ModelID, input.DisplayName
-	resource.Modalities = append([]domain.Modality(nil), input.Modalities...)
-	resource.Capabilities = append([]domain.Capability(nil), input.Capabilities...)
+	candidate := *resource
+	candidate.ModelID, candidate.DisplayName = input.ModelID, input.DisplayName
+	candidate.Modalities = append([]domain.Modality(nil), input.Modalities...)
+	candidate.Capabilities = append([]domain.Capability(nil), input.Capabilities...)
+	if err := domain.ValidateModelResource(candidate); err != nil {
+		return ResourceView{}, fmt.Errorf("%w: invalid model resource: %v", ErrInvalidRequirements, err)
+	}
+	runtimeChanged := resourceRuntimeChanged(resource, &candidate)
+	resource.DisplayName = candidate.DisplayName
+	if runtimeChanged {
+		resource.ModelID = candidate.ModelID
+		resource.Modalities = candidate.Modalities
+		resource.Capabilities = candidate.Capabilities
+	}
 	resource.Status = connection.Status
 	resource.LastValidatedAt = connection.LastValidatedAt
 	resource.ValidationError = connection.ValidationError
-	if err := domain.ValidateModelResource(*resource); err != nil {
-		return ResourceView{}, fmt.Errorf("%w: invalid model resource: %v", ErrInvalidRequirements, err)
-	}
 	err = s.mutations.Run(ctx, func(repo domain.Repository, recorder AuditRecorder) error {
-		if saveErr := repo.SaveResource(ctx, resource); saveErr != nil {
+		save := repo.SaveResourceMetadata
+		if runtimeChanged {
+			save = repo.SaveResource
+		}
+		if saveErr := save(ctx, resource); saveErr != nil {
 			return saveErr
 		}
 		return recordAudit(ctx, recorder, actor, audit.ActionModelResourceUpdated, audit.ResourceModelResource, resource.ID, connection, "success", audit.Details{"resource_identifier": resource.Identifier.String()})
@@ -86,7 +98,7 @@ func (s *Service) SetResourceEnabled(ctx context.Context, actor Actor, resourceI
 		action = audit.ActionModelResourceEnabled
 	}
 	return s.mutations.Run(ctx, func(repo domain.Repository, recorder AuditRecorder) error {
-		if saveErr := repo.SaveResource(ctx, resource); saveErr != nil {
+		if saveErr := repo.SaveResourceMetadata(ctx, resource); saveErr != nil {
 			return saveErr
 		}
 		return recordAudit(ctx, recorder, actor, action, audit.ResourceModelResource, resource.ID, connection, "success", audit.Details{"resource_identifier": resource.Identifier.String()})
@@ -99,7 +111,7 @@ func (s *Service) DeleteResource(ctx context.Context, actor Actor, resourceID in
 		return err
 	}
 	return s.mutations.Run(ctx, func(repo domain.Repository, recorder AuditRecorder) error {
-		if deleteErr := repo.DeleteResource(ctx, resourceID, resource.Revision); deleteErr != nil {
+		if deleteErr := repo.DeleteResource(ctx, resourceID, resource.Revision, resource.UpdatedAt); deleteErr != nil {
 			return deleteErr
 		}
 		return recordAudit(ctx, recorder, actor, audit.ActionModelResourceDeleted, audit.ResourceModelResource, resource.ID, connection, "success", audit.Details{"resource_identifier": resource.Identifier.String()})

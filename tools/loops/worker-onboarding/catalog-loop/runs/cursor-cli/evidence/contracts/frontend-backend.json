@@ -1,0 +1,11 @@
+{
+  "definition_version": "2",
+  "definition_hash": "sha256:8e8284ba68d3a15ed74906926b7491dc8f1ef86e00bd14ac43950188cfe06d2e",
+  "secret_requirement": "CURSOR_API_KEY is required",
+  "runtime_streaming": false,
+  "verified_by": [
+    "go test ./internal/domain/workerspec ./internal/service/workerdefinition ./internal/service/workercreation",
+    "pnpm run web:test",
+    "worker-definition-sync"
+  ]
+}

@@ -2,10 +2,10 @@ package infra
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
 	orchestrationservice "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
 	"gorm.io/gorm"
 )
@@ -51,18 +51,70 @@ func (repo *orchestrationResourceRepo) ListResources(
 	if err := validateResourceList(scope, filter); err != nil {
 		return orchestrationservice.ResourceListPage{}, err
 	}
-	query := repo.db.WithContext(ctx).
+	if filter.EnvironmentBundle == nil && filter.ModelBinding == nil {
+		return listOrchestrationResources(
+			repo.db.WithContext(ctx),
+			scope,
+			filter,
+		)
+	}
+	return repo.listFilteredResources(ctx, scope, filter)
+}
+
+func (repo *orchestrationResourceRepo) listFilteredResources(
+	ctx context.Context,
+	scope orchestrationcontrol.Scope,
+	filter orchestrationservice.ResourceListFilter,
+) (orchestrationservice.ResourceListPage, error) {
+	var page orchestrationservice.ResourceListPage
+	run := func(tx *gorm.DB) error {
+		var err error
+		page, err = listOrchestrationResources(tx, scope, filter)
+		return err
+	}
+	switch repo.db.Dialector.Name() {
+	case "postgres":
+		err := repo.db.WithContext(ctx).Transaction(run, &sql.TxOptions{
+			Isolation: sql.LevelRepeatableRead,
+			ReadOnly:  true,
+		})
+		return page, err
+	case "sqlite":
+		err := repo.db.WithContext(ctx).Transaction(run)
+		return page, err
+	default:
+		return orchestrationservice.ResourceListPage{}, orchestrationservice.ErrUnavailable
+	}
+}
+
+func listOrchestrationResources(
+	db *gorm.DB,
+	scope orchestrationcontrol.Scope,
+	filter orchestrationservice.ResourceListFilter,
+) (orchestrationservice.ResourceListPage, error) {
+	query := db.
 		Model(&orchestrationResourceRecord{}).
-		Where("organization_id = ?", scope.OrganizationID)
+		Where("orchestration_resources.organization_id = ?", scope.OrganizationID)
 	if filter.Kind != "" {
-		query = query.Where("kind = ?", filter.Kind)
+		query = query.Where("orchestration_resources.kind = ?", filter.Kind)
+	}
+	query, err := filterEnvironmentBundleReferences(query, scope, filter)
+	if err != nil {
+		return orchestrationservice.ResourceListPage{}, err
+	}
+	query, err = filterModelBindingReferences(query, scope, filter)
+	if err != nil {
+		return orchestrationservice.ResourceListPage{}, err
 	}
 	var total int64
 	if err := query.Count(&total).Error; err != nil {
 		return orchestrationservice.ResourceListPage{}, err
 	}
 	var records []orchestrationResourceRecord
-	if err := query.Order("kind, namespace, name, id").
+	if err := query.Order(
+		"orchestration_resources.kind, orchestration_resources.namespace, " +
+			"orchestration_resources.name, orchestration_resources.id",
+	).
 		Limit(filter.Limit).Offset(filter.Offset).Find(&records).Error; err != nil {
 		return orchestrationservice.ResourceListPage{}, err
 	}
@@ -84,19 +136,7 @@ func validateResourceList(
 	scope orchestrationcontrol.Scope,
 	filter orchestrationservice.ResourceListFilter,
 ) error {
-	if err := scope.Validate(); err != nil {
-		return err
-	}
-	if filter.Limit <= 0 || filter.Limit > 100 || filter.Offset < 0 {
-		return orchestrationcontrol.ErrInvalid
-	}
-	if filter.Kind == "" {
-		return nil
-	}
-	return (orchestrationresource.TypeMeta{
-		APIVersion: orchestrationresource.APIVersionV1Alpha1,
-		Kind:       filter.Kind,
-	}).Validate()
+	return filter.Validate(scope)
 }
 
 func resourceIdentityQuery(

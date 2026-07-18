@@ -21,6 +21,13 @@ type ModelResourceResolver interface {
 		int64,
 		resourceservice.ResolutionRequirements,
 	) (*resourceservice.ResolvedResource, error)
+	ResolveMetadata(
+		context.Context,
+		resourceservice.Actor,
+		int64,
+		int64,
+		resourceservice.ResolutionRequirements,
+	) (*resourceservice.ResolvedResource, error)
 }
 
 type modelResolver struct {
@@ -44,7 +51,7 @@ func (resolver *modelResolver) ResolveModel(
 	if err != nil {
 		return specdomain.ModelBinding{}, err
 	}
-	resolved, err := resolver.resources.ResolveExact(
+	resolved, err := resolver.resources.ResolveMetadata(
 		ctx,
 		resourceservice.Actor{UserID: scope.UserID},
 		scope.OrgID,
@@ -53,11 +60,11 @@ func (resolver *modelResolver) ResolveModel(
 	)
 	if err != nil {
 		if isModelSelectionError(err) {
-			return specdomain.ModelBinding{}, fmt.Errorf(
-				"%w: model resource: %w",
-				specservice.ErrInvalidDraft,
-				err,
-			)
+			return specdomain.ModelBinding{}, &specservice.InvalidDraftFieldError{
+				Field:  "model_resource_id",
+				Reason: "selected model resource does not satisfy the selected worker type",
+				Cause:  err,
+			}
 		}
 		return specdomain.ModelBinding{}, err
 	}

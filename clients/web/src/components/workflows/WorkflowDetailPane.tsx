@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import { useWorkflowStore, useCurrentWorkflow, useWorkflowRuns } from "@/stores/workflow";
 import { CenteredSpinner } from "@/components/ui/spinner";
-import { WorkflowCreateDialog } from "@/components/workflows/WorkflowCreateDialog";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { WorkflowRevisionDialog } from "@/components/workflows/WorkflowRevisionDialog";
 import { useTranslations } from "next-intl";
 import { WorkflowHeader, WorkflowConfigSection } from "@/app/(dashboard)/[org]/workflows/[slug]/components";
 import { WorkflowDetailTabs } from "@/app/(dashboard)/[org]/workflows/[slug]/components/WorkflowDetailTabs";
@@ -20,7 +19,7 @@ interface WorkflowDetailPaneProps {
 
 type TabId = "runs" | "prompt" | "autopilot";
 
-export function WorkflowDetailPane({ slug, orgSlug, embedded }: WorkflowDetailPaneProps) {
+export function WorkflowDetailPane({ slug, orgSlug }: WorkflowDetailPaneProps) {
   const t = useTranslations();
   const currentWorkflow = useCurrentWorkflow();
   const runs = useWorkflowRuns();
@@ -34,7 +33,7 @@ export function WorkflowDetailPane({ slug, orgSlug, embedded }: WorkflowDetailPa
   const setCurrentWorkflow = useWorkflowStore((s) => s.setCurrentWorkflow);
 
   const [activeTab, setActiveTab] = useState<TabId>("runs");
-  const actions = useWorkflowDetailActions(slug, orgSlug, embedded);
+  const actions = useWorkflowDetailActions(slug, orgSlug);
 
   useEffect(() => {
     fetchWorkflow(slug);
@@ -73,10 +72,9 @@ export function WorkflowDetailPane({ slug, orgSlug, embedded }: WorkflowDetailPa
           triggering={actions.triggering}
           t={t}
           onTrigger={actions.handleTrigger}
-          onEdit={() => actions.setEditOpen(true)}
+          onRevise={() => actions.setRevisionOpen(true)}
           onEnable={actions.handleEnable}
           onDisable={actions.handleDisable}
-          onDelete={actions.handleDelete}
         />
       </div>
 
@@ -95,7 +93,7 @@ export function WorkflowDetailPane({ slug, orgSlug, embedded }: WorkflowDetailPa
             onOpenRun={actions.handleOpenRun}
             onCancelRun={actions.handleCancelRun}
             onLoadMore={actions.handleLoadMore}
-            onEdit={() => actions.setEditOpen(true)}
+            onRevise={() => actions.setRevisionOpen(true)}
           />
         )}
 
@@ -110,16 +108,16 @@ export function WorkflowDetailPane({ slug, orgSlug, embedded }: WorkflowDetailPa
         )}
       </div>
 
-      <WorkflowCreateDialog
-        open={actions.editOpen}
-        onOpenChange={actions.setEditOpen}
-        onCreated={() => {
-          actions.setEditOpen(false);
+      <WorkflowRevisionDialog
+        open={actions.revisionOpen}
+        orgSlug={orgSlug}
+        workflowSlug={slug}
+        onOpenChange={actions.setRevisionOpen}
+        onApplied={() => {
+          actions.setRevisionOpen(false);
           fetchWorkflow(slug);
         }}
-        editWorkflow={currentWorkflow}
       />
-      <ConfirmDialog {...actions.deleteDialog.dialogProps} />
     </div>
   );
 }

@@ -1,128 +1,106 @@
 "use client";
 
-import { useCallback, useReducer, useRef } from "react";
-import { SourceFormat } from "@proto/orchestration_resource/v1/orchestration_resource_pb";
-import {
-  planResource,
-  validateResource,
-  type ResourceDocument,
-} from "@/lib/api/facade/orchestrationResource";
+import { useCallback, useRef } from "react";
 import { applyResourcePlan } from "./apply-resource-plan";
-import {
-  createResourceDraftState,
-  resourceDraftCanApply,
-  resourceDraftCanSubmit,
-  resourceDraftCanSubmitDraft,
-  resourceDraftReducer,
-} from "./resource-draft-reducer";
+import { resourceDraftCanApply, resourceDraftCanSubmit } from "./resource-draft-reducer";
 import type { ResourceDraft, ResourceEditorKind } from "./resource-editor-types";
+import type { ResourceIdentity } from "./resource-draft-identity";
+import { prepareResourceDocument } from "./resource-editor-document";
 import {
   safeResourceError,
   switchYamlToForm,
+  switchYamlToPlan,
 } from "./resource-editor-source-transition";
-import { createResourceDraft } from "./resource-draft-factory";
 import {
   hasCurrentApply,
   isCurrentYaml,
 } from "./resource-editor-request-guards";
 import { useResourcePlanExpiry } from "./use-resource-plan-expiry";
-
+import { useResourceEditorSession } from "./ResourceEditorSessionProvider";
+import type { ResourceDraftState } from "./resource-draft-state-types";
+import { createResourceEditorInitialState } from "./resource-editor-initial-state";
+import { resourceEditorInstanceIdentity } from "./resource-editor-instance-identity";
+import { runResourcePlan } from "./resource-editor-plan-runner";
+import { runResourceValidation } from "./resource-editor-validation-runner";
+import { useLocalResourceDraftState } from "./use-local-resource-draft-state";
 export function useResourceEditorController(
   orgSlug: string,
   kind: ResourceEditorKind,
+  initialDraft?: ResourceDraft,
+  lockedIdentity?: ResourceIdentity,
+  sessionKey?: string,
 ) {
-  const [state, dispatch] = useReducer(
-    resourceDraftReducer,
+  const identity = resourceEditorInstanceIdentity(
     orgSlug,
-    (namespace) => createResourceDraftState(createResourceDraft(kind, namespace)),
+    kind,
+    sessionKey,
+    lockedIdentity,
   );
+  const initialStateRef = useRef<{
+    identity: string;
+    state: ResourceDraftState;
+  } | null>(null);
+  if (initialStateRef.current?.identity !== identity) {
+    initialStateRef.current = {
+      identity,
+      state: createResourceEditorInitialState(
+        orgSlug,
+        kind,
+        initialDraft,
+        lockedIdentity,
+      ),
+    };
+  }
+  const initialState = initialStateRef.current.state;
+  const [localState, localDispatch] = useLocalResourceDraftState(
+    identity,
+    initialState,
+  );
+  const session = useResourceEditorSession(
+    sessionKey ? `${identity}:${sessionKey}` : undefined,
+    initialState,
+  );
+  const state = session?.state ?? localState;
+  const dispatch = session?.dispatch ?? localDispatch;
   const stateRef = useRef(state);
   stateRef.current = state;
-
   useResourcePlanExpiry(state.plan, state.apply.status === "loading", dispatch);
-
   const replaceDraft = useCallback((draft: ResourceDraft) => {
     dispatch({ type: "replace_draft", draft });
-  }, []);
-
+  }, [dispatch]);
   const setSource = useCallback((text: string) => {
     dispatch({ type: "source_changed", text });
-  }, []);
-
-  const prepareDocument = useCallback(async (): Promise<ResourceDocument> => {
-    if (state.mode !== "yaml") {
-      return {
-        format: SourceFormat.JSON,
-        content: JSON.stringify(state.draft),
-      };
-    }
-    const version = state.version;
-    const source = state.source.text;
-    const codec = await import("./resource-yaml-codec");
-    if (!isCurrentYaml(stateRef.current, version, source)) {
-      throw new Error("Resource draft changed while preparing YAML.");
-    }
-    try {
-      const draft = codec.parseResourceYaml(source, kind);
-      if (!resourceDraftCanSubmitDraft(draft)) {
-        throw new Error("GoalLoop YAML contains invalid integer fields.");
-      }
-      dispatch({ type: "source_parsed", draft, version });
-      return { format: SourceFormat.YAML, content: source };
-    } catch (error) {
-      if (isCurrentYaml(stateRef.current, version, source)) {
-        const message = safeResourceError(error, "YAML validation failed.");
-        dispatch({ type: "source_invalid", error: message, version });
-      }
-      throw error;
-    }
-  }, [kind, state.draft, state.mode, state.source.text, state.version]);
-
-  const runValidation = useCallback(async () => {
-    if (!resourceDraftCanSubmit(state)) return null;
-    const requestId = crypto.randomUUID();
-    const version = state.version;
-    dispatch({ type: "validation_loading", requestId, version });
-    try {
-      const document = await prepareDocument();
-      const response = await validateResource(orgSlug, document);
-      dispatch({
-        type: "validation_succeeded",
-        requestId,
-        version,
-        response,
-      });
-      return response;
-    } catch (error) {
-      dispatch({
-        type: "validation_failed",
-        requestId,
-        error: safeResourceError(error, "Resource validation failed."),
-      });
-      return null;
-    }
-  }, [orgSlug, prepareDocument, state]);
-
-  const runPlan = useCallback(async () => {
-    if (!resourceDraftCanSubmit(state)) return null;
-    const requestId = crypto.randomUUID();
-    const version = state.version;
-    dispatch({ type: "plan_loading", requestId, version });
-    try {
-      const document = await prepareDocument();
-      const response = await planResource(orgSlug, document);
-      dispatch({ type: "plan_succeeded", requestId, version, response });
-      return response;
-    } catch (error) {
-      dispatch({
-        type: "plan_failed",
-        requestId,
-        error: safeResourceError(error, "Resource planning failed."),
-      });
-      return null;
-    }
-  }, [orgSlug, prepareDocument, state]);
-
+  }, [dispatch]);
+  const prepareDocument = useCallback(
+    () => prepareResourceDocument({
+      state,
+      stateRef,
+      kind,
+      lockedIdentity,
+      dispatch,
+    }),
+    [dispatch, kind, lockedIdentity, state],
+  );
+  const runValidation = useCallback(
+    () => runResourceValidation({
+      orgSlug,
+      state,
+      dispatch,
+      prepareDocument,
+    }),
+    [dispatch, orgSlug, prepareDocument, state],
+  );
+  const runPlan = useCallback(
+    () => runResourcePlan({
+      orgSlug,
+      kind,
+      state,
+      lockedIdentity,
+      dispatch,
+      prepareDocument,
+    }),
+    [dispatch, kind, lockedIdentity, orgSlug, prepareDocument, state],
+  );
   const setMode = useCallback(async (
     mode: "form" | "yaml" | "plan",
   ): Promise<boolean> => {
@@ -142,6 +120,20 @@ export function useResourceEditorController(
       });
       return true;
     }
+    if (mode === "plan" && state.mode === "yaml") {
+      return switchYamlToPlan(
+        state.source.text,
+        kind,
+        state.version,
+        dispatch,
+        () => isCurrentYaml(
+          stateRef.current,
+          state.version,
+          state.source.text,
+        ),
+        lockedIdentity,
+      );
+    }
     if (mode === "form" && state.mode === "yaml") {
       return switchYamlToForm(
         orgSlug,
@@ -154,12 +146,21 @@ export function useResourceEditorController(
           state.version,
           state.source.text,
         ),
+        lockedIdentity,
       );
     }
     dispatch({ type: "set_mode", mode });
     return true;
-  }, [kind, orgSlug, state.draft, state.mode, state.source.text, state.version]);
-
+  }, [
+    dispatch,
+    kind,
+    lockedIdentity,
+    orgSlug,
+    state.draft,
+    state.mode,
+    state.source.text,
+    state.version,
+  ]);
   const apply = useCallback(async () => {
     if (!resourceDraftCanApply(state) || state.plan.status !== "ready") return null;
     const planId = state.plan.response.plan?.planId;
@@ -181,8 +182,7 @@ export function useResourceEditorController(
       });
       return null;
     }
-  }, [orgSlug, state]);
-
+  }, [dispatch, orgSlug, state]);
   return {
     state,
     replaceDraft,

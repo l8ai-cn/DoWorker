@@ -5,6 +5,7 @@ import (
 	"time"
 
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	"github.com/anthropics/agentsmesh/runner/internal/logger"
 )
 
 // SendPodCreated sends a pod_created event to the server (control message).
@@ -36,7 +37,15 @@ func (c *GRPCConnection) SendPodTerminated(podKey string, exitCode int32, errorM
 		},
 		Timestamp: time.Now().UnixMilli(),
 	}
-	return c.sendControl(msg)
+	if c.queuePodTerminationUntilInitialized(podKey, msg) {
+		return nil
+	}
+	if err := c.sendControl(msg); err != nil {
+		c.retainPodTermination(podKey, msg)
+		logger.GRPC().Warn("Queued pod termination after control send failed",
+			"pod_key", podKey, "error", err)
+	}
+	return nil
 }
 
 // SendPodInitProgress sends a pod initialization progress event to the server (control message).

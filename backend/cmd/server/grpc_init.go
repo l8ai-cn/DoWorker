@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"net/url"
 	"strings"
@@ -38,7 +39,6 @@ func initializePKIAndGRPC(
 	})
 	if err != nil {
 		slog.Error("Failed to initialize PKI service", "error", err)
-		slog.Warn("Continuing without gRPC/mTLS support - token management routes still available")
 		return nil, v1.NewGRPCRunnerHandler(runnerSvc, nil, cfg)
 	}
 
@@ -84,24 +84,22 @@ func createGRPCServer(
 	})
 	if err != nil {
 		slog.Error("Failed to create gRPC server", "error", err)
-		slog.Warn("Continuing without gRPC server")
 		return nil
 	}
 
 	return grpcServerInst
 }
 
-func startGRPCServer(cfg *config.Config, server *grpcserver.Server) *grpcserver.Server {
-	if server == nil {
-		return nil
-	}
+type grpcServerStarter interface {
+	Start() error
+}
+
+func startGRPCServer(cfg *config.Config, server grpcServerStarter) error {
 	if err := server.Start(); err != nil {
-		slog.Error("Failed to start gRPC server", "error", err)
-		slog.Warn("Continuing without gRPC server")
-		return nil
+		return fmt.Errorf("start gRPC server on %s: %w", cfg.GRPC.Address, err)
 	}
 	slog.Info("gRPC/mTLS server listening", "grpc_address", cfg.GRPC.Address)
-	return server
+	return nil
 }
 
 type grpcRunnerServiceAdapter struct {

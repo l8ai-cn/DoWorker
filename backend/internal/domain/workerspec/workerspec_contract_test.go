@@ -65,6 +65,21 @@ func TestWorkerSpecV1CanonicalContract(t *testing.T) {
 	assert.Equal(t, normalized, decoded)
 }
 
+func TestSummaryRoundTripPreservesEmptyToolBindings(t *testing.T) {
+	spec := validWorkerSpec()
+	spec.Runtime.ToolModelBindings = []ToolModelBinding{}
+
+	summary, err := Summarize(spec)
+	require.NoError(t, err)
+	assert.Nil(t, summary.ToolModelBindings)
+
+	raw, err := EncodeSummary(summary)
+	require.NoError(t, err)
+	decoded, err := DecodeSummary(raw)
+	require.NoError(t, err)
+	assert.Equal(t, summary, decoded)
+}
+
 func TestNewV1IncludesResolvedPlacement(t *testing.T) {
 	spec := NewV1(
 		Runtime{},

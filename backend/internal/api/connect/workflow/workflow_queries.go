@@ -115,6 +115,8 @@ func (s *Server) DeleteWorkflow(
 			return nil, connect.NewError(connect.CodeNotFound, errors.New("workflow not found"))
 		case errors.Is(err, workflowsvc.ErrHasActiveRuns):
 			return nil, connect.NewError(connect.CodeFailedPrecondition, errors.New("workflow has active runs; cancel or wait first"))
+		case errors.Is(err, workflowsvc.ErrWorkflowManagedByResourceApply):
+			return nil, connect.NewError(connect.CodeFailedPrecondition, err)
 		default:
 			return nil, connect.NewError(connect.CodeInternal, err)
 		}

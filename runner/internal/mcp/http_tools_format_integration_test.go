@@ -108,7 +108,7 @@ func TestFormatIntegration_GetPodSnapshot(t *testing.T) {
 
 func TestFormatIntegration_CreatePod(t *testing.T) {
 	server := setupServerWithMockClient(t)
-	text := callTool(t, server, "create_pod", `{"runner_id":1,"agent_slug":10}`)
+	text := callTool(t, server, "create_pod", `{"plan_id":"11111111-1111-4111-8111-111111111111"}`)
 
 	assertContains(t, text, "Pod: new-pod")
 	assertContains(t, text, "Status: initializing")

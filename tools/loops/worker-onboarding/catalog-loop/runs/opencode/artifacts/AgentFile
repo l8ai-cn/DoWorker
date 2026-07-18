@@ -6,6 +6,12 @@ EXECUTABLE opencode
 MODE pty
 MODE acp "acp"
 
+# === Configuration ===
+CONFIG model STRING = ""
+
+# === Environment ===
+ENV OPENAI_API_KEY SECRET OPTIONAL
+
 # === Prompt ===
 PROMPT_POSITION prepend
 
@@ -13,13 +19,15 @@ PROMPT_POSITION prepend
 MCP ON FORMAT opencode
 
 # === Build Logic ===
+file sandbox.work_dir + "/opencode.json" json({ model: config.model })
+
 if mcp.enabled {
-  file sandbox.work_dir + "/opencode.json" json({ mcp: mcp.servers })
+  file sandbox.work_dir + "/opencode.json" json({ model: config.model, mcp: mcp.servers })
 }
 
 CAPABILITY resume acp
 CAPABILITY permission acp
 CAPABILITY usage live
 CAPABILITY interrupt true
-CAPABILITY streaming true
+CAPABILITY streaming false
 CAPABILITY model_family multi

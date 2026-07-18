@@ -1,10 +1,18 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("next/font/google", () => ({
+  Geist: () => ({ variable: "--font-geist-sans" }),
+  Geist_Mono: () => ({ variable: "--font-geist-mono" }),
+  Space_Grotesk: () => ({ variable: "--font-space-grotesk" }),
+}));
+
 import DownloadPage from "../download/page";
 import EnterprisePage from "../enterprise/page";
 import { FAQ_SECTIONS } from "../docs/faq/faq-sections";
+import { metadata as rootMetadata, viewport } from "../layout";
 import { metadata as marketplaceMetadata } from "../marketplace/layout";
+import { metadata as solutionsMetadata } from "../solutions/layout";
 import sitemap from "../sitemap";
 
 vi.mock("next-intl", () => ({
@@ -84,5 +92,18 @@ describe("public marketing contract", () => {
       },
     });
     expect(marketplaceMetadata.description).not.toMatch(/Worker|Expert|专家/i);
+  });
+
+  it("keeps higher-education positioning limited to pilots in public metadata", () => {
+    expect(rootMetadata.description).toMatch(/higher-education digital employee pilots/i);
+    expect(rootMetadata.keywords).toContain("higher-education digital employee pilots");
+    expect(solutionsMetadata.description).toMatch(/higher-education digital employee pilots/i);
+  });
+
+  it("allows browser zoom for public pages", () => {
+    expect(viewport).not.toMatchObject({
+      maximumScale: 1,
+      userScalable: false,
+    });
   });
 });

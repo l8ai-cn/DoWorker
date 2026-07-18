@@ -11,7 +11,7 @@ type dispatchReadiness interface {
 }
 
 func (o *PodOrchestrator) initialPodStatus(req *OrchestrateCreatePodRequest) string {
-	if req.DeferRunnerDispatch && req.OrchestrationWorkerLaunchID != nil {
+	if req.DeferRunnerDispatch {
 		return podDomain.StatusQueued
 	}
 	if !req.QueueIfUnavailable || req.RunnerID == 0 || o.podCoordinator == nil {

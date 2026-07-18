@@ -36,9 +36,15 @@ export function ResourceEditorSection() {
             </li>
           ))}
         </ol>
-        <h3 className="mt-8 text-lg font-semibold text-foreground">
+        <h3
+          id="yaml"
+          className="mt-8 scroll-mt-24 text-lg font-semibold text-foreground"
+        >
           {t("yamlTitle")}
         </h3>
+        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+          {t("yamlLimits")}
+        </p>
         <pre className="mt-4 overflow-x-auto rounded-lg bg-surface-muted p-4 text-sm text-foreground">
           <code>{yamlExample}</code>
         </pre>

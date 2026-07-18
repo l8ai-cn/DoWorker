@@ -43,9 +43,16 @@ func (h *WorkflowHandler) TriggerWorkflow(c *gin.Context) {
 		TriggerParams: body.Variables,
 	})
 	if err != nil {
-		if errors.Is(err, workflowService.ErrWorkflowDisabled) {
+		switch {
+		case errors.Is(err, workflowService.ErrWorkflowDisabled):
 			apierr.BadRequest(c, apierr.VALIDATION_FAILED, "Workflow is disabled")
-		} else {
+		case errors.Is(err, workflowDomain.ErrWorkflowResourceRequired):
+			apierr.Conflict(
+				c,
+				apierr.WORKFLOW_RESOURCE_APPLY_REQUIRED,
+				err.Error(),
+			)
+		default:
 			apierr.InternalError(c, "Failed to trigger workflow")
 		}
 		return

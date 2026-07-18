@@ -45,6 +45,16 @@ function solutionTitle(messages: MessageTree, solutionId: string): string {
   return solution?.title as string;
 }
 
+function solutionCopy(messages: MessageTree, solutionId: string): string {
+  const landing = messages.landing as MessageTree;
+  const workforce = landing.workforce as MessageTree;
+  const expertHome = workforce.expertHome as MessageTree;
+  const solutions = expertHome.solutions as MessageTree;
+  const items = solutions.items as MessageTree[];
+  const solution = items.find(({ id }) => id === solutionId);
+  return [solution?.title, solution?.description, solution?.action].join("\n");
+}
+
 function contentIds(
   messages: MessageTree,
   sectionName: "solutions" | "capabilities" | "operating",
@@ -141,6 +151,42 @@ describe("workforce message namespaces", () => {
         "run",
         "evolve",
       ]);
+    }
+  });
+
+  it("keeps the higher-education direction explicitly pilot-based and composable", () => {
+    const pilotTerms = {
+      en: "pilot",
+      zh: "试点",
+      de: "Pilot",
+      es: "piloto",
+      fr: "pilote",
+      ja: "パイロット",
+      ko: "파일럿",
+      pt: "piloto",
+    };
+    const composableTerms = {
+      en: "composable platform capabilities",
+      zh: "可组合的平台能力",
+      de: "kombinierbare Plattformfunktionen",
+      es: "capacidades componibles de la plataforma",
+      fr: "capacités composables de la plateforme",
+      ja: "組み合わせ可能なプラットフォーム機能",
+      ko: "조합 가능한 플랫폼 역량",
+      pt: "recursos de plataforma componíveis",
+    };
+
+    for (const locale of locales) {
+      const copy = solutionCopy(
+        readWorkforce(locale),
+        "higher-education-digital-employees",
+      );
+      expect(copy, `${locale}:pilot`).toContain(
+        pilotTerms[locale as keyof typeof pilotTerms],
+      );
+      expect(copy, `${locale}:composable`).toContain(
+        composableTerms[locale as keyof typeof composableTerms],
+      );
     }
   });
 });

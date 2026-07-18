@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  parseCanonicalResourceJson,
   parseResourceYaml,
   stringifyResourceYaml,
 } from "./resource-yaml-codec";
@@ -12,6 +13,24 @@ import {
 import { createResourceBindingDraft } from "./resource-binding-draft";
 import { createWorkerInvocationDraft } from "./worker-invocation-draft";
 import { createWorkerTemplateDraft } from "./worker-template-draft";
+import { createResourceDraft } from "./resource-draft-factory";
+
+const RESOURCE_KINDS = [
+  "WorkerTemplate",
+  "Worker",
+  "Prompt",
+  "Expert",
+  "Workflow",
+  "GoalLoop",
+  "ModelBinding",
+  "Repository",
+  "Skill",
+  "KnowledgeBase",
+  "EnvironmentBundle",
+  "ComputeTarget",
+  "ResourceProfile",
+  "ToolBinding",
+] as const;
 
 describe("resource YAML codec", () => {
   it("round trips the WorkerTemplate typed draft", () => {
@@ -98,4 +117,116 @@ describe("resource YAML codec", () => {
     expect(parseResourceYaml(yaml, kind)).toEqual(draft);
     expect(yaml).toContain(`kind: ${kind}`);
   });
+
+  it("rejects incomplete canonical resource documents", () => {
+    const missingName = {
+      ...createPromptDraft("acme"),
+      metadata: { namespace: "acme" },
+    };
+    const missingContent = {
+      ...createPromptDraft("acme"),
+      metadata: { name: "review-prompt", namespace: "acme" },
+      spec: { variables: {} },
+    };
+
+    expect(() => parseCanonicalResourceJson(
+      encodeJson(missingName),
+      "Prompt",
+    )).toThrow("metadata.name must be a non-empty string");
+    expect(() => parseCanonicalResourceJson(
+      encodeJson(missingContent),
+      "Prompt",
+    )).toThrow("spec.content must be string");
+  });
+
+  it.each(RESOURCE_KINDS)(
+    "accepts the complete %s canonical draft shape",
+    (kind) => {
+      const draft = createResourceDraft(kind, "acme");
+      draft.metadata.name = "planned-resource";
+
+      expect(parseCanonicalResourceJson(encodeJson(draft), kind))
+        .toEqual(draft);
+    },
+  );
+
+  it("validates canonical map values and array items recursively", () => {
+    const prompt = createPromptDraft("acme");
+    prompt.metadata.name = "review-prompt";
+    const invalidPrompt = {
+      ...prompt,
+      spec: { ...prompt.spec, variables: { branch: null } },
+    };
+    const workerTemplate = createWorkerTemplateDraft("acme");
+    workerTemplate.metadata.name = "review-worker";
+    const invalidWorkerTemplate = {
+      ...workerTemplate,
+      spec: {
+        ...workerTemplate.spec,
+        workspace: {
+          ...workerTemplate.spec.workspace,
+          knowledgeMounts: [null],
+        },
+      },
+    };
+
+    expect(() => parseCanonicalResourceJson(
+      encodeJson(invalidPrompt),
+      "Prompt",
+    )).toThrow("spec.variables entries must be object");
+    expect(() => parseCanonicalResourceJson(
+      encodeJson(invalidWorkerTemplate),
+      "WorkerTemplate",
+    )).toThrow("spec.workspace.knowledgeMounts[0] must be object");
+  });
+
+  it("requires GoalLoop description in canonical drafts", () => {
+    const draft = createGoalLoopDraft("acme");
+    draft.metadata.name = "release-loop";
+    const spec: Record<string, unknown> = { ...draft.spec };
+    delete spec.description;
+
+    expect(() => parseCanonicalResourceJson(
+      encodeJson({ ...draft, spec }),
+      "GoalLoop",
+    )).toThrow("spec.description must be string");
+  });
+
+  it("uses the WorkerTemplate canonical CPU field names", () => {
+    const draft = createWorkerTemplateDraft("acme");
+    draft.metadata.name = "review-worker";
+    draft.spec.runtime.customResources = {
+      cpuRequestMilliCPU: 500,
+      cpuLimitMilliCPU: 1000,
+      memoryRequestBytes: 536870912,
+      memoryLimitBytes: 1073741824,
+      storageRequestBytes: 1073741824,
+      storageLimitBytes: 10737418240,
+    };
+
+    expect(parseCanonicalResourceJson(
+      encodeJson(draft),
+      "WorkerTemplate",
+    )).toEqual(draft);
+    expect(() => parseCanonicalResourceJson(
+      encodeJson({
+        ...draft,
+        spec: {
+          ...draft.spec,
+          runtime: {
+            ...draft.spec.runtime,
+            customResources: {
+              ...draft.spec.runtime.customResources,
+              cpuRequestMillicpu: 500,
+            },
+          },
+        },
+      }),
+      "WorkerTemplate",
+    )).toThrow("customResources contains unsupported fields");
+  });
 });
+
+function encodeJson(value: unknown): Uint8Array {
+  return new TextEncoder().encode(JSON.stringify(value));
+}

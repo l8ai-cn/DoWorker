@@ -1,0 +1,26 @@
+{
+  "max_context_tokens": 40000,
+  "required_context_pack": [
+    "loop.json",
+    "worker.json",
+    "state.json",
+    "PROGRESS.md",
+    "ACCEPTANCE.md"
+  ],
+  "retrieval_strategy": "just_in_time",
+  "tool_output_trimming": "Retain commands, exit codes, facts, and evidence paths; exclude raw credentials and authorization headers.",
+  "compaction": {
+    "trigger_ratio": 0.8,
+    "summary_contract": "Preserve Codex scope, evidence, verifier outcomes, approval state, and blockers."
+  },
+  "durable_memory": {
+    "state_path": "state.json",
+    "journal_path": "journal.jsonl",
+    "progress_path": "PROGRESS.md"
+  },
+  "excluded_context": [
+    "plaintext credentials",
+    "authorization headers",
+    "unrelated Worker output"
+  ]
+}

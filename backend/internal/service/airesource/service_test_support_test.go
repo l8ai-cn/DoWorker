@@ -69,17 +69,19 @@ func (r *memoryRepository) SaveConnection(_ context.Context, value *domain.Conne
 	if r.connections[value.ID] == nil {
 		return errors.New("missing connection")
 	}
-	if r.connections[value.ID].Revision != value.Revision {
+	if r.connections[value.ID].Revision != value.Revision ||
+		!r.connections[value.ID].UpdatedAt.Equal(value.UpdatedAt) {
 		return domain.ErrConflict
 	}
 	value.Revision++
+	value.UpdatedAt = time.Now().UTC()
 	copy := *value
 	copy.ConfiguredFields = append([]string(nil), value.ConfiguredFields...)
 	r.connections[value.ID] = &copy
 	return nil
 }
 
-func (r *memoryRepository) DeleteConnection(_ context.Context, id, expectedRevision int64) error {
+func (r *memoryRepository) DeleteConnection(_ context.Context, id, expectedRevision int64, expectedUpdatedAt time.Time) error {
 	if err := r.failure("DeleteConnection"); err != nil {
 		return err
 	}
@@ -87,7 +89,7 @@ func (r *memoryRepository) DeleteConnection(_ context.Context, id, expectedRevis
 	if connection == nil {
 		return errors.New("missing connection")
 	}
-	if connection.Revision != expectedRevision {
+	if connection.Revision != expectedRevision || !connection.UpdatedAt.Equal(expectedUpdatedAt) {
 		return domain.ErrConflict
 	}
 	delete(r.connections, id)
@@ -143,15 +145,17 @@ func (r *memoryRepository) SaveResource(_ context.Context, value *domain.ModelRe
 	if r.resources[value.ID] == nil {
 		return errors.New("missing resource")
 	}
-	if r.resources[value.ID].Revision != value.Revision {
+	if r.resources[value.ID].Revision != value.Revision ||
+		!r.resources[value.ID].UpdatedAt.Equal(value.UpdatedAt) {
 		return domain.ErrConflict
 	}
 	value.Revision++
+	value.UpdatedAt = time.Now().UTC()
 	r.resources[value.ID] = cloneResource(value)
 	return nil
 }
 
-func (r *memoryRepository) DeleteResource(_ context.Context, id, expectedRevision int64) error {
+func (r *memoryRepository) DeleteResource(_ context.Context, id, expectedRevision int64, expectedUpdatedAt time.Time) error {
 	if err := r.failure("DeleteResource"); err != nil {
 		return err
 	}
@@ -159,7 +163,7 @@ func (r *memoryRepository) DeleteResource(_ context.Context, id, expectedRevisio
 	if resource == nil {
 		return errors.New("missing resource")
 	}
-	if resource.Revision != expectedRevision {
+	if resource.Revision != expectedRevision || !resource.UpdatedAt.Equal(expectedUpdatedAt) {
 		return domain.ErrConflict
 	}
 	delete(r.resources, id)
@@ -240,7 +244,7 @@ func (r *memoryRepository) SetDefault(_ context.Context, resourceID int64, modal
 	return nil
 }
 
-func (r *memoryRepository) SetValidationState(_ context.Context, connectionID, expectedRevision int64, status domain.ConnectionStatus, at time.Time, validationError string) (int64, error) {
+func (r *memoryRepository) SetValidationState(_ context.Context, connectionID, expectedRevision int64, expectedCredentialsEncrypted string, status domain.ConnectionStatus, at time.Time, validationError string) (int64, error) {
 	if err := r.failure("SetValidationState"); err != nil {
 		return 0, err
 	}
@@ -248,15 +252,13 @@ func (r *memoryRepository) SetValidationState(_ context.Context, connectionID, e
 	if connection == nil {
 		return 0, errors.New("missing connection")
 	}
-	if connection.Revision != expectedRevision {
+	if connection.Revision != expectedRevision || connection.CredentialsEncrypted != expectedCredentialsEncrypted {
 		return 0, domain.ErrConflict
 	}
 	connection.Status, connection.LastValidatedAt, connection.ValidationError = status, &at, validationError
-	connection.Revision++
 	for _, resource := range r.resources {
 		if resource.ProviderConnectionID == connectionID {
 			resource.Status, resource.LastValidatedAt, resource.ValidationError = status, &at, validationError
-			resource.Revision++
 		}
 	}
 	return connection.Revision, nil

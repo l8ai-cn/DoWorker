@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-07-16",
+  "status": "verified",
+  "ownership": {
+    "compiler": "Resolves Definition document IDs to exact bundles and AgentFile targets.",
+    "runner": "Materializes only resolved files and does not select target paths from user input."
+  },
+  "verification": {
+    "runner_agent_home_tests": "passed",
+    "worker_config_migration_tests": "passed",
+    "isolated_postgresql_migration": "passed",
+    "focused_contract_tests": "passed"
+  },
+  "release_gate": {
+    "current_dev_database_apply": "blocked",
+    "reason": "Historical records require explicit repair before the atomic migration can apply."
+  }
+}

@@ -27,6 +27,9 @@ type Config struct {
 	WorkspaceRoot string `mapstructure:"workspace_root"`
 	GitConfigPath string `mapstructure:"git_config_path"`
 
+	// ResourceHostAliases maps signed resource URL hosts to runner-reachable dial targets.
+	ResourceHostAliases []ResourceHostAlias `mapstructure:"resource_host_aliases"`
+
 	// Git settings (for ticket-based development)
 	RepositoryPath string `mapstructure:"repository_path"` // Path to the main git repository
 	BaseBranch     string `mapstructure:"base_branch"`     // Base branch for new git worktrees (default: main)
@@ -76,6 +79,11 @@ type Config struct {
 	// ResolvedPATH is the login shell PATH resolved at startup.
 	// Used to inject a usable PATH into PTY environments when running as a service.
 	ResolvedPATH string `yaml:"-" mapstructure:"-"`
+}
+
+type ResourceHostAlias struct {
+	Host     string `mapstructure:"host"`
+	DialHost string `mapstructure:"dial_host"`
 }
 
 // AutoUpdateConfig holds auto-update configuration.

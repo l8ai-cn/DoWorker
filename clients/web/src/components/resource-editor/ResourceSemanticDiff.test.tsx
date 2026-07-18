@@ -43,4 +43,19 @@ describe("ResourceSemanticDiff", () => {
 
     expect(screen.getByText("No semantic changes")).toBeInTheDocument();
   });
+
+  it("keeps the full semantic path available", () => {
+    const path = "/spec/workspace/configDocumentBindings/0/configBundleRef";
+    render(
+      <ResourceSemanticDiff
+        emptyLabel="No changes"
+        changes={[create(SemanticChangeSchema, {
+          operation: SemanticChangeOperation.ADD,
+          path,
+        })]}
+      />,
+    );
+
+    expect(screen.getByText(path)).toHaveAttribute("title", path);
+  });
 });

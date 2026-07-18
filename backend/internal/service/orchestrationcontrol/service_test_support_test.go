@@ -11,6 +11,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/organization"
+	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
 	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 	"github.com/stretchr/testify/require"
 )
@@ -97,7 +98,8 @@ func newOrchestrationServiceFixture(t *testing.T) *orchestrationServiceFixture {
 	fixture.deps = ServiceDeps{
 		Registry: registry, Repository: repository,
 		Authorizer: authorizer, References: references,
-		Planners: []TargetPlanner{planner}, RequiredTypes: []orchestrationresource.TypeMeta{meta},
+		WorkerDefinitions: workerDefinitionPolicyStub{},
+		Planners:          []TargetPlanner{planner}, RequiredTypes: []orchestrationresource.TypeMeta{meta},
 		Clock: func() time.Time { return now },
 		IDGenerator: func() string {
 			return fixture.planID
@@ -105,6 +107,21 @@ func newOrchestrationServiceFixture(t *testing.T) *orchestrationServiceFixture {
 		PlanTTL: 15 * time.Minute,
 	}
 	return fixture
+}
+
+type workerDefinitionPolicyStub map[string]workerdefinition.EnvironmentBundlePolicy
+
+func (stub workerDefinitionPolicyStub) EnvironmentBundlePolicy(
+	workerType string,
+) (workerdefinition.EnvironmentBundlePolicy, bool) {
+	policy, found := stub[workerType]
+	return policy, found
+}
+
+func (workerDefinitionPolicyStub) ModelBindingProtocolAdapters(
+	string,
+) ([]string, bool) {
+	return nil, false
 }
 
 func (fixture *orchestrationServiceFixture) service(t *testing.T) *Service {

@@ -9,14 +9,10 @@ import (
 func modelResourceManagedFields(
 	definition workerdefinition.Definition,
 ) map[string]struct{} {
-	fields := make(map[string]struct{}, len(definition.CredentialBindings)+1)
-	if definition.ModelRequirement.Required {
-		fields["model"] = struct{}{}
-	}
-	for _, binding := range definition.CredentialBindings {
-		if binding.Source.Kind == "model_resource" {
-			fields[binding.Target.Name] = struct{}{}
-		}
+	policy := workerdefinition.BuildEnvironmentBundlePolicy(definition)
+	fields := make(map[string]struct{}, len(policy.ModelManagedFields))
+	for _, field := range policy.ModelManagedFields {
+		fields[field] = struct{}{}
 	}
 	return fields
 }

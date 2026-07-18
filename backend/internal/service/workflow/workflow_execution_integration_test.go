@@ -113,22 +113,28 @@ func setupWorkflowTest(t *testing.T, opts ...func(*workflowDomain.Workflow)) wor
 	})
 	require.NoError(t, err)
 
+	resourceID := workflow.ID + 1000
+	resourceRevision := int64(1)
+	snapshotID := workflow.ID + 2000
+	workflow.OrchestrationResourceID = &resourceID
+	workflow.OrchestrationResourceRevision = &resourceRevision
+	workflow.WorkerSpecSnapshotID = &snapshotID
 	for _, opt := range opts {
 		opt(workflow)
 	}
-	// Persist any option modifications
-	if len(opts) > 0 {
-		updates := map[string]interface{}{
-			"sandbox_strategy":    workflow.SandboxStrategy,
-			"session_persistence": workflow.SessionPersistence,
-			"execution_mode":      workflow.ExecutionMode,
-			"last_pod_key":        workflow.LastPodKey,
-			"timeout_minutes":     workflow.TimeoutMinutes,
-		}
-		require.NoError(t, workflowRepo.Update(ctx, workflow.ID, updates))
-		workflow, err = workflowSvc.GetByID(ctx, workflow.ID)
-		require.NoError(t, err)
+	updates := map[string]interface{}{
+		"sandbox_strategy":                workflow.SandboxStrategy,
+		"session_persistence":             workflow.SessionPersistence,
+		"execution_mode":                  workflow.ExecutionMode,
+		"last_pod_key":                    workflow.LastPodKey,
+		"timeout_minutes":                 workflow.TimeoutMinutes,
+		"orchestration_resource_id":       resourceID,
+		"orchestration_resource_revision": resourceRevision,
+		"worker_spec_snapshot_id":         snapshotID,
 	}
+	require.NoError(t, workflowRepo.Update(ctx, workflow.ID, updates))
+	workflow, err = workflowSvc.GetByID(ctx, workflow.ID)
+	require.NoError(t, err)
 
 	podOrch := &mockPodOrchForLoop{}
 	podTerm := &mockPodTerminatorForWorkflow{}

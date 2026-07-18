@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-07-16T18:36:53+08:00",
+  "scope": "local development; browser precreation and read-only runtime verification",
+  "worker_slug": "aider",
+  "safety_boundary": {
+    "provider_request": false,
+    "provider_credential_read": false,
+    "credential_reference_injection": false,
+    "pod_create_rpc": false,
+    "terminal_data_plane": false
+  },
+  "definition": {
+    "adapter_id": "aider-pty",
+    "interaction_mode": "pty",
+    "model_required": false,
+    "credential_reference_targets": ["OPENAI_API_KEY", "ANTHROPIC_API_KEY"],
+    "config_documents": []
+  },
+  "runtime": {
+    "catalog_image_id": 6,
+    "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-aider:latest",
+    "image_digest": "sha256:c886a5d43f246cdf5aecd159106081e400d4f1c741acbe26788e4d5b4503b5a6",
+    "version_probe": "docker run --rm --entrypoint aider <image> --version",
+    "version": "0.86.2"
+  },
+  "runner": {
+    "node_id": "dev-runner-aider",
+    "status": "online",
+    "tunnel_state": "connected",
+    "available_agents": ["aider"],
+    "agent_version": "0.86.2"
+  },
+  "browser": {
+    "route": "/dev-org/workers/new",
+    "template": {
+      "name": "aider-precreation-template",
+      "worker_type": "aider",
+      "runtime_image": "Aider (local development)",
+      "interaction_mode": "pty",
+      "model_binding": "optional and omitted",
+      "placement": "local-runner-pool with standard-profile"
+    },
+    "template_validation": {"status": "passed"},
+    "template_plan": {"status": "passed", "id": "72f79b1f-9fe8-488e-beb1-6411f02e7d3b"},
+    "template_apply": {"status": "applied", "resource_version": 1, "worker_spec_snapshot_id": 4},
+    "launch": {
+      "name": "aider-precreation-launch",
+      "validation_status": "passed",
+      "plan_status": "passed",
+      "plan_id": "51c48628-4884-4f7e-840c-c82dfb9d613a",
+      "applied": false,
+      "reason": "live launch requires named non-production authorization"
+    },
+    "credential_dialog": {
+      "route": "/dev-org/settings?scope=personal&tab=agents/aider",
+      "fields": ["OpenAI API Key", "Anthropic API Key"],
+      "bundle_created": false
+    },
+    "console_errors": [],
+    "console_warnings": [],
+    "console_issues": []
+  },
+  "database": {
+    "schema_migration": {"version": 221, "dirty": false},
+    "worker_template": {"resource_id": 11, "name": "aider-precreation-template", "revision": 1, "worker_spec_snapshot_id": 4},
+    "worker_spec_snapshot": {
+      "id": 4,
+      "worker_type": "aider",
+      "runtime_image_id": 6,
+      "runtime_image_digest": "sha256:c886a5d43f246cdf5aecd159106081e400d4f1c741acbe26788e4d5b4503b5a6",
+      "model_binding": {}
+    },
+    "worker_launch_count": 0,
+    "matching_pod_count": 0
+  },
+  "tests": {
+    "migration_optional_binding": "passed",
+    "orchestrationworker": "passed",
+    "diff_check": "passed"
+  },
+  "conclusion": "Precreation is verified. Aider remains not_supported until the live-launch verifier passes."
+}

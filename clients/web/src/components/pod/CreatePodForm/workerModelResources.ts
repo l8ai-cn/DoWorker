@@ -2,8 +2,8 @@ import type { EffectiveResource, ProviderDefinition } from "@/lib/api/facade/aiR
 import type { WorkerToolModelRequirement } from "@/lib/api/facade/podConnect";
 
 const AGENT_PROTOCOLS: Record<string, string[]> = {
-  "do-agent": ["openai-compatible", "anthropic", "minimax"],
-  "seedance-expert": ["openai-compatible", "anthropic", "minimax"],
+  "do-agent": ["openai-compatible", "anthropic"],
+  "seedance-expert": ["openai-compatible", "anthropic"],
   "codex-cli": ["openai-compatible"],
   "claude-code": ["anthropic"],
   "gemini-cli": ["gemini"],
@@ -14,6 +14,11 @@ const AGENT_PROTOCOLS: Record<string, string[]> = {
 
 const MODEL_RESOURCE_AGENTS = new Set(Object.keys(AGENT_PROTOCOLS));
 
+export interface WorkerModelResourceRequirement {
+  required: boolean;
+  protocolAdapters: string[];
+}
+
 export function agentRequiresModelResource(agentSlug: string | null): boolean {
   return Boolean(agentSlug && MODEL_RESOURCE_AGENTS.has(agentSlug));
 }
@@ -22,8 +27,11 @@ export function compatibleModelResources(
   agentSlug: string | null,
   resources: EffectiveResource[],
   providers: ProviderDefinition[],
+  requirement?: WorkerModelResourceRequirement,
 ): EffectiveResource[] {
-  const allowed = agentSlug ? AGENT_PROTOCOLS[agentSlug] : undefined;
+  const allowed = requirement
+    ? (requirement.required ? requirement.protocolAdapters : [])
+    : (agentSlug ? AGENT_PROTOCOLS[agentSlug] : undefined);
   if (!allowed?.length) return [];
   const protocolByProvider = new Map(providers.map((p) => [p.key, p.protocolAdapter]));
   return resources.filter((item) => {

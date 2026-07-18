@@ -11,11 +11,13 @@ import type { ResourceMetadata } from "./resource-editor-types";
 
 interface ResourceIdentityFieldsProps {
   metadata: ResourceMetadata;
+  locked?: boolean;
   onChange: (metadata: ResourceMetadata) => void;
 }
 
 export function ResourceIdentityFields({
   metadata,
+  locked,
   onChange,
 }: ResourceIdentityFieldsProps) {
   const t = useTranslations("resourceEditor");
@@ -33,6 +35,7 @@ export function ResourceIdentityFields({
         >
           <Input
             id="resource-name"
+            disabled={locked}
             value={metadata.name}
             onChange={(event) => patch({ name: event.target.value })}
           />

@@ -8,8 +8,7 @@ Dev runners can run on a local K8s cluster (Docker Desktop → Kubernetes) inste
 2. Start the dev stack with cluster runners:
 
 ```bash
-bazel run //deploy/dev:up_k8s_runners
-# or: ./dev.sh --runners-k8s
+./deploy/dev/dev.sh --runners-k8s
 ```
 
 This will:
@@ -34,8 +33,8 @@ This will:
 ```bash
 kubectl get pods -n agentsmesh
 kubectl logs -n agentsmesh deployment/runner-e2e-echo -f
-bazel run //deploy/dev:reset_runners   # hot-swap bazel binary into K8s pods
-bazel run //deploy/dev:clean           # deletes namespace agentsmesh
+./deploy/dev/dev.sh --reset-runners   # hot-swap rebuilt binary into K8s pods
+./deploy/dev/dev.sh --clean           # deletes namespace agentsmesh
 ```
 
 Runners reach host backend/traefik via `host.docker.internal:<HTTP_PORT>` (worktree-aware).

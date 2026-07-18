@@ -52,9 +52,6 @@ source "$SCRIPT_DIR/lib/lifecycle.sh"
 main() {
     cd "$SCRIPT_DIR"
 
-    # Default: air + plain next (no Bazel / ibazel).
-    export DEV_NO_BAZEL="${DEV_NO_BAZEL:-1}"
-
     case "${1:-}" in
         --clean|-c)
             clean
@@ -76,7 +73,7 @@ main() {
             generate_web_admin_env
             export DEV_FORCE_FRONTEND=1
             print_banner
-            warn_loopback_port_conflict
+            require_unshadowed_loopback_port || exit 1
             start_all_frontends
             show_result
             exit 0
@@ -87,7 +84,7 @@ main() {
     for arg in "$@"; do
         case "$arg" in
             --backend-only) backend_only=true ;;
-            --lite) export DEV_LITE=1; export DEV_NO_BAZEL=1; export WEB_USER_SKIP=1 ;;
+            --lite) export DEV_LITE=1; export WEB_USER_SKIP=1 ;;
             --frontends|-f) ;;
             --coordinator-runners) export RUNNERS_LAUNCHER=coordinator ;;
             --runners-k8s) export RUNNERS_LAUNCHER=k8s ;;
@@ -102,12 +99,12 @@ main() {
     generate_ai_cli_configs
     generate_env
     source "$ENV_FILE"
-    check_ibazel_doctor
+    check_dev_doctor
     generate_traefik_config
     generate_web_env
     generate_web_admin_env
     generate_runner_ssh_key
-    warn_loopback_port_conflict
+    require_unshadowed_loopback_port || exit 1
     prepare_local_worker_runtime_catalog
 
     if [[ -n "${RUNNERS_LAUNCHER:-}" ]]; then
@@ -129,7 +126,7 @@ main() {
         source "$ENV_FILE"
     fi
 
-    # Phase 2: bazel-build the runner binary so docker compose's runner
+    # Phase 2: cross-compile the runner binary for docker compose runners.
     build_runner_binary
     # Cross-compile the e2e-mock-agent alongside the runner — same build
     # context, same image. Required for mcp-e2e / envbundle-e2e / acp-ui-e2e

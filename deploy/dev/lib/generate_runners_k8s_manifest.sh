@@ -53,10 +53,10 @@ data:
   DEBUG: "true"
   GRPC_ENDPOINT: "host.docker.internal:${grpc_port}"
   HOME: /home/runner
-  HTTP_PROXY: ""
-  HTTPS_PROXY: ""
+  HTTP_PROXY: "${RUNNER_HTTP_PROXY:-}"
+  HTTPS_PROXY: "${RUNNER_HTTPS_PROXY:-}"
   MAX_CONCURRENT_PODS: "10"
-  NO_PROXY: "*"
+  NO_PROXY: "${RUNNER_NO_PROXY:-host.docker.internal,localhost,127.0.0.1,::1,otel-collector,.svc,.cluster.local}"
   OTEL_EXPORTER_OTLP_ENDPOINT: "http://host.docker.internal:${otel_port}"
   OTEL_SERVICE_NAME: agentsmesh-runner
   OTEL_TRACES_SAMPLER_ARG: "1.0"
@@ -64,8 +64,9 @@ data:
   RUNNER_ORG_SLUG: dev-org
   SSL_DIR: /app/ssl
   WORKSPACE: /workspace
-  http_proxy: ""
-  https_proxy: ""
+  http_proxy: "${RUNNER_HTTP_PROXY:-}"
+  https_proxy: "${RUNNER_HTTPS_PROXY:-}"
+  no_proxy: "${RUNNER_NO_PROXY:-host.docker.internal,localhost,127.0.0.1,::1,otel-collector,.svc,.cluster.local}"
 EOF
 
     kubectl create configmap runner-entrypoint \

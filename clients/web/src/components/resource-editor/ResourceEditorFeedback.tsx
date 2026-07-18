@@ -16,14 +16,35 @@ export function ResourceEditorFeedback({
   if (state.validation.status === "error") {
     return <AlertMessage type="error" message={state.validation.error} />;
   }
-  if (state.plan.status === "error") {
+  if (state.plan.status === "error" && state.mode !== "plan") {
     return <AlertMessage type="error" message={state.plan.error} />;
   }
-  if (state.plan.status === "expired") {
+  if (state.plan.status === "expired" && state.mode !== "plan") {
     return <AlertMessage type="warning" message={t("plan.expired")} />;
   }
   if (state.apply.status === "error") {
     return <AlertMessage type="error" message={state.apply.error} />;
+  }
+  if (state.apply.status === "ready") {
+    const result = state.apply.result;
+    if ("workerSpecSnapshotId" in result) {
+      return (
+        <AlertMessage
+          type="success"
+          message={`${t("result.revision", {
+            revision: result.resource?.revision.toString() ?? "0",
+          })} · ${t("result.snapshot", {
+            snapshot: result.workerSpecSnapshotId.toString(),
+          })}`}
+        />
+      );
+    }
+    return (
+      <AlertMessage
+        type="success"
+        message={t("result.revision", { revision: result.revision.toString() })}
+      />
+    );
   }
   if (
     state.validation.status === "ready" &&
@@ -49,24 +70,5 @@ export function ResourceEditorFeedback({
   ) {
     return <AlertMessage type="success" message={t("validation.valid")} />;
   }
-  if (state.apply.status !== "ready") return null;
-  const result = state.apply.result;
-  if ("workerSpecSnapshotId" in result) {
-    return (
-      <AlertMessage
-        type="success"
-        message={`${t("result.revision", {
-          revision: result.resource?.revision.toString() ?? "0",
-        })} · ${t("result.snapshot", {
-          snapshot: result.workerSpecSnapshotId.toString(),
-        })}`}
-      />
-    );
-  }
-  return (
-    <AlertMessage
-      type="success"
-      message={t("result.revision", { revision: result.revision.toString() })}
-    />
-  );
+  return null;
 }

@@ -4,6 +4,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 ROOT="$(cd ../.. && pwd)"
 DOCKERFILE="${ROOT}/docker/agent-runtime/Dockerfile"
+K8S_RUNNER_MANIFEST="${ROOT}/deploy/dev/lib/generate_runners_k8s_manifest.sh"
 
 if grep -q "^RUN npm install -g" "$DOCKERFILE" \
   && grep -A5 "^RUN npm install -g" "$DOCKERFILE" | grep -q "@anthropic-ai/claude-code" \
@@ -45,6 +46,13 @@ grep -q "runner-cursor-cli" docker-compose.runners.yml
 grep -q "docker/agent-runtime/Dockerfile" docker-compose.runners.yml
 grep -q "COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICES" lib/host_services.sh
 grep -q "case \"\${AGENT_RUNTIME}\"" runner-entrypoint.sh
+grep -q "claude-code|codex-cli|cursor-cli|" runner-entrypoint.sh
+grep -q 'HTTP_PROXY: ${RUNNER_HTTP_PROXY:-}' docker-compose.runners.yml
+grep -q 'HTTPS_PROXY: ${RUNNER_HTTPS_PROXY:-}' docker-compose.runners.yml
+grep -q 'NO_PROXY: ${RUNNER_NO_PROXY:-traefik,host.lan,host.docker.internal,localhost,127.0.0.1,::1,postgres,redis,otel-collector}' docker-compose.runners.yml
+grep -q 'HTTP_PROXY: "${RUNNER_HTTP_PROXY:-}"' "$K8S_RUNNER_MANIFEST"
+grep -q 'HTTPS_PROXY: "${RUNNER_HTTPS_PROXY:-}"' "$K8S_RUNNER_MANIFEST"
+grep -q 'NO_PROXY: "${RUNNER_NO_PROXY:-host.docker.internal,localhost,127.0.0.1,::1,otel-collector,.svc,.cluster.local}"' "$K8S_RUNNER_MANIFEST"
 grep -q "default_agent: \"\${DEFAULT_AGENT}\"" runner-entrypoint.sh
 grep -q "init_runner_ssh" runner-entrypoint.sh
 grep -q 'runner-ssh:/run/runner-ssh-source:ro' docker-compose.runners.yml

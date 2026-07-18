@@ -57,8 +57,16 @@ func TestListWorkerCreateOptionsMapsServiceResult(t *testing.T) {
 							Options: []string{"never"},
 						},
 					},
+					SecretRequirementGroups: []specdomain.SecretRequirementGroup{{
+						ID:    "provider-api-key",
+						AnyOf: []string{"OPENAI_API_KEY", "ANTHROPIC_API_KEY"},
+					}},
 				},
 				RequiresModelResource: true,
+				ModelProtocolAdapters: []string{
+					"openai-compatible",
+					"anthropic",
+				},
 				Selectable: true,
 			}},
 			RuntimeImages: []workercreation.RuntimeImageOption{{
@@ -125,7 +133,12 @@ func TestListWorkerCreateOptionsMapsServiceResult(t *testing.T) {
 	require.Len(t, response.Msg.WorkerTypes, 1)
 	assert.Equal(t, "codex-cli", response.Msg.WorkerTypes[0].Slug)
 	assert.True(t, response.Msg.WorkerTypes[0].RequiresModelResource)
-	assert.JSONEq(t, `{"version":1,"fields":{"approval_mode":{"kind":"select","options":["never"]}}}`, response.Msg.WorkerTypes[0].ConfigSchemaJson)
+	assert.Equal(
+		t,
+		[]string{"openai-compatible", "anthropic"},
+		response.Msg.WorkerTypes[0].ModelProtocolAdapters,
+	)
+	assert.JSONEq(t, `{"version":1,"fields":{"approval_mode":{"kind":"select","options":["never"]}},"credential_requirement_groups":[{"id":"provider-api-key","any_of":["OPENAI_API_KEY","ANTHROPIC_API_KEY"]}]}`, response.Msg.WorkerTypes[0].ConfigSchemaJson)
 	require.Len(t, response.Msg.RuntimeImages, 1)
 	assert.Equal(t, int64(1), response.Msg.RuntimeImages[0].Id)
 	require.Len(t, response.Msg.ResourceProfiles, 1)
@@ -252,13 +265,16 @@ func completeWorkerDraftProto() *podv1.WorkerSpecDraft {
 		SecretRefs: []*podv1.WorkerSecretReference{{
 			Field: "SIGNING_KEY", Kind: "env-bundle", Id: 6,
 		}},
-		InteractionMode:    "acp",
-		AutomationLevel:    "autonomous",
-		RepositoryId:       &repositoryID,
-		Branch:             "main",
-		SkillIds:           []int64{3, 4},
-		KnowledgeMounts:    []*podv1.WorkerKnowledgeMount{{KnowledgeBaseId: 5, Mode: "rw"}},
-		EnvBundleIds:       []int64{7, 8},
+		InteractionMode: "acp",
+		AutomationLevel: "autonomous",
+		RepositoryId:    &repositoryID,
+		Branch:          "main",
+		SkillIds:        []int64{3, 4},
+		KnowledgeMounts: []*podv1.WorkerKnowledgeMount{{KnowledgeBaseId: 5, Mode: "rw"}},
+		EnvBundleIds:    []int64{7, 8},
+		ConfigDocumentBindings: []*podv1.WorkerConfigDocumentBinding{{
+			DocumentId: "settings", ConfigBundleId: 9,
+		}},
 		Instructions:       "Review before editing.",
 		InitialTask:        "Fix the failing test.",
 		TerminationPolicy:  "idle",

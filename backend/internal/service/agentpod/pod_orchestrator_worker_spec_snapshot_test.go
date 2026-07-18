@@ -149,6 +149,41 @@ func TestPrepareSnapshotWorkerCreateRejectsLegacyRuntimeOverrides(t *testing.T) 
 	assert.Zero(t, preparer.snapshotCalls)
 }
 
+func TestPrepareSnapshotWorkerCreateAllowsTicketAssociation(t *testing.T) {
+	snapshotID := int64(91)
+	ticketID := int64(42)
+	ticketSlug := "am-42"
+	spec := normalizedSnapshotWorkerSpec(t)
+	preparer := &snapshotWorkerCreationPreparer{
+		prepared: workercreation.PreparedSnapshot{
+			Spec:           spec,
+			AgentfileLayer: "MODE acp\n",
+		},
+	}
+	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{
+		WorkerCreation: preparer,
+		WorkerSpecs: &workerSpecSnapshotLoader{snapshot: specdomain.Snapshot{
+			ID:             snapshotID,
+			OrganizationID: 7,
+			Spec:           spec,
+		}},
+	})
+	req := &OrchestrateCreatePodRequest{
+		OrganizationID:       7,
+		UserID:               5,
+		WorkerSpecSnapshotID: &snapshotID,
+		TicketID:             &ticketID,
+		TicketSlug:           &ticketSlug,
+	}
+
+	err := orchestrator.prepareSnapshotWorkerCreate(context.Background(), req)
+
+	require.NoError(t, err)
+	assert.Equal(t, &ticketID, req.TicketID)
+	assert.Equal(t, &ticketSlug, req.TicketSlug)
+	assert.Equal(t, 1, preparer.snapshotCalls)
+}
+
 func TestCreatePodReplaysWorkerLaunchWithSamePodAndCommand(t *testing.T) {
 	db := setupOrchestratorTestDB(t)
 	spec := normalizedSnapshotWorkerSpec(t)

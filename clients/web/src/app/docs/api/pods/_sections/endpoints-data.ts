@@ -3,7 +3,7 @@ import type { DetailSpec } from "../../_components/endpoint-detail";
 import {
   PODS_LIST_JSON,
   POD_JSON,
-  POD_CREATE_JSON,
+  POD_RESUME_JSON,
   TERMINATE_JSON,
 } from "./response-samples";
 
@@ -70,17 +70,18 @@ export const detailEndpoints: DetailSpec[] = [
     method: "POST",
     path: "/pods",
     descKey: "docs.api.pods.details.createPod.description",
-    response: POD_CREATE_JSON,
+    response: POD_RESUME_JSON,
     tables: [
       {
         kind: "body",
         rows: [
-          { name: "agent_slug", type: "string", required: true, descKey: "docs.api.pods.details.createPod.fields.agent_slug" },
-          { name: "automation_level", type: "string", required: false, descKey: "docs.api.pods.details.createPod.fields.automation_level" },
-          { name: "agentfile_layer", type: "string", required: false, desc: "AgentFile Layer — SSOT for PROMPT, MODE, CONFIG, REPO, BRANCH, CREDENTIAL" },
-          { name: "runner_id", type: "integer", required: false, descKey: "docs.api.pods.details.createPod.fields.runner_id" },
+          { name: "source_pod_key", type: "string", required: true, descKey: "docs.api.pods.details.createPod.fields.source_pod_key" },
+          { name: "resume_agent_session", type: "boolean", required: false, descKey: "docs.api.pods.details.createPod.fields.resume_agent_session" },
           { name: "ticket_slug", type: "string", required: false, descKey: "docs.api.pods.details.createPod.fields.ticket_slug" },
-          { name: "alias", type: "string", required: false, desc: "Display name for the pod (max 100 chars)" },
+          { name: "cols", type: "integer", required: false, descKey: "docs.api.pods.details.createPod.fields.cols" },
+          { name: "rows", type: "integer", required: false, descKey: "docs.api.pods.details.createPod.fields.rows" },
+          { name: "queue_if_offline", type: "boolean", required: false, descKey: "docs.api.pods.details.createPod.fields.queue_if_offline" },
+          { name: "queue_ttl_minutes", type: "integer", required: false, descKey: "docs.api.pods.details.createPod.fields.queue_ttl_minutes" },
         ],
       },
     ],

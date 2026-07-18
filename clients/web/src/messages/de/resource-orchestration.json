@@ -73,6 +73,7 @@
       }
     },
     "yamlTitle": "YAML-Beispiel",
+    "yamlLimits": "YAML-Quellen und exportiertes YAML sind auf 256 KiB pro Dokument und 64 KiB pro physischer Zeile begrenzt. Der Parser weist außerdem mehrere Dokumente, Aliase, Anker, benutzerdefinierte Tags, unsichere Ganzzahlen und Strukturen außerhalb der unterstützten Tiefen- oder Knotengrenzen zurück.",
     "securityTitle": "Secret- und Berechtigungsgrenzen",
     "securityDescription": "Ressourcen-YAML beschreibt Referenzen, keine Klartext-Zugangsdaten. namespace ist Identität und ersetzt keine Autorisierung.",
     "security": {

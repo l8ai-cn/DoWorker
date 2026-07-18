@@ -1,0 +1,80 @@
+{
+  "recorded_at": "2026-07-16T12:26:03+08:00",
+  "origin": "http://localhost:12407",
+  "scope": "local development only",
+  "connect_proxy": {
+    "before": {
+      "next_proxy_discover": 500,
+      "direct_backend_discover": 200
+    },
+    "root_cause": "An overlapping Next.js rewrite for /proto.:service/:method intercepted Connect procedure paths before the header-gated generic rewrite.",
+    "after": {
+      "next_proxy_discover": 200,
+      "web_login": 200
+    }
+  },
+  "worker_template_browser": {
+    "route": "/dev-org/workers/new",
+    "tab": "Worker Template",
+    "worker_type_options_rendered": [
+      "codex-cli",
+      "gemini-cli",
+      "aider",
+      "opencode",
+      "minimax-cli",
+      "do-agent",
+      "hermes",
+      "loopal",
+      "openclaw",
+      "cursor-cli",
+      "claude-code",
+      "grok-build",
+      "seedance-expert"
+    ],
+    "availability": {
+      "codex-cli": "selectable from the verified local image and compatible online Runner",
+      "other_12_types": "disabled with an explicit missing runtime image reason"
+    },
+    "visible_form_contract": [
+      "Worker type",
+      "runtime image",
+      "options revision",
+      "interaction mode",
+      "deployment mode",
+      "placement policy",
+      "compute target",
+      "resource allocation",
+      "config values",
+      "secret references",
+      "repository, skills, knowledge base, environment bundle, and config bundle references"
+    ],
+    "credential_safety_notice": "The form stores EnvironmentBundle references and does not display Secret plaintext.",
+    "form_accessibility": {
+      "revision_inputs": [
+        "model-reference-revision",
+        "compute-target-reference-revision",
+        "resource-profile-reference-revision",
+        "repository-reference-revision"
+      ],
+      "runtime_controls": [
+        "placement-policy",
+        "resource-mode",
+        "cpu-request",
+        "cpu-limit",
+        "memory-request",
+        "memory-limit",
+        "storage-request",
+        "storage-limit",
+        "gpu-request",
+        "gpu-limit"
+      ],
+      "unassociated_html_labels": []
+    },
+    "network": {
+      "ListWorkerCreateOptions": 200
+    },
+    "console_errors": [],
+    "console_issues": []
+  },
+  "support_claim": "No Worker support state changed. Browser rendering proves the form does not silently omit blocked Worker types or render unassociated labels in the Worker Template runtime form."
+}

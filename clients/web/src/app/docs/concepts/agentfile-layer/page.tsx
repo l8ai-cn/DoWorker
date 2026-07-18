@@ -70,11 +70,10 @@ export default function AgentfileLayerPage() {
           {t("docs.concepts.agentfileLayer.apiUsage.description")}
         </p>
         <pre className="rounded-lg bg-surface-muted ring-1 ring-border/15 p-4 text-sm overflow-x-auto">
-          <code>{`POST /api/v1/pods
+          <code>{`POST /api/v1/ext/orgs/{org}/pods
 {
-  "agent_slug": "claude-code",
-  "runner_id": "runner-abc",
-  "agentfile_layer": "CONFIG model = \\"opus\\"\\nPROMPT \\"Fix the login bug\\""
+  "source_pod_key": "pod-abc123",
+  "resume_agent_session": true
 }`}</code>
         </pre>
       </section>

@@ -15,7 +15,7 @@ func TestMeshNodeStruct(t *testing.T) {
 	position := &NodePosition{X: 100.5, Y: 200.5}
 
 	node := MeshNode{
-		PodKey:   "pod-123",
+		PodKey:       "pod-123",
 		Status:       "running",
 		AgentStatus:  "executing",
 		Model:        &model,
@@ -55,7 +55,7 @@ func TestMeshNodeStruct(t *testing.T) {
 
 func TestMeshNodeWithNilOptionalFields(t *testing.T) {
 	node := MeshNode{
-		PodKey:  "pod-456",
+		PodKey:      "pod-456",
 		Status:      "initializing",
 		AgentStatus: "idle",
 		CreatedByID: 50,
@@ -164,7 +164,7 @@ func TestChannelInfoStruct(t *testing.T) {
 		ID:           1,
 		Name:         "dev-channel",
 		Description:  &desc,
-		PodKeys:  []string{"pod-1", "pod-2", "pod-3"},
+		PodKeys:      []string{"pod-1", "pod-2", "pod-3"},
 		MessageCount: 150,
 		IsArchived:   false,
 	}
@@ -247,10 +247,10 @@ func TestChannelPodStruct(t *testing.T) {
 	now := time.Now()
 
 	cs := ChannelPod{
-		ID:         1,
-		ChannelID:  10,
-		PodKey: "pod-123",
-		JoinedAt:   now,
+		ID:        1,
+		ChannelID: 10,
+		PodKey:    "pod-123",
+		JoinedAt:  now,
 	}
 
 	if cs.ID != 1 {
@@ -281,7 +281,7 @@ func TestChannelAccessStruct(t *testing.T) {
 	ca := ChannelAccess{
 		ID:         1,
 		ChannelID:  10,
-		PodKey: &podKey,
+		PodKey:     &podKey,
 		UserID:     &userID,
 		LastAccess: now,
 	}
@@ -304,13 +304,11 @@ func TestChannelAccessStruct(t *testing.T) {
 
 func TestCreatePodForTicketRequestStruct(t *testing.T) {
 	req := CreatePodForTicketRequest{
-		OrganizationID: 100,
-		TicketID:       20,
-		RunnerID:       5,
-		CreatedByID:    50,
-		Prompt:         "Start working on ticket",
-		Model:          "opus",
-		PermissionMode: "bypassPermissions",
+		OrganizationID:       100,
+		TicketID:             20,
+		CreatedByID:          50,
+		WorkerSpecSnapshotID: 91,
+		Prompt:               "Start working on ticket",
 	}
 
 	if req.OrganizationID != 100 {
@@ -319,8 +317,8 @@ func TestCreatePodForTicketRequestStruct(t *testing.T) {
 	if req.TicketID != 20 {
 		t.Errorf("expected TicketID 20, got %d", req.TicketID)
 	}
-	if req.Model != "opus" {
-		t.Errorf("expected Model 'opus', got %s", req.Model)
+	if req.WorkerSpecSnapshotID != 91 {
+		t.Errorf("expected WorkerSpecSnapshotID 91, got %d", req.WorkerSpecSnapshotID)
 	}
 }
 

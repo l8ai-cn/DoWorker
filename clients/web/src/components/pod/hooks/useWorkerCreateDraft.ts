@@ -54,13 +54,18 @@ export function useWorkerCreateDraft(
       };
     },
   );
-  const options = useWorkerCreateOptions(params.enabled, {
+  const options = useWorkerCreateOptions(params.enabled, orgSlug, {
     workerTypeSlug: state.draft.worker_type_slug,
     computeTargetId: state.draft.compute_target_id,
     deploymentMode: state.draft.deployment_mode,
   });
+  const selectedWorkerType = options.status === "ready"
+    ? options.data.worker_types.find(
+      (option) => option.slug === state.draft.worker_type_slug,
+    )
+    : undefined;
   const dependencies = useWorkerCreateDependencies(
-    state.draft.worker_type_slug,
+    selectedWorkerType,
     state.draft.repository_id,
   );
   const validity = workerCreateValidity(
@@ -70,6 +75,7 @@ export function useWorkerCreateDraft(
       dependencies.toolModelResources.status === "ready" &&
       dependencies.runtimeBundles.status === "ready" &&
       dependencies.credentialBundles.status === "ready" &&
+      dependencies.configBundles.status === "ready" &&
       dependencies.skills.status === "ready",
   );
 

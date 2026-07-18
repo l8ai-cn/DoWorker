@@ -107,6 +107,9 @@ func (a *GRPCRunnerAdapter) mcpTriggerWorkflow(ctx context.Context, tc *middlewa
 		if errors.Is(err, workflowService.ErrWorkflowDisabled) {
 			return nil, newMcpError(400, "workflow is disabled")
 		}
+		if errors.Is(err, workflowDomain.ErrWorkflowResourceRequired) {
+			return nil, newMcpError(409, err.Error())
+		}
 		return nil, newMcpError(500, "failed to trigger workflow")
 	}
 

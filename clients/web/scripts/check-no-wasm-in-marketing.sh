@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
 # Verify that pre-dashboard chunks don't pull in wasm. Run after
-# `bazel build //clients/web:next`. Exits non-zero if any leak.
+# `pnpm run web:build` (or a local `next build` under clients/web).
+# Exits non-zero if any leak.
 #
-# Architectural invariant (Plan I1 + auth-light rollout):
+# Architectural invariant:
 #   Marketing routes AND the entire (auth) route group must not load the
-#   40MB wasm bundle — they go through @/lib/light-auth + light-session.
+#   wasm bundle — they go through @/lib/light-auth + light-session.
 #   Only (dashboard) and popout are allowed to boot wasm.
 
 set -euo pipefail
 
-# `:next` writes to `.next-dev/` (see clients/web/BUILD.bazel and
-# next.config.ts for why). Allow override for callers that already
-# point NEXT_DIR at a custom location.
-NEXT_DIR="${NEXT_DIR:-bazel-bin/clients/web/.next-dev}"
+ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
+# Prefer production build output; allow override for custom paths.
+NEXT_DIR="${NEXT_DIR:-$ROOT/clients/web/.next}"
 CHUNKS_DIR="${NEXT_DIR}/static/chunks"
 
 if [[ ! -d "${CHUNKS_DIR}" ]]; then
-  echo "FAIL: ${CHUNKS_DIR} not found. Run: bazel build //clients/web:next"
+  echo "FAIL: ${CHUNKS_DIR} not found. Run: pnpm run web:build"
   exit 2
 fi
 

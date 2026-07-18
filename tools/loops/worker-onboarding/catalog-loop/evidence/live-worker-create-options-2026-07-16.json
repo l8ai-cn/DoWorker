@@ -1,0 +1,32 @@
+{
+  "captured_at": "2026-07-16T05:18:00+08:00",
+  "scope": {
+    "operation": "ListWorkerCreateOptions",
+    "authentication": "development user session",
+    "provider_credentials": "not read",
+    "provider_request": "not made",
+    "pod_created": false
+  },
+  "comparison": {
+    "definition_catalog_count": 13,
+    "live_create_option_count": 13,
+    "missing_worker_types": [],
+    "mismatches": []
+  },
+  "worker_options": [
+    {"slug":"aider","selectable":false,"requires_model_resource":false,"model_protocol_adapters":[],"supported_interaction_modes":["pty"]},
+    {"slug":"claude-code","selectable":false,"requires_model_resource":true,"model_protocol_adapters":["anthropic"],"supported_interaction_modes":["pty","acp"]},
+    {"slug":"codex-cli","selectable":true,"requires_model_resource":true,"model_protocol_adapters":["openai-compatible"],"supported_interaction_modes":["pty","acp"]},
+    {"slug":"cursor-cli","selectable":false,"requires_model_resource":false,"model_protocol_adapters":[],"supported_interaction_modes":["pty","acp"]},
+    {"slug":"do-agent","selectable":false,"requires_model_resource":true,"model_protocol_adapters":["openai-compatible","anthropic"],"supported_interaction_modes":["pty","acp"]},
+    {"slug":"gemini-cli","selectable":false,"requires_model_resource":true,"model_protocol_adapters":["gemini"],"supported_interaction_modes":["pty","acp"]},
+    {"slug":"grok-build","selectable":false,"requires_model_resource":false,"model_protocol_adapters":[],"supported_interaction_modes":["pty","acp"]},
+    {"slug":"hermes","selectable":false,"requires_model_resource":true,"model_protocol_adapters":["openai-compatible"],"supported_interaction_modes":["pty"]},
+    {"slug":"loopal","selectable":false,"requires_model_resource":false,"model_protocol_adapters":[],"supported_interaction_modes":["pty","acp"]},
+    {"slug":"minimax-cli","selectable":false,"requires_model_resource":true,"model_protocol_adapters":["minimax"],"supported_interaction_modes":["pty"]},
+    {"slug":"openclaw","selectable":false,"requires_model_resource":true,"model_protocol_adapters":["openai-compatible"],"supported_interaction_modes":["pty"]},
+    {"slug":"opencode","selectable":false,"requires_model_resource":false,"model_protocol_adapters":[],"supported_interaction_modes":["pty","acp"]},
+    {"slug":"seedance-expert","selectable":false,"requires_model_resource":true,"model_protocol_adapters":["openai-compatible","anthropic"],"supported_interaction_modes":["pty","acp"]}
+  ],
+  "interpretation": "The runtime API projects all 13 Definitions correctly. Selectability only represents current runtime image and slug-reported Runner availability; it does not attest adapter, image digest, provider credentials, browser UI, or lifecycle success."
+}

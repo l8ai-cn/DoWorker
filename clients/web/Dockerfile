@@ -22,7 +22,7 @@ COPY clients/web/ clients/web/
 COPY --from=wasm /src/packages/do-worker-wasm packages/do-worker-wasm
 RUN pnpm config set registry https://registry.npmmirror.com \
   && pnpm install --frozen-lockfile
-ENV BAZEL_BUILD=standalone
+ENV STANDALONE=1
 ENV NEXT_TELEMETRY_DISABLED=1
 WORKDIR /src/clients/web
 RUN node ../../node_modules/next/dist/bin/next build --webpack

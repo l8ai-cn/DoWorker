@@ -19,6 +19,9 @@ func (s *Service) Start(ctx context.Context, orgID, userID int64, slug string) (
 	if err != nil {
 		return nil, err
 	}
+	if !loop.HasCompleteResourceBinding() {
+		return nil, ErrInvalidState
+	}
 	if loop.Status != domain.StatusDraft && loop.Status != domain.StatusPaused {
 		return nil, ErrInvalidState
 	}

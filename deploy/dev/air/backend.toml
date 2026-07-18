@@ -1,4 +1,4 @@
-# air hot-reload for backend (DEV_NO_BAZEL=1 / dev-lite.sh).
+# air hot-reload for backend.
 # Run from repo root: air -c deploy/dev/air/backend.toml
 
 root = "."
@@ -9,8 +9,10 @@ cmd = "go build -o ./deploy/dev/runtime/backend/air/main ./backend/cmd/server"
 bin = "./deploy/dev/runtime/backend/air/main"
 full_bin = "./deploy/dev/runtime/backend/air/main"
 include_ext = ["go"]
+include_dir = ["backend"]
 exclude_dir = [
   "assets", "tmp", "vendor", "testdata", "node_modules",
+  "backend/logs",
   "bazel-bin", "bazel-out", "bazel-testlogs", "bazel-agentsmesh",
   "clients", "deploy", "docs", "e2e", "packages", "proto/gen/ts",
 ]

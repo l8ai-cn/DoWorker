@@ -12,36 +12,36 @@ import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { withEventSubscription, subscribeEvents } from "../../helpers/eventbus-stream";
 import { terminateAllPods } from "../../helpers/pod-cleanup";
+import {
+  ensureResourceWorkflowFixture,
+  resetResourceWorkflowFixture,
+} from "../../helpers/resource-workflow-fixture";
 
 test.describe("Realtime · workflow_run events (wire)", () => {
-  test.beforeEach(async () => { clearAuthRateLimit(); });
-  test.afterEach(async () => { await terminateAllPods(); });
+  test.beforeEach(async ({ db }) => {
+    clearAuthRateLimit();
+    await terminateAllPods();
+    ensureResourceWorkflowFixture(db);
+    resetResourceWorkflowFixture(db);
+  });
+  test.afterEach(async ({ db }) => {
+    await terminateAllPods();
+    resetResourceWorkflowFixture(db);
+  });
 
-  async function createWorkflow(api: import("../../fixtures/api.fixture").ApiFixture) {
-    const cc = await api.connect();
-    const stamp = Date.now().toString(36);
-    const workflow = (await cc.workflow.createWorkflow({
-      orgSlug: TEST_ORG_SLUG,
-      name: `e2e-rt-workflow-${stamp}`,
-      slug: `e2e-rt-workflow-${stamp}`,
-      agentSlug: "e2e-echo",
-      promptTemplate: "echo hi",
-      executionMode: "direct",
-      timeoutMinutes: 1,
-    } as never)) as { slug: string };
-    return workflow;
-  }
-
-  test("workflow_run:started arrives after TriggerWorkflow", async ({ api }) => {
+  test("workflow_run:started arrives after TriggerWorkflow", async ({
+    api,
+    db,
+  }) => {
     const cc = await api.connect();
     const token = api.getToken();
     if (!token) throw new Error("api fixture missing token");
-    const workflow = await createWorkflow(api);
+    const workflow = ensureResourceWorkflowFixture(db);
 
     const { event } = await withEventSubscription<unknown, { workflow_id?: number | string; run_id?: number | string }>(
       {
         token, orgSlug: TEST_ORG_SLUG,
-        predicate: (type, _data) => type === "workflow_run:started",
+        predicate: (type) => type === "workflow_run:started",
         timeoutMs: 15_000,
       },
       async () => {
@@ -56,11 +56,14 @@ test.describe("Realtime · workflow_run events (wire)", () => {
     expect(Number(event.data.run_id)).toBeGreaterThan(0);
   });
 
-  test("workflow_run:completed arrives after pod successful termination", async ({ api }) => {
+  test("workflow_run:completed arrives after pod successful termination", async ({
+    api,
+    db,
+  }) => {
     const cc = await api.connect();
     const token = api.getToken();
     if (!token) throw new Error("api fixture missing token");
-    const workflow = await createWorkflow(api);
+    const workflow = ensureResourceWorkflowFixture(db);
 
     // Backend publishes workflow_run:started twice: once at TriggerWorkflow time
     // (before pod creation; pod_key empty) and once after SetRunPodKey

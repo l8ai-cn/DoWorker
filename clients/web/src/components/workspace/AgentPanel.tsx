@@ -12,7 +12,6 @@ import { AgentPanelHeader } from "./AgentPanelHeader";
 import {
   PaneLoadingState,
   PaneErrorState,
-  PaneReconnectingState,
 } from "./PaneStateViews";
 import { PodSelectorModal } from "./PodSelectorModal";
 import { WorkerControlOverlay } from "@/components/mobile-worker/WorkerControlOverlay";
@@ -26,6 +25,7 @@ interface AgentPanelProps {
   onMaximize?: () => void;
   onPopout?: () => void;
   showHeader?: boolean;
+  allowSplit?: boolean;
   controlClientLabel?: string;
   className?: string;
 }
@@ -38,6 +38,7 @@ export function AgentPanel({
   onMaximize,
   onPopout,
   showHeader = true,
+  allowSplit = true,
   controlClientLabel = "desktop",
   className,
 }: AgentPanelProps) {
@@ -56,16 +57,19 @@ export function AgentPanel({
   const { podStatus, isPodReady, podError } = usePodStatus(podKey);
 
   const shouldSubscribe = isPodReady || podStatus === "running";
+  const shouldShowWorkspace =
+    shouldSubscribe || podStatus === "completed" || podStatus === "orphaned";
   useMigratedSessionHydration(podKey, Boolean(podKey));
   const runtime = useMemo(
     () =>
       new WebAcpSessionRuntime({
         agentLabel: pod?.agent?.name ?? "Agent",
+        live: shouldSubscribe,
         paneId,
         podKey,
         title: pod?.title ?? pod?.alias ?? podKey,
       }),
-    [paneId, pod?.agent?.name, pod?.alias, pod?.title, podKey],
+    [paneId, pod?.agent?.name, pod?.alias, pod?.title, podKey, shouldSubscribe],
   );
   const handleFocus = useCallback(() => {
     setActivePane(paneId);
@@ -91,18 +95,16 @@ export function AgentPanel({
           podKey={podKey}
           isMaximized={isMaximized}
           onPopout={onPopout}
-          onSplitRight={() => setPendingSplitDirection("horizontal")}
-          onSplitDown={() => setPendingSplitDirection("vertical")}
+          onSplitRight={allowSplit ? () => setPendingSplitDirection("horizontal") : undefined}
+          onSplitDown={allowSplit ? () => setPendingSplitDirection("vertical") : undefined}
           onMaximize={handleMaximize}
           onClose={onClose}
         />
       )}
 
-      {!shouldSubscribe ? (
+      {!shouldShowWorkspace ? (
         podError ? (
           <PaneErrorState error={podError} onClose={onClose} />
-        ) : podStatus === "orphaned" ? (
-          <PaneReconnectingState onClose={onClose} />
         ) : (
           <PaneLoadingState
             podStatus={podStatus}
@@ -119,11 +121,13 @@ export function AgentPanel({
           sessionId={runtime.sessionId}
         />
       )}
-      <WorkerControlOverlay
-        podKey={podKey}
-        clientLabel={controlClientLabel}
-        preserveHeader={showHeader}
-      />
+      {shouldSubscribe && (
+        <WorkerControlOverlay
+          podKey={podKey}
+          clientLabel={controlClientLabel}
+          preserveHeader={showHeader}
+        />
+      )}
 
       {pendingSplitDirection && (
         <PodSelectorModal

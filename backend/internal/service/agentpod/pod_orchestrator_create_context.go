@@ -22,21 +22,22 @@ func (o *PodOrchestrator) preparePodCreationContext(
 	ctx context.Context,
 	req *OrchestrateCreatePodRequest,
 ) (podCreationContext, error) {
-	state := podCreationContext{isResumeMode: req.SourcePodKey != ""}
+	source, err := resolveExecutionSource(req)
+	if err != nil {
+		return podCreationContext{}, err
+	}
+	state := podCreationContext{
+		isResumeMode: source == ExecutionSourceLineage,
+	}
 	if state.isResumeMode {
-		if req.WorkerSpecDraft != nil || req.WorkerSpecSnapshotID != nil {
-			return podCreationContext{}, ErrConflictingWorkerCreateInput
-		}
-		var err error
 		state.sourcePod, state.sessionID, err = o.handleResumeMode(ctx, req)
 		if err != nil {
 			return podCreationContext{}, err
 		}
 	} else {
-		if err := o.prepareFreshWorkerCreate(ctx, req); err != nil {
+		if err := o.prepareFreshWorkerCreate(ctx, req, source); err != nil {
 			return podCreationContext{}, err
 		}
-		var err error
 		state.workerLaunchPod, err = o.bindExistingWorkerLaunchPod(ctx, req)
 		if err != nil {
 			return podCreationContext{}, err
@@ -83,8 +84,9 @@ func (o *PodOrchestrator) preparePodCreationContext(
 func (o *PodOrchestrator) prepareFreshWorkerCreate(
 	ctx context.Context,
 	req *OrchestrateCreatePodRequest,
+	source ExecutionSource,
 ) error {
-	if req.WorkerSpecSnapshotID != nil {
+	if source == ExecutionSourceSnapshot {
 		if err := o.prepareSnapshotWorkerCreate(ctx, req); err != nil {
 			return err
 		}

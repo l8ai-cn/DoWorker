@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-07-16T12:55:02+08:00",
+  "scope": "local development lifecycle diagnostic",
+  "initial_failure": {
+    "command": "./deploy/dev/dev.sh --backend-only",
+    "stage": "scripts/sync-amesh-convert.sh --force",
+    "message": "protoc-gen-amesh-convert: Plugin killed by signal 9"
+  },
+  "investigation": {
+    "available_disk": "86GiB",
+    "system_memory_free_percentage": 54,
+    "swapouts": 0,
+    "system_log_match_count": 0,
+    "proto_input_count": 62,
+    "proto_input_bytes": 403956
+  },
+  "reproduction": {
+    "command": "scripts/sync-amesh-convert.sh --force",
+    "exit_code": 0,
+    "duration_seconds": 11.52,
+    "maximum_resident_bytes": 45613056,
+    "generated_convert_files": 16
+  },
+  "resolution": {
+    "action": "No source or configuration change was made because the failure was not reproducible and no root cause was established.",
+    "retry_command": "./deploy/dev/dev.sh --backend-only",
+    "retry_exit_code": 0
+  },
+  "conclusion": "Treat the first signal-9 event as an uncorroborated external transient interruption. Future recurrence requires a fresh root-cause investigation; it is not masked by a fallback."
+}

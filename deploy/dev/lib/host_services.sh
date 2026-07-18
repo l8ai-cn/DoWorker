@@ -1,5 +1,6 @@
 # shellcheck shell=bash
-# host_services.sh — host-side Go service lifecycle (air + go build).
+# Host services launcher for deploy/dev.
+# Starts air-managed backend / relay / runner plus plain next dev for web / web-admin.
 #
 # Backend / relay run on the developer host. Runner stays in docker; its
 # binary is cross-compiled via go build into deploy/dev/runner-binary.

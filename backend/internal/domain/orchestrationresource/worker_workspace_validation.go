@@ -1,6 +1,9 @@
 package orchestrationresource
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 func validateWorkerWorkspace(
 	metadata Metadata,
@@ -38,11 +41,45 @@ func validateWorkerWorkspace(
 	); err != nil {
 		return err
 	}
-	return validateWorkerReferenceSlice(
+	return validateWorkerConfigDocumentBindings(
 		metadata,
-		"workspace.configBundleRefs",
+		workspace.ConfigDocumentBindings,
+	)
+}
+
+func validateWorkerConfigDocumentBindings(
+	metadata Metadata,
+	bindings []WorkerTemplateConfigDocumentBinding,
+) error {
+	fields := make([]workerReferenceField, len(bindings))
+	documents := make(map[string]struct{}, len(bindings))
+	for index, binding := range bindings {
+		if binding.DocumentID == "" ||
+			strings.TrimSpace(binding.DocumentID) != binding.DocumentID {
+			return fmt.Errorf(
+				"workspace.configDocumentBindings[%d].documentId must be normalized",
+				index,
+			)
+		}
+		if _, exists := documents[binding.DocumentID]; exists {
+			return fmt.Errorf(
+				"workspace.configDocumentBindings contains duplicate document",
+			)
+		}
+		documents[binding.DocumentID] = struct{}{}
+		fields[index] = workerReferenceField{
+			path: fmt.Sprintf(
+				"workspace.configDocumentBindings[%d].configBundleRef",
+				index,
+			),
+			ref: binding.ConfigBundleRef,
+		}
+	}
+	return validateWorkerReferenceFields(
+		metadata,
+		"workspace.configDocumentBindings",
 		KindEnvironmentBundle,
-		workspace.ConfigBundleRefs,
+		fields,
 	)
 }
 

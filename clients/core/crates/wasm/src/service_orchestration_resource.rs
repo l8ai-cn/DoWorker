@@ -28,6 +28,14 @@ impl WasmOrchestrationResourceService {
         self.0.get_resource_connect(request).await
     }
 
+    #[wasm_bindgen(js_name = getResourceCapabilitiesConnect)]
+    pub async fn get_resource_capabilities_connect(
+        &self,
+        request: &[u8],
+    ) -> Result<Vec<u8>, String> {
+        self.0.get_resource_capabilities_connect(request).await
+    }
+
     #[wasm_bindgen(js_name = listResourcesConnect)]
     pub async fn list_resources_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
         self.0.list_resources_connect(request).await

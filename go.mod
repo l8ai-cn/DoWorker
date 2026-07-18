@@ -15,6 +15,7 @@ require (
 	github.com/creack/pty v1.1.24
 	github.com/creativeprojects/go-selfupdate v1.5.2
 	github.com/crewjam/saml v0.5.1
+	github.com/distribution/reference v0.6.0
 	github.com/gin-contrib/cors v1.7.7
 	github.com/gin-gonic/gin v1.12.0
 	github.com/go-acme/lego/v4 v4.33.0
@@ -68,7 +69,10 @@ require (
 	gorm.io/plugin/dbresolver v1.6.2
 )
 
-require connectrpc.com/connect v1.19.1
+require (
+	connectrpc.com/connect v1.19.1
+	google.golang.org/protobuf v1.36.11
+)
 
 require (
 	code.gitea.io/sdk/gitea v0.22.1 // indirect
@@ -136,6 +140,7 @@ require (
 	github.com/miekg/dns v1.1.72 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/oschwald/maxminddb-golang/v2 v2.1.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
@@ -173,5 +178,4 @@ require (
 	golang.org/x/tools v0.44.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260401024825-9d38bb4040a9 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260406210006-6f92a3bedf2d // indirect
-	google.golang.org/protobuf v1.36.11 // indirect
 )

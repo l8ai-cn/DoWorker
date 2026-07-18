@@ -176,8 +176,8 @@ func validApplyWorkerSpecJSON(t *testing.T) []byte {
 		},
 		workerspec.Workspace{
 			SkillIDs: []int64{}, KnowledgeMounts: []workerspec.KnowledgeMount{},
-			EnvBundleIDs:    []workerspec.RuntimeEnvBundleID{},
-			ConfigBundleIDs: []int64{},
+			EnvBundleIDs:           []workerspec.RuntimeEnvBundleID{},
+			ConfigDocumentBindings: []workerspec.ConfigDocumentBinding{},
 		},
 		workerspec.Lifecycle{
 			TerminationPolicy: workerspec.TerminationPolicyManual,

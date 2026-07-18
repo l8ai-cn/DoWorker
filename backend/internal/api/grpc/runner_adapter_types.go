@@ -7,6 +7,8 @@ import (
 
 	"gorm.io/gorm"
 
+	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/pki"
 	"github.com/anthropics/agentsmesh/backend/internal/interfaces"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agent"
@@ -16,6 +18,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/service/channel"
 	goalloopService "github.com/anthropics/agentsmesh/backend/internal/service/goalloop"
 	knowledgebaseservice "github.com/anthropics/agentsmesh/backend/internal/service/knowledgebase"
+	workerplanner "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationworker"
 	"github.com/anthropics/agentsmesh/backend/internal/service/repository"
 	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
 	"github.com/anthropics/agentsmesh/backend/internal/service/ticket"
@@ -29,6 +32,22 @@ type PodEventSink interface {
 	PublishPodStatus(ctx context.Context, podKey, podStatus, agentStatus string)
 	HandlePodUsage(ctx context.Context, evt *runnerv1.PodUsageEvent)
 	UpdateExternalSessionID(ctx context.Context, podKey, externalID string)
+}
+
+type WorkerPlanAuthorizer interface {
+	AuthorizeApply(context.Context, control.Scope, string) error
+}
+
+type WorkerPlanApplier interface {
+	Apply(
+		context.Context,
+		control.Scope,
+		string,
+	) (workerplanner.AppliedWorker, error)
+}
+
+type WorkerPodReader interface {
+	GetPod(context.Context, string) (*podDomain.Pod, error)
 }
 
 const certRevocationCheckInterval = 5 * time.Minute
@@ -67,6 +86,9 @@ type GRPCRunnerAdapter struct {
 	goalLoopService      *goalloopService.Service
 	blockstoreService    *blockstoreservice.Service
 	knowledgebaseService *knowledgebaseservice.Service
+	workerPlanAuthorizer WorkerPlanAuthorizer
+	workerPlanApplier    WorkerPlanApplier
+	workerPodReader      WorkerPodReader
 }
 
 type MCPDependencies struct {
@@ -86,6 +108,8 @@ type MCPDependencies struct {
 	GoalLoopService      *goalloopService.Service
 	BlockstoreService    *blockstoreservice.Service
 	KnowledgebaseService *knowledgebaseservice.Service
+	WorkerPlanAuthorizer WorkerPlanAuthorizer
+	WorkerPlanApplier    WorkerPlanApplier
 }
 
 func NewGRPCRunnerAdapter(
@@ -127,6 +151,9 @@ func NewGRPCRunnerAdapter(
 		adapter.goalLoopService = mcpDeps.GoalLoopService
 		adapter.blockstoreService = mcpDeps.BlockstoreService
 		adapter.knowledgebaseService = mcpDeps.KnowledgebaseService
+		adapter.workerPlanAuthorizer = mcpDeps.WorkerPlanAuthorizer
+		adapter.workerPlanApplier = mcpDeps.WorkerPlanApplier
+		adapter.workerPodReader = mcpDeps.PodService
 	}
 
 	return adapter

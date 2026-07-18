@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "recorded_at": "2026-07-16",
+  "status": "verified",
+  "browser": {
+    "route": "/dev-org/workers/new?mode=template",
+    "worker_type": "do-agent",
+    "visible_document": "settings",
+    "visible_format": "json",
+    "visible_target": "DO_AGENT_SETTINGS",
+    "yaml_binding": "configDocumentBindings[settings]",
+    "worker_created": false,
+    "pod_created": false,
+    "console_errors": 0,
+    "console_warnings": 0,
+    "control_plane_filter_error_visible": false,
+    "mobile_relayout": {
+      "requested_viewport_width": 390,
+      "observed_viewport_width": 500,
+      "document_width": 500,
+      "horizontal_overflow": false,
+      "selected_document_preserved": true
+    }
+  },
+  "runtime_boundary": {
+    "root_cause_fixed": "The loaded WASM package predated ListResourcesResponse.applied_environment_bundle_filter and dropped the control-plane acknowledgement in the browser transport.",
+    "verification": "After rebuilding WASM, clearing .next, restarting Next, and reloading the page, a direct registered WASM service byte round trip returned { purpose: 2, workerType: do-agent }; the rendered form retained the Definition document requirement."
+  },
+  "responsive_state_boundary": {
+    "root_cause_fixed": "ResponsiveShell swaps desktop and mobile shell component trees, which unmounted the ResourceEditor local reducer.",
+    "verification": "The WorkerTemplate draft is held in a Dashboard session keyed by organization. Browser verification selected DoAgent on desktop, changed to the mobile layout, and retained settings / json / DO_AGENT_SETTINGS."
+  },
+  "not_claimed": {
+    "template_plan_or_apply": "Not attempted: required model, compute target, resource allocation, and EnvironmentBundle references are absent in the development organization.",
+    "worker_lifecycle": "Not attempted: migration repair, verified cloud base-image references, and disposable lifecycle credentials remain external gates."
+  },
+  "tests": {
+    "orchestration_resource_api_client": "1 passed",
+    "orchestration_resource_service": "2 passed",
+    "orchestration_resource_connect": "3 passed",
+    "environment_bundle_filter_hook": "5 passed",
+    "worker_template_runtime": "3 passed",
+    "worker_template_binding_field": "1 passed",
+    "worker_template_type_switch": "4 passed",
+    "resource_editor_session": "1 passed",
+    "resource_editor_shell": "11 passed"
+  }
+}

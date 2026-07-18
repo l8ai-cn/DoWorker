@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
 	agentpodSvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
@@ -15,6 +16,29 @@ import (
 
 type PodTerminator interface {
 	TerminatePod(ctx context.Context, podKey string) error
+}
+
+type PodCreator interface {
+	CreatePod(
+		ctx context.Context,
+		req *agentpodSvc.OrchestrateCreatePodRequest,
+	) (*agentpodSvc.OrchestrateCreatePodResult, error)
+}
+
+type AutopilotStarter interface {
+	CreateAndStart(
+		ctx context.Context,
+		req *agentpodSvc.CreateAndStartRequest,
+	) (*agentpod.AutopilotController, error)
+	GetApprovalTimedOut(
+		ctx context.Context,
+		orgIDs []int64,
+	) ([]*agentpod.AutopilotController, error)
+	UpdateAutopilotControllerStatus(
+		ctx context.Context,
+		autopilotKey string,
+		updates map[string]interface{},
+	) error
 }
 
 type RepoQueryForWorkflow interface {
@@ -28,8 +52,8 @@ type WorkflowOrchestrator struct {
 	eventBus           *eventbus.EventBus
 	logger             *slog.Logger
 
-	podOrchestrator *agentpodSvc.PodOrchestrator
-	autopilotSvc    *agentpodSvc.AutopilotControllerService
+	podOrchestrator PodCreator
+	autopilotSvc    AutopilotStarter
 	podTerminator   PodTerminator
 	ticketService   *ticketSvc.Service
 	repoQuery       RepoQueryForWorkflow
@@ -59,8 +83,8 @@ func NewWorkflowOrchestrator(
 }
 
 func (o *WorkflowOrchestrator) SetPodDependencies(
-	podOrch *agentpodSvc.PodOrchestrator,
-	autopilot *agentpodSvc.AutopilotControllerService,
+	podOrch PodCreator,
+	autopilot AutopilotStarter,
 	podTerminator PodTerminator,
 	ticket *ticketSvc.Service,
 	repoQuery RepoQueryForWorkflow,

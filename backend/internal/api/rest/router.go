@@ -235,6 +235,8 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 		Elicitations:       sessionapi.NewElicitationStore(),
 		PodOrchestrator:    svc.PodOrchestrator,
 		Pod:                svc.Pod,
+		DeferredCommitter:  sessionsvc.NewDeferredCommitter(db),
+		DispatchQueue:      svc.PendingQueue,
 		RelayManager:       svc.RelayManager,
 		RelayTokens:        svc.RelayTokenGenerator,
 		SessionUsage:       sessionusagesvc.NewService(db),

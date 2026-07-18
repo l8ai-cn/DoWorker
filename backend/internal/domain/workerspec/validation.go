@@ -112,7 +112,7 @@ func validateTypeConfig(config TypeConfig) error {
 		return fmt.Errorf("type config secret refs must be an object")
 	}
 	for field := range config.Values {
-		if err := validateConfigField(field); err != nil {
+		if err := ValidateConfigField(field); err != nil {
 			return err
 		}
 		if _, secret := config.SecretRefs[field]; secret {
@@ -123,7 +123,7 @@ func validateTypeConfig(config TypeConfig) error {
 		}
 	}
 	for field, reference := range config.SecretRefs {
-		if err := validateConfigField(field); err != nil {
+		if err := ValidateConfigField(field); err != nil {
 			return err
 		}
 		if err := slugkit.Validate(reference.Kind.String()); err != nil {
@@ -146,7 +146,7 @@ func validateTypeConfig(config TypeConfig) error {
 	return nil
 }
 
-func validateConfigField(field string) error {
+func ValidateConfigField(field string) error {
 	if field == "" || strings.TrimSpace(field) != field ||
 		utf8.RuneCountInString(field) > maxConfigFieldRunes {
 		return fmt.Errorf("invalid config field %q", field)

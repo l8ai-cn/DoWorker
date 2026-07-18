@@ -1,14 +1,14 @@
 #!/bin/bash
 # =============================================================================
-# dev-lite.sh — 低内存开发环境（Go 用 air，不用 ibazel / Bazel daemon）
+# dev-lite.sh — 低内存开发环境
 # =============================================================================
 #
 # 对比完整 ./dev.sh:
 #   - backend / relay: air + go build（~几十 MB，改 .go 秒级重编译）
-#   - runner: go cross-compile（一次性，无 Bazel 常驻）
+#   - runner: go cross-compile（一次性）
 #   - runner 容器: Coordinator 按需创建（不预起 12 个）
 #   - 前端: 仅 web 主站（跳过 web-admin / web-user）
-#   - 前端: plain next dev + pnpm build:wasm（不依赖 Bazel）
+#   - 前端: plain next dev + pnpm build:wasm
 #
 # 用法:
 #   ./dev-lite.sh                 # docker + air backend/relay + web
@@ -24,7 +24,6 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 export DEV_LITE=1
-export DEV_NO_BAZEL=1
 export WEB_USER_SKIP=1
 
 # 默认 Coordinator 按需 runner；若 .env 已持久化 RUNNERS_LAUNCHER 则 dev.sh 会尊重。

@@ -1,0 +1,139 @@
+{
+  "captured_at": "2026-07-16T17:46:00Z",
+  "route": "/dev-org/workers/new",
+  "organization": "dev-org",
+  "method": "authenticated browser UI audit",
+  "safety_boundary": [
+    "No WorkerTemplate was applied.",
+    "No Worker or Pod was created.",
+    "No credential value was listed, read, decrypted, or sent to a provider."
+  ],
+  "worker_type_selector": {
+    "selectable_count": 12,
+    "blocked": {
+      "slug": "loopal",
+      "reason": "No runtime image is available for this worker type"
+    }
+  },
+  "selectable_types": [
+    {
+      "slug": "codex-cli",
+      "label": "OpenAI Codex",
+      "runtime": "Codex CLI (local development)",
+      "interaction_mode": "acp",
+      "model_binding_required": true
+    },
+    {
+      "slug": "gemini-cli",
+      "label": "Gemini CLI",
+      "runtime": "Gemini CLI (local development)",
+      "interaction_mode": "pty",
+      "model_binding_required": true
+    },
+    {
+      "slug": "aider",
+      "label": "Aider",
+      "runtime": "Aider (local development)",
+      "interaction_mode": "pty",
+      "model_binding_required": false
+    },
+    {
+      "slug": "opencode",
+      "label": "OpenCode",
+      "runtime": "OpenCode (local development)",
+      "interaction_mode": "pty",
+      "model_binding_required": false
+    },
+    {
+      "slug": "hermes",
+      "label": "Hermes",
+      "runtime": "Hermes (local development)",
+      "interaction_mode": "pty",
+      "model_binding_required": true
+    },
+    {
+      "slug": "minimax-cli",
+      "label": "MiniMax CLI",
+      "runtime": "MiniMax CLI (local development)",
+      "interaction_mode": "pty",
+      "model_binding_required": true
+    },
+    {
+      "slug": "openclaw",
+      "label": "OpenClaw",
+      "runtime": "OpenClaw (local development)",
+      "interaction_mode": "pty",
+      "model_binding_required": true
+    },
+    {
+      "slug": "do-agent",
+      "label": "DoAgent",
+      "runtime": "DoAgent (local development)",
+      "interaction_mode": "pty",
+      "model_binding_required": true
+    },
+    {
+      "slug": "cursor-cli",
+      "label": "Cursor CLI",
+      "runtime": "Cursor CLI (local development)",
+      "interaction_mode": "pty",
+      "model_binding_required": false
+    },
+    {
+      "slug": "seedance-expert",
+      "label": "Seedance Expert",
+      "runtime": "DoAgent (local development)",
+      "interaction_mode": "pty",
+      "model_binding_required": true
+    },
+    {
+      "slug": "claude-code",
+      "label": "Claude Code",
+      "runtime": "Claude Code (local development)",
+      "interaction_mode": "pty",
+      "model_binding_required": true
+    },
+    {
+      "slug": "grok-build",
+      "label": "Grok Build",
+      "runtime": "Grok Build (local development)",
+      "interaction_mode": "pty",
+      "model_binding_required": false
+    }
+  ],
+  "form_contract": {
+    "generic_fields_visible": [
+      "typeConfig.values",
+      "typeConfig.secretRefs",
+      "workspace.environmentBundleRefs",
+      "workspace.configBundleRefs"
+    ],
+    "secret_entry": "reference only",
+    "named_config_document_fields_visible": false,
+    "affected_definitions": [
+      {
+        "slug": "do-agent",
+        "document_id": "settings",
+        "format": "json",
+        "target_path": "DO_AGENT_SETTINGS"
+      },
+      {
+        "slug": "openclaw",
+        "document_id": "openclaw-json",
+        "format": "json",
+        "target_path": "openclaw-home/.openclaw/openclaw.json"
+      },
+      {
+        "slug": "seedance-expert",
+        "document_id": "settings",
+        "format": "json",
+        "target_path": "DO_AGENT_SETTINGS"
+      }
+    ]
+  },
+  "browser_console": {
+    "application_error_count": 0,
+    "application_warning_count": 0
+  },
+  "conclusion": "The template editor selects runtime and reference resources for every selectable Worker type, but it cannot bind a config bundle to a Definition-owned document identity, format, and target path."
+}

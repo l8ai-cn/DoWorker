@@ -13,13 +13,17 @@ import { WorkflowConfigurationPanel } from "./WorkflowConfigurationPanel";
 interface ResourceConfigurationPanelProps {
   orgSlug: string;
   draft: ResourceDraft;
+  identityLocked?: boolean;
   onChange: (draft: ResourceDraft) => void;
+  onPlanBlockChange: (reason: string | null) => void;
 }
 
 export function ResourceConfigurationPanel({
   orgSlug,
   draft,
+  identityLocked,
   onChange,
+  onPlanBlockChange,
 }: ResourceConfigurationPanelProps) {
   if (isResourceBindingDraft(draft)) {
     return <ResourceBindingConfigurationPanel
@@ -40,6 +44,7 @@ export function ResourceConfigurationPanel({
         orgSlug={orgSlug}
         draft={draft}
         onChange={onChange}
+        onPlanBlockChange={onPlanBlockChange}
       />;
     case "Prompt":
       return <PromptConfigurationPanel draft={draft} onChange={onChange} />;
@@ -53,6 +58,7 @@ export function ResourceConfigurationPanel({
       return <WorkflowConfigurationPanel
         orgSlug={orgSlug}
         draft={draft}
+        identityLocked={identityLocked}
         onChange={onChange}
       />;
     case "GoalLoop":

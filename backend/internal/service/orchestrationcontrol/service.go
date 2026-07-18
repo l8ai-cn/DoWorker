@@ -8,19 +8,21 @@ import (
 )
 
 type Service struct {
-	registry    *orchestrationresource.Registry
-	repository  Repository
-	authorizer  Authorizer
-	references  ReferenceResolver
-	planners    map[orchestrationresource.TypeMeta]TargetPlanner
-	clock       func() time.Time
-	idGenerator func() string
-	planTTL     time.Duration
+	registry          *orchestrationresource.Registry
+	repository        Repository
+	authorizer        Authorizer
+	references        ReferenceResolver
+	workerDefinitions WorkerDefinitionPolicyResolver
+	planners          map[orchestrationresource.TypeMeta]TargetPlanner
+	clock             func() time.Time
+	idGenerator       func() string
+	planTTL           time.Duration
 }
 
 func NewService(deps ServiceDeps) (*Service, error) {
 	if deps.Registry == nil || deps.Repository == nil || deps.Authorizer == nil ||
-		deps.References == nil || deps.Clock == nil || deps.IDGenerator == nil ||
+		deps.References == nil || deps.WorkerDefinitions == nil ||
+		deps.Clock == nil || deps.IDGenerator == nil ||
 		deps.PlanTTL <= 0 || len(deps.RequiredTypes) == 0 {
 		return nil, fmt.Errorf("%w: incomplete dependencies", ErrUnavailable)
 	}
@@ -52,7 +54,8 @@ func NewService(deps ServiceDeps) (*Service, error) {
 	return &Service{
 		registry: deps.Registry, repository: deps.Repository,
 		authorizer: deps.Authorizer, references: deps.References,
-		planners: planners, clock: deps.Clock,
+		workerDefinitions: deps.WorkerDefinitions,
+		planners:          planners, clock: deps.Clock,
 		idGenerator: deps.IDGenerator, planTTL: deps.PlanTTL,
 	}, nil
 }

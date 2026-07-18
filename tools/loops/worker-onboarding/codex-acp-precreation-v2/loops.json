@@ -1,0 +1,9 @@
+[
+  {
+    "id": "codex-acp-precreation-2026-07-16",
+    "name": "Codex ACP Precreation Verification Loop",
+    "objective": "Keep Codex CLI integration claims bounded to verifier-backed local evidence.",
+    "primitive": "goal-based evidence loop with a human live-launch gate",
+    "status": "blocked_human_gate"
+  }
+]

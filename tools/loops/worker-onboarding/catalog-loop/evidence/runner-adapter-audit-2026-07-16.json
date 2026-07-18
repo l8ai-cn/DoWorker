@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-07-16T21:20:40+0800",
+  "scope": "Read-only local development Runner and adapter audit. No Worker or Pod was created and no provider credential was read.",
+  "worktree": {
+    "compose_project": "agentsmesh-codex-loop-blockly-mvp",
+    "backend_health": "http://127.0.0.1:12415/health returned status=ok",
+    "runtime_catalog_path": "deploy/dev/runtime/worker-runtime-catalog.local.json",
+    "runtime_catalog_revision": "local-dev-062e8636f10ae06b6d648702da2db23c10512fbfc7497c544b3fab7d1bd83eab"
+  },
+  "safety_boundary": {
+    "provider_request": false,
+    "pod_create_rpc": false,
+    "credential_decryption": false,
+    "worker_create": false
+  },
+  "runtime_catalog": {
+    "enabled_worker_slugs": [
+      "aider",
+      "claude-code",
+      "codex-cli",
+      "cursor-cli",
+      "do-agent",
+      "gemini-cli",
+      "grok-build",
+      "hermes",
+      "minimax-cli",
+      "openclaw",
+      "opencode",
+      "seedance-expert"
+    ],
+    "disabled_worker_slug": "loopal",
+    "disabled_reason": "The local Loopal image did not satisfy its declared version probe and is absent from the catalog."
+  },
+  "backend_runner_attestation": [
+    {"node_id": "dev-runner-aider", "slug": "aider", "version": "0.86.2", "status": "online"},
+    {"node_id": "dev-runner-claude", "slug": "claude-code", "version": "2.1.211", "status": "online"},
+    {"node_id": "dev-runner-codex", "slug": "codex-cli", "version": "0.144.5", "status": "online"},
+    {"node_id": "dev-runner-cursor", "slug": "cursor-cli", "version": "2026.07.09-a3815c0", "status": "online"},
+    {"node_id": "dev-runner-do-agent", "slug": "do-agent", "version": "0.2.7", "status": "online"},
+    {"node_id": "dev-runner-do-agent", "slug": "seedance-expert", "version": "0.2.7", "status": "online"},
+    {"node_id": "dev-runner-gemini", "slug": "gemini-cli", "version": "0.50.0", "status": "online"},
+    {"node_id": "dev-runner-grok", "slug": "grok-build", "version": "0.2.101", "status": "online"},
+    {"node_id": "dev-runner-hermes", "slug": "hermes", "version": "0.18.2", "status": "online"},
+    {"node_id": "dev-runner-minimax", "slug": "minimax-cli", "version": "1.0.16", "status": "online"},
+    {"node_id": "dev-runner-openclaw", "slug": "openclaw", "version": "2026.6.11", "status": "online"},
+    {"node_id": "dev-runner-opencode", "slug": "opencode", "version": "1.18.2", "status": "online"}
+  ],
+  "adapter_contract": {
+    "acp_worker_adapters": {
+      "claude-code": "claude-stream-json",
+      "codex-cli": "codex-app-server",
+      "cursor-cli": "cursor-acp",
+      "do-agent": "do-agent-acp",
+      "gemini-cli": "gemini-acp",
+      "grok-build": "grok-build-acp",
+      "loopal": "loopal-acp",
+      "opencode": "opencode-acp",
+      "seedance-expert": "do-agent-acp"
+    },
+    "pty_worker_adapters": {
+      "aider": "aider-pty",
+      "hermes": "hermes-pty",
+      "minimax-cli": "minimax-pty",
+      "openclaw": "openclaw-pty"
+    },
+    "runner_behavior": "Runner uses CreatePodCommand.interaction_mode to choose ACP or generic PTY startup. ACP startup receives the Definition adapter_id; PTY startup does not infer or dispatch a per-adapter transport.",
+    "attestation_limit": "Runner InitializedConfirm reports only slug, binary version, and path. It does not attest adapter_id, supported interaction modes, or runtime-image digest."
+  },
+  "deterministic_checks": [
+    {
+      "command": "bash tools/loops/worker-onboarding/catalog-loop/scripts/verify-definition-chain.sh",
+      "result": "passed"
+    },
+    {
+      "command": "bash tools/loops/worker-onboarding/catalog-loop/scripts/verify-worker-documentation.sh",
+      "result": "passed"
+    },
+    {
+      "command": "bash tools/loops/worker-onboarding/catalog-loop/scripts/verify-rebuild-state.sh",
+      "result": "passed"
+    },
+    {
+      "command": "go test ./agentfile/eval -run '^TestEval_OpenClawWritesSelectedConfigBundle$' -count=1",
+      "result": "passed",
+      "meaning": "The existing AgentFile evaluator materializes one selected JSON config bundle for OpenClaw."
+    },
+    {
+      "command": "go test selected non-Codex adapter packages -run 'Test.*(Register|Transport|AgentHome|MergeConfig)' -count=1 -timeout=90s",
+      "result": "passed",
+      "packages": [
+        "aider",
+        "hermes",
+        "openclaw",
+        "gemini",
+        "grok",
+        "doagent",
+        "cursor",
+        "opencode",
+        "loopal"
+      ]
+    },
+    {
+      "command": "go test ./runner/internal/agents/codex -run '^TestRegisterInit_TransportFactory$' -count=1 -timeout=30s",
+      "result": "passed",
+      "meaning": "The Codex Definition adapter codex-app-server is registered without scanning local session history."
+    },
+    {
+      "command": "go test ./runner/internal/agents/claude -run 'Test.*(Transport|Register)' -count=1 -timeout=60s",
+      "result": "passed",
+      "meaning": "The Claude Definition adapter claude-stream-json has a runnable targeted transport test."
+    },
+    {
+      "command": "go test ./runner/internal/runner -run 'Test.*PTY' -count=1 -timeout=60s",
+      "result": "passed",
+      "meaning": "Generic PTY startup is covered for Aider, Hermes, MiniMax CLI, and OpenClaw's PTY transport class."
+    },
+    {
+      "command": "jq -s 'map(select((.config_documents | length) > 1) | .slug)' config/worker-types/*/definition.json",
+      "result": "passed",
+      "meaning": "Every current formal Definition has zero or one configuration document. The AgentFile evaluator cannot yet safely represent a future Definition with multiple named configuration documents."
+    }
+  ],
+  "test_environment_defect": {
+    "command": "go test ./runner/internal/agents/codex -count=1 -v -timeout=45s",
+    "result": "failed",
+    "failing_test": "TestCodexParser_Parse_NoSandbox",
+    "root_cause": "The test passes an empty sandbox path. codexSessionDirs then includes the real ~/.codex/sessions directory, recursively scans user session JSONL files, and timed out while decoding local history.",
+    "evidence": [
+      "runner/internal/agents/codex/codex_coverage_test.go",
+      "runner/internal/agents/codex/parser.go"
+    ],
+    "scope_boundary": "This is a test isolation defect outside the Worker creation contract. It was not modified during this audit and prevents using the full Codex adapter package test suite as release evidence."
+  },
+  "support_conclusion": "No Worker support status changed. Image availability, binary probe, connected Runner, adapter registration, or a focused evaluator test alone do not prove typed credential/config materialization, provider interaction, Pod lifecycle, terminal or ACP behavior, browser flow, cleanup, or release provenance."
+}

@@ -22,11 +22,34 @@ type memPendingRepo struct {
 func (m *memPendingRepo) Enqueue(_ context.Context, cmd *agentpod.PendingCommand) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
+	return m.enqueueLocked(cmd)
+}
+
+func (m *memPendingRepo) EnqueueWithinCapacity(
+	_ context.Context,
+	cmd *agentpod.PendingCommand,
+	maxPerRunner int,
+) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	for _, r := range m.rows {
 		if r.CommandID == cmd.CommandID {
 			return agentpod.ErrDuplicateCommand
 		}
 	}
+	count := 0
+	for _, row := range m.rows {
+		if row.RunnerID == cmd.RunnerID {
+			count++
+		}
+	}
+	if count >= maxPerRunner {
+		return agentpod.ErrQueueFull
+	}
+	return m.enqueueLocked(cmd)
+}
+
+func (m *memPendingRepo) enqueueLocked(cmd *agentpod.PendingCommand) error {
 	m.next++
 	copy := *cmd
 	copy.ID = m.next
@@ -200,6 +223,23 @@ func TestEnqueue_DuplicateCommandWinsOverQueueFull(t *testing.T) {
 	)
 
 	require.ErrorIs(t, err, agentpod.ErrDuplicateCommand)
+}
+
+func TestAllowsDurableCommandHonorsOfflineQueueGate(t *testing.T) {
+	q := NewPendingCommandQueue(
+		&memPendingRepo{},
+		nil,
+		5,
+		time.Minute,
+		false,
+		newTestLogger(),
+	)
+	checker := &stubConnChecker{}
+	q.SetConnectionChecker(checker)
+
+	assert.False(t, q.AllowsDurableCommand(1))
+	checker.connected = true
+	assert.True(t, q.AllowsDurableCommand(1))
 }
 
 func TestCancelByPodKey_Idempotent(t *testing.T) {

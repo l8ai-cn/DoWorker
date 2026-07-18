@@ -1,20 +1,11 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   ArrowLeft,
+  GitBranchPlus,
   Play,
-  Pencil,
   Loader2,
-  MoreHorizontal,
   Power,
-  Trash2,
 } from "lucide-react";
 import type { WorkflowData } from "@/stores/workflow";
 
@@ -24,10 +15,9 @@ interface WorkflowHeaderProps {
   t: (key: string) => string;
   onBack?: () => void;
   onTrigger: () => void;
-  onEdit: () => void;
+  onRevise: () => void;
   onEnable: () => void;
   onDisable: () => void;
-  onDelete: () => void;
 }
 
 function formatNextRun(nextAt?: string): string | null {
@@ -47,10 +37,9 @@ export function WorkflowHeader({
   t,
   onBack,
   onTrigger,
-  onEdit,
+  onRevise,
   onEnable,
   onDisable,
-  onDelete,
 }: WorkflowHeaderProps) {
   const isEnabled = workflow.status === "enabled";
   const isAutopilot = workflow.execution_mode === "autopilot";
@@ -150,24 +139,15 @@ export function WorkflowHeader({
                 {t("workflows.enable")}
               </Button>
             )}
-            <Button variant="outline" size="sm" onClick={onEdit} className="h-7 px-3 text-xs gap-1">
-              <Pencil className="h-3 w-3" />
-              {t("common.edit")}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onRevise}
+              className="h-7 gap-1 px-3 text-xs"
+            >
+              <GitBranchPlus className="h-3 w-3" />
+              {t("workflows.newRevision")}
             </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className="h-7 w-7">
-                  <MoreHorizontal className="h-3.5 w-3.5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={onDelete}>
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  {t("common.delete")}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
           </div>
         </div>
       </div>

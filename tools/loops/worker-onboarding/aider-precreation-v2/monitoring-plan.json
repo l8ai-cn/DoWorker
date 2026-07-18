@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0",
+  "loop_id": "aider-precreation-2026-07-16",
+  "supervisor_agent_id": "loop-supervisor",
+  "review_cadence_iterations": 1,
+  "blocked_signals": ["approval-missing", "live verifier failure", "repeated evidence fingerprint"],
+  "drift_checks": ["worker remains aider", "precreation is not promoted to support", "no human gate is crossed"],
+  "intervention_actions": ["pause", "reopen acceptance", "escalate"],
+  "decision_file": "DECISIONS.md",
+  "decision_log": "journal.jsonl",
+  "max_blocked_cycles": 1
+}

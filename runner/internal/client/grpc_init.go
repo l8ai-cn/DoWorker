@@ -122,6 +122,7 @@ func (c *GRPCConnection) performInitialization(ctx context.Context) error {
 		c.mu.Lock()
 		c.initialized = true
 		c.mu.Unlock()
+		c.flushPendingPodTerminations()
 
 		logger.GRPC().InfoContext(ctx, "Initialization completed successfully")
 		return nil

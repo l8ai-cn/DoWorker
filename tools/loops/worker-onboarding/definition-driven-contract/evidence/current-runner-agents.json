@@ -1,0 +1,185 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-07-16T16:46:38.870Z",
+  "source": "development runners table",
+  "runners": [
+    {
+      "status": "offline",
+      "node_id": "dev-runner-2",
+      "agent_versions": [],
+      "available_agents": []
+    },
+    {
+      "status": "online",
+      "node_id": "dev-runner-aider",
+      "agent_versions": [
+        {
+          "path": "/usr/local/bin/aider",
+          "slug": "aider",
+          "version": "0.86.2"
+        }
+      ],
+      "available_agents": [
+        "aider"
+      ]
+    },
+    {
+      "status": "online",
+      "node_id": "dev-runner-claude",
+      "agent_versions": [
+        {
+          "path": "/usr/local/bin/claude",
+          "slug": "claude-code",
+          "version": "2.1.211"
+        }
+      ],
+      "available_agents": [
+        "claude-code"
+      ]
+    },
+    {
+      "status": "online",
+      "node_id": "dev-runner-codex",
+      "agent_versions": [
+        {
+          "path": "/usr/local/bin/codex",
+          "slug": "codex-cli",
+          "version": "0.144.5"
+        }
+      ],
+      "available_agents": [
+        "codex-cli"
+      ]
+    },
+    {
+      "status": "offline",
+      "node_id": "dev-runner-codex-2",
+      "agent_versions": [],
+      "available_agents": []
+    },
+    {
+      "status": "online",
+      "node_id": "dev-runner-cursor",
+      "agent_versions": [
+        {
+          "path": "/usr/local/bin/agent",
+          "slug": "cursor-cli",
+          "version": "2026.07.09-a3815c0"
+        }
+      ],
+      "available_agents": [
+        "cursor-cli"
+      ]
+    },
+    {
+      "status": "online",
+      "node_id": "dev-runner-do-agent",
+      "agent_versions": [
+        {
+          "path": "/usr/local/bin/do-agent",
+          "slug": "do-agent",
+          "version": "0.2.7"
+        },
+        {
+          "path": "/usr/local/bin/do-agent",
+          "slug": "seedance-expert",
+          "version": "0.2.7"
+        }
+      ],
+      "available_agents": [
+        "do-agent",
+        "seedance-expert"
+      ]
+    },
+    {
+      "status": "online",
+      "node_id": "dev-runner-gemini",
+      "agent_versions": [
+        {
+          "path": "/usr/local/bin/gemini",
+          "slug": "gemini-cli",
+          "version": "0.50.0"
+        }
+      ],
+      "available_agents": [
+        "gemini-cli"
+      ]
+    },
+    {
+      "status": "online",
+      "node_id": "dev-runner-grok",
+      "agent_versions": [
+        {
+          "path": "/usr/local/bin/grok",
+          "slug": "grok-build",
+          "version": "0.2.101"
+        }
+      ],
+      "available_agents": [
+        "grok-build"
+      ]
+    },
+    {
+      "status": "online",
+      "node_id": "dev-runner-hermes",
+      "agent_versions": [
+        {
+          "path": "/usr/local/bin/hermes",
+          "slug": "hermes",
+          "version": "0.18.2"
+        }
+      ],
+      "available_agents": [
+        "hermes"
+      ]
+    },
+    {
+      "status": "offline",
+      "node_id": "dev-runner-loopal",
+      "agent_versions": [],
+      "available_agents": []
+    },
+    {
+      "status": "online",
+      "node_id": "dev-runner-minimax",
+      "agent_versions": [
+        {
+          "path": "/usr/local/bin/mmx",
+          "slug": "minimax-cli",
+          "version": "1.0.16"
+        }
+      ],
+      "available_agents": [
+        "minimax-cli"
+      ]
+    },
+    {
+      "status": "online",
+      "node_id": "dev-runner-openclaw",
+      "agent_versions": [
+        {
+          "path": "/usr/local/bin/openclaw",
+          "slug": "openclaw",
+          "version": "2026.6.11"
+        }
+      ],
+      "available_agents": [
+        "openclaw"
+      ]
+    },
+    {
+      "status": "online",
+      "node_id": "dev-runner-opencode",
+      "agent_versions": [
+        {
+          "path": "/usr/local/bin/opencode",
+          "slug": "opencode",
+          "version": "1.18.2"
+        }
+      ],
+      "available_agents": [
+        "opencode"
+      ]
+    }
+  ]
+}

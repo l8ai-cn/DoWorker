@@ -93,6 +93,8 @@ func mapServiceError(err error) error {
 		return connect.NewError(connect.CodeNotFound, err)
 	case errors.Is(err, meshservice.ErrRunnerNotFound):
 		return connect.NewError(connect.CodeNotFound, err)
+	case errors.Is(err, meshservice.ErrWorkerSpecSnapshotRequired):
+		return connect.NewError(connect.CodeInvalidArgument, err)
 	default:
 		return connect.NewError(connect.CodeInternal, err)
 	}

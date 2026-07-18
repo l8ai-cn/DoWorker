@@ -371,8 +371,8 @@ message TicketPodList {
 message CreatePodForTicketRequest {
   string org_slug = 1;
   string ticket_slug = 2;
-  int64 runner_id = 3;
+  reserved 3, 5, 6;
+  reserved "runner_id", "model", "permission_mode";
   optional string prompt = 4;
-  optional string model = 5;
-  optional string permission_mode = 6;
+  int64 worker_spec_snapshot_id = 7;
 }

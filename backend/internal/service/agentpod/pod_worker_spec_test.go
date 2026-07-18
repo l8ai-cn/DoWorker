@@ -275,7 +275,7 @@ func podServiceWorkerSpec() specdomain.Spec {
 			SkillIDs:        []int64{},
 			KnowledgeMounts: []specdomain.KnowledgeMount{},
 			EnvBundleIDs:    []specdomain.RuntimeEnvBundleID{},
-			ConfigBundleIDs: []int64{},
+			ConfigDocumentBindings: []specdomain.ConfigDocumentBinding{},
 			InitialTask:     "Run checks.",
 		},
 		specdomain.Lifecycle{TerminationPolicy: specdomain.TerminationPolicyManual},

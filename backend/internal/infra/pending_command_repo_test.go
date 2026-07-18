@@ -60,6 +60,29 @@ func TestPendingCommandRepo_Enqueue_DuplicateReturnsSentinel(t *testing.T) {
 	assert.ErrorIs(t, err, agentpod.ErrDuplicateCommand)
 }
 
+func TestPendingCommandRepo_EnqueueWithinCapacity(t *testing.T) {
+	repo := NewPendingCommandRepository(setupPendingCommandDB(t))
+	ctx := context.Background()
+
+	require.NoError(t, repo.EnqueueWithinCapacity(
+		ctx,
+		newPendingCmd(1, "pd-1", "cmd-1"),
+		1,
+	))
+	err := repo.EnqueueWithinCapacity(
+		ctx,
+		newPendingCmd(1, "pd-2", "cmd-2"),
+		1,
+	)
+	assert.ErrorIs(t, err, agentpod.ErrQueueFull)
+	err = repo.EnqueueWithinCapacity(
+		ctx,
+		newPendingCmd(1, "pd-1", "cmd-1"),
+		1,
+	)
+	assert.ErrorIs(t, err, agentpod.ErrDuplicateCommand)
+}
+
 func TestPendingCommandRepo_FIFOAndPosition(t *testing.T) {
 	repo := NewPendingCommandRepository(setupPendingCommandDB(t))
 	ctx := context.Background()

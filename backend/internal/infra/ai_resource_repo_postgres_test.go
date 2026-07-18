@@ -30,7 +30,7 @@ func TestAIResourceRepositoryPostgresRoundTrip(t *testing.T) {
 	}
 	require.NoError(t, repo.CreateConnection(ctx, connection))
 	t.Cleanup(func() {
-		assert.NoError(t, repo.DeleteConnection(context.Background(), connection.ID, connection.Revision))
+		assert.NoError(t, repo.DeleteConnection(context.Background(), connection.ID, connection.Revision, connection.UpdatedAt))
 	})
 	resource := &airesource.ModelResource{
 		ProviderConnectionID: connection.ID, Identifier: slugkit.Slug("postgres-gpt"),

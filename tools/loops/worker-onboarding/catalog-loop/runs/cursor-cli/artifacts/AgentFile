@@ -7,7 +7,7 @@ MODE pty
 MODE acp "acp"
 
 # === Environment ===
-ENV CURSOR_API_KEY SECRET OPTIONAL
+ENV CURSOR_API_KEY SECRET
 
 # === Prompt ===
 PROMPT_POSITION prepend
@@ -16,5 +16,5 @@ CAPABILITY resume none
 CAPABILITY permission acp
 CAPABILITY usage live
 CAPABILITY interrupt true
-CAPABILITY streaming true
+CAPABILITY streaming false
 CAPABILITY model_family multi

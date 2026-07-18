@@ -9,6 +9,7 @@ import { AlertMessage } from "@/components/ui/alert-message";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 import type { ResourceDraftState } from "./resource-draft-reducer";
+import { resourcePlanStatusKey } from "./resource-plan-status";
 import { ResourceSemanticDiff } from "./ResourceSemanticDiff";
 
 interface ResourcePlanReviewProps {
@@ -36,13 +37,14 @@ export function ResourcePlanReview({
   if (planState.status === "error") {
     return <AlertMessage type="error" message={planState.error} />;
   }
-  if (planState.status === "expired") {
-    return <AlertMessage type="warning" message={t("plan.expired")} />;
-  }
+  const expired = planState.status === "expired";
   const { response } = planState;
   const plan = response.plan;
   return (
     <div className="space-y-6">
+      {expired && (
+        <AlertMessage type="warning" message={t("plan.expired")} />
+      )}
       {response.issues.length > 0 && (
         <section className="space-y-2">
           <h3 className="text-sm font-semibold">{t("plan.issues")}</h3>
@@ -59,10 +61,16 @@ export function ResourcePlanReview({
       )}
       {plan && (
         <>
-          <section className="grid gap-3 border-b border-border pb-5 sm:grid-cols-3">
+          <section className="grid gap-3 border-b border-border pb-5 sm:grid-cols-2 lg:grid-cols-4">
             <PlanValue
               label={t("plan.operation")}
               value={ResourceOperation[plan.operation]}
+            />
+            <PlanValue
+              label={t("plan.status")}
+              value={t(
+                `plan.statuses.${resourcePlanStatusKey(plan.status)}`,
+              )}
             />
             <PlanValue label="Plan ID" value={plan.planId} mono />
             <PlanValue label={t("plan.expires")} value={plan.expiresAt} />

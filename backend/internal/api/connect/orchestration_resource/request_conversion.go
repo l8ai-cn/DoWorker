@@ -90,7 +90,84 @@ func listFilterFromProto(
 		}
 		filter.Kind = request.GetKind()
 	}
+	if request.EnvironmentBundleFilter != nil {
+		converted, err := environmentBundleFilterFromProto(
+			request.GetEnvironmentBundleFilter(),
+		)
+		if err != nil {
+			return service.ResourceListFilter{}, err
+		}
+		filter.EnvironmentBundle = converted
+	}
+	if request.ModelBindingFilter != nil {
+		converted, err := modelBindingFilterFromProto(
+			request.GetModelBindingFilter(),
+		)
+		if err != nil {
+			return service.ResourceListFilter{}, err
+		}
+		filter.ModelBinding = converted
+	}
+	if filter.EnvironmentBundle != nil &&
+		filter.Kind != resource.KindEnvironmentBundle {
+		return service.ResourceListFilter{}, invalidRequest()
+	}
+	if filter.ModelBinding != nil && filter.Kind != resource.KindModelBinding {
+		return service.ResourceListFilter{}, invalidRequest()
+	}
 	return filter, nil
+}
+
+func environmentBundleFilterFromProto(
+	filter *resourcev1.EnvironmentBundleReferenceFilter,
+) (*service.EnvironmentBundleReferenceFilter, error) {
+	if filter == nil {
+		return nil, invalidRequest()
+	}
+	var purpose service.EnvironmentBundlePurpose
+	switch filter.GetPurpose() {
+	case resourcev1.EnvironmentBundlePurpose_ENVIRONMENT_BUNDLE_PURPOSE_RUNTIME:
+		purpose = service.EnvironmentBundlePurposeRuntime
+	case resourcev1.EnvironmentBundlePurpose_ENVIRONMENT_BUNDLE_PURPOSE_CONFIG:
+		purpose = service.EnvironmentBundlePurposeConfig
+	case resourcev1.EnvironmentBundlePurpose_ENVIRONMENT_BUNDLE_PURPOSE_CREDENTIAL:
+		purpose = service.EnvironmentBundlePurposeCredential
+	default:
+		return nil, invalidRequest()
+	}
+	workerType := slugkit.Slug(filter.GetWorkerType())
+	if err := slugkit.Validate(workerType.String()); err != nil {
+		return nil, invalidRequest()
+	}
+	return &service.EnvironmentBundleReferenceFilter{
+		Purpose:    purpose,
+		WorkerType: workerType,
+		TargetName: filter.GetTargetName(),
+	}, nil
+}
+
+func environmentBundleFilterToProto(
+	filter *service.EnvironmentBundleReferenceFilter,
+) (*resourcev1.EnvironmentBundleReferenceFilter, error) {
+	if filter == nil {
+		return nil, nil
+	}
+	var purpose resourcev1.EnvironmentBundlePurpose
+	switch filter.Purpose {
+	case service.EnvironmentBundlePurposeRuntime:
+		purpose = resourcev1.EnvironmentBundlePurpose_ENVIRONMENT_BUNDLE_PURPOSE_RUNTIME
+	case service.EnvironmentBundlePurposeConfig:
+		purpose = resourcev1.EnvironmentBundlePurpose_ENVIRONMENT_BUNDLE_PURPOSE_CONFIG
+	case service.EnvironmentBundlePurposeCredential:
+		purpose = resourcev1.EnvironmentBundlePurpose_ENVIRONMENT_BUNDLE_PURPOSE_CREDENTIAL
+	default:
+		return nil, control.ErrInvalid
+	}
+	return &resourcev1.EnvironmentBundleReferenceFilter{
+		Purpose:    purpose,
+		WorkerType: filter.WorkerType.String(),
+		TargetName: filter.TargetName,
+	}, nil
 }
 
 func revisionFromProto(revision *int64) (int64, error) {

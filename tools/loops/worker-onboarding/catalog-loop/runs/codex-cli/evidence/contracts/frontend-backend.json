@@ -1,0 +1,25 @@
+{
+  "definition_hash": "sha256:60cfdaef2e79d55d66daeb348f52feae205474ccd5af79ad8c18f41200676a4d",
+  "adapter_id": "codex-app-server",
+  "model_requirement": {
+    "required": true,
+    "protocol_adapters": ["openai-compatible"]
+  },
+  "credential_target": "OPENAI_API_KEY",
+  "creation_flow": [
+    "WorkerTemplate plan and apply",
+    "Worker plan and create",
+    "Runner create_pod",
+    "Codex ACP session",
+    "Browser prompt"
+  ],
+  "frontend_fix": {
+    "problem": "ACP popup used TerminalPane for codex app-server.",
+    "resolution": "Select AgentPanel when Pod interaction_mode is ACP.",
+    "verification": "Browser popup displayed ACP conversation, control lease, prompt input, and provider failure diagnostics."
+  },
+  "verification": [
+    "pnpm run web:typecheck",
+    "browser Worker creation and prompt"
+  ]
+}

@@ -52,7 +52,16 @@ func (repo *orchestrationResourceRepo) runApplyTransaction(
 			return err
 		}
 		state, err := loadLockedApplyState(tx, scope, planID, appliedAt)
+		if errors.Is(err, orchestrationcontrol.ErrConsumed) {
+			if err := authorizeConsumedApply(tx, scope, planID); err != nil {
+				return err
+			}
+			return orchestrationcontrol.ErrConsumed
+		}
 		if err != nil {
+			return err
+		}
+		if err := authorizeLockedApply(tx, scope, state); err != nil {
 			return err
 		}
 		mutation, err := build(tx, state)

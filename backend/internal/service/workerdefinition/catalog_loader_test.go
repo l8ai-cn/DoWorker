@@ -63,6 +63,18 @@ func TestGeminiDefinitionUsesGeminiAPIKey(t *testing.T) {
 	assert.Contains(t, gemini.AgentFile, "ENV GEMINI_API_KEY SECRET OPTIONAL")
 }
 
+func TestAiderDefinitionRequiresOneProviderCredential(t *testing.T) {
+	catalog, err := Load(filepath.Join(repositoryRoot(t), "config", "worker-types"))
+
+	require.NoError(t, err)
+	aider, ok := catalog.Get("aider")
+	require.True(t, ok)
+	assert.Equal(t, []CredentialRequirementGroup{{
+		ID:    "provider-api-key",
+		AnyOf: []string{"OPENAI_API_KEY", "ANTHROPIC_API_KEY"},
+	}}, aider.CredentialRequirementGroups)
+}
+
 func TestMiniMaxDefinitionUsesOneShotChatCommand(t *testing.T) {
 	catalog, err := Load(filepath.Join(repositoryRoot(t), "config", "worker-types"))
 

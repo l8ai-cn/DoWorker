@@ -14,6 +14,14 @@ var ErrHasActiveRuns = errors.New("workflow has active runs")
 
 // Delete is atomic — returns ErrHasActiveRuns when active runs exist (no orphan rows).
 func (s *WorkflowService) Delete(ctx context.Context, orgID int64, slug string) error {
+	workflow, err := s.GetBySlug(ctx, orgID, slug)
+	if err != nil {
+		return err
+	}
+	if workflow.IsResourceManaged() {
+		return ErrWorkflowManagedByResourceApply
+	}
+
 	affected, err := s.repo.Delete(ctx, orgID, slug)
 	if err != nil {
 		if errors.Is(err, workflowDomain.ErrHasActiveRuns) {

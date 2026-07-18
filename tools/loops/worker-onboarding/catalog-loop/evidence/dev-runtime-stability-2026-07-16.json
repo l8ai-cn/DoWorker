@@ -1,0 +1,31 @@
+{
+  "recorded_at": "2026-07-16T12:26:03+08:00",
+  "scope": "local development only",
+  "observed_failure": {
+    "component": "Backend MarketplaceWorker MCP Registry initial sync",
+    "evidence": [
+      "The initial sync fetched many registry pages and issued a large batch upsert.",
+      "The batch upsert took about 36 seconds and failed with a database value-length error.",
+      "During the database pressure window, Runner readiness confirmation and heartbeat/disconnect updates timed out."
+    ],
+    "impact": "A Runner container could complete mTLS initialization but was not reliably available to Worker creation."
+  },
+  "repair": {
+    "files": [
+      "deploy/dev/lib/config_gen.sh",
+      "deploy/dev/lib/host_services_lite.sh"
+    ],
+    "behavior": "Development environments write and export MCP_REGISTRY_ENABLED=false. Production retains the application default.",
+    "post_restart_evidence": [
+      "The restarted Backend process environment contains MCP_REGISTRY_ENABLED=false.",
+      "No new MCP Registry sync was logged after the targeted Backend restart."
+    ]
+  },
+  "revalidation": {
+    "docker_queue": "No active build job was present. PostgreSQL, Redis, Traefik, runner-codex-cli, and runner-e2e-echo were running.",
+    "runner": "dev-runner-codex remained online with a current tunnel and heartbeat and advertised codex-cli.",
+    "worker_options": "An authenticated ListWorkerCreateOptions request returned 200 and made only codex-cli selectable; the other 12 formal types remained explicitly blocked for missing local runtime images.",
+    "action": "The shared Docker VM contention is cleared. Resume one image build at a time and re-run the same Runner/API checks after each build."
+  },
+  "support_claim": "No Worker support state changed."
+}

@@ -16,12 +16,17 @@ import { ResourceReferenceField } from "./ResourceReferenceField";
 import { WorkerTemplateResourceLimitsField } from "./WorkerTemplateResourceLimitsField";
 import type { WorkerTemplatePanelProps } from "./worker-template-panel-props";
 import { WorkerTemplateRuntimeChoices } from "./WorkerTemplateRuntimeChoices";
+import type { AsyncState } from "@/components/pod/hooks/workerCreateDraft";
+import type { WorkerCreateOptions } from "@/lib/api/facade/podConnect";
 
 export function WorkerTemplateRuntimePanel({
   draft,
   catalog,
+  workerOptions,
   onChange,
-}: WorkerTemplatePanelProps) {
+}: WorkerTemplatePanelProps & {
+  workerOptions: AsyncState<WorkerCreateOptions>;
+}) {
   const t = useTranslations("resourceEditor");
   const runtime = draft.spec.runtime;
   const setRuntime = (patch: Partial<WorkerTemplateRuntime>) => {
@@ -39,7 +44,11 @@ export function WorkerTemplateRuntimePanel({
       title={t("sections.runtime")}
       className="border-t border-border pt-6"
     >
-      <WorkerTemplateRuntimeChoices draft={draft} onChange={onChange} />
+      <WorkerTemplateRuntimeChoices
+        draft={draft}
+        workerOptions={workerOptions}
+        onChange={onChange}
+      />
       <FormField
         label={t("fields.deploymentMode")}
         htmlFor="deployment-mode"
@@ -56,12 +65,15 @@ export function WorkerTemplateRuntimePanel({
           </SelectContent>
         </Select>
       </FormField>
-      <FormField label={t("fields.placementPolicy")}>
+      <FormField
+        label={t("fields.placementPolicy")}
+        htmlFor="placement-policy"
+      >
         <Select
           value={runtime.placementPolicy}
           onValueChange={(placementPolicy) => setRuntime({ placementPolicy })}
         >
-          <SelectTrigger>
+          <SelectTrigger id="placement-policy">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

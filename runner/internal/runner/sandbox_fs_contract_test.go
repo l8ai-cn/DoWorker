@@ -1,6 +1,7 @@
 package runner
 
 import (
+	"bytes"
 	"os"
 	"path/filepath"
 	"testing"
@@ -68,6 +69,31 @@ func TestSandboxFsReadRejectsSymlinkOutsideWorkspace(t *testing.T) {
 	require.NoError(t, err)
 	assert.NotEmpty(t, result.GetError())
 	assert.Empty(t, result.GetContent())
+}
+
+func TestSandboxFsReadReturnsShortPreviewVideoWithoutTruncation(t *testing.T) {
+	root := t.TempDir()
+	content := bytes.Repeat([]byte{0, 1, 2, 3}, 1<<20)
+	require.NoError(t, os.WriteFile(filepath.Join(root, "preview.mp4"), content, 0o644))
+
+	result, err := (&RunnerMessageHandler{}).sandboxFsRead(root, "preview.mp4")
+
+	require.NoError(t, err)
+	assert.False(t, result.GetTruncated())
+	assert.Equal(t, int64(len(content)), result.GetFileBytes())
+	assert.Equal(t, "video/mp4", result.GetContentType())
+}
+
+func TestSandboxFsReadTruncatesFilesAbovePreviewLimit(t *testing.T) {
+	root := t.TempDir()
+	content := bytes.Repeat([]byte{0}, maxSandboxFsReadBytes+1)
+	require.NoError(t, os.WriteFile(filepath.Join(root, "large.mp4"), content, 0o644))
+
+	result, err := (&RunnerMessageHandler{}).sandboxFsRead(root, "large.mp4")
+
+	require.NoError(t, err)
+	assert.True(t, result.GetTruncated())
+	assert.Equal(t, int64(len(content)), result.GetFileBytes())
 }
 
 func TestSandboxFsWriteRejectsSymlinkDirectoryOutsideWorkspace(t *testing.T) {

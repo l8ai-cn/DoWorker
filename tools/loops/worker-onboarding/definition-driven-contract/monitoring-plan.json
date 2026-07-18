@@ -1,0 +1,25 @@
+{
+  "blocked_signals": [
+    "approval missing",
+    "credential authorization missing",
+    "same verifier fails twice",
+    "browser capability unavailable"
+  ],
+  "decision_file": "DECISIONS.md",
+  "decision_log": "journal.jsonl",
+  "drift_checks": [
+    "active task maps to the objective",
+    "public contract changes have approval",
+    "verifiers remain protected"
+  ],
+  "intervention_actions": [
+    "pause invalid progress",
+    "record no-progress exit",
+    "escalate to user"
+  ],
+  "loop_id": "definition-driven-worker-create-contract",
+  "max_blocked_cycles": 1,
+  "review_cadence_iterations": 2,
+  "schema_version": "1.0",
+  "supervisor_agent_id": "loop-supervisor"
+}

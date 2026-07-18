@@ -8,6 +8,7 @@ service OrchestrationResourceService {
   rpc ValidateResource(ValidateResourceRequest) returns (ValidateResourceResponse);
   rpc PlanResource(PlanResourceRequest) returns (PlanResourceResponse);
   rpc GetResource(GetResourceRequest) returns (Resource);
+  rpc GetResourceCapabilities(GetResourceCapabilitiesRequest) returns (GetResourceCapabilitiesResponse);
   rpc ListResources(ListResourcesRequest) returns (ListResourcesResponse);
   rpc ExportResource(ExportResourceRequest) returns (ExportResourceResponse);
   rpc GetResourcePlan(GetResourcePlanRequest) returns (ResourcePlan);
@@ -51,6 +52,13 @@ enum PlanStatus {
   PLAN_STATUS_APPLIED = 2;
   PLAN_STATUS_CANCELLED = 3;
   PLAN_STATUS_EXPIRED = 4;
+}
+
+enum EnvironmentBundlePurpose {
+  ENVIRONMENT_BUNDLE_PURPOSE_UNSPECIFIED = 0;
+  ENVIRONMENT_BUNDLE_PURPOSE_RUNTIME = 1;
+  ENVIRONMENT_BUNDLE_PURPOSE_CONFIG = 2;
+  ENVIRONMENT_BUNDLE_PURPOSE_CREDENTIAL = 3;
 }
 
 message ResourceSource {
@@ -168,11 +176,41 @@ message GetResourceRequest {
   ResourceTarget target = 2;
 }
 
+message ResourceCapabilities {
+  bool exists = 1;
+  bool can_view_source = 2;
+  bool can_reference = 3;
+  bool can_plan = 4;
+}
+
+message GetResourceCapabilitiesRequest {
+  string org_slug = 1;
+  ResourceTarget target = 2;
+}
+
+message GetResourceCapabilitiesResponse {
+  ResourceTarget target = 1;
+  ResourceCapabilities capabilities = 2;
+}
+
+message EnvironmentBundleReferenceFilter {
+  EnvironmentBundlePurpose purpose = 1;
+  string worker_type = 2;
+  string target_name = 3;
+}
+
+message ModelBindingReferenceFilter {
+  string worker_type = 1;
+  repeated string protocol_adapters = 2;
+}
+
 message ListResourcesRequest {
   string org_slug = 1;
   optional string kind = 2;
   optional int32 offset = 3;
   optional int32 limit = 4;
+  optional EnvironmentBundleReferenceFilter environment_bundle_filter = 5;
+  optional ModelBindingReferenceFilter model_binding_filter = 6;
 }
 
 message ListResourcesResponse {
@@ -180,6 +218,8 @@ message ListResourcesResponse {
   int64 total = 2;
   int32 limit = 3;
   int32 offset = 4;
+  optional EnvironmentBundleReferenceFilter applied_environment_bundle_filter = 5;
+  optional ModelBindingReferenceFilter applied_model_binding_filter = 6;
 }
 
 message ExportResourceRequest {

@@ -16,6 +16,12 @@ func registerPodQueueRoutes(rg *gin.RouterGroup, svc *Services, previewPublicOri
 	if svc.PendingQueue != nil {
 		podOpts = append(podOpts, WithPendingQueue(svc.PendingQueue))
 	}
+	if svc.WorkerApply != nil {
+		podOpts = append(podOpts, WithQuickTaskPlanApplier(svc.WorkerApply))
+	}
+	if svc.WorkerPlanAuthorizer != nil {
+		podOpts = append(podOpts, WithQuickTaskPlanAuthorizer(svc.WorkerPlanAuthorizer))
+	}
 	if svc.Grant != nil {
 		podOpts = append(podOpts, WithGrantServiceForPod(svc.Grant))
 	}

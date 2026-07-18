@@ -1,21 +1,15 @@
 package v1
 
 import (
-	"github.com/anthropics/agentsmesh/agentfile"
-)
+	"context"
 
-const (
-	quickTaskPromptMaxLen = 10000
-	quickTaskAliasMaxLen  = 100
+	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
+	workerplanner "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationworker"
 )
 
 type QuickTaskRequest struct {
-	Prompt          string `json:"prompt"`
-	AgentSlug       string `json:"agent_slug"`
-	RunnerID        int64  `json:"runner_id"`
-	RepositoryID    *int64 `json:"repository_id"`
-	Alias           string `json:"alias"`
-	QueueTTLMinutes int    `json:"queue_ttl_minutes"`
+	PlanID string `json:"plan_id"`
 }
 
 type QuickTaskResponse struct {
@@ -25,6 +19,18 @@ type QuickTaskResponse struct {
 	ExpiresAt     string `json:"expires_at,omitempty"`
 }
 
-func buildQuickTaskAgentfileLayer(prompt string) string {
-	return "PROMPT " + agentfile.FormatStringLiteral(prompt)
+type QuickTaskPlanApplier interface {
+	Apply(
+		context.Context,
+		control.Scope,
+		string,
+	) (workerplanner.AppliedWorker, error)
+}
+
+type QuickTaskPlanAuthorizer interface {
+	AuthorizeApply(context.Context, control.Scope, string) error
+}
+
+type quickTaskPodReader interface {
+	GetPod(context.Context, string) (*podDomain.Pod, error)
 }

@@ -27,7 +27,11 @@ export interface ResourceDraftState {
     | Idle
     | Loading
     | Failed
-    | { status: "expired" }
+    | {
+      status: "expired";
+      response: PlanResourceResponse;
+      version: number;
+    }
     | { status: "ready"; response: PlanResourceResponse; version: number };
   apply:
     | Idle
@@ -64,6 +68,8 @@ export type ResourceDraftAction =
     requestId: string;
     version: number;
     response: PlanResourceResponse;
+    draft: ResourceDraft;
+    sourceText: string;
   }
   | { type: "plan_failed"; requestId: string; error: string }
   | { type: "plan_expired" }

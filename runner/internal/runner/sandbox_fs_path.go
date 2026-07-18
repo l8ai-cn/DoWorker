@@ -13,7 +13,7 @@ import (
 	"github.com/anthropics/agentsmesh/runner/internal/config"
 )
 
-const maxSandboxFsReadBytes = 1 << 20
+const maxSandboxFsReadBytes = 8 << 20
 
 func podWorkspaceRoot(pod *Pod) (string, error) {
 	if pod == nil {

@@ -392,6 +392,10 @@
     "status": {
       "draft": "Draft",
       "planReady": "Plan ready",
+      "planApplied": "Plan applied",
+      "planCancelled": "Plan cancelled",
+      "planExpired": "Plan expired",
+      "planUnavailable": "Plan unavailable",
       "applied": "Applied"
     },
     "sections": {
@@ -487,7 +491,7 @@
       "knowledgeBase": "Knowledge base",
       "mountMode": "Mount mode",
       "environmentBundleRefs": "Environment bundles",
-      "configBundleRefs": "Configuration bundles",
+      "configDocumentBindings": "Configuration documents",
       "instructions": "Instructions",
       "terminationPolicy": "Termination policy",
       "idleTimeoutMinutes": "Idle timeout (minutes)"
@@ -520,7 +524,10 @@
     "references": {
       "loading": "Loading available resources…",
       "empty": "No {kind} resources are available yet.",
-      "available": "{count} resources available."
+      "available": "{count} resources available.",
+      "required": "Select a credential bundle for {field}.",
+      "requiredAnyOf": "Select at least one credential bundle for: {fields}.",
+      "requiredConfigurationDocument": "Select a configuration bundle for {document}."
     },
     "collections": {
       "add": "Add",
@@ -532,6 +539,10 @@
     },
     "secrets": {
       "referenceOnly": "Only references to EnvironmentBundle resources are stored. Secret values are never entered or displayed here."
+    },
+    "workerOptions": {
+      "loading": "Worker options are loading. Planning is unavailable until the catalog is ready.",
+      "workerTypeUnavailable": "The selected Worker type is unavailable in the current runtime catalog. Choose an available type before planning."
     },
     "valueTypes": {
       "string": "String",
@@ -545,11 +556,20 @@
     "yaml": {
       "label": "{kind} YAML",
       "invalid": "Fix YAML before returning to the form or applying.",
+      "limits": "Maximum 256 KiB per document and 64 KiB per physical line.",
       "manual": "YAML reference"
     },
     "plan": {
       "empty": "Generate a plan to review semantic changes and pinned references.",
       "operation": "Operation",
+      "status": "Status",
+      "statuses": {
+        "pending": "Pending",
+        "applied": "Applied",
+        "cancelled": "Cancelled",
+        "expired": "Expired",
+        "unavailable": "Unavailable"
+      },
       "expires": "Expires",
       "changes": "Semantic changes",
       "references": "Pinned references",

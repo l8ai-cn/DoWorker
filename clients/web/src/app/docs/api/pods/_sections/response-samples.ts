@@ -37,11 +37,12 @@ export const POD_JSON = `{
   }
 }`;
 
-export const POD_CREATE_JSON = `{
+export const POD_RESUME_JSON = `{
   "pod": {
     "pod_key": "pod-xyz789",
     "status": "initializing",
     "agent_slug": "claude-code",
+    "source_pod_key": "pod-abc123",
     "created_at": "2025-01-15T10:30:00Z"
   }
 }`;

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-07-16T03:21:53+08:00",
+  "target_url": "http://localhost:10007/dev-org/workers/new",
+  "browser_context": "worker-loop-browser-20260716",
+  "action": "chrome-devtools/new_page",
+  "result": "blocked",
+  "error": "Transport closed",
+  "page_created": false,
+  "screenshot_captured": false,
+  "network_evidence_captured": false,
+  "console_evidence_captured": false
+}

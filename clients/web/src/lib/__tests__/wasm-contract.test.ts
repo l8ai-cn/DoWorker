@@ -1,8 +1,7 @@
 // Wasm contract test. Type-only file — no runtime body, no asserts.
-// `tsc --noEmit` (= `bazel build //clients/web:src --output_groups=typecheck`)
-// is the gate: if any of the listed wasm-bindgen method signatures the
-// stores actually call drifts away from what's exported in
-// `do-worker-wasm` (the npm wrapper around the Bazel-built wasm_pkg),
+// `pnpm run web:typecheck` is the gate: if any of the listed wasm-bindgen
+// method signatures the stores actually call drifts away from what's
+// exported in `do-worker-wasm` (wasm-pack output under packages/do-worker-wasm),
 // these type assertions fail and the build fails.
 //
 // This catches the regression class that motivated this PR: the renderer
@@ -269,6 +268,7 @@ type _RunnerSvc_proto_authorize_runner = _RequiresU8<WasmRunnerService["authoriz
 type _OrchestrationResource_validate = _RequiresU8<WasmOrchestrationResourceService["validateResourceConnect"]>;
 type _OrchestrationResource_plan = _RequiresU8<WasmOrchestrationResourceService["planResourceConnect"]>;
 type _OrchestrationResource_get = _RequiresU8<WasmOrchestrationResourceService["getResourceConnect"]>;
+type _OrchestrationResource_get_capabilities = _RequiresU8<WasmOrchestrationResourceService["getResourceCapabilitiesConnect"]>;
 type _OrchestrationResource_list = _RequiresU8<WasmOrchestrationResourceService["listResourcesConnect"]>;
 type _OrchestrationResource_export = _RequiresU8<WasmOrchestrationResourceService["exportResourceConnect"]>;
 type _OrchestrationResource_get_plan = _RequiresU8<WasmOrchestrationResourceService["getResourcePlanConnect"]>;

@@ -5,9 +5,7 @@ import { fileURLToPath } from "url";
 const here = path.dirname(fileURLToPath(import.meta.url));
 const monorepoRoot = path.resolve(here, "../..");
 
-const enableStandalone =
-  process.env.BAZEL_BUILD === "standalone" ||
-  process.env.STANDALONE === "1";
+const enableStandalone = process.env.STANDALONE === "1";
 
 const nextConfig: NextConfig = {
   ...(enableStandalone
