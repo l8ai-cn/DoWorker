@@ -71,8 +71,17 @@ func newTestPreviewHandlerWithBackend(t *testing.T, backend *previewSessionBacke
 		ReconnectGrace:    50 * time.Millisecond,
 		StreamTimeout:     5 * time.Second,
 		StreamWindowBytes: 1 << 20,
-		PublicHost:        "example.com",
+		CookieSecure:      true,
+		CookieMode:        config.PreviewCookieSameSite,
+		PublicOrigin:      "https://preview.example.com",
+		PublicHost:        "preview.example.com",
 	})
+}
+
+func previewRequest(method, path, podKey string) *http.Request {
+	request := httptest.NewRequest(method, path, nil)
+	request.Host = podKey + ".preview.example.com"
+	return request
 }
 
 func TestPreview_RejectsUnexpectedHost(t *testing.T) {
@@ -84,6 +93,18 @@ func TestPreview_RejectsUnexpectedHost(t *testing.T) {
 
 	if rec.Code != http.StatusMisdirectedRequest {
 		t.Fatalf("expected 421, got %d", rec.Code)
+	}
+}
+
+func TestPreview_RequiresPodScopedHost(t *testing.T) {
+	h := newTestPreviewHandler(t)
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "https://preview.example.com/preview/pod1/index.html", nil)
+
+	h.HandlePreview(rec, req)
+
+	if rec.Code != http.StatusMisdirectedRequest {
+		t.Fatalf("shared preview host status = %d, want 421", rec.Code)
 	}
 }
 

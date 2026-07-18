@@ -248,18 +248,28 @@ func newPreviewE2EGateway(
 	backend = &previewSessionBackendStub{}
 	tunnelHandler := NewTunnelHandler(validator, registry, auth.NewOriginChecker(nil), 1<<20)
 	limiter := tunnel.NewPodLimiter(32, 16, 5*time.Second)
-	previewHandler := NewPreviewHandler(validator, registry, limiter, PreviewConfig{
-		ReconnectGrace:    2 * time.Second,
-		StreamTimeout:     10 * time.Second,
-		StreamWindowBytes: 1 << 20,
-		PublicHost:        gw.Listener.Addr().String(),
-	})
+	previewHandler := NewPreviewHandler(
+		validator,
+		auth.NewPreviewSessionIssuer("s3cret", "iss"),
+		backend,
+		registry,
+		limiter,
+		PreviewConfig{
+			ReconnectGrace:    2 * time.Second,
+			StreamTimeout:     10 * time.Second,
+			StreamWindowBytes: 1 << 20,
+			CookieMode:        config.PreviewCookieSameSite,
+			PublicOrigin:      "https://preview.example.com",
+			PublicHost:        "preview.example.com",
+			ReauthorizeEvery:  25 * time.Millisecond,
+		},
+	)
 	mux := http.NewServeMux()
 	mux.HandleFunc("/runner/tunnel", tunnelHandler.HandleTunnelWS)
 	mux.HandleFunc("/preview/", previewHandler.route)
 	gw.Config.Handler = mux
 	gw.Start()
-	return gw, registry, validator
+	return gw, registry, validator, backend
 }
 
 func waitForRunnerRegistered(t *testing.T, registry *tunnel.Registry, runnerID int64) {
