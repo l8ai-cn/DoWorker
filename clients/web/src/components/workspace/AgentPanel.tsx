@@ -69,7 +69,9 @@ export function AgentPanel({
   const controlLease = useWorkerControlLease(podKey, controlClientLabel);
 
   const liveSession = isPodReady || podStatus === "running";
-  const canReadSession = liveSession || podStatus === "completed";
+  const canReadSession = liveSession ||
+    podStatus === "completed" ||
+    podStatus === "orphaned";
   useAcpRelay(podKey, paneId, liveSession);
   const {
     error: sessionLinkError,

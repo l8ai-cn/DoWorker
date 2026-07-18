@@ -110,26 +110,29 @@ describe("AgentPanel artifact access", () => {
     mocks.sessionEnabled = [];
   });
 
-  it("mounts a completed Worker session in read-only mode", () => {
-    mocks.podStatus = "completed";
+  it.each(["completed", "orphaned"])(
+    "mounts a %s Worker session in read-only mode",
+    (podStatus) => {
+      mocks.podStatus = podStatus;
 
-    render(
-      <AgentPanel
-        paneId="pane-1"
-        podKey="pod-1"
-        isActive
-        showHeader={false}
-      />,
-    );
+      render(
+        <AgentPanel
+          paneId="pane-1"
+          podKey="pod-1"
+          isActive
+          showHeader={false}
+        />,
+      );
 
-    expect(mocks.sessionEnabled).toContain(true);
-    expect(mocks.lastRuntimeInput).toMatchObject({ live: false });
-    expect(screen.getByTestId("agent-workspace")).toHaveAttribute(
-      "data-readonly",
-      "true",
-    );
-    expect(screen.queryByTestId("control-overlay")).not.toBeInTheDocument();
-  });
+      expect(mocks.sessionEnabled).toContain(true);
+      expect(mocks.lastRuntimeInput).toMatchObject({ live: false });
+      expect(screen.getByTestId("agent-workspace")).toHaveAttribute(
+        "data-readonly",
+        "true",
+      );
+      expect(screen.queryByTestId("control-overlay")).not.toBeInTheDocument();
+    },
+  );
 
   it("keeps the live controls only for a running Worker", () => {
     mocks.podStatus = "running";
