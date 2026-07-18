@@ -53,13 +53,13 @@ func (h *Handler) HandleRunnerWS(w http.ResponseWriter, r *http.Request) {
 	}
 	h.logger.Info("Publisher (runner) connecting", "pod_key", podKey, "runner_id", claims.RunnerID)
 
-	if err := h.channelManager.HandlePublisherConnect(podKey, conn); err != nil {
-		h.logger.Error("Failed to handle publisher connect", "error", err, "pod_key", podKey)
+	if err := conn.WriteMessage(websocket.BinaryMessage, protocol.EncodePublisherReady()); err != nil {
+		h.logger.Error("Failed to acknowledge publisher readiness", "error", err, "pod_key", podKey)
 		_ = conn.Close()
 		return
 	}
-	if err := conn.WriteMessage(websocket.BinaryMessage, protocol.EncodePublisherReady()); err != nil {
-		h.logger.Error("Failed to acknowledge publisher readiness", "error", err, "pod_key", podKey)
+	if err := h.channelManager.HandlePublisherConnect(podKey, conn); err != nil {
+		h.logger.Error("Failed to handle publisher connect", "error", err, "pod_key", podKey)
 		_ = conn.Close()
 	}
 }

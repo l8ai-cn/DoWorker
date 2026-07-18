@@ -190,6 +190,45 @@ func TestHandler_PublisherReadyIsNotBroadcastToBrowser(t *testing.T) {
 	}
 }
 
+func TestHandler_PublisherReadyPrecedesQueuedBrowserInput(t *testing.T) {
+	h := createTestHandler()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasPrefix(r.URL.Path, "/runner") {
+			h.HandleRunnerWS(w, r)
+			return
+		}
+		h.HandleBrowserWS(w, r)
+	}))
+	defer srv.Close()
+
+	wsBase := "ws" + strings.TrimPrefix(srv.URL, "http")
+	browser, _, err := websocket.DefaultDialer.Dial(wsBase+"/browser?token="+validToken("pod-queued"), nil)
+	if err != nil {
+		t.Fatalf("browser dial: %v", err)
+	}
+	defer browser.Close()
+
+	for range 64 {
+		if err := browser.WriteMessage(websocket.BinaryMessage, []byte("queued-input")); err != nil {
+			t.Fatalf("queue browser input: %v", err)
+		}
+	}
+
+	runner, _, err := websocket.DefaultDialer.Dial(wsBase+"/runner?token="+runnerToken("pod-queued"), nil)
+	if err != nil {
+		t.Fatalf("runner dial: %v", err)
+	}
+	defer runner.Close()
+
+	_, data, err := runner.ReadMessage()
+	if err != nil {
+		t.Fatalf("read publisher ready: %v", err)
+	}
+	if want := protocol.EncodePublisherReady(); !bytes.Equal(data, want) {
+		t.Fatalf("first runner message = %q, want publisher ready %q", data, want)
+	}
+}
+
 func TestHandler_HandleBrowserWS_Success(t *testing.T) {
 	h := createTestHandler()
 	srv := httptest.NewServer(http.HandlerFunc(h.HandleBrowserWS))
