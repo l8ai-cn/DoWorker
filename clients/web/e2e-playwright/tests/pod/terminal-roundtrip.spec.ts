@@ -53,6 +53,7 @@ test.describe("Terminal data-plane round-trip (relay SSOT)", () => {
     await expect(term).toBeVisible({ timeout: 30_000 });
     const input = page.locator(".xterm-helper-textarea");
     await expect(input).toBeAttached({ timeout: 30_000 });
+    await takeWorkerControl(page);
 
     // Assert the round-trip on the INPUT echo, delivered LIVE once the browser
     // subscribes: typed line → onData → relayPool.send → WasmRelayManager →

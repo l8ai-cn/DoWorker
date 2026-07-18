@@ -106,6 +106,7 @@ RUN install_apt() { \
         && ln -sf "${cursor_agent}" /usr/local/bin/agent \
         && rm -rf /root/.local /tmp/cursor-install.sh ;; \
       gemini-cli) npm install -g @google/gemini-cli ;; \
+      minimax-cli) npm install -g mmx-cli ;; \
       opencode) npm install -g opencode-ai ;; \
       grok-build) npm install -g @xai-official/grok ;; \
       minimax-cli) npm install -g "mmx-cli@${MINIMAX_CLI_VERSION}" ;; \
@@ -128,6 +129,7 @@ RUN groupmod -n runner node \
          codex-cli) mkdir -p /home/runner/.codex ;; \
          cursor-cli) mkdir -p /home/runner/.cursor ;; \
          gemini-cli) mkdir -p /home/runner/.gemini ;; \
+         minimax-cli) mkdir -p /home/runner/.minimax ;; \
          loopal) mkdir -p /home/runner/.loopal ;; \
          do-agent) mkdir -p /home/runner/.agent ;; \
          grok-build) mkdir -p /home/runner/.grok ;; \
@@ -156,6 +158,14 @@ RUN case "${AGENT_RUNTIME}" in \
     esac \
     && rm -f /usr/local/bin/minimax-cli-wrapper.sh \
     && rm -rf /usr/local/lib/do-worker
+
+FROM runtime AS do-agent-runtime
+
+COPY --chmod=0755 do-agent-binary /usr/local/bin/do-agent
+
+USER runner
+WORKDIR /app
+ENTRYPOINT ["/usr/local/bin/runner-entrypoint.sh"]
 
 USER runner
 WORKDIR /app

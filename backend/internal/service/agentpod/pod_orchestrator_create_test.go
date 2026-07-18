@@ -50,6 +50,7 @@ func TestCreatePod_NormalMode_Success(t *testing.T) {
 	assert.NotNil(t, result.Pod)
 	assert.Empty(t, result.Warning)
 	assert.Equal(t, podDomain.StatusInitializing, result.Pod.Status)
+	assert.Equal(t, int64(51), result.Pod.ClusterID)
 	assert.True(t, coord.createPodCalled)
 	assert.Equal(t, int64(1), coord.lastRunnerID)
 	assert.Equal(t, result.Pod.PodKey, coord.lastCmd.PodKey)

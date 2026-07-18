@@ -154,7 +154,7 @@ func TestMapServiceError(t *testing.T) {
 		{"sandbox_already_resumed", agentpod.ErrSandboxAlreadyResumed, connect.CodeAlreadyExists},
 		{"no_available_runner", agentpodservice.ErrNoAvailableRunner, connect.CodeUnavailable},
 		{"runner_dispatch_failed", agentpodservice.ErrRunnerDispatchFailed, connect.CodeUnavailable},
-		{"pod_already_terminated", runner.ErrPodAlreadyTerminated, connect.CodeUnavailable},
+		{"pod_already_terminated", runner.ErrPodAlreadyTerminated, connect.CodeFailedPrecondition},
 		{"config_build_failed", agentpodservice.ErrConfigBuildFailed, connect.CodeInternal},
 		{"wrapped_not_found", errors.New("wrap: " + agentpodservice.ErrPodNotFound.Error()), connect.CodeInternal},
 		{"generic", errors.New("oops"), connect.CodeInternal},

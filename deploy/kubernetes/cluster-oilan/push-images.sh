@@ -97,6 +97,7 @@ push_runners() {
   ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh claude-code )
   ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh codex-cli )
   ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh gemini-cli )
+  ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh minimax-cli )
   ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh grok-build )
   ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh openclaw )
   ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh hermes )

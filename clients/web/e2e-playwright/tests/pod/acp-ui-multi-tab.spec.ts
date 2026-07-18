@@ -6,6 +6,7 @@ import {
   createMockAgentPod,
   workspaceUrlForPod,
 } from "../../helpers/mock-agent";
+import { takeWorkerControl } from "../../helpers/worker-control-lease";
 
 // Multi-tab synchronization regression for the shared AgentWorkspace
 // configuration bar. A mode change in tab A must propagate to tab B without

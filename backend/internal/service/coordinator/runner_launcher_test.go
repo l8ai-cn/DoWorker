@@ -283,23 +283,48 @@ func TestNewRunnerLauncherFromEnv(t *testing.T) {
 }
 
 func TestLoadRunnerContainerEnvParsesAgentImages(t *testing.T) {
-	t.Setenv("COORDINATOR_RUNNER_IMAGES", "claude-code=agentsmesh/runner-claude-code:dev, codex-cli=agentsmesh/runner-codex-cli:dev")
-	env := loadRunnerContainerEnv()
-	if got := env.AgentImages["claude-code"]; got != "agentsmesh/runner-claude-code:dev" {
+	t.Setenv(
+		"COORDINATOR_RUNNER_IMAGES",
+		"claude-code="+testRunnerImage("claude-code")+
+			", codex-cli="+testRunnerImage("codex-cli"),
+	)
+	env, err := loadRunnerContainerEnv()
+	if err != nil {
+		t.Fatalf("loadRunnerContainerEnv: %v", err)
+	}
+	if got := env.AgentImages["claude-code"]; got != testRunnerImage("claude-code") {
 		t.Fatalf("claude image = %q", got)
 	}
-	if got := env.AgentImages["codex-cli"]; got != "agentsmesh/runner-codex-cli:dev" {
+	if got := env.AgentImages["codex-cli"]; got != testRunnerImage("codex-cli") {
 		t.Fatalf("codex image = %q", got)
 	}
 }
 
 func TestLoadDockerLauncherConfigParsesComposeServices(t *testing.T) {
 	t.Setenv("COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICES", "claude-code=runner-claude, codex-cli=runner-codex")
-	cfg := loadDockerLauncherConfig()
+	cfg, err := loadDockerLauncherConfig()
+	if err != nil {
+		t.Fatalf("loadDockerLauncherConfig: %v", err)
+	}
 	if got := cfg.ComposeServices["claude-code"]; got != "runner-claude" {
 		t.Fatalf("claude service = %q", got)
 	}
 	if got := cfg.ComposeServices["codex-cli"]; got != "runner-codex" {
 		t.Fatalf("codex service = %q", got)
 	}
+}
+
+func TestNewRunnerLauncherRejectsMutableImageReference(t *testing.T) {
+	t.Setenv("COORDINATOR_RUNNER_LAUNCHER", "k8s")
+	t.Setenv("COORDINATOR_RUNNER_IMAGES", "do-agent=repo.example/runner-do-agent:latest")
+
+	_, _, err := NewRunnerLauncherFromEnv(nil)
+
+	if err == nil || !strings.Contains(err.Error(), "immutable sha256") {
+		t.Fatalf("err = %v, want immutable image validation", err)
+	}
+}
+
+func testRunnerImage(runtime string) string {
+	return "repo.example/runner-" + runtime + "@sha256:" + strings.Repeat("a", 64)
 }

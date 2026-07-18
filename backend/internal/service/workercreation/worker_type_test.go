@@ -101,6 +101,32 @@ func TestWorkerTypeResolverExcludesModelResourceManagedFields(t *testing.T) {
 				Name: "CURSOR_API_KEY",
 			},
 		},
+		{
+			slug:       "grok-build",
+			executable: "grok",
+			source: "CONFIG model STRING = \"\"\n" +
+				"ENV XAI_API_KEY SECRET OPTIONAL\n",
+			excluded: []string{"model", "XAI_API_KEY"},
+		},
+		{
+			slug:       "minimax-cli",
+			executable: "mmx",
+			source: "CONFIG model STRING = \"\"\n" +
+				"ENV MINIMAX_API_KEY SECRET OPTIONAL\n",
+			excluded: []string{"model", "MINIMAX_API_KEY"},
+		},
+		{
+			slug:       "openclaw",
+			executable: "openclaw",
+			source:     multiProviderWorkerSource(),
+			excluded:   multiProviderWorkerFields(),
+		},
+		{
+			slug:       "hermes",
+			executable: "hermes",
+			source:     multiProviderWorkerSource(),
+			excluded:   multiProviderWorkerFields(),
+		},
 	}
 	resolver := newWorkerTypeResolver(&workerTypeAgentProvider{
 		agent: activeWorkerTypeAgentFor("cursor-cli", "cursor", source),

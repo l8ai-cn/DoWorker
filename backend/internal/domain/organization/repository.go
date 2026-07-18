@@ -28,7 +28,7 @@ type Repository interface {
 	CreateWithMember(ctx context.Context, params *CreateOrgParams) error
 
 	// DeleteWithCleanup atomically deletes an organization and cleans up
-	// tables that lack FK CASCADE (e.g. loops, loop_runs).
+	// tables that lack FK CASCADE (e.g. workflows, workflow_runs).
 	DeleteWithCleanup(ctx context.Context, id int64) error
 
 	CreateMember(ctx context.Context, member *Member) error

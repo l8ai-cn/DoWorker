@@ -8,6 +8,7 @@ AGENT_RUNTIMES=(
   codex-cli
   cursor-cli
   gemini-cli
+  minimax-cli
   aider
   opencode
   loopal
@@ -34,6 +35,7 @@ Agent runtimes:
   codex-cli     OpenAI Codex CLI (@openai/codex)
   cursor-cli    Cursor CLI (agent)
   gemini-cli    Google Gemini CLI (@google/gemini-cli)
+  minimax-cli   MiniMax CLI (mmx-cli)
   aider         Aider (pip)
   opencode      OpenCode CLI
   loopal        Loopal CLI

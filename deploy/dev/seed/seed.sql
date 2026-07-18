@@ -295,6 +295,16 @@ BEGIN
     );
 
     -- admin-workspace: system-admin personal org (may not exist on first seed run)
+    INSERT INTO execution_clusters (organization_id, slug, name, kind, status)
+    SELECT o.id, cluster.slug, cluster.name, cluster.kind, cluster.status
+    FROM organizations o
+    CROSS JOIN (VALUES
+        ('online', 'Online cluster', 'online', 'pending'),
+        ('local', 'Local cluster', 'local', 'pending')
+    ) AS cluster(slug, name, kind, status)
+    WHERE o.slug = 'admin-workspace'
+    ON CONFLICT (organization_id, slug) DO NOTHING;
+
     INSERT INTO runners (
         organization_id, cluster_id, node_id, description,
         status, max_concurrent_pods

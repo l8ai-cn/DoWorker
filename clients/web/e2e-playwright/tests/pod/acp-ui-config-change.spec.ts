@@ -6,6 +6,7 @@ import {
   createMockAgentPod,
   workspaceUrlForPod,
 } from "../../helpers/mock-agent";
+import { takeWorkerControl } from "../../helpers/worker-control-lease";
 
 // The shared AgentWorkspace only exposes configuration controls advertised by
 // the ACP session. This spec verifies that the advertised permission modes are

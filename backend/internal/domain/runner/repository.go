@@ -44,6 +44,7 @@ type RunnerRepository interface {
 
 	GetOrgSlug(ctx context.Context, orgID int64) (string, error)
 	CountLoopsByRunner(ctx context.Context, runnerID int64) (int64, error)
+	EnsureLocalClusterID(ctx context.Context, orgID int64) (int64, error)
 
 	CreateCertificate(ctx context.Context, cert *Certificate) error
 	GetCertificateBySerial(ctx context.Context, serial string) (*Certificate, error)

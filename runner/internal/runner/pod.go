@@ -46,8 +46,9 @@ type Pod struct {
 	PolicyRules []policy.Rule
 
 	// Relay client (mode-agnostic, protected by relayMu)
-	RelayClient relay.RelayClient
-	relayMu     sync.RWMutex
+	RelayClient      relay.RelayClient
+	relayMu          sync.RWMutex
+	relaySubscribeMu sync.Mutex // Relay accepts one publisher connection per pod.
 
 	workspace   *sandboxWorkspace
 	workspaceMu sync.RWMutex
@@ -143,6 +144,9 @@ func (p *Pod) GetRelayClient() relay.RelayClient {
 func (p *Pod) LockRelay()   { p.relayMu.Lock() }
 func (p *Pod) UnlockRelay() { p.relayMu.Unlock() }
 
+func (p *Pod) LockRelaySubscription()   { p.relaySubscribeMu.Lock() }
+func (p *Pod) UnlockRelaySubscription() { p.relaySubscribeMu.Unlock() }
+
 // HasRelayClient returns whether a relay client is connected
 func (p *Pod) HasRelayClient() bool {
 	p.relayMu.RLock()
@@ -152,6 +156,9 @@ func (p *Pod) HasRelayClient() bool {
 
 // DisconnectRelay disconnects and clears the relay client.
 func (p *Pod) DisconnectRelay() {
+	p.LockRelaySubscription()
+	defer p.UnlockRelaySubscription()
+
 	p.relayMu.Lock()
 	rc := p.RelayClient
 	if rc != nil {

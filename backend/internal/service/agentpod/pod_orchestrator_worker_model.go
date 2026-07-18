@@ -83,6 +83,26 @@ func (o *PodOrchestrator) applyWorkerModel(ctx context.Context, req *Orchestrate
 				req.ModelResourceArgs = []string{"--base-url", cliBaseURL}
 			}
 		}
+		if harness == "hermes" && modelID != "" {
+			provider, err := hermesModelProvider(resource.Provider.ProtocolAdapter)
+			if err != nil {
+				return err
+			}
+			appendAgentfileLayer(
+				&req.AgentfileLayer,
+				`CONFIG provider = `+agentfile.FormatStringLiteral(provider),
+				`CONFIG model = `+agentfile.FormatStringLiteral(resource.Resource.ModelID),
+			)
+		}
+		if harness == "grok-build" && modelID != "" {
+			appendAgentfileLayer(&req.AgentfileLayer, `CONFIG model = `+agentfile.FormatStringLiteral(resource.Resource.ModelID))
+		}
+		if harness == "minimax-cli" {
+			if modelID == "" {
+				return ErrMissingModelResource
+			}
+			appendAgentfileLayer(&req.AgentfileLayer, `CONFIG model = `+agentfile.FormatStringLiteral(modelID))
+		}
 		if harness == "gemini-cli" {
 			if modelID == "" {
 				return ErrMissingModelResource

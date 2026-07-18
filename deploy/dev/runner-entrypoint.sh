@@ -170,6 +170,7 @@ init_ai_cli_configs() {
         claude-code) init_claude_config ;;
         codex-cli|video-studio) init_codex_config ;;
         gemini-cli) init_gemini_config ;;
+        minimax-cli) init_minimax_config ;;
         do-agent) init_do_agent_config ;;
         grok-build) init_grok_config ;;
         openclaw) init_openclaw_config ;;
@@ -188,6 +189,10 @@ init_openclaw_config() {
 
 init_hermes_config() {
     mkdir -p "${HOME}/.hermes"
+}
+
+init_minimax_config() {
+    mkdir -p "${HOME}/.minimax"
 }
 
 init_do_agent_config() {

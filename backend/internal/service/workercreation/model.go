@@ -34,6 +34,17 @@ type modelResolver struct {
 	resources ModelResourceResolver
 }
 
+var workerModelProtocolAdapters = map[string][]string{
+	"do-agent":    {"openai-compatible", "anthropic", "minimax"},
+	"codex-cli":   {"openai-compatible"},
+	"claude-code": {"anthropic"},
+	"gemini-cli":  {"gemini"},
+	"grok-build":  {"openai-compatible"},
+	"minimax-cli": {"minimax"},
+	"openclaw":    {"openai-compatible", "anthropic", "gemini"},
+	"hermes":      {"openai-compatible", "anthropic", "gemini"},
+}
+
 func newModelResolver(resources ModelResourceResolver) *modelResolver {
 	return &modelResolver{resources: resources}
 }
@@ -145,6 +156,17 @@ func validateResolvedModel(
 
 func invalidResolvedModel(reason string) error {
 	return fmt.Errorf("%w: model resource: %s", specservice.ErrInvalidDraft, reason)
+}
+
+func validateWorkerModelProvider(
+	workerType slugkit.Slug,
+	resolved *resourceservice.ResolvedResource,
+) error {
+	if workerType.String() == "grok-build" &&
+		resolved.Connection.ProviderKey.String() != "xai" {
+		return invalidResolvedModel("grok-build requires an xai provider")
+	}
+	return nil
 }
 
 func isModelSelectionError(err error) bool {

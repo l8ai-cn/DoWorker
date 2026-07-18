@@ -24,7 +24,11 @@ func NewRunnerLauncherFromEnv(
 	}
 	switch strings.ToLower(raw) {
 	case "docker":
-		return NewDockerLauncher(loadDockerLauncherConfig(), logger), "docker", nil
+		config, err := loadDockerLauncherConfig()
+		if err != nil {
+			return nil, "", err
+		}
+		return NewDockerLauncher(config, logger), "docker", nil
 	case "k8s", "kubernetes":
 		cfg := loadK8sLauncherConfig()
 		if err := validateManagedRunnerImages(

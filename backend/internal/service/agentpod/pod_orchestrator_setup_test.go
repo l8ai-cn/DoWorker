@@ -359,7 +359,7 @@ func setupOrchestrator(t *testing.T, opts ...func(*PodOrchestratorDeps)) (*PodOr
 		ConfigBuilder: configBuilder,
 		AgentResolver: &mockAgentResolver{agentDef: provider.agentDef},
 		RunnerSelector: &mockRunnerSelector{
-			resolveRunner: &runnerDomain.Runner{ID: 1},
+			resolveRunner: &runnerDomain.Runner{ID: 1, ClusterID: 51},
 		},
 		ModelResources: &recordingModelResourceResolver{resource: resolvedResource("anthropic", "https://api.anthropic.com", "claude-test")},
 	}

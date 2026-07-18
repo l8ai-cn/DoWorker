@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/anthropics/agentsmesh/runner/internal/client"
 	"github.com/anthropics/agentsmesh/runner/internal/config"
@@ -35,7 +36,7 @@ func (c *gatedTunnelClient) Connect() error {
 	return nil
 }
 
-func TestRelayReadyRejectsRequestSupersededByDifferentRelay(t *testing.T) {
+func TestRelayReadySerializesDifferentRelayChanges(t *testing.T) {
 	store := NewInMemoryPodStore()
 	pod := &Pod{PodKey: "pod-1", Status: PodStatusRunning}
 	store.Put(pod.PodKey, pod)
@@ -71,19 +72,29 @@ func TestRelayReadyRejectsRequestSupersededByDifferentRelay(t *testing.T) {
 	}()
 	<-started
 
-	err := h.OnSubscribePod(client.SubscribePodRequest{
-		PodKey:      pod.PodKey,
-		RelayURL:    "wss://relay-two.example",
-		RunnerToken: "second-token",
-	})
-	if err != nil {
-		t.Fatalf("second subscription failed: %v", err)
+	secondResult := make(chan error, 1)
+	go func() {
+		secondResult <- h.OnSubscribePod(client.SubscribePodRequest{
+			PodKey:      pod.PodKey,
+			RelayURL:    "wss://relay-two.example",
+			RunnerToken: "second-token",
+		})
+	}()
+	select {
+	case err := <-secondResult:
+		t.Fatalf("second subscription completed before the first relay connection: %v", err)
+	case <-time.After(50 * time.Millisecond):
 	}
 	close(release)
 
-	err = <-firstResult
-	if err == nil || !strings.Contains(err.Error(), "superseded") {
-		t.Fatalf("first subscription error = %v, want superseded", err)
+	if err := <-firstResult; err != nil {
+		t.Fatalf("first subscription failed: %v", err)
+	}
+	if err := <-secondResult; err != nil {
+		t.Fatalf("second subscription failed: %v", err)
+	}
+	if got := pod.GetRelayClient().GetRelayURL(); got != "wss://relay-two.example" {
+		t.Fatalf("active relay = %q, want relay two", got)
 	}
 }
 
