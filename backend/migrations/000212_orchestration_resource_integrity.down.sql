@@ -1,0 +1,9 @@
+DROP TRIGGER IF EXISTS orchestration_resource_plans_guard ON orchestration_resource_plans;
+DROP TRIGGER IF EXISTS orchestration_resource_revisions_validate_head ON orchestration_resource_revisions;
+DROP TRIGGER IF EXISTS orchestration_resources_validate_active_revision ON orchestration_resources;
+DROP TRIGGER IF EXISTS orchestration_resource_revisions_immutable ON orchestration_resource_revisions;
+DROP TRIGGER IF EXISTS orchestration_resources_keep_identity ON orchestration_resources;
+DROP FUNCTION IF EXISTS guard_orchestration_resource_plan();
+DROP FUNCTION IF EXISTS validate_orchestration_resource_revision_link();
+DROP FUNCTION IF EXISTS prevent_orchestration_resource_revision_mutation();
+DROP FUNCTION IF EXISTS keep_orchestration_resource_identity();
