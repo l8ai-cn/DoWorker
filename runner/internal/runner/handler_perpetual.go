@@ -169,6 +169,7 @@ func (h *RunnerMessageHandler) rebuildPTYIO(pod *Pod, dpty terminal.PtyProcess, 
 // cleanupPodExitFinal runs the standard cleanup when perpetual restart fails.
 func (h *RunnerMessageHandler) cleanupPodExitFinal(pod *Pod, exitCode int) {
 	h.podStore.Delete(pod.PodKey)
+	pod.closeWorkspace()
 
 	if ac := h.runner.GetAutopilotByPodKey(pod.PodKey); ac != nil {
 		ac.Stop()

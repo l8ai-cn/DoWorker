@@ -47,11 +47,12 @@ func loopDiagnosticsToProto(diagnostics []loopscript.Diagnostic) []*goalloopv1.L
 	items := make([]*goalloopv1.LoopDiagnostic, 0, len(diagnostics))
 	for _, diagnostic := range diagnostics {
 		items = append(items, &goalloopv1.LoopDiagnostic{
-			Code:    diagnostic.Code,
-			Message: diagnostic.Message,
-			NodeId:  diagnostic.NodeID,
-			Line:    int32(diagnostic.Line),
-			Column:  int32(diagnostic.Column),
+			Code:      diagnostic.Code,
+			Message:   diagnostic.Message,
+			NodeId:    diagnostic.NodeID,
+			Line:      int32(diagnostic.Line),
+			Column:    int32(diagnostic.Column),
+			FieldPath: diagnostic.FieldPath,
 		})
 	}
 	return items

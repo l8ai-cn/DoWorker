@@ -94,17 +94,23 @@ func TestSendPrompt_RpcErrorInBackground(t *testing.T) {
 func TestCancelSession_ViaFixture(t *testing.T) {
 	f := newFixture()
 	defer f.Close()
-	f.transport.sessionMu.Lock()
-	f.transport.sessionID = "s1"
-	f.transport.sessionMu.Unlock()
+	f.transport.handleNotification("turn/started", mustMarshal(map[string]any{
+		"turn": map[string]any{"id": "turn-1"},
+	}))
 
 	go func() {
 		r := bufio.NewReader(f.StdinPR)
-		line, _ := r.ReadBytes('\n')
-		var req map[string]any
-		json.Unmarshal(line, &req)
-		id := int64(req["id"].(float64))
-		writeResponse(f.PW, id, map[string]any{}, nil)
+		for range 2 {
+			line, _ := r.ReadBytes('\n')
+			var req map[string]any
+			json.Unmarshal(line, &req)
+			id := int64(req["id"].(float64))
+			if req["method"] == "thread/backgroundTerminals/list" {
+				writeResponse(f.PW, id, map[string]any{"data": []any{}}, nil)
+				continue
+			}
+			writeResponse(f.PW, id, map[string]any{}, nil)
+		}
 	}()
 
 	err := f.transport.CancelSession("s1")

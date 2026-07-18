@@ -85,6 +85,7 @@ services:
       # Domain Configuration
       - PRIMARY_DOMAIN=${PRIMARY_DOMAIN}
       - PUBLIC_WEB_URL=${PUBLIC_WEB_URL}
+      - PREVIEW_PUBLIC_ORIGIN=${PREVIEW_PUBLIC_ORIGIN}
       - MOBILE_PUBLIC_BASE_URL=${MOBILE_PUBLIC_BASE_URL:-}
       - USE_HTTPS=false
       # Database
@@ -119,7 +120,7 @@ services:
       - STORAGE_USE_SSL=false
       - STORAGE_USE_PATH_STYLE=true
       - STORAGE_MAX_FILE_SIZE=10
-      - STORAGE_ALLOWED_TYPES=image/jpeg,image/png,image/gif,image/webp,application/pdf
+      - STORAGE_ALLOWED_TYPES=image/jpeg,image/png,image/gif,image/webp,video/mp4,application/pdf
       # PKI for gRPC + mTLS Runner communication
       - PKI_CA_CERT_FILE=/app/ssl/ca.crt
       - PKI_CA_KEY_FILE=/app/ssl/ca.key
@@ -153,6 +154,7 @@ services:
     environment:
       - NODE_ENV=production
       - PRIMARY_DOMAIN=${PRIMARY_DOMAIN}
+      - PREVIEW_PUBLIC_ORIGIN=${PREVIEW_PUBLIC_ORIGIN}
       - USE_HTTPS=false
       - POSTHOG_KEY=${POSTHOG_KEY:-}
       - POSTHOG_HOST=${POSTHOG_HOST:-}
@@ -207,6 +209,8 @@ services:
       - RELAY_REGION=local
       - RELAY_CAPACITY=1000
       - PRIMARY_DOMAIN=${PRIMARY_DOMAIN}
+      - PREVIEW_PUBLIC_ORIGIN=${PREVIEW_PUBLIC_ORIGIN}
+      - PREVIEW_COOKIE_MODE=${PREVIEW_COOKIE_MODE}
       - USE_HTTPS=false
       - ALLOWED_ORIGINS=${RELAY_ALLOWED_ORIGINS:-}
       - SESSION_KEEP_ALIVE_DURATION=30s
@@ -227,6 +231,8 @@ services:
     image: traefik:v3.2
     restart: unless-stopped
     environment:
+      - PREVIEW_HOST=${PREVIEW_HOST}
+      - PREVIEW_HOST_REGEX=${PREVIEW_HOST_REGEX}
       # Docker Desktop can inject HTTP_PROXY into containers. Traefik must talk
       # to Compose services directly on the internal network.
       - NO_PROXY=localhost,127.0.0.1,backend,web,web-admin,relay,minio,postgres,redis,traefik

@@ -162,6 +162,7 @@ func TestMapServiceErrorUsesStableCodesAndMessages(t *testing.T) {
 		{"unsupported_before_validation", errors.Join(service.ErrValidation, service.ErrProbeUnsupported), connect.CodeUnimplemented, "AI resource provider validation unsupported"},
 		{"credentials_before_validation", errors.Join(service.ErrValidation, service.ErrInvalidCredentials), connect.CodeInvalidArgument, "invalid AI resource credentials"},
 		{"endpoint_before_validation", errors.Join(service.ErrValidation, service.ErrInvalidEndpoint), connect.CodeInvalidArgument, "invalid AI resource request"},
+		{"provider_endpoint_unavailable", errors.Join(service.ErrValidation, service.ErrProviderEndpointUnavailable), connect.CodeFailedPrecondition, "AI resource provider endpoint unavailable"},
 		{"validation", service.ErrValidation, connect.CodeFailedPrecondition, "AI resource connection validation failed"},
 		{"internal", errors.New("database secret"), connect.CodeInternal, "AI resource operation failed"},
 	}

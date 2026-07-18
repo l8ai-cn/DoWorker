@@ -14,17 +14,18 @@ resources:
   - 10-postgres.yaml
   - 11-redis.yaml
   - 12-minio.yaml
+  - 14-gitea.yaml
   - 30-backend-rbac.yaml
   - 30-backend.yaml
   - 31-relay.yaml
   - 32-web.yaml
   - 33-web-admin.yaml
   - 34-runner-e2e-echo.yaml
-  - 35-runner-video-studio.yaml
   - 38-marketplace.yaml
   - 39-marketplace-web.yaml
   - 42-mobile.yaml
   - 40-ingress.yaml
   - 43-mobile-ingress.yaml
   - 44-preview-ingress.yaml
+  - 44-minio-ingress.yaml
   - 60-prepull-daemonset.yaml

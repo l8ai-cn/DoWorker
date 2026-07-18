@@ -3,6 +3,7 @@ package sessionapi
 import (
 	"errors"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
@@ -63,11 +64,27 @@ func (d *Deps) handleAuthLogin(c *gin.Context) {
 }
 
 func (d *Deps) handleAuthLogout(c *gin.Context) {
-	if d.Auth != nil {
-		authHeader := c.GetHeader("Authorization")
-		if len(authHeader) > 7 && authHeader[:7] == "Bearer " {
-			_ = d.Auth.RevokeToken(c.Request.Context(), authHeader[7:])
-		}
+	token := strings.TrimPrefix(c.GetHeader("Authorization"), "Bearer ")
+	if token == "" || token == c.GetHeader("Authorization") {
+		c.Status(http.StatusNoContent)
+		return
+	}
+	if d.Auth == nil || d.PreviewSessions == nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "logout service unavailable"})
+		return
+	}
+	claims, err := d.Auth.ValidateTokenWithContext(c.Request.Context(), token)
+	if err != nil {
+		c.Status(http.StatusNoContent)
+		return
+	}
+	if err := d.PreviewSessions.RevokeUser(c.Request.Context(), claims.UserID); err != nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "preview session revocation failed"})
+		return
+	}
+	if err := d.Auth.RevokeToken(c.Request.Context(), token); err != nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "token revocation failed"})
+		return
 	}
 	c.Status(http.StatusNoContent)
 }

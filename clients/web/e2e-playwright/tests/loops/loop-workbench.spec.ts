@@ -1,14 +1,32 @@
 import { expect, test } from "../../fixtures/index";
-import { TEST_ORG_SLUG } from "../../helpers/env";
+import { getWebBaseUrl, TEST_ORG_SLUG } from "../../helpers/env";
 import {
   cleanupLoopRuntimeFixture,
   createLoopRuntimeFixture,
 } from "../../helpers/loop-runtime-fixture";
+import { LOCALE_COOKIE } from "../../../src/lib/i18n/config";
 
 test.describe("Loop workbench", () => {
+  test.beforeEach(async ({ context }) => {
+    await context.addCookies([
+      {
+        name: LOCALE_COOKIE,
+        value: "zh",
+        url: getWebBaseUrl(),
+      },
+    ]);
+  });
+
   test("keeps Blockly and LoopScript synchronized through invalid edits", async ({
     page,
   }) => {
+    const externalBlocklyMediaRequests: string[] = [];
+    page.on("request", (request) => {
+      if (request.url().includes("blockly-demo.appspot.com")) {
+        externalBlocklyMediaRequests.push(request.url());
+      }
+    });
+
     await page.goto(`/${TEST_ORG_SLUG}/loops/workbench`);
 
     await expect(
@@ -36,22 +54,18 @@ test.describe("Loop workbench", () => {
     await codeEditor.fill(invalidSource);
 
     await expect(runButton).toBeDisabled();
-    await expect(
-      page.getByText("循环脚本结构不符合语法"),
-    ).toBeVisible();
+    await expect(page.getByText("循环脚本结构不符合语法")).toBeVisible();
 
     await codeEditor.fill(validSource);
     await expect(runButton).toBeEnabled();
 
     await codeEditor.fill(
-      validSource.replace(
-        "浏览器积木联动验证",
-        "浏览器代码联动验证",
-      ),
+      validSource.replace("浏览器积木联动验证", "浏览器代码联动验证"),
     );
     await expect(
       page.getByText("浏览器代码联动验证", { exact: true }),
     ).toBeVisible();
+    expect(externalBlocklyMediaRequests).toEqual([]);
   });
 
   test("selects a runtime before starting a real GoalLoop", async ({
@@ -75,7 +89,9 @@ test.describe("Loop workbench", () => {
       const startButton = dialog.getByRole("button", { name: "启动循环" });
       await expect(startButton).toBeDisabled();
       await dialog.getByRole("button", { name: "选择运行环境" }).click();
-      await dialog.getByRole("option", { name: new RegExp(runtime.alias) }).click();
+      await dialog
+        .getByRole("option", { name: new RegExp(runtime.alias) })
+        .click();
       await expect(startButton).toBeEnabled();
       await startButton.click();
 

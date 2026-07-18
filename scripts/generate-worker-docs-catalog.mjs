@@ -143,7 +143,9 @@ function validationStatus(evidence, runtimeCatalogEvidence) {
     }
     return "runtime_image_unavailable";
   }
-  if (evidence.support_status === "verified_local_dev") return "verified_local_dev";
+  if (evidence.support_status === "verified_local_dev") {
+    return "runtime_ready_unverified";
+  }
   if (evidence.browser === "missing_model_resource_guard_verified") {
     return "requires_model_resource";
   }

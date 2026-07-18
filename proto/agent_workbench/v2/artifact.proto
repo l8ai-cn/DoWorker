@@ -1,0 +1,190 @@
+syntax = "proto3";
+
+package proto.agent_workbench.v2;
+
+import "agent_workbench/v2/content.proto";
+
+option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2;agentworkbenchv2";
+
+enum ArtifactStatus {
+  ARTIFACT_STATUS_UNSPECIFIED = 0;
+  ARTIFACT_STATUS_QUEUED = 1;
+  ARTIFACT_STATUS_PROCESSING = 2;
+  ARTIFACT_STATUS_READY = 3;
+  ARTIFACT_STATUS_FAILED = 4;
+  ARTIFACT_STATUS_DELETED = 5;
+}
+
+message ArtifactReference {
+  string artifact_id = 1;
+  optional string representation_id = 2;
+  optional uint64 revision = 3;
+  optional string role = 4;
+}
+
+message ArtifactDimensions {
+  uint32 width = 1;
+  uint32 height = 2;
+}
+
+message ArtifactTransport {
+  oneof transport {
+    string download_url = 1;
+    string resource_id = 2;
+    string inline_text = 3;
+    bytes inline_bytes = 4;
+  }
+}
+
+message ArtifactRepresentation {
+  string representation_id = 1;
+  uint64 revision = 2;
+  string media_type = 3;
+  optional string role = 4;
+  optional string filename = 5;
+  ArtifactStatus status = 6;
+  optional uint64 byte_size = 7;
+  optional ArtifactDimensions dimensions = 8;
+  optional uint64 duration_millis = 9;
+  optional string digest = 10;
+  optional ArtifactTransport transport = 11;
+}
+
+message ArtifactProvenance {
+  optional string producer_namespace = 1;
+  optional string producer_type = 2;
+  optional string producer_id = 3;
+  optional string command_id = 4;
+  optional string tool_execution_id = 5;
+  repeated ArtifactReference parents = 6;
+  optional string created_at = 7;
+}
+
+message ArtifactRevision {
+  uint64 revision = 1;
+  optional uint64 base_revision = 2;
+  repeated string representation_ids = 3;
+  optional string digest = 4;
+  optional string created_at = 5;
+  optional ArtifactProvenance provenance = 6;
+}
+
+message ArtifactGrant {
+  string grant_id = 1;
+  optional string issuer = 2;
+  optional string subject = 3;
+  repeated string representation_ids = 4;
+  repeated string actions = 5;
+  optional uint64 minimum_revision = 6;
+  optional uint64 maximum_revision = 7;
+  optional string issued_at = 8;
+  optional string expires_at = 9;
+}
+
+message NormalizedPoint {
+  double x = 1;
+  double y = 2;
+}
+
+message NormalizedRegion {
+  double x = 1;
+  double y = 2;
+  double width = 3;
+  double height = 4;
+}
+
+message ImageAnnotation {
+  string annotation_id = 1;
+  repeated NormalizedPoint path = 2;
+  optional string label = 3;
+  optional StructuredPayload style = 4;
+}
+
+message ImageEditManifest {
+  string source_representation_id = 1;
+  optional string result_representation_id = 2;
+  repeated string candidate_representation_ids = 3;
+  optional string mask_representation_id = 4;
+  uint32 source_width = 5;
+  uint32 source_height = 6;
+  optional string exif_orientation = 7;
+  repeated NormalizedRegion regions = 8;
+  repeated ImageAnnotation annotations = 9;
+}
+
+enum VideoStage {
+  VIDEO_STAGE_UNSPECIFIED = 0;
+  VIDEO_STAGE_QUEUED = 1;
+  VIDEO_STAGE_RENDERING = 2;
+  VIDEO_STAGE_TRANSCODING = 3;
+  VIDEO_STAGE_READY = 4;
+  VIDEO_STAGE_FAILED = 5;
+}
+
+message VideoManifest {
+  VideoStage stage = 1;
+  optional double progress_fraction = 2;
+  optional uint64 duration_millis = 3;
+  optional ArtifactDimensions dimensions = 4;
+  optional string original_representation_id = 5;
+  optional string playable_representation_id = 6;
+  optional string poster_representation_id = 7;
+  repeated string thumbnail_representation_ids = 8;
+  repeated string derivative_representation_ids = 9;
+}
+
+message PresentationSlide {
+  string slide_id = 1;
+  uint32 position = 2;
+  optional string title = 3;
+  optional string notes = 4;
+  optional string page_representation_id = 5;
+  optional string thumbnail_representation_id = 6;
+}
+
+message PresentationVersion {
+  string version_id = 1;
+  uint64 revision = 2;
+  optional string label = 3;
+}
+
+message PresentationManifest {
+  uint64 deck_revision = 1;
+  repeated PresentationSlide slides = 2;
+  repeated PresentationVersion versions = 3;
+  optional string selected_version_id = 4;
+}
+
+message ExtensionArtifactManifest {
+  string namespace = 1;
+  string semantic_type = 2;
+  string schema_version = 3;
+  StructuredPayload payload = 4;
+}
+
+message ArtifactManifest {
+  oneof manifest {
+    ImageEditManifest image_edit = 1;
+    VideoManifest video = 2;
+    PresentationManifest presentation = 3;
+    ExtensionArtifactManifest extension = 4;
+    UnsupportedValue unsupported = 100;
+  }
+}
+
+message ArtifactDescriptor {
+  string artifact_id = 1;
+  uint64 revision = 2;
+  string filename = 3;
+  string media_type = 4;
+  optional string role = 5;
+  ArtifactStatus status = 6;
+  optional uint64 byte_size = 7;
+  optional ArtifactDimensions dimensions = 8;
+  optional uint64 duration_millis = 9;
+  optional ArtifactProvenance provenance = 10;
+  repeated ArtifactRepresentation representations = 11;
+  repeated ArtifactRevision revisions = 12;
+  repeated ArtifactGrant grants = 13;
+  optional ArtifactManifest manifest = 14;
+}

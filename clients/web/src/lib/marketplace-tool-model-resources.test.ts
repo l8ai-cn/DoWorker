@@ -47,6 +47,38 @@ describe("listMarketplaceToolModelResources", () => {
             capabilities: ["video-generation"],
           },
         },
+        {
+          selectable: true,
+          connection: {
+            providerKey: "sub2api-seedance",
+            name: "Sub2API Seedance",
+            isEnabled: true,
+          },
+          resource: {
+            id: "79",
+            displayName: "Seedance 2.0",
+            modelId: "doubao-seedance-2-0-260128",
+            isEnabled: true,
+            modalities: ["video"],
+            capabilities: ["video-generation"],
+          },
+        },
+        {
+          selectable: true,
+          connection: {
+            providerKey: "sub2api-seedance",
+            name: "Sub2API Seedance",
+            isEnabled: true,
+          },
+          resource: {
+            id: "80",
+            displayName: "Invalid Sub2API model",
+            modelId: "doubao-seedance-2-0-260128-preview",
+            isEnabled: true,
+            modalities: ["video"],
+            capabilities: ["video-generation"],
+          },
+        },
       ],
     });
 
@@ -55,7 +87,10 @@ describe("listMarketplaceToolModelResources", () => {
     ).resolves.toEqual([
       {
         role: "seedance-video",
-        resources: [{ id: 77, label: "Doubao · Seedance 2.0" }],
+        resources: [
+          { id: 77, label: "Doubao · Seedance 2.0" },
+          { id: 79, label: "Sub2API Seedance · Seedance 2.0" },
+        ],
       },
     ]);
     expect(connectMock).toHaveBeenCalledWith(

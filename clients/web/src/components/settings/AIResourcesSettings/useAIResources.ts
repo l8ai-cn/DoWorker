@@ -83,6 +83,8 @@ export function useAIResources(scope: AIResourceScope, organizationSlug?: string
       }
       return true;
     } catch {
+      if (!current()) return false;
+      await reload();
       if (current()) setOperationFailed(true);
       return false;
     }

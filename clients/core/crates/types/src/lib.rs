@@ -25,6 +25,10 @@ pub use service_error::*;
 // produced by `rust_prost_library` (see proto/<svc>/v1/BUILD.bazel).
 // =============================================================================
 
+pub mod proto_agent_workbench_v2 {
+    pub use ::agent_workbench_proto::proto::agent_workbench::v2::*;
+}
+
 pub mod proto_agent_v1 {
     pub use ::agent_proto::proto::agent::v1::*;
 }

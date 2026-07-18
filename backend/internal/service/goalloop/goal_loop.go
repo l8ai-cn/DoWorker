@@ -135,6 +135,9 @@ func (s *Service) ListWorkerSnapshots(
 	available := make([]workerspecdomain.Snapshot, 0, len(snapshots))
 	scope := workerspecsvc.Scope{OrgID: organizationID, UserID: userID}
 	for _, snapshot := range snapshots {
+		if !workerspecdomain.HasResolvedProtocolAdapters(snapshot.Spec) {
+			continue
+		}
 		err := s.workerTypes.ValidateWorkerTypeSnapshot(
 			ctx,
 			scope,
@@ -166,6 +169,9 @@ func (s *Service) ValidateWorkerSnapshotForExecution(
 		return err
 	}
 	if snapshot.OrganizationID != organizationID {
+		return ErrInvalidInput
+	}
+	if !workerspecdomain.HasResolvedProtocolAdapters(snapshot.Spec) {
 		return ErrInvalidInput
 	}
 	err = s.workerTypes.ValidateWorkerTypeSnapshot(

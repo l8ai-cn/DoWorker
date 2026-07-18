@@ -107,7 +107,7 @@ func (m *MockStorage) PresignPutURL(ctx context.Context, key string, contentType
 	return fmt.Sprintf("https://mock-storage.example.com/%s?upload=true&expires=%d", key, time.Now().Add(expiry).Unix()), nil
 }
 
-func (m *MockStorage) InternalPresignPutURL(ctx context.Context, key string, contentType string, expiry time.Duration) (string, error) {
+func (m *MockStorage) InternalPresignPutURL(ctx context.Context, key string, contentType string, _ int64, expiry time.Duration) (string, error) {
 	return m.PresignPutURL(ctx, key, contentType, expiry)
 }
 

@@ -2,6 +2,7 @@ package infra
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"strings"
 	"testing"
@@ -62,6 +63,32 @@ func TestWorkerSpecSnapshotRepositoryRejectsCorruptStoredDocuments(t *testing.T)
 
 	_, err = repo.GetByID(ctx, 79, snapshot.ID)
 	assert.True(t, errors.Is(err, workerspec.ErrSummaryMismatch))
+}
+
+func TestWorkerSpecSnapshotRepositoryReadsLegacyProtocolAdapterSnapshot(t *testing.T) {
+	ctx := context.Background()
+	db := workerSpecSnapshotDBForContract(t)
+	repo := NewWorkerSpecSnapshotRepository(db)
+	spec := workerSpecForRepoContract()
+	summary, err := workerspec.Summarize(spec)
+	require.NoError(t, err)
+	spec.Runtime.ModelBinding.ProtocolAdapter = ""
+	summary.ModelBinding.ProtocolAdapter = ""
+	specJSON, err := json.Marshal(spec)
+	require.NoError(t, err)
+	summaryJSON, err := json.Marshal(summary)
+	require.NoError(t, err)
+	require.NoError(t, db.Exec(`
+INSERT INTO worker_spec_snapshots (organization_id, version, spec_json, summary_json)
+VALUES (?, ?, ?, ?)`,
+		77, workerspec.VersionV1, specJSON, summaryJSON,
+	).Error)
+
+	snapshots, err := repo.ListByOrganization(ctx, 77)
+
+	require.NoError(t, err)
+	require.Len(t, snapshots, 1)
+	assert.False(t, workerspec.HasResolvedProtocolAdapters(snapshots[0].Spec))
 }
 
 func TestWorkerSpecSnapshotRepositoryRejectsZeroAggregate(t *testing.T) {

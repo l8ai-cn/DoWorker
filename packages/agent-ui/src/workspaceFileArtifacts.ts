@@ -17,11 +17,19 @@ export function workspaceFileArtifacts(
       return [];
     }
     return [{
+      actions: [],
       id: `${sourceId}:artifact:${index}`,
       kind: "artifact",
       artifactId: `workspace:${path}`,
       filename: path.split("/").pop() || path,
+      grants: [],
+      manifest: null,
       mimeType,
+      representations: [],
+      revision: BigInt(0),
+      role: "preview",
+      schemaVersion: "1",
+      selectedRepresentationId: null,
       status: "completed",
     }];
   });
@@ -62,8 +70,12 @@ function hasDeliverableRoot(path: string): boolean {
 }
 
 const deliverableTypes: Record<string, string> = {
+  "3mf": "model/3mf",
   avif: "image/avif",
+  blend: "application/x-blender",
   gif: "image/gif",
+  glb: "model/gltf-binary",
+  gltf: "model/gltf+json",
   htm: "text/html",
   html: "text/html",
   jpeg: "image/jpeg",
@@ -75,6 +87,9 @@ const deliverableTypes: Record<string, string> = {
   png: "image/png",
   ppt: "application/vnd.ms-powerpoint",
   pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  step: "model/step",
+  stl: "model/stl",
+  stp: "model/step",
   svg: "image/svg+xml",
   webm: "video/webm",
   webp: "image/webp",
@@ -91,6 +106,7 @@ const textDeliverableTypes: Record<string, string> = {
   mjs: "text/javascript",
   py: "text/x-python",
   rs: "text/x-rust",
+  scad: "text/plain",
   scss: "text/x-scss",
   sh: "text/x-shellscript",
   toml: "text/plain",

@@ -54,6 +54,23 @@ func (c *GRPCConnection) sendControl(msg *runnerv1.RunnerMessage) error {
 	}
 }
 
+func (c *GRPCConnection) sendWorkbench(msg *runnerv1.RunnerMessage) error {
+	c.mu.Lock()
+	stream := c.stream
+	c.mu.Unlock()
+
+	if stream == nil {
+		return fmt.Errorf("stream not connected")
+	}
+
+	select {
+	case c.workbenchCh <- msg:
+		return nil
+	case <-c.stopCh:
+		return fmt.Errorf("connection stopped")
+	}
+}
+
 // sendTerminal queues a terminal message (low priority).
 // Terminal messages include: agent_status.
 // NOTE: terminal_output removed - output is exclusively streamed via Relay.

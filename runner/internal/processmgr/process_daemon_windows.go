@@ -8,8 +8,6 @@ import (
 	"os"
 	"os/exec"
 	"syscall"
-
-	"github.com/anthropics/agentsmesh/runner/internal/safego"
 )
 
 // startDaemon (Windows) spawns the real daemon directly with
@@ -19,7 +17,7 @@ import (
 // unnecessary and impossible here. The detachment guarantee comes from the
 // Win32 flags alone — once we call Process.Release the daemon is fully on
 // its own.
-func startDaemon(ctx context.Context, mgr *manager, spec Spec) (Handle, error) {
+func startDaemon(ctx context.Context, mgr *manager, spec Spec) (managedHandle, error) {
 	cmd := exec.CommandContext(ctx, spec.Command, spec.Args...) //nolint:gosec
 	cmd.Env = spec.Env
 	cmd.Dir = spec.Dir
@@ -48,7 +46,6 @@ func startDaemon(ctx context.Context, mgr *manager, spec Spec) (Handle, error) {
 		stopTimeout: mgr.opts.stopTimeoutFor(spec),
 		pollEvery:   mgr.opts.DaemonAlivePoll,
 	}
-	safego.Go("processmgr-daemon-monitor-"+spec.Owner, p.monitorLoop)
 	return p, nil
 }
 

@@ -8,6 +8,7 @@ import (
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
+	"github.com/anthropics/agentsmesh/backend/pkg/crypto"
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -17,6 +18,10 @@ type memPendingRepo struct {
 	mu   sync.Mutex
 	rows []*agentpod.PendingCommand
 	next int64
+}
+
+func testPendingEncryptor() *crypto.Encryptor {
+	return crypto.NewEncryptor("pending-command-test-key")
 }
 
 func (m *memPendingRepo) Enqueue(_ context.Context, cmd *agentpod.PendingCommand) error {
@@ -160,7 +165,7 @@ func (m *memPendingRepo) ListRunnerIDsWithPending(_ context.Context, limit int) 
 func TestEnqueueCreatePod_Success(t *testing.T) {
 	repo := &memPendingRepo{}
 	bus := eventbus.NewEventBus(nil, nil)
-	q := NewPendingCommandQueue(repo, bus, 20, 30*time.Minute, true, newTestLogger())
+	q := NewPendingCommandQueue(repo, bus, 20, 30*time.Minute, true, testPendingEncryptor(), newTestLogger())
 	cmd := &runnerv1.CreatePodCommand{PodKey: "pd-1"}
 	exp, err := q.EnqueueCreatePod(context.Background(), 1, 9, "pd-1", cmd, 0)
 	require.NoError(t, err)
@@ -170,7 +175,7 @@ func TestEnqueueCreatePod_Success(t *testing.T) {
 
 func TestEnqueue_QueueFull(t *testing.T) {
 	repo := &memPendingRepo{}
-	q := NewPendingCommandQueue(repo, nil, 1, time.Minute, true, newTestLogger())
+	q := NewPendingCommandQueue(repo, nil, 1, time.Minute, true, testPendingEncryptor(), newTestLogger())
 	cmd := &runnerv1.CreatePodCommand{PodKey: "a"}
 	_, err := q.EnqueueCreatePod(context.Background(), 1, 1, "a", cmd, time.Minute)
 	require.NoError(t, err)
@@ -180,7 +185,7 @@ func TestEnqueue_QueueFull(t *testing.T) {
 
 func TestEnqueue_DuplicateCommandID(t *testing.T) {
 	repo := &memPendingRepo{}
-	q := NewPendingCommandQueue(repo, nil, 5, time.Minute, true, newTestLogger())
+	q := NewPendingCommandQueue(repo, nil, 5, time.Minute, true, testPendingEncryptor(), newTestLogger())
 	cmd := &runnerv1.CreatePodCommand{PodKey: "same"}
 	_, err := q.EnqueueCreatePod(context.Background(), 1, 1, "same", cmd, time.Minute)
 	require.NoError(t, err)
@@ -190,7 +195,7 @@ func TestEnqueue_DuplicateCommandID(t *testing.T) {
 
 func TestEnqueue_DuplicateCommandWinsOverQueueFull(t *testing.T) {
 	repo := &memPendingRepo{}
-	q := NewPendingCommandQueue(repo, nil, 1, time.Minute, true, newTestLogger())
+	q := NewPendingCommandQueue(repo, nil, 1, time.Minute, true, testPendingEncryptor(), newTestLogger())
 	require.NoError(t, q.EnqueueSendPrompt(
 		context.Background(), 1, 1, "pod-1", "cmd-1", "first", time.Minute,
 	))
@@ -204,7 +209,7 @@ func TestEnqueue_DuplicateCommandWinsOverQueueFull(t *testing.T) {
 
 func TestCancelByPodKey_Idempotent(t *testing.T) {
 	repo := &memPendingRepo{}
-	q := NewPendingCommandQueue(repo, nil, 5, time.Minute, true, newTestLogger())
+	q := NewPendingCommandQueue(repo, nil, 5, time.Minute, true, testPendingEncryptor(), newTestLogger())
 	_, err := q.EnqueueCreatePod(context.Background(), 1, 1, "pd-c", &runnerv1.CreatePodCommand{PodKey: "pd-c"}, time.Minute)
 	require.NoError(t, err)
 	require.NoError(t, q.EnqueueSendPrompt(context.Background(), 1, 1, "pd-c", "cmd-9", "hello", time.Minute))
@@ -216,7 +221,7 @@ func TestCancelByPodKey_Idempotent(t *testing.T) {
 
 func TestQueuePosition_FIFO(t *testing.T) {
 	repo := &memPendingRepo{}
-	q := NewPendingCommandQueue(repo, nil, 5, time.Minute, true, newTestLogger())
+	q := NewPendingCommandQueue(repo, nil, 5, time.Minute, true, testPendingEncryptor(), newTestLogger())
 	for _, key := range []string{"pd-1", "pd-2", "pd-3"} {
 		_, err := q.EnqueueCreatePod(context.Background(), 1, 7, key, &runnerv1.CreatePodCommand{PodKey: key}, time.Minute)
 		require.NoError(t, err)
@@ -228,7 +233,7 @@ func TestQueuePosition_FIFO(t *testing.T) {
 
 func TestEnqueue_TTLClamped(t *testing.T) {
 	repo := &memPendingRepo{}
-	q := NewPendingCommandQueue(repo, nil, 5, 30*time.Minute, true, newTestLogger())
+	q := NewPendingCommandQueue(repo, nil, 5, 30*time.Minute, true, testPendingEncryptor(), newTestLogger())
 	before := time.Now()
 	_, err := q.EnqueueCreatePod(context.Background(), 1, 1, "pd", &runnerv1.CreatePodCommand{PodKey: "pd"}, 25*time.Hour)
 	require.NoError(t, err)

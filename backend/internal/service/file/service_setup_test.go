@@ -11,7 +11,7 @@ func setupTestService(t *testing.T) (*Service, *storage.MockStorage) {
 	mockStorage := storage.NewMockStorage()
 	cfg := config.StorageConfig{
 		MaxFileSize:  10, // 10MB
-		AllowedTypes: []string{"image/jpeg", "image/png", "image/gif", "application/pdf"},
+		AllowedTypes: []string{"image/jpeg", "image/png", "image/gif", "video/mp4", "application/pdf"},
 	}
 	svc := NewService(mockStorage, cfg)
 	return svc, mockStorage

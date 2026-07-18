@@ -2,10 +2,8 @@ package gitops
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
-	"net/http"
 
 	"github.com/anthropics/agentsmesh/backend/internal/infra/gitea"
 )
@@ -187,48 +185,3 @@ func (s *service) RepoPath(orgID int64, slug string) string { return repoPath(s.
 func (s *service) RepoNameFromPath(path string) string      { return repoNameFromPath(path) }
 
 func (s *service) CloneURL(repoName string) string { return s.git.CloneURL(repoName) }
-func (s *service) CloneToken() string              { return s.git.CloneToken() }
-
-func giteaAuthor(a Author) gitea.CommitAuthor {
-	return gitea.CommitAuthor{Name: a.Name, Email: a.Email}
-}
-
-func toGiteaChanges(changes []FileChange) []gitea.FileChange {
-	out := make([]gitea.FileChange, 0, len(changes))
-	for _, ch := range changes {
-		out = append(out, gitea.FileChange{Path: ch.Path, Content: string(ch.Content)})
-	}
-	return out
-}
-
-// treeType normalizes git tree object types ("blob"/"tree") to the
-// file/dir vocabulary the contents API and gitops.Entry use.
-func treeType(t string) string {
-	switch t {
-	case "blob":
-		return "file"
-	case "tree":
-		return "dir"
-	default:
-		return t
-	}
-}
-
-func baseName(path string) string {
-	return repoNameFromPath(path)
-}
-
-// isNotFound reports whether err is a gitea 404.
-func isNotFound(err error) bool {
-	var he *gitea.HTTPError
-	return errors.As(err, &he) && he.StatusCode == http.StatusNotFound
-}
-
-// mapNotFound translates a gitea 404 into ErrNotFound; other errors are
-// wrapped with a domain prefix.
-func mapNotFound(err error) error {
-	if isNotFound(err) {
-		return ErrNotFound
-	}
-	return fmt.Errorf("gitops: %w", err)
-}

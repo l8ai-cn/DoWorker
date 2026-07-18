@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "source": {
+    "repository": "https://cnb.cool/l8ai/dowork",
+    "branch": "codex/doagent-standard-acp-session-new",
+    "commit": "4e17ae3f40f1694a846095c196a857210efba25c",
+    "subdirectory": "doagent",
+    "cargo_lock_sha256": "sha256:0236a66407efb920da1aae441b4affeb975112d4faa8fdbf8bd38293288601ff",
+    "cargo_toml_sha256": "sha256:a7bafe6b2f2c81cfcac15658b232d8e0c8c77780b626c11bed60c9baf3ae92a7"
+  },
+  "build": {
+    "builder_image": "rust@sha256:e51d0265072d2d9d5d320f6a44dde6b9ef13653b035098febd68cce8fa7c0bc4",
+    "rust_toolchain": "1.88.0",
+    "platform": "linux/amd64",
+    "source_date_epoch": 1784172408
+  },
+  "artifact": {
+    "version": "0.2.0",
+    "binary_sha256": "sha256:c85adf835e14f00c882c7d8957817d09e5470409bee9e45c1446594c567d26cd"
+  },
+  "image": {
+    "repository": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent",
+    "tag": "4e17ae3f40f1-runner-61b505bd1dcd",
+    "digest": "sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653"
+  }
+}

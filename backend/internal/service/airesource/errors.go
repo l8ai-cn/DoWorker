@@ -23,6 +23,7 @@ var (
 	ErrEncrypt                     = errors.New("AI resource credential encryption failed")
 	ErrDecrypt                     = errors.New("AI resource credential decryption failed")
 	ErrValidation                  = errors.New("AI resource connection validation failed")
+	ErrProviderEndpointUnavailable = errors.New("AI resource provider endpoint unavailable")
 	ErrProbeUnsupported            = errors.New("AI resource provider validation unsupported")
 	ErrAudit                       = errors.New("AI resource audit failed")
 	ErrConflict                    = domain.ErrConflict

@@ -9,15 +9,23 @@ import type {
 import { MarkdownMessage } from "./MarkdownMessage";
 import { ToolActivityGroup } from "./ToolActivityGroup";
 import { groupToolActivity } from "./toolActivityGrouping";
+import type { AgentToolRendererRegistration } from "./react/rendererTypes";
+import type { AgentContentRendererRegistration } from "./react/contentRendererTypes";
+import type { ContentRendererRegistry } from "./registry/ContentRendererRegistry";
+import type { ToolRendererRegistry } from "./registry/ToolRendererRegistry";
 
 export function ActivityTimeline({
   items,
   runtime,
   sessionId,
+  contentRenderers,
+  toolRenderers,
 }: {
+  contentRenderers?: ContentRendererRegistry<AgentContentRendererRegistration>;
   items: AgentTimelineItem[];
   runtime: AgentSessionRuntime;
   sessionId: string;
+  toolRenderers?: ToolRendererRegistry<AgentToolRendererRegistration>;
 }) {
   const text = useAgentWorkspaceText();
   if (items.length === 0) {
@@ -34,7 +42,11 @@ export function ActivityTimeline({
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-3 px-4 py-4">
       {groupToolActivity(items).map((item) =>
         item.kind === "tool-run" ? (
-          <ToolActivityGroup key={item.id} tools={item.tools} />
+          <ToolActivityGroup
+            key={item.id}
+            renderers={toolRenderers}
+            tools={item.tools}
+          />
         ) : item.kind === "message" ? (
           <MessageRow item={item} key={item.id} />
         ) : item.kind === "artifact" ? (
@@ -43,6 +55,7 @@ export function ActivityTimeline({
             key={item.id}
             runtime={runtime}
             sessionId={sessionId}
+            contentRenderers={contentRenderers}
           />
         ) : (
           <ActivityRow item={item} key={item.id} />

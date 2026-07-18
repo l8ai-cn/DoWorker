@@ -168,6 +168,7 @@ func (r *Runner) stopAllPods() {
 				// so the session can be recovered after Runner restart.
 				p.IO.Detach()
 			}
+			p.closeWorkspace()
 			r.podStore.Delete(p.PodKey)
 
 			// Collect token usage synchronously (best-effort).

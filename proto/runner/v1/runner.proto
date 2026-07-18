@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package runner.v1;
 
+import "agent_workbench/v2/runner_ingress.proto";
+
 option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1;runnerv1";
 
 // RunnerService 定义 Runner 与 Backend 的双向通信服务
@@ -63,6 +65,7 @@ message RunnerMessage {
     VerificationResultEvent verification_result = 35;
     RelaySubscriptionResultEvent relay_subscription_result = 36;
     TunnelConnectionResultEvent tunnel_connection_result = 37;
+    proto.agent_workbench.v2.RunnerWorkbenchEventBatch workbench_events = 38;
   }
   reserved 28, 29, 30;
   int64 timestamp = 15;
@@ -379,7 +382,11 @@ message KnowledgeMount {
   string branch = 3;           // 默认分支
   string mount_path = 4;       // 相对 sandbox root 的挂载路径，如 kb/{slug}
   string mode = 5;             // ro | rw
-  string git_token = 6;        // rw 挂载的 push 凭证；ro 时 clone 后即弃
+  reserved 6;
+  reserved "git_token";
+  string ssh_clone_url = 7;    // 内部 Gitea SSH URL（不含凭证）
+  string git_private_key = 8;  // 单仓库 deploy key；ro/rw 使用不同密钥
+  string git_known_hosts = 9;  // 由控制面从 Gitea PVC 固定下发的 SSH 主机公钥
 }
 
 // TerminatePodCommand 终止 Pod 命令
@@ -546,6 +553,8 @@ message SandboxFsCommand {
   string payload = 5;
   string include_glob = 6;
   string exclude_glob = 7;
+  int64 offset = 8;
+  int64 length = 9;
 }
 
 message SandboxFsEntry {
@@ -579,6 +588,9 @@ message SandboxFsResultEvent {
   repeated SandboxFsChange changes = 12;
   string workspace_root = 13;
   string workspace_home = 14;
+  bytes content_bytes = 15;
+  int64 content_offset = 16;
+  bool eof = 17;
 }
 
 // ==================== OSC 终端通知相关 ====================

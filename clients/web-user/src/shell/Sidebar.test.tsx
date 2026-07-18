@@ -95,8 +95,6 @@ vi.mock("@/components/PermissionsModal", () => ({ PermissionsModal: () => null }
 import { useConversations } from "@/hooks/useConversations";
 import { Sidebar } from "./Sidebar";
 import {
-  DEFAULT_PROJECT_GROUP_KEY,
-  DEFAULT_PROJECT_GROUP_LABEL,
   EXPANDED_WORKER_GROUP_SECTIONS_STORAGE_KEY,
   EXPANDED_WORKSPACE_GROUP_SECTIONS_STORAGE_KEY,
   workProjectGroupKey,
@@ -105,16 +103,6 @@ import {
 } from "./sidebarNav";
 
 const useConvMock = vi.mocked(useConversations);
-
-function expandSessionGroupsVisible() {
-  const sessionsSection = screen.getByText("Sessions").closest("section");
-  if (!sessionsSection) return;
-  for (let pass = 0; pass < 3; pass++) {
-    for (const button of within(sessionsSection).getAllByRole("button")) {
-      if (button.getAttribute("aria-expanded") === "false") fireEvent.click(button);
-    }
-  }
-}
 
 function seedExpandedSessionGroups(conversations: Conversation[]) {
   const workerKeys = new Set<string>();
@@ -638,7 +626,7 @@ describe("Sidebar project sections", () => {
     // via the `?project=` query param (URL-encoded).
     const pencil = screen.getByTestId("project-new-session");
     expect(pencil).toHaveAttribute("aria-label", "New session in Customer X");
-    expect(pencil.closest("a")).toHaveAttribute("href", "/?project=Customer%20X");
+    expect(pencil.closest("a")).toHaveAttribute("href", "/?project=Customer+X");
   });
 
   it("closes the mobile overlay when the project pencil is tapped", () => {
@@ -1005,8 +993,8 @@ describe("Sidebar project/worker hierarchy", () => {
         agent_name: "do-agent",
       }),
     ];
-    useConvMock.mockImplementation((search: string) => {
-      const query = search.trim().toLowerCase();
+    useConvMock.mockImplementation((search: string | undefined) => {
+      const query = (search ?? "").trim().toLowerCase();
       const filtered = query
         ? rows.filter((row) => row.title?.toLowerCase().includes(query))
         : rows;

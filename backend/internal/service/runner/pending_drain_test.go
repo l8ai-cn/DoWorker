@@ -9,10 +9,10 @@ import (
 	"time"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
 
 type stubConnChecker struct {
@@ -73,7 +73,7 @@ func TestDrain_NilSenderSkipsWithoutPanic(t *testing.T) {
 	require.NoError(t, seedQueuedPod(t, db, r.OrganizationID, r.ID, "pd-nil"))
 	require.NoError(t, seedPendingCreate(repo, r.ID, "pd-nil", 1))
 
-	drainer := NewPendingCommandDrainer(repo, podStore, runnerRepo, nil, checker, pc, nil, nil, time.Minute, logger)
+	drainer := NewPendingCommandDrainer(repo, podStore, runnerRepo, nil, checker, pc, nil, nil, time.Minute, testPendingEncryptor(), logger)
 	require.NotPanics(t, func() {
 		drainer.drainRunner(context.Background(), r.ID)
 	})
@@ -95,7 +95,7 @@ func TestDrain_FIFOOrder(t *testing.T) {
 		require.NoError(t, seedPendingCreate(repo, r.ID, key, int64(i+1)))
 	}
 
-	drainer := NewPendingCommandDrainer(repo, podStore, runnerRepo, sender, checker, pc, nil, nil, time.Minute, logger)
+	drainer := NewPendingCommandDrainer(repo, podStore, runnerRepo, sender, checker, pc, nil, nil, time.Minute, testPendingEncryptor(), logger)
 	drainer.drainRunner(context.Background(), r.ID)
 
 	assert.Equal(t, []string{"pd-a", "pd-b", "pd-c"}, sender.sentKeys())
@@ -114,7 +114,7 @@ func TestDrain_SingleFlight(t *testing.T) {
 	require.NoError(t, seedQueuedPod(t, db, r.OrganizationID, r.ID, "pd-1"))
 	require.NoError(t, seedPendingCreate(repo, r.ID, "pd-1", 1))
 
-	drainer := NewPendingCommandDrainer(repo, podStore, runnerRepo, sender, checker, pc, nil, nil, time.Minute, logger)
+	drainer := NewPendingCommandDrainer(repo, podStore, runnerRepo, sender, checker, pc, nil, nil, time.Minute, testPendingEncryptor(), logger)
 	for i := 0; i < 10; i++ {
 		drainer.DrainRunner(r.ID)
 	}
@@ -134,7 +134,7 @@ func TestDrain_SkipsWhenDisconnected(t *testing.T) {
 	require.NoError(t, seedQueuedPod(t, db, r.OrganizationID, r.ID, "pd-1"))
 	require.NoError(t, seedPendingCreate(repo, r.ID, "pd-1", 1))
 
-	drainer := NewPendingCommandDrainer(repo, podStore, runnerRepo, sender, checker, pc, nil, nil, time.Minute, logger)
+	drainer := NewPendingCommandDrainer(repo, podStore, runnerRepo, sender, checker, pc, nil, nil, time.Minute, testPendingEncryptor(), logger)
 	drainer.drainRunner(context.Background(), r.ID)
 	assert.Equal(t, int32(0), sender.calls.Load())
 	assert.Len(t, mustListPending(repo, r.ID), 1)
@@ -152,7 +152,7 @@ func TestDrain_RespectsCapacity(t *testing.T) {
 	require.NoError(t, seedQueuedPod(t, db, r.OrganizationID, r.ID, "pd-full"))
 	require.NoError(t, seedPendingCreate(repo, r.ID, "pd-full", 1))
 
-	drainer := NewPendingCommandDrainer(repo, podStore, runnerRepo, sender, checker, pc, nil, nil, time.Minute, logger)
+	drainer := NewPendingCommandDrainer(repo, podStore, runnerRepo, sender, checker, pc, nil, nil, time.Minute, testPendingEncryptor(), logger)
 	drainer.drainRunner(context.Background(), r.ID)
 
 	assert.Equal(t, int32(0), sender.calls.Load())
@@ -171,7 +171,7 @@ func TestDrain_CreatePod_TransitionsStatus(t *testing.T) {
 	require.NoError(t, seedQueuedPod(t, db, r.OrganizationID, r.ID, "pd-tr"))
 	require.NoError(t, seedPendingCreate(repo, r.ID, "pd-tr", 1))
 
-	drainer := NewPendingCommandDrainer(repo, podStore, runnerRepo, sender, checker, pc, nil, nil, time.Minute, logger)
+	drainer := NewPendingCommandDrainer(repo, podStore, runnerRepo, sender, checker, pc, nil, nil, time.Minute, testPendingEncryptor(), logger)
 	drainer.drainRunner(context.Background(), r.ID)
 
 	pod, err := podStore.GetByKey(context.Background(), "pd-tr")
@@ -195,7 +195,7 @@ func TestDrain_SendFailure_RollsBackIncrement(t *testing.T) {
 	require.NoError(t, seedQueuedPod(t, db, r.OrganizationID, r.ID, "pd-fail"))
 	require.NoError(t, seedPendingCreate(repo, r.ID, "pd-fail", 1))
 
-	drainer := NewPendingCommandDrainer(repo, podStore, runnerRepo, sender, checker, pc, nil, nil, time.Minute, logger)
+	drainer := NewPendingCommandDrainer(repo, podStore, runnerRepo, sender, checker, pc, nil, nil, time.Minute, testPendingEncryptor(), logger)
 	drainer.drainRunner(context.Background(), r.ID)
 
 	run, err := runnerRepo.GetByID(context.Background(), r.ID)
@@ -223,7 +223,7 @@ func TestDrain_CancelledPod_RowDeletedWithoutSend(t *testing.T) {
 	require.NoError(t, db.Exec(`UPDATE pods SET status = ? WHERE pod_key = ?`, agentpod.StatusTerminated, "pd-x").Error)
 	require.NoError(t, seedPendingCreate(repo, r.ID, "pd-x", 1))
 
-	drainer := NewPendingCommandDrainer(repo, podStore, runnerRepo, sender, checker, pc, nil, nil, time.Minute, logger)
+	drainer := NewPendingCommandDrainer(repo, podStore, runnerRepo, sender, checker, pc, nil, nil, time.Minute, testPendingEncryptor(), logger)
 	drainer.drainRunner(context.Background(), r.ID)
 
 	assert.Equal(t, int32(0), sender.calls.Load())
@@ -243,7 +243,7 @@ func TestDrain_SendPrompt_SkipsInactivePod(t *testing.T) {
 	require.NoError(t, db.Exec(`UPDATE pods SET status = ? WHERE pod_key = ?`, agentpod.StatusTerminated, "pd-p").Error)
 	require.NoError(t, seedPendingPrompt(repo, r.ID, "pd-p", "cmd-1", 1))
 
-	drainer := NewPendingCommandDrainer(repo, podStore, runnerRepo, sender, checker, pc, nil, nil, time.Minute, logger)
+	drainer := NewPendingCommandDrainer(repo, podStore, runnerRepo, sender, checker, pc, nil, nil, time.Minute, testPendingEncryptor(), logger)
 	drainer.drainRunner(context.Background(), r.ID)
 
 	assert.Equal(t, int32(0), sender.calls.Load())
@@ -264,7 +264,7 @@ func TestDrain_ExpiredRowHandledInline(t *testing.T) {
 	require.NoError(t, seedPendingCreate(repo, r.ID, "pd-exp", 1))
 	repo.rows[0].ExpiresAt = time.Now().Add(-time.Minute)
 
-	drainer := NewPendingCommandDrainer(repo, podStore, runnerRepo, sender, checker, pc, marker, nil, time.Minute, logger)
+	drainer := NewPendingCommandDrainer(repo, podStore, runnerRepo, sender, checker, pc, marker, nil, time.Minute, testPendingEncryptor(), logger)
 	drainer.drainRunner(context.Background(), r.ID)
 
 	assert.Equal(t, int32(0), sender.calls.Load())
@@ -288,7 +288,7 @@ func TestExpirySweeper_MarksCreateExpiredAndDropsPrompt(t *testing.T) {
 		row.ExpiresAt = time.Now().Add(-time.Minute)
 	}
 
-	drainer := NewPendingCommandDrainer(repo, podStore, runnerRepo, sender, checker, pc, marker, nil, time.Minute, logger)
+	drainer := NewPendingCommandDrainer(repo, podStore, runnerRepo, sender, checker, pc, marker, nil, time.Minute, testPendingEncryptor(), logger)
 	drainer.sweepExpired(context.Background())
 
 	assert.Empty(t, mustListPending(repo, r.ID))
@@ -307,7 +307,7 @@ func TestBacklogSweep_TriggersDrainForConnectedRunner(t *testing.T) {
 	require.NoError(t, seedQueuedPod(t, db, r.OrganizationID, r.ID, "pd-bk"))
 	require.NoError(t, seedPendingCreate(repo, r.ID, "pd-bk", 1))
 
-	drainer := NewPendingCommandDrainer(repo, podStore, runnerRepo, sender, checker, pc, nil, nil, time.Minute, logger)
+	drainer := NewPendingCommandDrainer(repo, podStore, runnerRepo, sender, checker, pc, nil, nil, time.Minute, testPendingEncryptor(), logger)
 	drainer.drainOnlineRunnersWithBacklog(context.Background())
 
 	assert.Eventually(t, func() bool {
@@ -322,6 +322,10 @@ func seedPendingCreate(repo *memPendingRepo, runnerID int64, podKey string, id i
 			CreatePod: &runnerv1.CreatePodCommand{PodKey: podKey},
 		},
 	})
+	if err != nil {
+		return err
+	}
+	payload, err = newPendingPayloadCipher(testPendingEncryptor()).encrypt(payload)
 	if err != nil {
 		return err
 	}
@@ -341,6 +345,10 @@ func seedPendingPrompt(repo *memPendingRepo, runnerID int64, podKey, commandID s
 			SendPrompt: &runnerv1.SendPromptCommand{PodKey: podKey, Prompt: "hi", CommandId: commandID},
 		},
 	})
+	if err != nil {
+		return err
+	}
+	payload, err = newPendingPayloadCipher(testPendingEncryptor()).encrypt(payload)
 	if err != nil {
 		return err
 	}

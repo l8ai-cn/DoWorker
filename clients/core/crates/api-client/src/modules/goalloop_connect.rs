@@ -16,6 +16,30 @@ impl ApiClient {
         .await
     }
 
+    pub async fn generate_loop_program_connect(
+        &self,
+        req: &lp::GenerateLoopProgramRequest,
+    ) -> Result<lp::CompileLoopProgramResponse, ApiError> {
+        connect_call(
+            self,
+            "/proto.goalloop.v1.GoalLoopService/GenerateLoopProgram",
+            req,
+        )
+        .await
+    }
+
+    pub async fn repair_loop_program_connect(
+        &self,
+        req: &lp::RepairLoopProgramRequest,
+    ) -> Result<lp::RepairLoopProgramResponse, ApiError> {
+        connect_call(
+            self,
+            "/proto.goalloop.v1.GoalLoopService/RepairLoopProgram",
+            req,
+        )
+        .await
+    }
+
     pub async fn run_loop_program_connect(
         &self,
         req: &lp::RunLoopProgramRequest,

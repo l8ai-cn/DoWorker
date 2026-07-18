@@ -5,13 +5,18 @@ import {
   LoopProgramSchema,
   type LoopProgram,
 } from "@proto/goalloop/v1/goalloop_pb";
-import { registerLoopBlocks } from "../loop-block-catalog";
+import enMessages from "@/messages/en/app.json";
+import zhMessages from "@/messages/zh/app.json";
+import {
+  createLoopBlockCatalog,
+  LOOP_BLOCK_TYPES,
+  registerLoopBlocks,
+} from "../loop-block-catalog";
 import {
   findBlockByNodeId,
   projectProgramToWorkspace,
   workspaceToLoopSource,
 } from "../loop-block-projection";
-import { loopToolbox } from "../loop-block-catalog";
 
 function program(): LoopProgram {
   return create(LoopProgramSchema, {
@@ -44,7 +49,7 @@ function program(): LoopProgram {
 
 describe("Loop Blockly projection", () => {
   it("round-trips a typed AST to canonical LoopScript", () => {
-    registerLoopBlocks();
+    registerLoopBlocks(zhMessages.loopWorkbench.blockly);
     const workspace = new Blockly.Workspace();
 
     projectProgramToWorkspace(workspace, program());
@@ -65,13 +70,56 @@ loop checkout-fix {
     expect(repeat?.nextConnection).toBeNull();
   });
 
-  it("does not expose Worker as a programmable block", () => {
-    expect(JSON.stringify(loopToolbox)).not.toContain("Worker");
-    expect(JSON.stringify(loopToolbox)).not.toContain("loop_worker");
+  it("keeps labels separate from block types, source, and node ids", () => {
+    const project = (
+      messages: typeof enMessages.loopWorkbench.blockly,
+    ) => {
+      registerLoopBlocks(messages);
+      const workspace = new Blockly.Workspace();
+      projectProgramToWorkspace(workspace, program());
+      const root = workspace.getBlocksByType(LOOP_BLOCK_TYPES.loop, false)[0];
+      const result = workspaceToLoopSource(workspace);
+      return {
+        label: root.toString(),
+        nodeIds: [...result.nodeIndex.keys()].sort(),
+        source: result.source,
+        types: workspace.getAllBlocks(false).map(({ type }) => type).sort(),
+      };
+    };
+
+    const english = project(enMessages.loopWorkbench.blockly);
+    const chinese = project(zhMessages.loopWorkbench.blockly);
+
+    expect(english.label).toContain("Loop");
+    expect(chinese.label).toContain("循环");
+    expect(english.source).toBe(chinese.source);
+    expect(english.types).toEqual(chinese.types);
+    expect(english.nodeIds).toEqual(chinese.nodeIds);
+  });
+
+  it.each([
+    ["English", enMessages.loopWorkbench.blockly],
+    ["Chinese", zhMessages.loopWorkbench.blockly],
+  ])("does not expose Worker in the %s toolbox", (_, messages) => {
+    const { toolbox } = createLoopBlockCatalog(messages);
+    const serialized = JSON.stringify(toolbox).toLowerCase();
+
+    expect(serialized).not.toContain("worker");
+    expect(serialized).not.toContain("loop_worker");
+  });
+
+  it("uses localized starter text for newly inserted semantic blocks", () => {
+    registerLoopBlocks(enMessages.loopWorkbench.blockly);
+    const workspace = new Blockly.Workspace();
+    const agent = workspace.newBlock(LOOP_BLOCK_TYPES.agent);
+    const verifier = workspace.newBlock(LOOP_BLOCK_TYPES.verifier);
+
+    expect(agent.getFieldValue("PROMPT")).toBe("Describe the task to complete");
+    expect(verifier.getFieldValue("ACCEPT")).toBe("Verification passes");
   });
 
   it("preserves semantic node ids after block edits", () => {
-    registerLoopBlocks();
+    registerLoopBlocks(zhMessages.loopWorkbench.blockly);
     const workspace = new Blockly.Workspace();
     projectProgramToWorkspace(workspace, program());
 
@@ -84,7 +132,7 @@ loop checkout-fix {
   });
 
   it("does not silently accept an incomplete block tree", () => {
-    registerLoopBlocks();
+    registerLoopBlocks(zhMessages.loopWorkbench.blockly);
     const workspace = new Blockly.Workspace();
     projectProgramToWorkspace(workspace, program());
     findBlockByNodeId(workspace, "n-tests")?.dispose(false);
@@ -97,7 +145,7 @@ loop checkout-fix {
   });
 
   it("does not silently discard extra connected steps", () => {
-    registerLoopBlocks();
+    registerLoopBlocks(zhMessages.loopWorkbench.blockly);
     const workspace = new Blockly.Workspace();
     projectProgramToWorkspace(workspace, program());
     const agent = findBlockByNodeId(workspace, "n-fix-tax");

@@ -7,7 +7,8 @@ Deploy AgentsMesh on your own infrastructure using Docker.
 - Docker 20.10+ with Compose V2
 - OpenSSL (for certificate generation)
 - 4 GB+ RAM, 20 GB+ disk
-- A server IP address or domain name
+- An application DNS hostname resolving to the server
+- A wildcard preview DNS record such as `*.preview.example.com`
 - Ports 80 (HTTP) and 9443 (gRPC) available
 
 ## Quick Start
@@ -16,14 +17,14 @@ Deploy AgentsMesh on your own infrastructure using Docker.
 git clone https://github.com/l8ai-cn/DoWorker.git
 cd AgentsMesh/deploy/selfhost
 
-# Install with your server IP
-./selfhost.sh --host 192.168.1.100
+# Install with same-site application and preview DNS
+./selfhost.sh --host app.agentsmesh.internal --preview-origin http://preview.agentsmesh.internal
 
 # Or with a domain name and custom ports
-./selfhost.sh --host agentsmesh.example.com --http-port 8080
+./selfhost.sh --host agentsmesh.example.com --preview-origin http://preview.example.com --http-port 8080
 
 # Pin a specific image version
-./selfhost.sh --host 192.168.1.100 --version sha-abc1234
+./selfhost.sh --host app.agentsmesh.internal --preview-origin http://preview.agentsmesh.internal --version sha-abc1234
 ```
 
 The script will:
@@ -39,8 +40,12 @@ The script will:
 
 | Service | URL |
 |---------|-----|
-| Web Console | `http://<HOST>:<HTTP_PORT>` |
+| Web Console | `http://<APPLICATION_HOST>:<HTTP_PORT>` |
 | MinIO Console | `http://<HOST>:9001` |
+
+The preview origin is a base origin. Each Pod is served from
+`http://<pod-key>.<preview-host>:<HTTP_PORT>`, so DNS must resolve the wildcard
+and the application and preview hosts must remain same-site.
 
 **Default Admin Account:**
 

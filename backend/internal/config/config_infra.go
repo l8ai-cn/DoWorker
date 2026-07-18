@@ -47,17 +47,23 @@ type EmailConfig struct {
 }
 
 // KnowledgeBaseConfig points at the internal Gitea instance hosting KB
-// repositories. When URL or token is empty the KB feature is disabled
-// (same nil-service pattern as StorageConfig / file service).
+// repositories. The KB mount service requires both the control-plane API
+// credentials and pinned SSH clone configuration.
 type KnowledgeBaseConfig struct {
-	GiteaURL     string // Gitea base URL as reachable from the backend
-	GiteaToken   string // admin-scoped service token for repo provisioning
-	GiteaOrg     string // Gitea org namespace owning all KB repos
-	CloneBaseURL string // clone base URL as reachable from runners
+	GiteaURL        string // Gitea base URL as reachable from the backend
+	GiteaToken      string // admin-scoped service token for repo provisioning
+	GiteaOrg        string // Gitea org namespace owning all KB repos
+	CloneBaseURL    string // HTTP clone base URL as reachable from runners
+	SSHCloneBaseURL string // SSH clone base URL as reachable from runners
+	SSHKnownHosts   string // pinned internal Gitea SSH host key
 
 	SyncInterval time.Duration // external-source (feishu/dingtalk/google) sync cadence
 }
 
-func (c KnowledgeBaseConfig) Enabled() bool {
+func (c KnowledgeBaseConfig) GitopsEnabled() bool {
 	return c.GiteaURL != "" && c.GiteaToken != ""
+}
+
+func (c KnowledgeBaseConfig) Enabled() bool {
+	return c.GitopsEnabled() && c.SSHCloneBaseURL != "" && c.SSHKnownHosts != ""
 }

@@ -173,15 +173,15 @@
       ],
       "config_documents": [],
       "runtime_catalog": {
-        "status": "invalid_published_digest",
-        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1",
-        "probe_status": "not_found"
+        "status": "locked_available",
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:854952254d5f7ce25db3258034bc71a07169a5730dfe0670243fc10ea437bacd",
+        "probe_status": "available"
       },
-      "runtime_evidence": "runtime_smoke_verified",
+      "runtime_evidence": "published_runtime_smoke_verified",
       "runner": "create_and_acp_prompt_verified",
       "product_path": "created_acp_prompt_and_cleanup_verified",
       "browser": "created_acp_prompt_and_cleanup_verified",
-      "support_status": "not_supported"
+      "support_status": "verified_local_dev"
     },
     {
       "slug": "cursor-cli",
@@ -297,12 +297,13 @@
         }
       ],
       "runtime_catalog": {
-        "status": "blocked_no_published_digest"
+        "status": "locked_available",
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653"
       },
-      "runtime_evidence": "runtime_smoke_verified",
+      "runtime_evidence": "published_runtime_smoke_verified",
       "runner": "adapter_unit_verified",
       "product_path": "unverified",
-      "browser": "missing_runtime_image_guard_verified",
+      "browser": "unverified",
       "support_status": "not_supported"
     },
     {
@@ -702,7 +703,7 @@
         "runner-evidence",
         "product-evidence"
       ],
-      "definition_hash": "sha256:71097d3d9e94b5752e0417eb1dd41e1472b885f8be2b279eba8ce31f7cbe1fc9",
+      "definition_hash": "sha256:255c22f71b957d50e656393afa3ca3cd671caa711da32d5ad5a701c2e1903be8",
       "executable": "do-agent",
       "adapter_id": "do-agent-acp",
       "interaction_modes": [
@@ -748,9 +749,10 @@
         }
       ],
       "runtime_catalog": {
-        "status": "blocked_no_published_digest"
+        "status": "locked_available",
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653"
       },
-      "runtime_evidence": "shared_do_agent_runtime_verified",
+      "runtime_evidence": "shared_published_do_agent_runtime_verified",
       "runner": "adapter_unit_verified",
       "product_path": "unverified",
       "browser": "unverified",
@@ -801,11 +803,10 @@
       ],
       "config_documents": [],
       "runtime_catalog": {
-        "status": "invalid_published_digest",
-        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:21bc8f143d304f361b58862b9c33b4e7257307132f9507cf22d461fca1d61716",
-        "probe_status": "not_found"
+        "status": "locked_available",
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:f3463bc567f1ed8516486e95e17d50f48834275aae7931221b1a3eeb3c526a5d"
       },
-      "runtime_evidence": "image_missing",
+      "runtime_evidence": "published_runtime_smoke_verified",
       "runner": "unverified",
       "product_path": "unverified",
       "browser": "unverified",

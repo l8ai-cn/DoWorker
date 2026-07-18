@@ -1,6 +1,7 @@
 # AgentsMesh OnPremise Deployment
 
-Private deployment solution with direct IP access — no domain name required, suitable for intranet environments.
+Private deployment solution for intranet environments with an application DNS
+name and a server IP for Runner connectivity.
 
 ## System Requirements
 
@@ -8,6 +9,8 @@ Private deployment solution with direct IP access — no domain name required, s
 - Docker Compose V2
 - 4 GB+ RAM
 - 20 GB+ disk space
+- Application DNS, for example `app.agentsmesh.internal`
+- Wildcard preview DNS, for example `*.preview.agentsmesh.internal`
 
 ## Quick Start
 
@@ -19,10 +22,10 @@ tar -xzf agentsmesh-onpremise-*.tar.gz
 cd agentsmesh-onpremise
 
 # One-command install
-./scripts/install.sh --ip 192.168.1.100
+./scripts/install.sh --ip 192.168.1.100 --host app.agentsmesh.internal --preview-origin http://preview.agentsmesh.internal
 
 # Custom ports
-./scripts/install.sh --ip 192.168.1.100 --http-port 8080 --grpc-port 9443
+./scripts/install.sh --ip 192.168.1.100 --host app.agentsmesh.internal --preview-origin http://preview.agentsmesh.internal:8080 --http-port 8080 --grpc-port 9443
 ```
 
 ### Option 2: Manual Installation

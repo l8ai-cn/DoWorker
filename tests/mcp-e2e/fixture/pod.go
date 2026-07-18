@@ -72,6 +72,9 @@ func newEchoPod(t *testing.T, env *Env, rest *client.REST, runnerID int64, agent
 	if err := waitPodRegistered(ctx, mcpEndpoint, pod.PodKey, 15*time.Second); err != nil {
 		t.Fatalf("pod %s never registered with runner MCP at %s: %v", pod.PodKey, mcpEndpoint, err)
 	}
+	if err := waitPodRunning(ctx, rest, env.DevOrgSlug, pod.PodKey, 15*time.Second); err != nil {
+		t.Fatalf("pod %s never became routable through backend: %v", pod.PodKey, err)
+	}
 
 	return &EchoPod{
 		Pod: pod,
@@ -100,11 +103,6 @@ func mcpEndpointForRunner(env *Env, rest *client.REST, runnerID int64) string {
 	return env.MCPBaseURL
 }
 
-// waitPodRegistered polls the runner's debug /pods endpoint until the pod
-// shows up. We use the runner's view (not the backend's pod status) because
-// runner registration is the single source of truth for whether the next
-// MCP tool call will resolve — backend status updates lag the runner's
-// in-memory table.
 func waitPodRegistered(ctx context.Context, mcpBase, podKey string, timeout time.Duration) error {
 	debugURL := mcpDebugURL(mcpBase)
 	hc := &http.Client{Timeout: 2 * time.Second}
@@ -141,6 +139,28 @@ func waitPodRegistered(ctx context.Context, mcpBase, podKey string, timeout time
 		return fmt.Errorf("timeout polling %s: %w", debugURL, lastErr)
 	}
 	return fmt.Errorf("pod %s not in runner /pods after %s", podKey, timeout)
+}
+
+func waitPodRunning(
+	ctx context.Context,
+	rest *client.REST,
+	orgSlug, podKey string,
+	timeout time.Duration,
+) error {
+	deadline := time.Now().Add(timeout)
+	for time.Now().Before(deadline) {
+		pod, err := rest.GetPod(ctx, orgSlug, podKey)
+		if err == nil {
+			switch pod.Status {
+			case "running":
+				return nil
+			case "completed", "error", "terminated":
+				return fmt.Errorf("pod entered terminal status %q", pod.Status)
+			}
+		}
+		time.Sleep(200 * time.Millisecond)
+	}
+	return fmt.Errorf("pod status did not become running after %s", timeout)
 }
 
 // mcpDebugURL strips the "/mcp" suffix to reach the sibling "/pods" endpoint

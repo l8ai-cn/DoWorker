@@ -25,8 +25,9 @@ func (m *mockPreviewRelaySelector) SelectRelayForPodGeo(relaysvc.GeoSelectOption
 }
 
 type mockPreviewTokens struct {
-	tokenTypes  []string
-	previewPath string
+	tokenTypes    []string
+	previewPath   string
+	previewOrigin string
 }
 
 func (m *mockPreviewTokens) GenerateTypedToken(podKey string, runnerID, userID, orgID int64, tokenType, previewTarget string, expiry time.Duration) (string, error) {
@@ -34,10 +35,11 @@ func (m *mockPreviewTokens) GenerateTypedToken(podKey string, runnerID, userID, 
 	return "JWT-" + tokenType, nil
 }
 
-func (m *mockPreviewTokens) GeneratePreviewToken(podKey string, runnerID, userID, orgID int64, previewTarget, previewPath string, expiry time.Duration) (string, error) {
-	m.tokenTypes = append(m.tokenTypes, "preview")
+func (m *mockPreviewTokens) GeneratePreviewBootstrapToken(podKey string, runnerID, userID, orgID int64, previewTarget, previewPath, previewOrigin string, expiry time.Duration) (string, error) {
+	m.tokenTypes = append(m.tokenTypes, "preview_bootstrap")
 	m.previewPath = previewPath
-	return "JWT-preview", nil
+	m.previewOrigin = previewOrigin
+	return "JWT-preview-bootstrap", nil
 }
 
 type previewCommandSender struct {
@@ -85,11 +87,12 @@ func TestGetPodPreview_ReturnsSessionURLWithoutRawToken(t *testing.T) {
 	var resp map[string]any
 	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 	assert.Equal(t, []string{"expires_at", "preview_base_url", "session_url"}, sortedKeys(resp))
-	assert.Equal(t, "https://preview.example.com/preview/pod1/", resp["preview_base_url"])
-	assert.Equal(t, "https://preview.example.com/preview/pod1/__session?token=JWT-preview", resp["session_url"])
+	assert.Equal(t, "https://pod1.preview.example.com/preview/pod1/", resp["preview_base_url"])
+	assert.Equal(t, "https://pod1.preview.example.com/preview/pod1/__session?token=JWT-preview-bootstrap", resp["session_url"])
 	assert.NotEmpty(t, resp["expires_at"])
 	assert.NotContains(t, resp, "token")
 	assert.Equal(t, "/files/%25", h.relayTokens.(*mockPreviewTokens).previewPath)
+	assert.Equal(t, "https://pod1.preview.example.com", h.relayTokens.(*mockPreviewTokens).previewOrigin)
 }
 
 func TestGetPodPreview_MissingPublicOriginReturns503(t *testing.T) {

@@ -12,11 +12,6 @@ import (
 	"github.com/anthropics/agentsmesh/relay/internal/tunnel"
 )
 
-// upgrader performs the browser-side WebSocket upgrade. Origin is checked
-// upstream (PreviewHandler/origin allowlist for the terminal endpoints;
-// preview tokens are the auth boundary here), so CheckOrigin is a no-op.
-var wsUpgrader = websocket.Upgrader{CheckOrigin: func(*http.Request) bool { return true }}
-
 // ProxyWebSocket proxies a WebSocket upgrade request over a tunnel stream.
 //
 // Unlike a typical same-process reverse proxy, upgrading the browser
@@ -27,6 +22,10 @@ var wsUpgrader = websocket.Upgrader{CheckOrigin: func(*http.Request) bool { retu
 // failures still surface as normal HTTP error responses (502/504) instead of
 // a WebSocket that opens and then immediately closes.
 func ProxyWebSocket(ctx context.Context, tun tunnelIface, w http.ResponseWriter, r *http.Request, p ProxyParams) error {
+	if !previewWebSocketOriginAllowed(r, p.ExpectedOrigin) {
+		http.Error(w, "origin forbidden", http.StatusForbidden)
+		return fmt.Errorf("proxy: websocket origin rejected")
+	}
 	if p.Timeout > 0 {
 		var cancel context.CancelFunc
 		ctx, cancel = context.WithTimeout(ctx, p.Timeout)
@@ -43,12 +42,12 @@ func ProxyWebSocket(ctx context.Context, tun tunnelIface, w http.ResponseWriter,
 
 	clientIP := clientIP(r)
 	proto := forwardedProto(r)
-	header := SanitizeRequestHeaders(r.Header, clientIP, proto, r.Host)
+	header := SanitizeRequestHeaders(r.Header, clientIP, proto, r.Host, p.HiddenCookieName)
 
 	reqStart := tunnelframe.ReqStartPayload{
 		Method:      r.Method,
 		Path:        p.Path,
-		RawQuery:    r.URL.RawQuery,
+		RawQuery:    p.RawQuery,
 		Header:      header,
 		PodKey:      p.PodKey,
 		Target:      p.Target,
@@ -69,7 +68,12 @@ func ProxyWebSocket(ctx context.Context, tun tunnelIface, w http.ResponseWriter,
 		return fmt.Errorf("proxy: upstream returned status %d for websocket upgrade", status)
 	}
 
-	conn, err := wsUpgrader.Upgrade(w, r, nil)
+	upgrader := websocket.Upgrader{
+		CheckOrigin: func(request *http.Request) bool {
+			return previewWebSocketOriginAllowed(request, p.ExpectedOrigin)
+		},
+	}
+	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		_ = tun.WriteFrame(cancelFrame(st.ID, "client upgrade failed"))
 		return err
@@ -80,6 +84,7 @@ func ProxyWebSocket(ctx context.Context, tun tunnelIface, w http.ResponseWriter,
 	errCh := make(chan error, 2)
 	go pumpBrowserToTunnel(ctx, tun, st, conn, errCh)
 	go pumpTunnelToBrowser(ctx, tun, st, conn, errCh)
+	go reauthorizeWebSocket(ctx, conn, p, errCh)
 	err = <-errCh
 
 	_ = tun.WriteFrame(tunnelframe.Frame{

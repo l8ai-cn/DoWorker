@@ -15,8 +15,9 @@ import (
 // registry), the prompt request id (to be answered with end_turn at the end),
 // and the raw params (extract user text via extractPromptText).
 type scenario struct {
-	name         string
-	handlePrompt func(state *runtimeState, id int64, params json.RawMessage, logger *slog.Logger) error
+	name            string
+	handlePrompt    func(state *runtimeState, id int64, params json.RawMessage, logger *slog.Logger) error
+	artifactActions []string
 	// permissionModes, when non-empty, is advertised as
 	// agentsmeshExtensions.permissionModes at initialize — drives the frontend
 	// permission selector. Empty → selector falls back to the Claude set.
@@ -38,7 +39,18 @@ func registerScenarios() map[string]scenario {
 		{name: "malformed_json", handlePrompt: scenarioMalformedJSON},
 		{name: "tool_call_failed", handlePrompt: scenarioToolCallFailed},
 		{name: "log_warnings", handlePrompt: scenarioLogWarnings},
-		{name: "loopal_panels", handlePrompt: scenarioLoopalPanels},
+		{
+			name:         "loopal_panels",
+			handlePrompt: scenarioLoopalPanels,
+			artifactActions: []string{
+				"image.edit",
+				"presentation.export",
+				"presentation.regenerate_slide",
+				"presentation.reorder_slide",
+				"presentation.replace_slide",
+				"presentation.select_version",
+			},
+		},
 		{
 			name:            "permission_modes_loopal",
 			handlePrompt:    scenarioConfigChangePlan,

@@ -21,7 +21,9 @@ func TestDaemonProcessUnix(t *testing.T) {
 
 	workDir := t.TempDir()
 
-	proc, err := startDaemonProcess("echo", []string{"daemon-process-test"}, workDir, os.Environ(), 80, 24)
+	proc, err := startDaemonProcessInWorkspace(
+		"echo", []string{"daemon-process-test"}, workDir, nil, os.Environ(), 80, 24,
+	)
 	require.NoError(t, err)
 	defer proc.Close()
 
@@ -45,7 +47,9 @@ func TestDaemonProcessResize(t *testing.T) {
 
 	workDir := t.TempDir()
 
-	proc, err := startDaemonProcess("cat", nil, workDir, os.Environ(), 80, 24)
+	proc, err := startDaemonProcessInWorkspace(
+		"cat", nil, workDir, nil, os.Environ(), 80, 24,
+	)
 	require.NoError(t, err)
 	defer func() {
 		proc.Kill()
@@ -63,7 +67,9 @@ func TestDaemonProcessGracefulStop(t *testing.T) {
 
 	workDir := t.TempDir()
 
-	proc, err := startDaemonProcess("sleep", []string{"3600"}, workDir, os.Environ(), 80, 24)
+	proc, err := startDaemonProcessInWorkspace(
+		"sleep", []string{"3600"}, workDir, nil, os.Environ(), 80, 24,
+	)
 	require.NoError(t, err)
 	defer proc.Close()
 
@@ -82,7 +88,9 @@ func TestDaemonProcessKill(t *testing.T) {
 
 	workDir := t.TempDir()
 
-	proc, err := startDaemonProcess("sleep", []string{"3600"}, workDir, os.Environ(), 80, 24)
+	proc, err := startDaemonProcessInWorkspace(
+		"sleep", []string{"3600"}, workDir, nil, os.Environ(), 80, 24,
+	)
 	require.NoError(t, err)
 	defer proc.Close()
 

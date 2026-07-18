@@ -143,6 +143,7 @@ func TestHTTPProberMapsStatusAndTransportErrors(t *testing.T) {
 	}{
 		{"unauthorized", &captureDoer{status: http.StatusUnauthorized}, ErrInvalidCredentials},
 		{"forbidden", &captureDoer{status: http.StatusForbidden}, ErrInvalidCredentials},
+		{"missing endpoint", &captureDoer{status: http.StatusNotFound}, ErrProviderEndpointUnavailable},
 		{"provider failure", &captureDoer{status: http.StatusBadGateway, body: strings.Repeat("secret", 10_000)}, ErrValidation},
 		{"transport", &captureDoer{err: errInjected}, ErrValidation},
 	}

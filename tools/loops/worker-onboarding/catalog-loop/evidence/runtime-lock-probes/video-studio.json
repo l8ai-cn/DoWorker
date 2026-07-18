@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
   "worker_slug": "video-studio",
-  "runtime_catalog_revision": "runtime-catalog-2026-07-13-release-gated",
-  "image_reference": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22",
-  "image_digest": "sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22",
+  "runtime_catalog_revision": "runtime-catalog-2026-07-16-61b505bd1dcd",
+  "image_reference": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:f3463bc567f1ed8516486e95e17d50f48834275aae7931221b1a3eeb3c526a5d",
+  "image_digest": "sha256:f3463bc567f1ed8516486e95e17d50f48834275aae7931221b1a3eeb3c526a5d",
   "platform": "linux/amd64",
   "status": "available",
   "exit_code": 0,
-  "output": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22: Pulling from agentsmesh/runner-video-studio\nDigest: sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22\nStatus: Image is up to date for repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22\nrepo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22",
-  "observed_at": "2026-07-16T11:18:09.258Z"
+  "output": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:f3463bc567f1ed8516486e95e17d50f48834275aae7931221b1a3eeb3c526a5d: Pulling from agentsmesh/runner-video-studio\nDigest: sha256:f3463bc567f1ed8516486e95e17d50f48834275aae7931221b1a3eeb3c526a5d\nStatus: Image is up to date for repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:f3463bc567f1ed8516486e95e17d50f48834275aae7931221b1a3eeb3c526a5d\nrepo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:f3463bc567f1ed8516486e95e17d50f48834275aae7931221b1a3eeb3c526a5d",
+  "observed_at": "2026-07-18T08:28:08+08:00"
 }

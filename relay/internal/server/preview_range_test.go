@@ -27,7 +27,7 @@ func TestPreviewE2E_VideoRange(t *testing.T) {
 	defer upstream.Close()
 	target := strings.TrimPrefix(upstream.URL, "http://")
 
-	gw, registry, _ := newPreviewE2EGateway(t)
+	gw, registry, _, _ := newPreviewE2EGateway(t)
 	defer gw.Close()
 
 	tunnelToken, err := auth.GenerateTypedToken("s3cret", "iss", auth.TokenTypeTunnel, "", runnerID, 0, 3, time.Hour)
@@ -41,10 +41,12 @@ func TestPreviewE2E_VideoRange(t *testing.T) {
 
 	previewToken := mustPreviewToken(t, "pod1", runnerID, target)
 
-	req, err := http.NewRequest("GET", gw.URL+"/preview/pod1/movie.mp4?token="+previewToken, nil)
+	req, err := http.NewRequest("GET", gw.URL+"/preview/pod1/movie.mp4", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
+	req.Host = "pod1.preview.example.com"
+	req.AddCookie(&http.Cookie{Name: previewCookieName, Value: previewToken})
 	req.Header.Set("Range", "bytes=0-1023")
 
 	resp, err := http.DefaultClient.Do(req)

@@ -73,3 +73,32 @@ func (s *Service) provisionRepo(ctx context.Context, orgID int64, slug, name, de
 	}
 	return repo, repoName, nil
 }
+
+func (s *Service) provisionMountDeployKeys(
+	ctx context.Context,
+	repoName string,
+) (*mountDeployKeys, error) {
+	keys, err := newMountDeployKeys()
+	if err != nil {
+		return nil, err
+	}
+	if _, err := s.git.CreateDeployKey(
+		ctx,
+		repoName,
+		"agentsmesh-read-only",
+		keys.readOnlyPublic,
+		true,
+	); err != nil {
+		return nil, fmt.Errorf("knowledgebase: create read-only deploy key: %w", err)
+	}
+	if _, err := s.git.CreateDeployKey(
+		ctx,
+		repoName,
+		"agentsmesh-read-write",
+		keys.readWritePublic,
+		false,
+	); err != nil {
+		return nil, fmt.Errorf("knowledgebase: create read-write deploy key: %w", err)
+	}
+	return keys, nil
+}

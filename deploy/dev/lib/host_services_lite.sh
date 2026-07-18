@@ -154,6 +154,7 @@ start_backend_host_lite() {
     export PUBLIC_WEB_URL="${PUBLIC_WEB_URL}"
     export MOBILE_PUBLIC_BASE_URL="${MOBILE_PUBLIC_BASE_URL}"
     export PREVIEW_PUBLIC_ORIGIN="${PREVIEW_PUBLIC_ORIGIN}"
+    export PREVIEW_COOKIE_MODE="${PREVIEW_COOKIE_MODE}"
     export USE_HTTPS="${USE_HTTPS:-false}"
     export BLOCKSTORE_WEBHOOK_ALLOW_HOSTS="host.docker.internal,host.lan,localhost"
     export CORS_ALLOWED_ORIGINS="http://localhost:${HTTP_PORT},http://127.0.0.1:${HTTP_PORT},http://localhost:${WEB_PORT},http://127.0.0.1:${WEB_PORT},http://localhost:${WEB_ADMIN_PORT},http://127.0.0.1:${WEB_ADMIN_PORT},http://localhost:${WEB_USER_PORT:-10020},http://127.0.0.1:${WEB_USER_PORT:-10020},http://localhost:${MOBILE_LOVABLE_PORT:-10021},http://127.0.0.1:${MOBILE_LOVABLE_PORT:-10021},${PUBLIC_WEB_URL}"
@@ -171,7 +172,7 @@ start_backend_host_lite() {
     export STORAGE_USE_SSL=false
     export STORAGE_USE_PATH_STYLE=true
     export STORAGE_MAX_FILE_SIZE=10
-    export STORAGE_ALLOWED_TYPES="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+    export STORAGE_ALLOWED_TYPES="image/jpeg,image/png,image/gif,image/webp,video/mp4,application/pdf"
     export DEPLOYMENT_TYPE="${DEPLOYMENT_TYPE:-global}"
     export PAYMENT_MOCK="${PAYMENT_MOCK:-false}"
     export PKI_CA_CERT_FILE="$SCRIPT_DIR/ssl/ca.crt"
@@ -263,6 +264,7 @@ start_relay_host_lite() {
     export RELAY_CAPACITY=1000
     export PRIMARY_DOMAIN="${PRIMARY_DOMAIN}"
     export PREVIEW_PUBLIC_ORIGIN="${PREVIEW_PUBLIC_ORIGIN}"
+    export PREVIEW_COOKIE_MODE="${PREVIEW_COOKIE_MODE}"
     export USE_HTTPS="${USE_HTTPS:-false}"
     export ALLOWED_ORIGINS="http://localhost:${HTTP_PORT},http://127.0.0.1:${HTTP_PORT},http://localhost:${WEB_PORT},http://127.0.0.1:${WEB_PORT},http://localhost:${WEB_ADMIN_PORT},http://127.0.0.1:${WEB_ADMIN_PORT},http://localhost:${WEB_USER_PORT:-10020},http://127.0.0.1:${WEB_USER_PORT:-10020},http://localhost:${MOBILE_LOVABLE_PORT:-10021},http://127.0.0.1:${MOBILE_LOVABLE_PORT:-10021},${PUBLIC_WEB_URL}"
     export SESSION_KEEP_ALIVE_DURATION=30s

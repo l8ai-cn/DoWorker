@@ -1,4 +1,5 @@
 import * as Blockly from "blockly";
+import type { LoopBlockCatalogMessages } from "./loop-workbench-messages";
 
 export const LOOP_BLOCK_TYPES = {
   loop: "loop_loop",
@@ -9,28 +10,29 @@ export const LOOP_BLOCK_TYPES = {
   failure: "loop_failure",
 } as const;
 
-const definitions = [
+function createDefinitions(messages: LoopBlockCatalogMessages) {
+  return [
   {
     type: LOOP_BLOCK_TYPES.loop,
-    message0: "循环 %1",
+    message0: messages.loop.message0,
     args0: [{ type: "field_input", name: "LOCAL_ID", text: "checkout-fix" }],
-    message1: "执行边界 %1",
+    message1: messages.loop.message1,
     args1: [{ type: "input_value", name: "LIMITS", check: "LoopLimits" }],
-    message2: "循环步骤 %1",
+    message2: messages.loop.message2,
     args2: [{ type: "input_statement", name: "BODY", check: "LoopRepeat" }],
-    message3: "失败处理 %1",
+    message3: messages.loop.message3,
     args3: [{ type: "input_value", name: "FAILURE", check: "LoopFailure" }],
     colour: 216,
   },
   {
     type: LOOP_BLOCK_TYPES.limits,
-    message0: "最多 %1 轮 · %2 令牌 · %3 分钟",
+    message0: messages.limits.message0,
     args0: [
       { type: "field_number", name: "ITERATIONS", value: 5, min: 1, precision: 1 },
       { type: "field_number", name: "TOKENS", value: 80000, min: 1, precision: 1 },
       { type: "field_number", name: "TIMEOUT", value: 60, min: 1, precision: 1 },
     ],
-    message1: "无进展 %1 次 · 同错 %2 次",
+    message1: messages.limits.message1,
     args1: [
       { type: "field_number", name: "NO_PROGRESS", value: 3, min: 1, precision: 1 },
       { type: "field_number", name: "SAME_ERROR", value: 2, min: 1, precision: 1 },
@@ -40,68 +42,80 @@ const definitions = [
   },
   {
     type: LOOP_BLOCK_TYPES.repeat,
-    message0: "重复执行 %1 · 最多 %2 次",
+    message0: messages.repeat.message0,
     args0: [
       { type: "field_input", name: "LOCAL_ID", text: "fix-cycle" },
       { type: "field_number", name: "MAX", value: 5, min: 1, precision: 1 },
     ],
-    message1: "直到 %1 . %2",
+    message1: messages.repeat.message1,
     args1: [
       { type: "field_input", name: "UNTIL_ID", text: "tests" },
       { type: "field_input", name: "UNTIL_FIELD", text: "passed" },
     ],
-    message2: "执行 %1",
+    message2: messages.repeat.message2,
     args2: [{ type: "input_statement", name: "BODY", check: "LoopAgent" }],
     previousStatement: "LoopRepeat",
     colour: 216,
   },
   {
     type: LOOP_BLOCK_TYPES.agent,
-    message0: "智能体任务 %1",
+    message0: messages.agent.message0,
     args0: [{ type: "field_input", name: "LOCAL_ID", text: "fix-task" }],
-    message1: "任务说明 %1",
-    args1: [{ type: "field_input", name: "PROMPT", text: "描述要完成的任务" }],
+    message1: messages.agent.message1,
+    args1: [{ type: "field_input", name: "PROMPT", text: messages.agent.defaultPrompt }],
     previousStatement: "LoopAgent",
     nextStatement: "LoopVerifier",
     colour: 292,
   },
   {
     type: LOOP_BLOCK_TYPES.verifier,
-    message0: "验证步骤 %1",
+    message0: messages.verifier.message0,
     args0: [{ type: "field_input", name: "LOCAL_ID", text: "tests" }],
-    message1: "命令 %1",
+    message1: messages.verifier.message1,
     args1: [{ type: "field_input", name: "COMMAND", text: "pnpm test" }],
-    message2: "通过条件 %1",
-    args2: [{ type: "field_input", name: "ACCEPT", text: "测试通过" }],
+    message2: messages.verifier.message2,
+    args2: [{ type: "field_input", name: "ACCEPT", text: messages.verifier.defaultAccept }],
     previousStatement: "LoopVerifier",
     colour: 122,
   },
   {
     type: LOOP_BLOCK_TYPES.failure,
-    message0: "失败后 %1",
+    message0: messages.failure.message0,
     args0: [{
       type: "field_dropdown",
       name: "POLICY",
-      options: [["暂停并等待人工", "pause"], ["标记失败", "fail"]],
+      options: [[messages.failure.pause, "pause"], [messages.failure.fail, "fail"]],
     }],
     output: "LoopFailure",
     colour: 8,
   },
-];
-
-export function registerLoopBlocks(): void {
-  const missing = definitions.filter(({ type }) => !Blockly.Blocks[type]);
-  if (missing.length > 0) Blockly.common.defineBlocksWithJsonArray(missing);
+  ];
 }
 
-export const loopToolbox: Blockly.utils.toolbox.ToolboxDefinition = {
-  kind: "categoryToolbox",
-  contents: [
-    { kind: "category", name: "循环", colour: "216", contents: [{ kind: "block", type: LOOP_BLOCK_TYPES.loop }] },
-    { kind: "category", name: "控制", colour: "216", contents: [{ kind: "block", type: LOOP_BLOCK_TYPES.repeat }] },
-    { kind: "category", name: "智能体", colour: "292", contents: [{ kind: "block", type: LOOP_BLOCK_TYPES.agent }] },
-    { kind: "category", name: "验证", colour: "122", contents: [{ kind: "block", type: LOOP_BLOCK_TYPES.verifier }] },
-    { kind: "category", name: "边界", colour: "43", contents: [{ kind: "block", type: LOOP_BLOCK_TYPES.limits }] },
-    { kind: "category", name: "失败", colour: "8", contents: [{ kind: "block", type: LOOP_BLOCK_TYPES.failure }] },
-  ],
-};
+export function createLoopBlockCatalog(messages: LoopBlockCatalogMessages) {
+  const definitions = createDefinitions(messages);
+  const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
+    kind: "categoryToolbox",
+    contents: [
+      { kind: "category", name: messages.toolbox.loop, colour: "216", contents: [{ kind: "block", type: LOOP_BLOCK_TYPES.loop }] },
+      { kind: "category", name: messages.toolbox.control, colour: "216", contents: [{ kind: "block", type: LOOP_BLOCK_TYPES.repeat }] },
+      { kind: "category", name: messages.toolbox.agent, colour: "292", contents: [{ kind: "block", type: LOOP_BLOCK_TYPES.agent }] },
+      { kind: "category", name: messages.toolbox.verifier, colour: "122", contents: [{ kind: "block", type: LOOP_BLOCK_TYPES.verifier }] },
+      { kind: "category", name: messages.toolbox.limits, colour: "43", contents: [{ kind: "block", type: LOOP_BLOCK_TYPES.limits }] },
+      { kind: "category", name: messages.toolbox.failure, colour: "8", contents: [{ kind: "block", type: LOOP_BLOCK_TYPES.failure }] },
+    ],
+  };
+  return { definitions, toolbox };
+}
+
+export function registerLoopBlocks(messages?: LoopBlockCatalogMessages): void {
+  if (messages) {
+    for (const type of Object.values(LOOP_BLOCK_TYPES)) delete Blockly.Blocks[type];
+    Blockly.common.defineBlocksWithJsonArray(createDefinitions(messages));
+    return;
+  }
+  const missing = Object.values(LOOP_BLOCK_TYPES).filter((type) => !Blockly.Blocks[type]);
+  if (missing.length > 0) {
+    throw new Error("Loop block messages must be registered before projection");
+  }
+}

@@ -10,7 +10,6 @@ import (
 	autopilotconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/autopilot"
 	billingconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/billing"
 	fileconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/file"
-	goalloopconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/goalloop"
 	grantconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/grant"
 	invitationconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/invitation"
 	knowledgebaseconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/knowledgebase"
@@ -35,10 +34,20 @@ import (
 // the stateful auth flow via REST, this Connect surface is the data-plane
 // migration target for register/verify/forgot/reset call sites and a
 // forward-compatible path for future flow migrations.
-func mountAuthService(mux *http.ServeMux, svc *serviceContainer, cfg *config.Config, opts []connect.HandlerOption) {
+func mountAuthService(
+	mux *http.ServeMux,
+	svc *serviceContainer,
+	rest *v1.Services,
+	cfg *config.Config,
+	opts []connect.HandlerOption,
+) {
 	srv := authconnect.NewServer(svc.auth, svc.user, svc.email, cfg)
 	authconnect.MountPublic(mux, srv)
-	authconnect.MountSession(mux, authconnect.NewSessionServer(svc.auth), opts...)
+	authconnect.MountSession(
+		mux,
+		authconnect.NewSessionServer(svc.auth, rest.PreviewSessions),
+		opts...,
+	)
 }
 
 // mountSSOService wires the public SSOService (Discover + LdapAuth)
@@ -175,13 +184,6 @@ func mountWorkflowService(mux *http.ServeMux, svc *serviceContainer, rest *v1.Se
 	}
 	srv := workflowconnect.NewServer(svc.workflow, svc.workflowRun, rest.WorkflowOrchestrator, svc.org, podTerm)
 	workflowconnect.Mount(mux, srv, opts...)
-}
-
-func mountGoalLoopService(mux *http.ServeMux, svc *serviceContainer, opts []connect.HandlerOption) {
-	if svc.goalLoop == nil {
-		return
-	}
-	goalloopconnect.Mount(mux, goalloopconnect.NewServer(svc.goalLoop, svc.org), opts...)
 }
 
 // mountLicenseService wires both LicenseService (auth-required: Activate /

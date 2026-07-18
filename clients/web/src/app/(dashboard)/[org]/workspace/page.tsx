@@ -23,6 +23,7 @@ export default function WorkspacePage() {
   const currentOrg = useCurrentOrg();
   const panes = useWorkspaceStore((s) => s.panes);
   const addPane = useWorkspaceStore((s) => s.addPane);
+  const openDeepLinkedPane = useWorkspaceStore((s) => s.openDeepLinkedPane);
   const _hasHydrated = useWorkspaceStore((s) => s._hasHydrated);
   // KB detail page "Ingest" entry (?ingest_kb=slug): the KB page seeds the
   // pod-creation store with the rw mount before navigating; here we only
@@ -80,19 +81,16 @@ export default function WorkspacePage() {
     const podKey = searchParams.get("pod");
     if (podKey && podKey !== processedPodRef.current) {
       processedPodRef.current = podKey;
-      const isAlreadyOpen = panes.some((p) => p.podKey === podKey);
-      if (!isAlreadyOpen) {
-        handleOpenPod(podKey);
-        toast.info(t("workspace.podOpened"), {
-          description: `Pod: ${getShortPodKey(podKey)}`,
-        });
-      }
+      openDeepLinkedPane(podKey);
+      toast.info(t("workspace.podOpened"), {
+        description: `Pod: ${getShortPodKey(podKey)}`,
+      });
     }
 
     if (searchParams.get("ingest_kb")) {
       router.replace(window.location.pathname);
     }
-  }, [_hasHydrated, searchParams, panes, router, t, handleOpenPod]);
+  }, [_hasHydrated, searchParams, router, t, openDeepLinkedPane]);
 
   if (!_hasHydrated) {
     return <CenteredSpinner />;

@@ -137,7 +137,7 @@ describe("workerModelResources", () => {
     ).toEqual([]);
   });
 
-  it("only allows the declared Doubao video-generation resource for Seedance", () => {
+  it("allows declared Doubao and Sub2API Seedance video resources", () => {
     const video = {
       ...geminiResource,
       connection: {
@@ -160,13 +160,45 @@ describe("workerModelResources", () => {
         modelId: "doubao-seed-1-8-251228",
       },
     };
+    const sub2apiVideo = {
+      ...video,
+      connection: {
+        ...video.connection!,
+        id: 2,
+        providerKey: "sub2api-seedance",
+        name: "Sub2API Seedance",
+      },
+      resource: {
+        ...video.resource!,
+        id: 79,
+        providerConnectionId: 2,
+        modelId: "doubao-seedance-2-0-260128",
+      },
+    };
+    const sub2apiInvalidModelID = {
+      ...sub2apiVideo,
+      resource: {
+        ...sub2apiVideo.resource!,
+        id: 80,
+        modelId: "doubao-seedance-2-0-260128-preview",
+      },
+    };
 
     expect(compatibleToolModelResources({
       role: "seedance-video",
-      provider_keys: ["doubao"],
-      protocol_adapters: ["openai-compatible"],
+      provider_keys: ["doubao", "sub2api-seedance"],
+      protocol_adapters: ["openai-compatible", "ark-seedance"],
       modality: "video",
       capability: "video-generation",
-    }, [geminiResource, languageModelMarkedAsVideo, video])).toEqual([video]);
+    }, [
+      geminiResource,
+      languageModelMarkedAsVideo,
+      video,
+      sub2apiVideo,
+      sub2apiInvalidModelID,
+    ])).toEqual([
+      video,
+      sub2apiVideo,
+    ]);
   });
 });

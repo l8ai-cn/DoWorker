@@ -23,8 +23,6 @@ func (m *mockKnowledgeResolver) ResolveMountsForPod(_ context.Context, _ int64, 
 	return m.mounts, m.err
 }
 
-func (m *mockKnowledgeResolver) CloneToken() string { return "kb-token" }
-
 func withKnowledgeResolver(r KnowledgeBaseResolverForOrchestrator) func(*PodOrchestratorDeps) {
 	return func(d *PodOrchestratorDeps) { d.KnowledgeBases = r }
 }
@@ -40,8 +38,20 @@ func kbFixture(slug string) *kbDomain.KnowledgeBase {
 func TestCreatePod_KnowledgeMountsFromLayerAndRequest(t *testing.T) {
 	resolver := &mockKnowledgeResolver{
 		mounts: []*kbservice.ResolvedMount{
-			{KB: kbFixture("team-docs"), Mode: "rw"},
-			{KB: kbFixture("product-wiki"), Mode: "ro"},
+			{
+				KB:            kbFixture("team-docs"),
+				Mode:          "rw",
+				SSHCloneURL:   "ssh://git@gitea.local/am-kb/team-docs.git",
+				GitKnownHosts: "gitea.local ssh-ed25519 host-key",
+				GitPrivateKey: "rw-private-key",
+			},
+			{
+				KB:            kbFixture("product-wiki"),
+				Mode:          "ro",
+				SSHCloneURL:   "ssh://git@gitea.local/am-kb/product-wiki.git",
+				GitKnownHosts: "gitea.local ssh-ed25519 host-key",
+				GitPrivateKey: "ro-private-key",
+			},
 		},
 	}
 	coord := &mockPodCoordinator{}
@@ -73,8 +83,10 @@ func TestCreatePod_KnowledgeMountsFromLayerAndRequest(t *testing.T) {
 	assert.Equal(t, "rw", mounts[0].Mode)
 	assert.Equal(t, "kb/team-docs", mounts[0].MountPath)
 	assert.Equal(t, "http://gitea.local/am-kb/team-docs.git", mounts[0].HttpCloneUrl)
+	assert.Equal(t, "ssh://git@gitea.local/am-kb/team-docs.git", mounts[0].SshCloneUrl)
+	assert.Equal(t, "gitea.local ssh-ed25519 host-key", mounts[0].GitKnownHosts)
 	assert.Equal(t, "main", mounts[0].Branch)
-	assert.Equal(t, "kb-token", mounts[0].GitToken)
+	assert.Equal(t, "rw-private-key", mounts[0].GitPrivateKey)
 
 	var readme string
 	for _, f := range coord.lastCmd.FilesToCreate {

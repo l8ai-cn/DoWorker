@@ -60,6 +60,25 @@ func (a *GRPCRunnerAdapter) handleProtoMessage(ctx context.Context, runnerID int
 				payload.AcpSession.GetEventType(), payload.AcpSession.GetJsonPayload())
 		}
 
+	case *runnerv1.RunnerMessage_WorkbenchEvents:
+		if a.workbenchEvents != nil {
+			if err := a.workbenchEvents.HandleWorkbenchEvents(
+				ctx,
+				runnerID,
+				payload.WorkbenchEvents,
+			); err != nil {
+				a.logger.Error(
+					"failed to handle agent workbench events",
+					"runner_id",
+					runnerID,
+					"pod_key",
+					payload.WorkbenchEvents.GetPodKey(),
+					"error",
+					err,
+				)
+			}
+		}
+
 	case *runnerv1.RunnerMessage_PodUsage:
 		if a.podEvents != nil {
 			a.podEvents.HandlePodUsage(ctx, payload.PodUsage)

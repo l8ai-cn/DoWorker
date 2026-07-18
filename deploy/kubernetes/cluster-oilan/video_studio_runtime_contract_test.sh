@@ -4,13 +4,17 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
 COORDINATOR_RUNNERS="${ROOT}/deploy/dev/lib/coordinator_runners.sh"
 BACKEND_MANIFEST="${ROOT}/deploy/kubernetes/cluster-oilan/30-backend.yaml"
-RUNNER_MANIFEST="${ROOT}/deploy/kubernetes/cluster-oilan/35-runner-video-studio.yaml"
 PREPULL_MANIFEST="${ROOT}/deploy/kubernetes/cluster-oilan/60-prepull-daemonset.yaml"
 PUSH_IMAGES="${ROOT}/deploy/kubernetes/cluster-oilan/push-images.sh"
+PUSH_RUNNERS="${ROOT}/deploy/kubernetes/cluster-oilan/push-runner-images.sh"
+PUSH_VIDEO="${ROOT}/deploy/kubernetes/cluster-oilan/push-runner-video-studio.sh"
 PUBLISHING="${ROOT}/deploy/kubernetes/cluster-oilan/harbor-image-publishing.sh"
 UPDATE_DIGEST="${ROOT}/deploy/kubernetes/cluster-oilan/update-video-runtime-digest.mjs"
 RUNTIME_LOCK="${ROOT}/backend/internal/domain/workerruntime/runtime_catalog.lock.json"
+RUNTIME_BUILD="${ROOT}/tools/loops/worker-onboarding/catalog-loop/evidence/runtime-builds/video-studio.json"
+EVIDENCE_MATRIX="${ROOT}/tools/loops/worker-onboarding/catalog-loop/catalog/worker-evidence-matrix.json"
 IMAGE="repo.aiedulab.cn:8443/agentsmesh/runner-video-studio"
+OBSERVED_AT="2026-07-17T19:05:45+08:00"
 DIGEST="$(
   node -e '
     const catalog = require(process.argv[1]);
@@ -35,38 +39,11 @@ fi
 )
 
 grep -Fq "video-studio=${IMAGE}@${DIGEST}" "$BACKEND_MANIFEST"
-grep -Fq "image: ${IMAGE}@${DIGEST}" "$RUNNER_MANIFEST"
-grep -Fq "value: dev-runner-video-studio" "$RUNNER_MANIFEST"
-grep -Fq "value: video-studio" "$RUNNER_MANIFEST"
 grep -Fq "image: ${IMAGE}@${DIGEST}" "$PREPULL_MANIFEST"
-grep -Fq "35-runner-video-studio.yaml" \
-  "${ROOT}/deploy/kubernetes/cluster-oilan/kustomization.yaml"
-grep -Fq "runner-video-studio" \
-  "${ROOT}/deploy/kubernetes/cluster-oilan/deploy.sh"
-grep -Fq "verify-video-runner-registration.sh" \
-  "${ROOT}/deploy/kubernetes/cluster-oilan/deploy.sh"
-grep -Fq "dev-runner-video-studio" \
-  "${ROOT}/deploy/kubernetes/cluster-oilan/21-seed-configmap.yaml"
-grep -Fq "max_concurrent_pods = 1" \
-  "${ROOT}/deploy/kubernetes/cluster-oilan/21-seed-configmap.yaml"
-grep -Fq "available_agents @>" \
-  "${ROOT}/deploy/kubernetes/cluster-oilan/verify-video-runner-registration.sh"
-grep -Fq "o.slug = 'dev-org'" \
-  "${ROOT}/deploy/kubernetes/cluster-oilan/verify-video-runner-registration.sh"
-grep -Fq "r.is_enabled" \
-  "${ROOT}/deploy/kubernetes/cluster-oilan/verify-video-runner-registration.sh"
-grep -Fq "r.last_heartbeat > NOW() - INTERVAL '90 seconds'" \
-  "${ROOT}/deploy/kubernetes/cluster-oilan/verify-video-runner-registration.sh"
 
-push_runners="$(
-  awk '
-    /^push_runners\(\)/ { capture=1 }
-    capture { print }
-    capture && /^}/ { exit }
-  ' "$PUSH_IMAGES"
-)"
-grep -Fq 'bash docker/agent-runtime/build.sh video-studio' <<< "$push_runners"
-grep -Eq 'for rt in .*codex-cli video-studio .*; do' <<< "$push_runners"
+push_runners="$(cat "$PUSH_RUNNERS")"
+grep -Fq 'FORCE_REBUILD=1 bash docker/agent-runtime/build.sh "${runtime}"' <<< "$push_runners"
+grep -Eq 'for runtime in .*codex-cli video-studio .*; do' <<< "$push_runners"
 
 push_video_expert="$(
   awk '
@@ -86,43 +63,45 @@ grep -Fq 'docker build failed; retry' "$PUBLISHING"
 grep -Fq 'docker_build_with_heartbeat' "$PUBLISHING"
 grep -Fq 'docker build still running' "$PUBLISHING"
 grep -Fq 'push_video_runtime' "$PUSH_IMAGES"
-grep -Fq 'runner-video-studio:latest' "$PUSH_IMAGES"
-grep -Fq 'FORCE_REBUILD=1 PLATFORM="${PLATFORM}"' "$PUSH_IMAGES"
-grep -Fq 'digest="$(manifest_digest "${PROJ}/runner-video-studio:latest")"' "$PUSH_IMAGES"
-grep -Fq 'update-video-runtime-digest.mjs' "$PUSH_IMAGES"
+grep -Fq 'runner-video-studio:latest' "$PUSH_VIDEO"
+grep -Fq 'FORCE_REBUILD=1 PLATFORM="${PLATFORM:-linux/amd64}"' "$PUSH_VIDEO"
+grep -Fq 'digest="$(platform_manifest_digest "${PROJ}/runner-video-studio:latest")"' "$PUSH_VIDEO"
+grep -Fq 'docker/agent-runtime/video_contract_test.sh' "$PUSH_VIDEO"
+grep -Fq 'RUNTIME_OBSERVED_AT="${observed_at}" \' "$PUSH_VIDEO"
+grep -Fq 'update-video-runtime-digest.mjs' "$PUSH_VIDEO"
 push_video_runtime="$(
   awk '
-    /^push_video_runtime\(\)/ { capture=1 }
+    /^publish_video_runtime_metadata\(\)/ { capture=1 }
     capture { print }
     capture && /^}/ { exit }
-  ' "$PUSH_IMAGES"
+  ' "$PUSH_VIDEO"
 )"
-grep -Fq 'sync_video_runtime_release' <<< "$push_video_runtime"
-sync_video_runtime_release="$(
-  awk '
-    /^sync_video_runtime_release\(\)/ { capture=1 }
-    capture { print }
-    capture && /^}/ { exit }
-  ' "$PUSH_IMAGES"
-)"
-grep -Fq 'RUNTIME_PLATFORM="${PLATFORM}" node scripts/probe-worker-runtime-locks.mjs video-studio' <<< "$sync_video_runtime_release"
-grep -Fq 'pnpm run worker-docs:sync' <<< "$sync_video_runtime_release"
-grep -Fq 'verify-runtime-lock-probes.sh \' <<< "$sync_video_runtime_release"
-grep -Fq '.status == "available"' <<< "$sync_video_runtime_release"
-grep -Fq '.platform == $platform' <<< "$sync_video_runtime_release"
-grep -Fq 'sync_video_runtime_release' <<< "$push_runners"
+grep -Fq 'RUNTIME_PLATFORM="${PLATFORM:-linux/amd64}" \' <<< "$push_video_runtime"
+grep -Fq 'node scripts/probe-worker-runtime-locks.mjs video-studio' <<< "$push_video_runtime"
+grep -Fq 'pnpm run worker-docs:sync' <<< "$push_video_runtime"
+grep -Fq 'node scripts/generate-worker-loop-inventory.mjs' <<< "$push_video_runtime"
+grep -Fq 'node scripts/generate-worker-loop-inventory.mjs --check' <<< "$push_video_runtime"
+grep -Fq 'verify-runtime-lock-probes.sh \' <<< "$push_video_runtime"
+grep -Fq 'video-studio' <<< "$push_video_runtime"
+grep -Fq '.status == "available"' <<< "$push_video_runtime"
+grep -Fq '.platform == $platform' <<< "$push_video_runtime"
 
 FIXTURE_ROOT="$(mktemp -d)"
 trap 'rm -rf "$FIXTURE_ROOT"' EXIT
 mkdir -p \
   "$FIXTURE_ROOT/backend/internal/domain/workerruntime" \
-  "$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan"
+  "$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan" \
+  "$FIXTURE_ROOT/tools/loops/worker-onboarding/catalog-loop/evidence/runtime-builds" \
+  "$FIXTURE_ROOT/tools/loops/worker-onboarding/catalog-loop/catalog"
 cp "$RUNTIME_LOCK" "$FIXTURE_ROOT/backend/internal/domain/workerruntime/runtime_catalog.lock.json"
 cp "$BACKEND_MANIFEST" "$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan/30-backend.yaml"
-cp "$RUNNER_MANIFEST" "$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan/35-runner-video-studio.yaml"
 cp "$PREPULL_MANIFEST" "$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan/60-prepull-daemonset.yaml"
+cp "$RUNTIME_BUILD" \
+  "$FIXTURE_ROOT/tools/loops/worker-onboarding/catalog-loop/evidence/runtime-builds/video-studio.json"
+cp "$EVIDENCE_MATRIX" \
+  "$FIXTURE_ROOT/tools/loops/worker-onboarding/catalog-loop/catalog/worker-evidence-matrix.json"
 
-node "$UPDATE_DIGEST" "$NEXT_DIGEST" "$FIXTURE_ROOT"
+RUNTIME_OBSERVED_AT="$OBSERVED_AT" node "$UPDATE_DIGEST" "$NEXT_DIGEST" "$FIXTURE_ROOT"
 grep -Fq "\"digest\": \"$NEXT_DIGEST\"" \
   "$FIXTURE_ROOT/backend/internal/domain/workerruntime/runtime_catalog.lock.json"
 grep -Fq "\"reference\": \"$IMAGE@$NEXT_DIGEST\"" \
@@ -130,19 +109,32 @@ grep -Fq "\"reference\": \"$IMAGE@$NEXT_DIGEST\"" \
 grep -Fq "video-studio=$IMAGE@$NEXT_DIGEST" \
   "$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan/30-backend.yaml"
 grep -Fq "image: $IMAGE@$NEXT_DIGEST" \
-  "$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan/35-runner-video-studio.yaml"
-grep -Fq "image: $IMAGE@$NEXT_DIGEST" \
   "$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan/60-prepull-daemonset.yaml"
+jq -e --arg digest "$NEXT_DIGEST" --arg observed_at "$OBSERVED_AT" '
+  .validated_at == $observed_at and
+  .image == "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@\($digest)" and
+  .image_id == $digest and
+  .checks.video_runtime_contract == "passed" and
+  .verdict == "published_runtime_smoke_verified"
+' "$FIXTURE_ROOT/tools/loops/worker-onboarding/catalog-loop/evidence/runtime-builds/video-studio.json" >/dev/null
+jq -e '
+  .workers[] | select(.slug == "video-studio") |
+  .runtime_catalog == "locked_available" and
+  .live_create_option == "published_runtime_available" and
+  .image_target == "published_runtime_smoke_verified" and
+  .support_status == "not_supported"
+' "$FIXTURE_ROOT/tools/loops/worker-onboarding/catalog-loop/catalog/worker-evidence-matrix.json" >/dev/null
 
 FIXTURE_HASHES="$(find "$FIXTURE_ROOT" -type f -print0 | sort -z | xargs -0 shasum -a 256)"
-node "$UPDATE_DIGEST" "$NEXT_DIGEST" "$FIXTURE_ROOT"
+RUNTIME_OBSERVED_AT="$OBSERVED_AT" node "$UPDATE_DIGEST" "$NEXT_DIGEST" "$FIXTURE_ROOT"
 [[ "$FIXTURE_HASHES" == "$(find "$FIXTURE_ROOT" -type f -print0 | sort -z | xargs -0 shasum -a 256)" ]]
 
 LOCK_PATH="$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan/.video-runtime-digest-update.lock"
 mkdir "$LOCK_PATH"
 printf '%s\n' "$$" > "$LOCK_PATH/owner"
 FIXTURE_HASHES="$(find "$FIXTURE_ROOT" -type f ! -path "$LOCK_PATH/*" -print0 | sort -z | xargs -0 shasum -a 256)"
-if node "$UPDATE_DIGEST" "$DIGEST" "$FIXTURE_ROOT" >/dev/null 2>&1; then
+if RUNTIME_OBSERVED_AT="$OBSERVED_AT" \
+  node "$UPDATE_DIGEST" "$DIGEST" "$FIXTURE_ROOT" >/dev/null 2>&1; then
   echo "concurrent digest update unexpectedly succeeded" >&2
   exit 1
 fi
@@ -155,10 +147,8 @@ cp "$FIXTURE_ROOT/backend/internal/domain/workerruntime/runtime_catalog.lock.jso
   "$TRANSACTION_PATH/0.backup"
 cp "$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan/30-backend.yaml" \
   "$TRANSACTION_PATH/1.backup"
-cp "$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan/35-runner-video-studio.yaml" \
-  "$TRANSACTION_PATH/2.backup"
 cp "$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan/60-prepull-daemonset.yaml" \
-  "$TRANSACTION_PATH/3.backup"
+  "$TRANSACTION_PATH/2.backup"
 cat > "$TRANSACTION_PATH/manifest.json" <<'JSON'
 {
   "version": 1,
@@ -172,12 +162,8 @@ cat > "$TRANSACTION_PATH/manifest.json" <<'JSON'
       "backup": "1.backup"
     },
     {
-      "target": "deploy/kubernetes/cluster-oilan/35-runner-video-studio.yaml",
-      "backup": "2.backup"
-    },
-    {
       "target": "deploy/kubernetes/cluster-oilan/60-prepull-daemonset.yaml",
-      "backup": "3.backup"
+      "backup": "2.backup"
     }
   ]
 }
@@ -185,19 +171,21 @@ JSON
 sed -i.bak "s/$NEXT_DIGEST/$DIGEST/" \
   "$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan/60-prepull-daemonset.yaml"
 rm "$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan/60-prepull-daemonset.yaml.bak"
-node "$UPDATE_DIGEST" "$DIGEST" "$FIXTURE_ROOT"
+mkdir "$LOCK_PATH"
+printf '999999\n' > "$LOCK_PATH/owner"
+RUNTIME_OBSERVED_AT="$OBSERVED_AT" node "$UPDATE_DIGEST" "$DIGEST" "$FIXTURE_ROOT"
+[[ ! -e "$LOCK_PATH" ]]
 [[ ! -e "$TRANSACTION_PATH" ]]
 grep -Fq "\"digest\": \"$DIGEST\"" \
   "$FIXTURE_ROOT/backend/internal/domain/workerruntime/runtime_catalog.lock.json"
 grep -Fq "video-studio=$IMAGE@$DIGEST" \
   "$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan/30-backend.yaml"
 grep -Fq "image: $IMAGE@$DIGEST" \
-  "$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan/35-runner-video-studio.yaml"
-grep -Fq "image: $IMAGE@$DIGEST" \
   "$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan/60-prepull-daemonset.yaml"
 
 FIXTURE_HASHES="$(find "$FIXTURE_ROOT" -type f -print0 | sort -z | xargs -0 shasum -a 256)"
-if node "$UPDATE_DIGEST" invalid-digest "$FIXTURE_ROOT" >/dev/null 2>&1; then
+if RUNTIME_OBSERVED_AT="$OBSERVED_AT" \
+  node "$UPDATE_DIGEST" invalid-digest "$FIXTURE_ROOT" >/dev/null 2>&1; then
   echo "invalid digest update unexpectedly succeeded" >&2
   exit 1
 fi
@@ -207,7 +195,8 @@ sed -i.bak "s/$DIGEST/$NEXT_DIGEST/" \
   "$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan/60-prepull-daemonset.yaml"
 rm "$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan/60-prepull-daemonset.yaml.bak"
 FIXTURE_HASHES="$(find "$FIXTURE_ROOT" -type f -print0 | sort -z | xargs -0 shasum -a 256)"
-if node "$UPDATE_DIGEST" "$NEXT_DIGEST" "$FIXTURE_ROOT" >/dev/null 2>&1; then
+if RUNTIME_OBSERVED_AT="$OBSERVED_AT" \
+  node "$UPDATE_DIGEST" "$NEXT_DIGEST" "$FIXTURE_ROOT" >/dev/null 2>&1; then
   echo "inconsistent digest update unexpectedly succeeded" >&2
   exit 1
 fi

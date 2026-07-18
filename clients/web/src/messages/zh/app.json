@@ -921,6 +921,214 @@
     "reload": "刷新",
     "home": "回到首页"
   },
+  "loopWorkbench": {
+    "shell": {
+      "canvasTitle": "积木画布",
+      "canvasHint": "双击空白处快速插入",
+      "editorTitle": "循环脚本",
+      "editorMetadata": "编辑版本 {revision} · 语义版本 {semanticRevision}"
+    },
+    "toolbar": {
+      "back": "返回循环列表",
+      "title": "循环工作台",
+      "subtitle": "积木与循环脚本共享同一份后端确认语义",
+      "blocks": "积木",
+      "code": "代码",
+      "run": "运行循环"
+    },
+    "blockly": {
+      "loop": {
+        "message0": "循环 %1",
+        "message1": "执行边界 %1",
+        "message2": "循环步骤 %1",
+        "message3": "失败处理 %1"
+      },
+      "limits": {
+        "message0": "最多 %1 轮 · %2 令牌 · %3 分钟",
+        "message1": "无进展 %1 次 · 同错 %2 次"
+      },
+      "repeat": {
+        "message0": "重复执行 %1 · 最多 %2 次",
+        "message1": "直到 %1 . %2",
+        "message2": "执行 %1"
+      },
+      "agent": {
+        "message0": "智能体任务 %1",
+        "message1": "任务说明 %1",
+        "defaultPrompt": "描述要完成的任务"
+      },
+      "verifier": {
+        "message0": "验证步骤 %1",
+        "message1": "命令 %1",
+        "message2": "通过条件 %1",
+        "defaultAccept": "验证通过"
+      },
+      "failure": {
+        "message0": "失败后 %1",
+        "pause": "暂停并等待人工",
+        "fail": "标记失败"
+      },
+      "toolbox": {
+        "loop": "循环",
+        "control": "控制",
+        "agent": "智能体",
+        "verifier": "验证",
+        "limits": "边界",
+        "failure": "失败"
+      }
+    },
+    "quickInsert": {
+      "close": "关闭快速插入",
+      "title": "插入积木",
+      "options": {
+        "loop": "循环",
+        "repeat": "重复执行",
+        "agent": "智能体任务",
+        "verifier": "验证步骤",
+        "limits": "执行边界",
+        "failure": "失败处理"
+      }
+    },
+    "status": {
+      "diagnosticsTitle": "诊断",
+      "runTitle": "运行",
+      "valid": "当前源码通过后端校验",
+      "noRun": "尚未启动循环。",
+      "repairDiagnostic": "修复此诊断",
+      "repairingDiagnostic": "正在修复诊断",
+      "nodeLabel": "节点：",
+      "runStatusLabel": "状态：",
+      "diagnosticLocation": "第 {line} 行，第 {column} 列",
+      "runInstance": " · 运行实例 {podKey}",
+      "unknownStatus": "未知状态",
+      "parseStatus": {
+        "empty": "等待输入",
+        "parsing": "校验中",
+        "valid": "有效",
+        "syntax-error": "存在错误"
+      },
+      "runStatus": {
+        "draft": "草稿",
+        "active": "运行中",
+        "paused": "已暂停",
+        "verifying": "验证中",
+        "completed": "已完成",
+        "failed": "失败",
+        "cancelled": "已取消"
+      },
+      "diagnostics": {
+        "programNil": "循环程序不能为空",
+        "schemaVersionUnsupported": "循环脚本版本不受支持",
+        "syntaxInvalidToken": "循环脚本包含无效字符",
+        "syntaxInvalidNumber": "循环脚本包含无效数字",
+        "syntaxUnexpectedToken": "循环脚本结构不符合语法",
+        "syntaxUnknown": "循环脚本包含未知语法",
+        "nodeIdMissing": "积木节点缺少唯一标识",
+        "nodeIdDuplicate": "积木节点标识重复",
+        "localIdDuplicate": "步骤名称重复",
+        "identifierInvalid": "步骤名称格式无效",
+        "limitsCount": "必须且只能设置一个执行边界",
+        "repeatCount": "必须且只能设置一个重复执行步骤",
+        "agentCount": "重复执行中必须且只能包含一个智能体任务",
+        "verifierCount": "重复执行中必须且只能包含一个验证步骤",
+        "failureCount": "必须且只能设置一个失败处理策略",
+        "untilInvalid": "循环停止条件必须引用验证步骤的通过结果",
+        "repeatMaxExceedsLimit": "重复次数不能超过全局最大轮数",
+        "failurePolicyInvalid": "失败处理策略无效",
+        "valueOutOfRange": "积木参数超出允许范围",
+        "textEmpty": "积木文本参数不能为空",
+        "secretLiteralForbidden": "循环脚本不能直接写入密钥",
+        "unknown": "循环脚本校验失败"
+      }
+    },
+    "runtime": {
+      "title": "选择运行环境",
+      "description": "运行环境只在本次启动时绑定，不属于循环编排。",
+      "field": "运行环境",
+      "placeholder": "选择运行环境",
+      "unnamed": "未命名环境",
+      "loading": "正在加载运行环境",
+      "retry": "重新加载",
+      "empty": "当前组织没有可用的运行环境",
+      "cancel": "取消",
+      "start": "启动循环",
+      "snapshotLabel": "{name} · {workerType} · 快照 {id}"
+    },
+    "ai": {
+      "toolbar": "AI 助手",
+      "generateMode": "生成 / 修改",
+      "explainMode": "解释当前循环",
+      "generateTitle": "用 AI 生成或修改循环",
+      "generateDescription": "AI 只生成新草稿或按自然语言整体修改循环；现有验证器和预算保护由后端强制执行，确认后才会应用。",
+      "explainTitle": "解释当前循环",
+      "explainDescription": "直接从已校验的 LoopProgram 确定性展示结构，不调用模型，也不会修改循环。",
+      "resource": "AI 模型",
+      "resourcePlaceholder": "选择 AI 模型",
+      "prompt": "描述循环目标或整体修改要求",
+      "promptPlaceholder": "例如：制作专业 PPT，或将当前循环整体改为输出 PDF 讲义",
+      "loadingResources": "正在加载 AI 模型",
+      "resourceError": "AI 模型加载失败",
+      "retry": "重新加载",
+      "noResources": "没有可用的文本生成模型",
+      "generate": "生成草稿",
+      "generating": "正在生成",
+      "generationError": "循环草稿生成失败",
+      "unchanged": "AI 未生成任何代码变化",
+      "stale": "生成期间循环已被修改，请重新生成",
+      "current": "当前代码",
+      "proposed": "AI 提案",
+      "cancel": "取消",
+      "close": "关闭",
+      "back": "返回",
+      "confirm": "确认应用",
+      "projection": {
+        "title": "结构说明",
+        "unavailable": "当前循环尚未通过校验，无法生成结构说明。",
+        "overview": "循环",
+        "schemaVersion": "Schema 版本",
+        "loopName": "循环标识",
+        "limits": "执行预算",
+        "iterations": "最大轮数",
+        "tokens": "令牌预算",
+        "timeout": "超时",
+        "noProgress": "无进展上限",
+        "sameError": "同错上限",
+        "repeat": "重复执行",
+        "repeatName": "步骤标识",
+        "repeatMax": "最多重复",
+        "until": "停止条件",
+        "agent": "智能体任务",
+        "agentName": "任务标识",
+        "agentPrompt": "任务说明",
+        "verifier": "验证器",
+        "verifierName": "验证标识",
+        "verifierCommand": "验证命令",
+        "verifierAccept": "通过条件",
+        "failure": "失败策略",
+        "failurePolicy": "处理方式",
+        "failurePause": "暂停并等待人工",
+        "failureFail": "标记循环失败",
+        "empty": "未设置",
+        "iterationsValue": "{value} 轮",
+        "tokensValue": "{value} 令牌",
+        "minutesValue": "{value} 分钟",
+        "timesValue": "{value} 次"
+      },
+      "repair": {
+        "title": "修复诊断",
+        "description": "AI 仅为当前诊断提出定向整数修改。应用前请检查生成后的 LoopScript。",
+        "diagnostic": "诊断",
+        "field": "目标字段",
+        "prompt": "补充要求",
+        "promptPlaceholder": "可选：为本次修复增加约束",
+        "repair": "生成修复",
+        "repairing": "正在生成修复",
+        "error": "未能生成有效的定向修复",
+        "patch": "定向修改",
+        "patchValue": "{oldValue} 调整为 {newValue}"
+      }
+    }
+  },
   "loopal": {
     "activity": {
       "heading": "活动"

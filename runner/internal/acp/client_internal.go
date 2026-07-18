@@ -1,10 +1,7 @@
 package acp
 
 import (
-	"bufio"
 	"context"
-	"io"
-	"strings"
 	"time"
 )
 
@@ -61,41 +58,6 @@ func (c *ACPClient) watchExit() {
 	if c.cfg.Callbacks.OnExit != nil {
 		c.cfg.Callbacks.OnExit(exitCode)
 	}
-}
-
-// readStderr reads plain text lines from the agent's stderr and
-// forwards them to the OnLog callback. Lines prefixed with
-// "warn:" / "error:" are tagged with the matching level so the
-// frontend (which suppresses level=stderr) can render them; we
-// also feed warn/error into c.logs so late-subscribing snapshots
-// surface them.
-func (c *ACPClient) readStderr(r io.Reader) {
-	scanner := bufio.NewScanner(r)
-	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
-	for scanner.Scan() {
-		line := scanner.Text()
-		level, message := classifyStderrLine(line)
-		c.addLog(LogEntry{Level: level, Message: message})
-		if c.cfg.Callbacks.OnLog != nil {
-			c.cfg.Callbacks.OnLog(level, message)
-		}
-	}
-}
-
-// classifyStderrLine inspects a stderr line for an explicit level prefix
-// ("warn:" / "error:", case-insensitive). When none is found it falls back
-// to the historical "stderr" level so existing consumers keep their tagging.
-func classifyStderrLine(line string) (level, message string) {
-	trimmed := strings.TrimLeft(line, " \t")
-	lower := strings.ToLower(trimmed)
-	switch {
-	case strings.HasPrefix(lower, "error:"):
-		return "error", strings.TrimSpace(trimmed[len("error:"):])
-	case strings.HasPrefix(lower, "warn:"), strings.HasPrefix(lower, "warning:"):
-		idx := strings.IndexByte(trimmed, ':')
-		return "warn", strings.TrimSpace(trimmed[idx+1:])
-	}
-	return "stderr", line
 }
 
 // addMessage appends a content chunk to the message history,
@@ -176,20 +138,6 @@ func (c *ACPClient) addThinking(update ThinkingUpdate) {
 	}
 }
 
-// addLog appends a log entry to the snapshot history (warn/error only — info
-// is discarded to avoid log-flood polluting late subscribers).
-func (c *ACPClient) addLog(entry LogEntry) {
-	if entry.Level != "warn" && entry.Level != "error" {
-		return
-	}
-	c.logsMu.Lock()
-	defer c.logsMu.Unlock()
-	c.logs = append(c.logs, entry)
-	if len(c.logs) > c.maxLogs {
-		c.logs = c.logs[len(c.logs)-c.maxLogs:]
-	}
-}
-
 // applyConfiguration merges a ConfigUpdate into the internal Configuration,
 // returning the merged result for broadcast. Empty fields in the update are
 // treated as "no change"; non-empty fields replace the existing value.
@@ -210,32 +158,4 @@ func (c *ACPClient) Configuration() Configuration {
 	c.configMu.RLock()
 	defer c.configMu.RUnlock()
 	return c.configuration
-}
-
-// SupportedPermissionModes returns the permission-mode wire values the agent
-// advertised at initialize (nil if none). pod_io_acp validates
-// set_permission_mode against this instead of a hardcoded Claude allowlist.
-func (c *ACPClient) SupportedPermissionModes() []string {
-	c.configMu.RLock()
-	defer c.configMu.RUnlock()
-	return c.configuration.SupportedPermissionModes
-}
-
-// SeedConfiguration merges the initial configuration captured at pod creation
-// into the live Configuration, before any control_request flows. Field-level
-// (empty = unchanged) so a later capture (client.go Start writing
-// SupportedPermissionModes) isn't clobbered regardless of call ordering.
-// Callers must invoke OnConfigChange themselves to broadcast the seeded values.
-func (c *ACPClient) SeedConfiguration(cfg Configuration) {
-	c.configMu.Lock()
-	defer c.configMu.Unlock()
-	if cfg.PermissionMode != "" {
-		c.configuration.PermissionMode = cfg.PermissionMode
-	}
-	if cfg.Model != "" {
-		c.configuration.Model = cfg.Model
-	}
-	if len(cfg.SupportedPermissionModes) > 0 {
-		c.configuration.SupportedPermissionModes = cfg.SupportedPermissionModes
-	}
 }

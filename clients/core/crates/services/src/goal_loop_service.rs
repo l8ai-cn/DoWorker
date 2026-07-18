@@ -24,6 +24,28 @@ impl GoalLoopService {
         Ok(response.encode_to_vec())
     }
 
+    pub async fn generate_loop_program_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
+        let req = lp::GenerateLoopProgramRequest::decode(request)
+            .map_err(|e| format!("decode generate_loop_program request: {e}"))?;
+        let response = self
+            .client
+            .generate_loop_program_connect(&req)
+            .await
+            .map_err(crate::wire)?;
+        Ok(response.encode_to_vec())
+    }
+
+    pub async fn repair_loop_program_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
+        let req = lp::RepairLoopProgramRequest::decode(request)
+            .map_err(|e| format!("decode repair_loop_program request: {e}"))?;
+        let response = self
+            .client
+            .repair_loop_program_connect(&req)
+            .await
+            .map_err(crate::wire)?;
+        Ok(response.encode_to_vec())
+    }
+
     pub async fn run_loop_program_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
         let req = lp::RunLoopProgramRequest::decode(request)
             .map_err(|e| format!("decode run_loop_program request: {e}"))?;

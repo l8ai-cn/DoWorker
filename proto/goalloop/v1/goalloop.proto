@@ -7,6 +7,8 @@ option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/goalloop/v1;g
 service GoalLoopService {
   rpc ListWorkerSnapshots(ListWorkerSnapshotsRequest) returns (ListWorkerSnapshotsResponse);
   rpc CompileLoopProgram(CompileLoopProgramRequest) returns (CompileLoopProgramResponse);
+  rpc GenerateLoopProgram(GenerateLoopProgramRequest) returns (CompileLoopProgramResponse);
+  rpc RepairLoopProgram(RepairLoopProgramRequest) returns (RepairLoopProgramResponse);
   rpc RunLoopProgram(RunLoopProgramRequest) returns (GoalLoop);
   rpc ListGoalLoops(ListGoalLoopsRequest) returns (ListGoalLoopsResponse);
   rpc GetGoalLoop(GetGoalLoopRequest) returns (GoalLoop);
@@ -86,6 +88,7 @@ message LoopDiagnostic {
   string node_id = 3;
   int32 line = 4;
   int32 column = 5;
+  string field_path = 6;
 }
 
 message CompileLoopProgramRequest {
@@ -99,6 +102,39 @@ message CompileLoopProgramResponse {
   LoopProgram program = 2;
   repeated LoopDiagnostic diagnostics = 3;
   uint64 revision = 4;
+}
+
+message GenerateLoopProgramRequest {
+  string org_slug = 1;
+  string prompt = 2;
+  string current_source = 3;
+  int64 model_resource_id = 4;
+  string locale = 5;
+  uint64 revision = 6;
+}
+
+message RepairLoopProgramRequest {
+  string org_slug = 1;
+  string source = 2;
+  int64 model_resource_id = 3;
+  string locale = 4;
+  uint64 revision = 5;
+  string diagnostic_code = 6;
+  string node_id = 7;
+  string field_path = 8;
+  string prompt = 9;
+}
+
+message LoopIntegerPatch {
+  string node_id = 1;
+  string field_path = 2;
+  int64 old_value = 3;
+  int64 new_value = 4;
+}
+
+message RepairLoopProgramResponse {
+  CompileLoopProgramResponse proposal = 1;
+  LoopIntegerPatch patch = 2;
 }
 
 message RunLoopProgramRequest {

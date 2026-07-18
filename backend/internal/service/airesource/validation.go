@@ -50,7 +50,7 @@ func (s *Service) ValidateConnection(ctx context.Context, actor Actor, connectio
 	}
 	if validationErr != nil {
 		result := auditValidationError(validationErr, nil)
-		if errors.Is(validationErr, ErrDecrypt) || errors.Is(validationErr, ErrInvalidCredentials) || errors.Is(validationErr, ErrInvalidEndpoint) || errors.Is(validationErr, ErrProbeUnsupported) {
+			if errors.Is(validationErr, ErrDecrypt) || errors.Is(validationErr, ErrInvalidCredentials) || errors.Is(validationErr, ErrInvalidEndpoint) || errors.Is(validationErr, ErrProviderEndpointUnavailable) || errors.Is(validationErr, ErrProbeUnsupported) {
 			result = errors.Join(result, validationErr)
 		}
 		return result

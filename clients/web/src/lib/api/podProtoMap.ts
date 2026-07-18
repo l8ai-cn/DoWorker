@@ -75,6 +75,7 @@ export function podToProtoPod(p: PodData): ProtoPod {
     previewPort: p.preview_port,
     previewPath: p.preview_path,
     workerSpecSnapshotId: asBigInt(p.worker_spec_snapshot_id),
+    sessionId: p.session_id,
   });
 }
 

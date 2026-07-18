@@ -1,21 +1,24 @@
 {
   "schema_version": 1,
   "worker_slug": "do-agent",
-  "validated_at": "2026-07-12T19:01:34Z",
-  "image": "do-worker/runner-do-agent:latest",
-  "image_id": "sha256:cafff00644942615a971e75155ad37e7ccff4b56ba869c6b8982cf07d7f37cce",
+  "validated_at": "2026-07-18T08:28:08+08:00",
+  "image": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653",
+  "image_id": "sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653",
   "platform": "linux/amd64",
   "build_command": "FORCE_REBUILD=1 BUILD_RETRIES=1 bash docker/agent-runtime/build.sh do-agent",
   "smoke_command": "docker run --rm --platform linux/amd64 --entrypoint sh do-worker/runner-do-agent:latest -lc '<checks>'",
   "checks": {
     "container_user": "runner",
     "cli_path": "/usr/local/bin/do-agent",
-    "cli_version": "do-agent 0.2.7",
+    "cli_version": "do-agent 0.2.0",
+    "binary_sha256": "sha256:c85adf835e14f00c882c7d8957817d09e5470409bee9e45c1446594c567d26cd",
+    "python_version": "3.11.2",
+    "ffmpeg_version": "5.1.9-0+deb12u1",
     "config_directory": "/home/runner/.agent",
     "runner_version_command": "passed",
     "adapter_unit_test": "go test ./runner/internal/agents/doagent -count=1"
   },
-  "verdict": "runtime_smoke_verified",
+  "verdict": "published_runtime_smoke_verified",
   "limits": [
     "No model-resource authentication, Runner create request, or browser flow was executed."
   ]

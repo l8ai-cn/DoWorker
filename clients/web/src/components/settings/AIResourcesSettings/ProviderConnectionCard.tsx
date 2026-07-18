@@ -49,7 +49,7 @@ export function ProviderConnectionCard({
   return (
     <section className="rounded-xl border border-border/70 bg-card" aria-label={connection.name}>
       <div className="flex flex-wrap items-start gap-3 border-b border-border/60 px-4 py-4 sm:px-6">
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 basis-full sm:flex-1 sm:basis-auto">
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="truncate text-base font-semibold text-foreground">{connection.name}</h2>
             {connection.status === "invalid" && <Badge variant="destructive">{t("settings.aiResources.status.invalid")}</Badge>}
@@ -61,7 +61,7 @@ export function ProviderConnectionCard({
           )}
         </div>
         {manageable && (
-          <div className="flex items-center gap-2">
+          <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
             <Button variant="outline" size="sm" onClick={() => void onValidate(connection.id)}>
               {t("settings.aiResources.validate")}
             </Button>

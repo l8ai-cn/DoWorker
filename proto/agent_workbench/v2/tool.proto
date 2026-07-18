@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+package proto.agent_workbench.v2;
+
+import "agent_workbench/v2/artifact.proto";
+import "agent_workbench/v2/content.proto";
+
+option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2;agentworkbenchv2";
+
+message ToolIdentity {
+  string namespace = 1;
+  string semantic_key = 2;
+  string schema_version = 3;
+  optional string source_tool_name = 4;
+}
+
+enum ToolPhase {
+  TOOL_PHASE_UNSPECIFIED = 0;
+  TOOL_PHASE_QUEUED = 1;
+  TOOL_PHASE_RUNNING = 2;
+  TOOL_PHASE_WAITING_APPROVAL = 3;
+  TOOL_PHASE_COMPLETED = 4;
+  TOOL_PHASE_FAILED = 5;
+  TOOL_PHASE_CANCELLED = 6;
+}
+
+message ToolProgress {
+  optional string stage = 1;
+  optional string message = 2;
+  optional uint64 current = 3;
+  optional uint64 total = 4;
+  optional double fraction = 5;
+  optional string unit = 6;
+}
+
+message ToolResult {
+  string result_id = 1;
+  repeated ContentBlock blocks = 2;
+  repeated ArtifactReference artifacts = 3;
+  bool primary = 4;
+}
+
+message ToolAction {
+  string action_id = 1;
+  string action_type = 2;
+  string schema_version = 3;
+  optional string label = 4;
+  optional StructuredPayload input_schema = 5;
+  optional string required_grant_action = 6;
+  optional string risk_class = 7;
+  bool confirmation_required = 8;
+  optional string expires_at = 9;
+}
+
+message ToolTiming {
+  optional string queued_at = 1;
+  optional string started_at = 2;
+  optional string finished_at = 3;
+  optional uint64 duration_millis = 4;
+}
+
+message ToolExecutorContext {
+  optional string runner_id = 1;
+  optional string pod_key = 2;
+  optional string process_id = 3;
+  optional string workspace_id = 4;
+  optional string model_id = 5;
+}
+
+message ToolRetryLineage {
+  optional string retry_of_execution_id = 1;
+  uint32 attempt = 2;
+  optional uint32 maximum_attempts = 3;
+}
+
+message ToolApprovalReference {
+  string permission_request_id = 1;
+  optional string approval_id = 2;
+}
+
+message ToolFailure {
+  string code = 1;
+  string message = 2;
+  bool retryable = 3;
+  optional StructuredPayload details = 4;
+}
+
+message ToolExecution {
+  string execution_id = 1;
+  ToolIdentity identity = 2;
+  optional string category = 3;
+  ToolPhase phase = 4;
+  StructuredPayload input = 5;
+  optional ToolProgress progress = 6;
+  repeated ToolResult results = 7;
+  repeated ArtifactReference artifacts = 8;
+  repeated ToolAction actions = 9;
+  optional ToolTiming timing = 10;
+  optional ToolExecutorContext executor = 11;
+  optional ToolRetryLineage retry = 12;
+  optional ToolApprovalReference approval = 13;
+  optional ToolFailure failure = 14;
+  optional string title = 15;
+  optional string detail = 16;
+}

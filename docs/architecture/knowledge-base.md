@@ -37,21 +37,22 @@ wiki/
 - `knowledge_base_agent_mounts`：agent 默认挂载（`agent_slug` + `mode ro|rw`）。
   Pod 级挂载走创建请求，不落此表。
 
-`source_config` 中的凭证字段（`app_secret` / `access_token`）在写入时加密
-（`enc:v1:` 前缀，平台 `crypto.Encryptor`），仅在 sync worker 调 connector
-前于内存中解密。见 `service/knowledgebase/source_secrets.go`。
+`source_config` 中的连接器凭证和仓库级 SSH deploy private key 在写入时加密
+（`enc:v1:` 前缀，平台 `crypto.Encryptor`）。连接器凭证只在 sync worker 调用
+外部源前解密；deploy private key 只在组装 Pod 挂载命令时解密，且不会返回 API。
+见 `service/knowledgebase/source_secrets.go`。
 
 ## 代码地图
 
 | 层 | 位置 | 职责 |
 |---|---|---|
 | 域 | `backend/internal/domain/knowledgebase/` | 实体 + Repository 接口 + slugkit hooks |
-| Gitea client | `backend/internal/infra/gitea/` | 建/删仓、提交、tree/contents API、clone token |
+| Gitea client | `backend/internal/infra/gitea/` | 建/删仓、提交、tree/contents API、deploy key 生命周期 |
 | 服务 | `backend/internal/service/knowledgebase/` | CRUD、provisioner（scaffold 初始化）、mounts 解析、search、sync |
 | 连接器 | `.../knowledgebase/connector/` | `Connector` 接口 + feishu/dingtalk/google 实现 |
 | Connect API | `backend/internal/api/connect/knowledgebase/` | 9 个 RPC（CRUD、挂载、文件/目录读） |
 | MCP 分发 | `backend/internal/api/grpc/runner_adapter_mcp_kb.go` | `kb_list/kb_search/kb_read/kb_write` 的 backend 侧 |
-| Runner 挂载 | `runner/internal/runner/pod_builder_kb.go` | clone 到 `{sandbox}/kb/{slug}`，ro 挂载剥离 token |
+| Runner 挂载 | `runner/internal/runner/pod_builder_kb*.go` | 用仓库级 SSH key clone 到 `{sandbox}/kb/{slug}`，校验路径并按 ro/rw 收敛凭据 |
 | Runner MCP | `runner/internal/mcp/http_tools_kb.go` + `grpc_client_kb.go` | Pod 内 kb_* 工具 HTTP 面 |
 | Agentfile | `agentfile/`（parser/extract/merge/serialize） | `KNOWLEDGE team-docs, product-wiki [rw]` 声明 |
 | Rust core | `clients/core/crates/api-client/src/modules/knowledgebase.rs` + `wasm/src/service_kb*.rs` | Connect 客户端 + WASM 绑定 |
@@ -66,10 +67,11 @@ wiki/
    `agentfile-layer.ts` 生成 `KNOWLEDGE` 声明进 Agentfile layer。
 2. orchestrator（`pod_orchestrator_*`）合并 Agentfile 声明 + agent 默认挂载表，
    经 `service/knowledgebase/mounts.go` 解析为 `KnowledgeMount`
-   （`proto/runner/v1`，含短期 clone token）。
-3. Runner `pod_builder_kb.go` 在主 worktree 建好后、prep script 前逐个 clone；
-   ro 挂载 clone 后重写 remote URL 去掉 token。
-4. rw 挂载下 agent 直接 commit + push 写回。
+   （`proto/runner/v1`，含 SSH clone URL、仓库级 private key 和固定 host key）。
+3. Runner 在主 worktree 建好后、prep script 前校验挂载目标的真实路径，拒绝越出
+   sandbox 的 symlink，再用 `StrictHostKeyChecking=yes` 逐个 clone。
+4. ro 挂载清除写凭据；rw 挂载安装对应 deploy key。Pod 恢复时会重新收敛
+   remote URL、key 和 known_hosts，取消挂载时删除 Runner 管理的凭据文件。
 
 ### MCP kb_*（跨库检索 + 未挂载访问）
 
@@ -87,8 +89,8 @@ knowledgebase service。org 隔离用 `authenticatePod` 的 `TenantContext`。
 ## 配置与部署依赖
 
 - `KB_GITEA_URL` / `KB_GITEA_TOKEN` / `KB_GITEA_ORG`（默认 `am-kb`）/
-  `KB_GITEA_CLONE_URL`：未配置时 KB 服务整体为 nil（同 fileService 缺 S3
-  时的禁用模式）。Gitea（或兼容 API）是 KB 功能的必选生产依赖。
+  `KB_GITEA_CLONE_URL` / `KB_GITEA_SSH_CLONE_URL` / `KB_GITEA_KNOWN_HOSTS`：
+  任一控制面或 SSH 挂载配置缺失时 KB 服务不启用。Gitea 是 KB 功能的必选生产依赖。
   KB namespace org 在首次建仓时由 provisioner 的 `EnsureNamespace` 自动创建。
 - `KB_SYNC_INTERVAL`：外部源同步周期，默认 1h。
 - dev 环境：`deploy/dev/gitea/init-gitea.sh` 签发 backend token 到
@@ -109,4 +111,6 @@ knowledgebase service。org 隔离用 `authenticatePod` 的 `TenantContext`。
 - 连接器单向物化（外部 → raw/），不做双向同步，避免冲突解决复杂度。
 - Pod 级挂载不落库，只存在于创建请求与 Agentfile；持久默认挂载才进
   `knowledge_base_agent_mounts`。
-- KB 删除时 Gitea 仓库删除为 best-effort：DB 行是权威，孤儿仓库只是垃圾。
+- KB 删除先撤销 deploy keys 并删除 Gitea 仓库，再删除 DB 行。若远端已成功而 DB
+  删除失败，服务会清空仓库定位字段并标记同步失败，使挂载立即拒绝；后续删除调用
+  只重试 DB 删除，不会重新访问已经删除的仓库。

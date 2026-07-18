@@ -5,6 +5,11 @@ LOOP_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$LOOP_ROOT"
 
 test -s evidence/revocations/2026-07-12-invalid-shared-contract.md
+expected_runs="$(sort catalog/formal-worker-slugs.txt)"
+actual_runs="$(
+  find runs -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort
+)"
+[[ "$actual_runs" == "$expected_runs" ]]
 loop_id="$(jq -r '.metadata.id' loop.json)"
 max_tokens="$(jq -r '.termination_policy.budget_exits.max_tokens' loop.json)"
 status="$(jq -r '.status' state.json)"
@@ -51,8 +56,8 @@ jq -e '
 ' state.json >/dev/null
 jq -e '
   .schema_version == 1 and
-  (.workers | length == 12) and
-  ([.workers[] | select(.support_status == "not_supported")] | length == 11) and
+  (.workers | length == 14) and
+  ([.workers[] | select(.support_status == "not_supported")] | length == 13) and
   ([.workers[] | select(
     .support_status == "verified_local_dev" and
     .product_path == "created_acp_prompt_and_cleanup_verified" and
@@ -67,6 +72,10 @@ jq -e '
   ([.workers[] | select(
     .product_path == "unverified" and
     .browser == "missing_runtime_image_guard_verified"
-  )] | length == 9)
+  )] | length == 8) and
+  ([.workers[] | select(
+    .product_path == "unverified" and
+    .browser == "unverified"
+  )] | length == 3)
 ' catalog/worker-evidence-matrix.json >/dev/null
 grep -Fq 'Worker Integration Evidence Rebuild Plan' PROGRESS.md

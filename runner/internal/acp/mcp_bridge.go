@@ -2,14 +2,15 @@ package acp
 
 import "fmt"
 
-// BuildMCPServersConfig creates the mcpServers configuration
-// to pass to session/new so the ACP agent can access AgentsMesh tools.
-func BuildMCPServersConfig(mcpPort int) map[string]any {
+// BuildMCPServersConfig creates the pod-scoped MCP configuration passed to session/new.
+func BuildMCPServersConfig(mcpPort int, podKey string) map[string]any {
 	return map[string]any{
 		"agentsmesh": map[string]any{
-			"type":    "http",
-			"url":     fmt.Sprintf("http://127.0.0.1:%d/mcp", mcpPort),
-			"headers": []any{}, // required by ACP spec, empty for local
+			"type": "http",
+			"url":  fmt.Sprintf("http://127.0.0.1:%d/mcp", mcpPort),
+			"headers": []map[string]string{{
+				"name": "X-Pod-Key", "value": podKey,
+			}},
 		},
 	}
 }

@@ -26,6 +26,9 @@ func rejectRawSecretJSON(raw json.RawMessage) error {
 func containsRawSecret(key string, value any) bool {
 	switch typed := value.(type) {
 	case map[string]any:
+		if isToolModelEnvironmentTargetObject(key, typed) {
+			return false
+		}
 		if isSensitiveKey(key) {
 			return !isReferenceIdentityObject(typed)
 		}

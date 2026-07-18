@@ -4,6 +4,11 @@ import workerplanner "github.com/anthropics/agentsmesh/backend/internal/service/
 
 type workerDispatchQueue interface {
 	TriggerDrain(int64)
+	SealPayload([]byte) ([]byte, error)
+}
+
+type pendingPayloadSealer interface {
+	SealPayload([]byte) ([]byte, error)
 }
 
 type orchestrationWorkerDispatchNotifier struct {

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "runtimeCatalogRevision": "runtime-catalog-2026-07-13-release-gated",
+  "runtimeCatalogRevision": "runtime-catalog-2026-07-18-854952254d5f",
   "workers": [
     {
       "slug": "aider",
@@ -145,10 +145,10 @@
       "configDocuments": [],
       "runtimeImage": {
         "name": "Codex CLI",
-        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1",
-        "availability": "invalid_published_digest"
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:854952254d5f7ce25db3258034bc71a07169a5730dfe0670243fc10ea437bacd",
+        "availability": "locked_available"
       },
-      "validationStatus": "local_evidence_release_blocked"
+      "validationStatus": "runtime_ready_unverified"
     },
     {
       "slug": "cursor-cli",
@@ -218,8 +218,12 @@
           "target_path": "DO_AGENT_SETTINGS"
         }
       ],
-      "runtimeImage": null,
-      "validationStatus": "runtime_image_unavailable"
+      "runtimeImage": {
+        "name": "Do Agent",
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653",
+        "availability": "locked_available"
+      },
+      "validationStatus": "runtime_ready_unverified"
     },
     {
       "slug": "gemini-cli",
@@ -484,10 +488,12 @@
         {
           "id": "seedance-video",
           "provider_keys": [
-            "doubao"
+            "doubao",
+            "sub2api-seedance"
           ],
           "protocol_adapters": [
-            "openai-compatible"
+            "openai-compatible",
+            "ark-seedance"
           ],
           "modality": "video",
           "capability": "video-generation",
@@ -525,8 +531,12 @@
           "target_path": "DO_AGENT_SETTINGS"
         }
       ],
-      "runtimeImage": null,
-      "validationStatus": "runtime_image_unavailable"
+      "runtimeImage": {
+        "name": "Do Agent",
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653",
+        "availability": "locked_available"
+      },
+      "validationStatus": "runtime_ready_unverified"
     },
     {
       "slug": "video-studio",
@@ -565,7 +575,7 @@
       "configDocuments": [],
       "runtimeImage": {
         "name": "Video Studio",
-        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22",
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:f3463bc567f1ed8516486e95e17d50f48834275aae7931221b1a3eeb3c526a5d",
         "availability": "locked_available"
       },
       "validationStatus": "runtime_ready_unverified"

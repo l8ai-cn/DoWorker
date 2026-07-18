@@ -42,11 +42,19 @@ describe("groupToolActivity", () => {
         status: "completed",
       },
       {
+        actions: [],
         id: "artifact",
         kind: "artifact",
         artifactId: "artifact-1",
         filename: "result.png",
+        grants: [],
+        manifest: null,
         mimeType: "image/png",
+        representations: [],
+        revision: 1n,
+        role: "preview",
+        schemaVersion: "1",
+        selectedRepresentationId: null,
         status: "completed",
       },
       {
@@ -86,7 +94,13 @@ describe("groupToolActivity", () => {
 function tool(id: string): AgentTimelineItem {
   return {
     id,
+    identity: {
+      namespace: "agentsmesh.acp",
+      schemaVersion: "1",
+      semanticKey: "shell",
+    },
     kind: "tool",
+    results: [],
     title: "shell",
     status: "completed",
   };

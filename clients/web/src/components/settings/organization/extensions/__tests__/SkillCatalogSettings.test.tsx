@@ -170,7 +170,7 @@ describe("SkillCatalogSettings", () => {
       tags: ["curated", "video"],
     }));
     expect(toast.error).toHaveBeenCalledWith("save failed");
-    expect(screen.getByText("extensions.skillCatalog.failedToSaveTags")).toBeVisible();
+    expect(await screen.findByText("extensions.skillCatalog.failedToSaveTags")).toBeVisible();
 
     fireEvent.click(screen.getByRole("button", { name: "extensions.skillCatalog.cancelTags" }));
     fireEvent.click(screen.getByRole("button", {

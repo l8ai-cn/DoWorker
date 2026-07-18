@@ -2,6 +2,7 @@
 
 pub struct Domain {
     pub name: &'static str,
+    pub version: &'static str,
     pub srcs: &'static [&'static str],
     pub deps: &'static [&'static str],
 }
@@ -10,6 +11,18 @@ macro_rules! domain {
     ($name:literal, [$($source:literal),*], [$($dependency:literal),*]) => {
         Domain {
             name: $name,
+            version: "v1",
+            srcs: &[$($source),*],
+            deps: &[$($dependency),*],
+        }
+    };
+}
+
+macro_rules! versioned_domain {
+    ($name:literal, $version:literal, [$($source:literal),*], [$($dependency:literal),*]) => {
+        Domain {
+            name: $name,
+            version: $version,
             srcs: &[$($source),*],
             deps: &[$($dependency),*],
         }
@@ -17,6 +30,22 @@ macro_rules! domain {
 }
 
 pub const DOMAINS: &[Domain] = &[
+    versioned_domain!(
+        "agent_workbench",
+        "v2",
+        [
+            "content.proto",
+            "configuration.proto",
+            "session_state.proto",
+            "artifact.proto",
+            "tool.proto",
+            "command.proto",
+            "session.proto",
+            "runner_ingress.proto",
+            "service.proto"
+        ],
+        []
+    ),
     domain!("agent", ["agent.proto"], []),
     domain!("ai_resource", ["ai_resource.proto", "types.proto"], []),
     domain!("execution_cluster", ["execution_cluster.proto"], []),

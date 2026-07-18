@@ -6,11 +6,19 @@ import {
 } from "lucide-react";
 
 import { useAgentWorkspaceText } from "./AgentWorkspaceLocaleContext";
-import type { AgentActivityItem } from "./contracts";
+import type { AgentToolActivityItem } from "./agentToolContracts";
+import type { AgentToolRendererRegistration } from "./react/rendererTypes";
+import type { ToolRendererRegistry } from "./registry/ToolRendererRegistry";
 import { summarizeToolActivity } from "./toolActivitySummary";
 import { toolPresentation } from "./toolPresentation";
 
-export function ToolActivityCard({ item }: { item: AgentActivityItem }) {
+export function ToolActivityCard({
+  item,
+  renderers,
+}: {
+  item: AgentToolActivityItem;
+  renderers?: ToolRendererRegistry<AgentToolRendererRegistration>;
+}) {
   const text = useAgentWorkspaceText();
   const input = cleanEvidence(item.input);
   const output = cleanEvidence(item.output);
@@ -25,6 +33,7 @@ export function ToolActivityCard({ item }: { item: AgentActivityItem }) {
     text.fileChangeVerb,
   );
   const Icon = presentation.icon;
+  const RegisteredSummary = renderers?.lookup(item.identity)?.summary;
 
   return (
     <article className="overflow-hidden rounded-md border border-border bg-card">
@@ -38,7 +47,14 @@ export function ToolActivityCard({ item }: { item: AgentActivityItem }) {
           status={item.status}
         />
       </div>
-      {(summary.primary || summary.result) && (
+      {RegisteredSummary ? (
+        <div
+          className="border-t border-border bg-muted/15 px-3 py-2"
+          data-testid="registered-tool-summary"
+        >
+          <RegisteredSummary item={item} />
+        </div>
+      ) : (summary.primary || summary.result) ? (
         <div
           className="space-y-1 border-t border-border bg-muted/15 px-3 py-2"
           data-testid="tool-summary"
@@ -54,7 +70,7 @@ export function ToolActivityCard({ item }: { item: AgentActivityItem }) {
             </pre>
           )}
         </div>
-      )}
+      ) : null}
       {hasEvidence && (
         <details
           className="group border-t border-border"
@@ -92,7 +108,7 @@ function ActivityStatus({
   status,
 }: {
   label: string;
-  status: AgentActivityItem["status"];
+  status: AgentToolActivityItem["status"];
 }) {
   const Icon =
     status === "running"

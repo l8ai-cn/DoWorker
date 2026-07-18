@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"sync"
+
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	expertservice "github.com/anthropics/agentsmesh/backend/internal/service/expert"
 	grantservice "github.com/anthropics/agentsmesh/backend/internal/service/grant"
@@ -12,16 +14,18 @@ import (
 // Pod creation is delegated to PodOrchestrator (service layer).
 // This handler remains responsible for CRUD and HTTP protocol adaptation.
 type PodHandler struct {
-	podService     PodServiceForHandler       // Pod CRUD operations (ListPods, GetPod, TerminatePod, etc.)
-	runnerService  *runner.Service            // Runner management
-	podCoordinator *runner.PodCoordinator     // Pod coordination (TerminatePod, terminal routing)
-	orchestrator   *agentpod.PodOrchestrator  // Unified Pod creation logic
-	commandSender  runner.RunnerCommandSender // Unified command sender (PTY + ACP)
-	grantService   *grantservice.Service      // Resource grant/sharing service
-	pendingQueue   pendingQueueReader
-	sandboxFs      podWorkspaceSandbox
-	workerSpecs    workerspecservice.SnapshotRepository
-	experts        *expertservice.Service
+	podService         PodServiceForHandler       // Pod CRUD operations (ListPods, GetPod, TerminatePod, etc.)
+	runnerService      *runner.Service            // Runner management
+	podCoordinator     *runner.PodCoordinator     // Pod coordination (TerminatePod, terminal routing)
+	orchestrator       *agentpod.PodOrchestrator  // Unified Pod creation logic
+	commandSender      runner.RunnerCommandSender // Unified command sender (PTY + ACP)
+	grantService       *grantservice.Service      // Resource grant/sharing service
+	pendingQueue       pendingQueueReader
+	sandboxFs          podWorkspaceSandbox
+	workspaceArtifacts podWorkspaceArtifactTransfer
+	artifactTransfers  sync.Map
+	workerSpecs        workerspecservice.SnapshotRepository
+	experts            *expertservice.Service
 
 	// Preview (Gateway HTTP data plane) dependencies.
 	relaySelector       previewRelaySelector
@@ -79,6 +83,12 @@ func WithPodWorkerContext(
 	return func(h *PodHandler) {
 		h.workerSpecs = workerSpecs
 		h.experts = experts
+	}
+}
+
+func WithPodWorkspaceArtifactTransfer(transfer podWorkspaceArtifactTransfer) PodHandlerOption {
+	return func(h *PodHandler) {
+		h.workspaceArtifacts = transfer
 	}
 }
 

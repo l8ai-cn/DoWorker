@@ -8,10 +8,9 @@
 
 ARG RUNTIME_EXTENSION_BASE=do-worker/runner-base:latest
 ARG RUNTIME_BASE=base
-ARG OPENCLAW_VERSION=2026.6.11
-ARG OPENCLAW_NODE_VERSION=24.18.0
+ARG RUNTIME_BUILD_BASE=node:24-bookworm-slim@sha256:cb4e8f7c443347358b7875e717c29e27bf9befc8f5a26cf18af3c3dec80e58c5
 
-FROM node:24-bookworm-slim AS base
+FROM ${RUNTIME_BUILD_BASE} AS base
 
 ARG HTTP_PROXY=
 ARG HTTPS_PROXY=
@@ -26,7 +25,7 @@ ENV HTTP_PROXY=${HTTP_PROXY} \
 RUN printf 'Acquire::http::Proxy "false";\nAcquire::https::Proxy "false";\n' \
       > /etc/apt/apt.conf.d/99noproxy \
     && set -ux; \
-    packages="git openssh-client sudo ca-certificates curl wget openssl"; \
+    packages="git=1:2.39.5-0+deb12u3 openssh-client=1:9.2p1-2+deb12u10 sudo=1.9.13p3-1+deb12u4 ca-certificates=20230311+deb12u1 curl=7.88.1-10+deb12u15 wget=1.21.3-1+deb12u1 openssl=3.0.20-1~deb12u2"; \
     ok=0; \
     for attempt in 1 2 3 4 5 6 7 8; do \
       if apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends $packages; then \
@@ -42,11 +41,15 @@ RUN printf 'Acquire::http::Proxy "false";\nAcquire::https::Proxy "false";\n' \
 FROM ${RUNTIME_BASE} AS runtime
 
 ARG AGENT_RUNTIME=e2e-echo
+ARG DO_AGENT_SOURCE_COMMIT=""
+ARG DO_AGENT_BINARY_SHA256=""
 ARG HERMES_AGENT_VERSION=0.18.2
 ARG MINIMAX_CLI_VERSION=1.0.16
 ARG OPENCLAW_VERSION=2026.6.11
 ARG REMOTION_VERSION=4.0.489
 ENV AGENT_RUNTIME=${AGENT_RUNTIME}
+LABEL ai.agentsmesh.do-agent.source-revision="${DO_AGENT_SOURCE_COMMIT}" \
+      ai.agentsmesh.do-agent.binary-sha256="${DO_AGENT_BINARY_SHA256}"
 
 RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' \
       /etc/apt/sources.list.d/debian.sources
@@ -115,7 +118,23 @@ RUN install_apt() { \
         && pip3 install --break-system-packages aider-chat \
         && rm -rf /var/lib/apt/lists/* ;; \
       do-agent) \
-        install_apt ffmpeg python3 python3-pip \
+        apt-get -o Acquire::Retries=8 update \
+        && ok=0; \
+        for attempt in 1 2 3 4 5 6 7 8; do \
+          if DEBIAN_FRONTEND=noninteractive apt-get \
+            -o Acquire::Retries=8 \
+            install -y --fix-missing --no-install-recommends \
+            python3=3.11.2-1+b1 ffmpeg=7:5.1.9-0+deb12u1; then \
+            ok=1; \
+            break; \
+          fi; \
+          echo "do-agent media dependency install attempt ${attempt} failed, retrying..." >&2; \
+          sleep 10; \
+        done; \
+        test "$ok" = 1 \
+        && command -v python3 >/dev/null \
+        && command -v ffmpeg >/dev/null \
+        && command -v ffprobe >/dev/null \
         && rm -rf /var/lib/apt/lists/* ;; \
       e2e-echo|loopal) true ;; \
       *) echo "unsupported AGENT_RUNTIME=${AGENT_RUNTIME}" >&2; exit 1 ;; \
@@ -143,21 +162,20 @@ RUN groupmod -n runner node \
 
 COPY --chmod=0755 runner-binary /usr/local/bin/do-worker-runner
 RUN ln -sf do-worker-runner /usr/local/bin/agentsmesh-runner
-COPY --chmod=0755 binaries/ /usr/local/lib/do-worker/
+COPY --chmod=0755 binaries/ /usr/local/bin/
 COPY --chmod=0755 runner-entrypoint.sh /usr/local/bin/runner-entrypoint.sh
 COPY --chmod=0755 minimax-cli-wrapper.sh /usr/local/bin/minimax-cli-wrapper.sh
 
 ARG AGENT_RUNTIME=e2e-echo
 
 RUN case "${AGENT_RUNTIME}" in \
-      e2e-echo) install -m 0755 /usr/local/lib/do-worker/e2e-mock-agent-binary /usr/local/bin/e2e-mock-agent ;; \
-      loopal) install -m 0755 /usr/local/lib/do-worker/loopal-binary /usr/local/bin/loopal ;; \
-      do-agent) install -m 0755 /usr/local/lib/do-worker/do-agent-binary /usr/local/bin/do-agent ;; \
+      e2e-echo) ln -sf e2e-mock-agent-binary /usr/local/bin/e2e-mock-agent ;; \
+      loopal) ln -sf loopal-binary /usr/local/bin/loopal ;; \
+      do-agent) ln -sf do-agent-binary /usr/local/bin/do-agent ;; \
       minimax-cli) rm -f /usr/local/bin/mmx && install -m 0755 /usr/local/bin/minimax-cli-wrapper.sh /usr/local/bin/mmx ;; \
       *) true ;; \
     esac \
-    && rm -f /usr/local/bin/minimax-cli-wrapper.sh \
-    && rm -rf /usr/local/lib/do-worker
+    && rm -f /usr/local/bin/minimax-cli-wrapper.sh
 
 ENV CHROME_BIN=/usr/bin/chromium \
     NODE_PATH=/opt/video-studio/node_modules

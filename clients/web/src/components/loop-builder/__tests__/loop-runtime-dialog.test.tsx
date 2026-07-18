@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@/test/test-utils";
 import { LoopRuntimeDialog } from "../loop-runtime-dialog";
+import type { LoopRuntimeMessages } from "../loop-workbench-messages";
 
 const snapshots = [
   { id: "31", alias: "结算环境", workerType: "codex", createdAt: "2026-07-15T00:00:00Z" },
@@ -11,12 +12,26 @@ const snapshots = [
     createdAt: "2026-07-15T00:00:00Z",
   },
 ];
+const messages: LoopRuntimeMessages = {
+  title: "选择运行环境",
+  description: "运行环境只在本次启动时绑定，不属于循环编排。",
+  field: "运行环境",
+  placeholder: "选择运行环境",
+  unnamed: "未命名环境",
+  loading: "正在加载运行环境",
+  retry: "重新加载",
+  empty: "当前组织没有可用的运行环境",
+  cancel: "取消",
+  start: "启动循环",
+  snapshotLabel: (name, workerType, id) => `${name} · ${workerType} · 快照 ${id}`,
+};
 
 describe("LoopRuntimeDialog", () => {
   it("renders above Blockly toolbox and widget layers", () => {
     render(
       <LoopRuntimeDialog
         loading={false}
+        messages={messages}
         open
         running={false}
         snapshots={snapshots}
@@ -34,6 +49,7 @@ describe("LoopRuntimeDialog", () => {
     render(
       <LoopRuntimeDialog
         loading={false}
+        messages={messages}
         open
         running={false}
         snapshots={snapshots}
@@ -54,6 +70,7 @@ describe("LoopRuntimeDialog", () => {
     render(
       <LoopRuntimeDialog
         loading={false}
+        messages={messages}
         open
         running={false}
         snapshots={[]}
@@ -71,6 +88,7 @@ describe("LoopRuntimeDialog", () => {
     render(
       <LoopRuntimeDialog
         loading
+        messages={messages}
         open
         running={false}
         snapshots={[]}
@@ -90,6 +108,7 @@ describe("LoopRuntimeDialog", () => {
       <LoopRuntimeDialog
         error="运行环境加载失败，请稍后重试"
         loading={false}
+        messages={messages}
         open
         running={false}
         snapshots={[]}

@@ -36,6 +36,8 @@ type Pod struct {
 	WorkDir       string
 	LaunchEnv     []string // Full environment slice for subprocess
 
+	workbenchForwarder *acpWorkbenchForwarder
+
 	// Perpetual mode: auto-restart on clean exit
 	Perpetual    bool
 	RestartCount int
@@ -46,6 +48,9 @@ type Pod struct {
 	// Relay client (mode-agnostic, protected by relayMu)
 	RelayClient relay.RelayClient
 	relayMu     sync.RWMutex
+
+	workspace   *sandboxWorkspace
+	workspaceMu sync.RWMutex
 
 	StartedAt  time.Time
 	Status     string       // Pod status - use statusMu for thread-safe access

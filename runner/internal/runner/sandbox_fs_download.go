@@ -1,6 +1,7 @@
 package runner
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
@@ -16,25 +17,42 @@ import (
 
 const maxSandboxFsDownloadBytes = 128 << 20
 
-var sandboxFsDownloadClient = &http.Client{Timeout: 30 * time.Second}
+var sandboxFsDownloadClient = &http.Client{
+	Timeout: 30 * time.Second,
+	CheckRedirect: func(_ *http.Request, _ []*http.Request) error {
+		return http.ErrUseLastResponse
+	},
+}
 
 func (h *RunnerMessageHandler) sandboxFsDownload(
 	workspaceRoot, rel, downloadURL string,
+) (*runnerv1.SandboxFsResultEvent, error) {
+	workspace, err := openSandboxWorkspace(workspaceRoot)
+	if err != nil {
+		return fsErrResult(err.Error()), nil
+	}
+	defer workspace.Close()
+	return h.sandboxFsDownloadWorkspace(context.Background(), workspace, rel, downloadURL)
+}
+
+func (h *RunnerMessageHandler) sandboxFsDownloadWorkspace(
+	ctx context.Context,
+	workspace *sandboxWorkspace,
+	rel, downloadURL string,
 ) (*runnerv1.SandboxFsResultEvent, error) {
 	relative, _, err := resolveSandboxWorkspaceRelativePath(rel)
 	if err != nil {
 		return fsErrResult(err.Error()), nil
 	}
-	root, err := openSandboxWorkspaceRoot(workspaceRoot)
-	if err != nil {
-		return fsErrResult(err.Error()), nil
-	}
-	defer root.Close()
 	parsed, err := url.ParseRequestURI(downloadURL)
 	if err != nil || parsed.Host == "" || (parsed.Scheme != "http" && parsed.Scheme != "https") {
 		return fsErrResult("invalid download URL"), nil
 	}
-	resp, err := sandboxFsDownloadClient.Get(parsed.String())
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, parsed.String(), nil)
+	if err != nil {
+		return fsErrResult(err.Error()), nil
+	}
+	resp, err := sandboxFsDownloadClient.Do(request)
 	if err != nil {
 		return fsErrResult(fmt.Sprintf("download failed: %v", err)), nil
 	}
@@ -45,10 +63,10 @@ func (h *RunnerMessageHandler) sandboxFsDownload(
 	if resp.ContentLength > maxSandboxFsDownloadBytes {
 		return fsErrResult("download exceeds maximum file size"), nil
 	}
-	if err := writeDownloadedFile(root, relative, resp.Body); err != nil {
+	if err := writeDownloadedFile(workspace.root, relative, resp.Body); err != nil {
 		return fsErrResult(err.Error()), nil
 	}
-	return &runnerv1.SandboxFsResultEvent{WorkspaceRoot: workspaceRoot}, nil
+	return &runnerv1.SandboxFsResultEvent{WorkspaceRoot: workspace.displayPath()}, nil
 }
 
 func writeDownloadedFile(root *os.Root, destination string, body io.Reader) error {

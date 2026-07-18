@@ -25,6 +25,9 @@ func TestMigration000222VideoStudioAgent(t *testing.T) {
 			t.Errorf("up migration must contain %q", expected)
 		}
 	}
+	if strings.Count(upSQL, "adapter_id") != 2 {
+		t.Fatal("up migration must copy adapter_id into the video-studio agent")
+	}
 
 	down, err := FS.ReadFile("000222_add_video_studio_agent.down.sql")
 	if err != nil {

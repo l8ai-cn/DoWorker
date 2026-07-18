@@ -29,10 +29,17 @@ func NormalizeAndValidate(spec Spec) (Spec, error) {
 }
 
 func Validate(spec Spec) error {
+	return validateSpec(spec, validateModelBinding)
+}
+
+func validateSpec(
+	spec Spec,
+	validateMainModelBinding func(ModelBinding) error,
+) error {
 	if spec.Version != VersionV1 {
 		return fmt.Errorf("workerspec version %d is unsupported", spec.Version)
 	}
-	if err := validateModelBinding(spec.Runtime.ModelBinding); err != nil {
+	if err := validateMainModelBinding(spec.Runtime.ModelBinding); err != nil {
 		return err
 	}
 	if err := validateToolModelBindings(spec.Runtime.ToolModelBindings); err != nil {
@@ -63,6 +70,17 @@ func Validate(spec Spec) error {
 }
 
 func validateModelBinding(binding ModelBinding) error {
+	return validateModelBindingProtocol(binding, true)
+}
+
+func validatePersistedModelBinding(binding ModelBinding) error {
+	return validateModelBindingProtocol(binding, false)
+}
+
+func validateModelBindingProtocol(
+	binding ModelBinding,
+	requireProtocolAdapter bool,
+) error {
 	if binding.IsEmpty() {
 		return nil
 	}
@@ -79,8 +97,10 @@ func validateModelBinding(binding ModelBinding) error {
 	if err := slugkit.Validate(binding.ProviderKey.String()); err != nil {
 		return fmt.Errorf("runtime model binding provider key: %w", err)
 	}
-	if err := slugkit.Validate(binding.ProtocolAdapter.String()); err != nil {
-		return fmt.Errorf("runtime model binding protocol adapter: %w", err)
+	if requireProtocolAdapter || binding.ProtocolAdapter != "" {
+		if err := slugkit.Validate(binding.ProtocolAdapter.String()); err != nil {
+			return fmt.Errorf("runtime model binding protocol adapter: %w", err)
+		}
 	}
 	if strings.TrimSpace(binding.ModelID) == "" {
 		return fmt.Errorf("runtime model binding model id is required")

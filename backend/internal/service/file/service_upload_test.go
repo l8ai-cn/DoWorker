@@ -30,6 +30,24 @@ func TestRequestPresignedUpload_Success(t *testing.T) {
 	}
 }
 
+func TestRequestPresignedUpload_VideoSuccess(t *testing.T) {
+	svc, _ := setupTestService(t)
+
+	resp, err := svc.RequestPresignedUpload(context.Background(), &PresignUploadRequest{
+		OrganizationID: 1,
+		FileName:       "seedance.mp4",
+		ContentType:    "video/mp4",
+		Size:           1024,
+	})
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if resp == nil || resp.PutURL == "" || resp.GetURL == "" {
+		t.Fatal("expected presigned video upload URLs")
+	}
+}
+
 func TestRequestPresignedUpload_FileTooLarge(t *testing.T) {
 	svc, _ := setupTestService(t)
 

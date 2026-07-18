@@ -6,220 +6,139 @@ import (
 	"sync/atomic"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestPodCommandQueue_SequentialPerPod(t *testing.T) {
 	q := NewPodCommandQueue()
-	defer q.Wait()
-
-	var order []string
 	var mu sync.Mutex
-	done := make(chan struct{})
+	order := make([]int, 0, 10)
 
-	// Enqueue two commands for the same pod — must execute in order.
-	q.Enqueue("pod-1", func() {
-		time.Sleep(50 * time.Millisecond) // simulate slow create_pod
-		mu.Lock()
-		order = append(order, "create_pod")
-		mu.Unlock()
-	})
-	q.Enqueue("pod-1", func() {
-		mu.Lock()
-		order = append(order, "create_autopilot")
-		mu.Unlock()
-		close(done)
-	})
-
-	<-done
-	q.Remove("pod-1")
-
-	mu.Lock()
-	defer mu.Unlock()
-	if len(order) != 2 || order[0] != "create_pod" || order[1] != "create_autopilot" {
-		t.Errorf("Expected [create_pod, create_autopilot], got %v", order)
-	}
-}
-
-func TestPodCommandQueue_LongChainOrder(t *testing.T) {
-	q := NewPodCommandQueue()
-
-	var order []int
-	var mu sync.Mutex
-	const n = 10
-
-	for i := 0; i < n; i++ {
-		i := i
-		q.Enqueue("pod-1", func() {
+	for i := 0; i < 10; i++ {
+		index := i
+		require.NoError(t, q.Enqueue("pod-1", func() {
 			mu.Lock()
-			order = append(order, i)
+			order = append(order, index)
 			mu.Unlock()
-		})
+		}))
 	}
 
-	q.Remove("pod-1")
 	q.Wait()
-
 	mu.Lock()
 	defer mu.Unlock()
-	if len(order) != n {
-		t.Fatalf("Expected %d commands, got %d", n, len(order))
-	}
-	for i := 0; i < n; i++ {
-		if order[i] != i {
-			t.Errorf("Command %d executed at position %d", i, order[i])
-		}
-	}
+	assert.Equal(t, []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, order)
 }
 
 func TestPodCommandQueue_ConcurrentAcrossPods(t *testing.T) {
 	q := NewPodCommandQueue()
-	defer q.Wait()
-
 	var concurrent atomic.Int32
-	var maxConcurrent atomic.Int32
-	var wg sync.WaitGroup
+	var maximum atomic.Int32
+	var commands sync.WaitGroup
 
 	for i := 0; i < 5; i++ {
-		podKey := fmt.Sprintf("pod-%d", i)
-		wg.Add(1)
-		q.Enqueue(podKey, func() {
-			defer wg.Done()
-			cur := concurrent.Add(1)
+		commands.Add(1)
+		require.NoError(t, q.Enqueue(fmt.Sprintf("pod-%d", i), func() {
+			defer commands.Done()
+			current := concurrent.Add(1)
 			for {
-				old := maxConcurrent.Load()
-				if cur <= old || maxConcurrent.CompareAndSwap(old, cur) {
+				previous := maximum.Load()
+				if current <= previous || maximum.CompareAndSwap(previous, current) {
 					break
 				}
 			}
-			time.Sleep(50 * time.Millisecond)
+			time.Sleep(20 * time.Millisecond)
 			concurrent.Add(-1)
-		})
+		}))
 	}
 
-	wg.Wait()
-	for i := 0; i < 5; i++ {
-		q.Remove(fmt.Sprintf("pod-%d", i))
-	}
-
-	if maxConcurrent.Load() < 2 {
-		t.Errorf("Expected concurrent execution across pods, max was %d", maxConcurrent.Load())
-	}
+	commands.Wait()
+	q.Wait()
+	assert.GreaterOrEqual(t, maximum.Load(), int32(2))
 }
 
-func TestPodCommandQueue_RemoveDrainsRemaining(t *testing.T) {
+func TestPodCommandQueue_SaturationReturnsImmediately(t *testing.T) {
 	q := NewPodCommandQueue()
+	started := make(chan struct{})
+	release := make(chan struct{})
+	require.NoError(t, q.Enqueue("pod-1", func() {
+		close(started)
+		<-release
+	}))
+	<-started
 
-	var count atomic.Int32
-
-	q.Enqueue("pod-1", func() { count.Add(1) })
-	q.Enqueue("pod-1", func() { count.Add(1) })
-	q.Enqueue("pod-1", func() { count.Add(1) })
-
-	q.Remove("pod-1")
-	q.Wait()
-
-	if count.Load() != 3 {
-		t.Errorf("Expected 3 commands executed, got %d", count.Load())
+	for i := 0; i < podQueueSize; i++ {
+		require.NoError(t, q.Enqueue("pod-1", func() {}))
 	}
+
+	result := make(chan error, 1)
+	go func() {
+		result <- q.Enqueue("pod-1", func() {})
+	}()
+	select {
+	case err := <-result:
+		require.ErrorIs(t, err, ErrPodCommandQueueFull)
+	case <-time.After(100 * time.Millisecond):
+		t.Fatal("Enqueue blocked on a saturated pod queue")
+	}
+
+	close(release)
+	q.Wait()
 }
 
-func TestPodCommandQueue_DoubleRemoveNoPanic(t *testing.T) {
+func TestPodCommandQueue_AutoCleanupAndReuse(t *testing.T) {
 	q := NewPodCommandQueue()
+	for i := 0; i < 100; i++ {
+		done := make(chan struct{})
+		require.NoError(t, q.Enqueue("pod-1", func() { close(done) }))
+		<-done
+	}
 
-	q.Enqueue("pod-1", func() {})
-	q.Remove("pod-1")
-	q.Remove("pod-1") // should not panic
 	q.Wait()
+	assertPodCommandQueueIdle(t, q)
+
+	done := make(chan struct{})
+	require.NoError(t, q.Enqueue("pod-1", func() { close(done) }))
+	<-done
+	q.Wait()
+	assertPodCommandQueueIdle(t, q)
 }
 
-func TestPodCommandQueue_EnqueueAfterRemove(t *testing.T) {
-	// Simulates session recovery: same pod_key reused after previous instance was removed.
+func TestPodCommandQueue_ConcurrentCleanup(t *testing.T) {
 	q := NewPodCommandQueue()
+	const pods = 100
+	var commands sync.WaitGroup
+	commands.Add(pods)
 
-	var count atomic.Int32
-
-	// First lifecycle
-	q.Enqueue("pod-1", func() { count.Add(1) })
-	q.Remove("pod-1")
-	q.Wait()
-
-	if count.Load() != 1 {
-		t.Fatalf("First lifecycle: expected 1, got %d", count.Load())
+	for i := 0; i < pods; i++ {
+		podKey := fmt.Sprintf("pod-%d", i)
+		require.NoError(t, q.Enqueue(podKey, commands.Done))
 	}
 
-	// Second lifecycle — new worker should be created for the same pod_key
-	q.Enqueue("pod-1", func() { count.Add(1) })
-	q.Remove("pod-1")
+	commands.Wait()
 	q.Wait()
-
-	if count.Load() != 2 {
-		t.Errorf("Second lifecycle: expected 2, got %d", count.Load())
-	}
+	assertPodCommandQueueIdle(t, q)
 }
 
 func TestPodCommandQueue_PanicRecovery(t *testing.T) {
-	// A panic in one command must not kill the worker or block subsequent commands.
 	q := NewPodCommandQueue()
-
-	var executed atomic.Int32
 	done := make(chan struct{})
+	require.NoError(t, q.Enqueue("pod-1", func() { panic("simulated crash") }))
+	require.NoError(t, q.Enqueue("pod-1", func() { close(done) }))
 
-	q.Enqueue("pod-1", func() {
-		executed.Add(1)
-		panic("simulated crash")
-	})
-	q.Enqueue("pod-1", func() {
-		executed.Add(1)
-		close(done)
-	})
-
-	select {
-	case <-done:
-		// second command executed despite first panicking
-	case <-time.After(3 * time.Second):
-		t.Fatal("Second command was not executed after panic in first")
-	}
-
-	q.Remove("pod-1")
-	q.Wait()
-
-	if executed.Load() != 2 {
-		t.Errorf("Expected 2 commands executed, got %d", executed.Load())
-	}
-}
-
-func TestPodCommandQueue_EmptyWaitNonBlocking(t *testing.T) {
-	q := NewPodCommandQueue()
-	// Wait on a queue with no pods should return immediately
-	done := make(chan struct{})
-	go func() {
-		q.Wait()
-		close(done)
-	}()
 	select {
 	case <-done:
 	case <-time.After(time.Second):
-		t.Fatal("Wait() blocked on empty queue")
+		t.Fatal("command after panic did not execute")
 	}
+	q.Wait()
 }
 
-func TestPodCommandQueue_ConcurrentCreateAndRemove(t *testing.T) {
-	// Race detector stress test: many pods created and removed concurrently.
-	q := NewPodCommandQueue()
-
-	var wg sync.WaitGroup
-	for i := 0; i < 50; i++ {
-		podKey := fmt.Sprintf("pod-%d", i)
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			q.Enqueue(podKey, func() {
-				time.Sleep(time.Millisecond)
-			})
-			q.Enqueue(podKey, func() {})
-			q.Remove(podKey)
-		}()
-	}
-	wg.Wait()
-	q.Wait()
+func assertPodCommandQueueIdle(t *testing.T, q *PodCommandQueue) {
+	t.Helper()
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	require.Empty(t, q.queues)
+	require.Zero(t, q.workers)
 }

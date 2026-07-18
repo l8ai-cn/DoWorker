@@ -23,7 +23,7 @@ type ptyProcess struct {
 
 var _ Handle = (*ptyProcess)(nil)
 
-func startPTY(ctx context.Context, mgr *manager, spec Spec) (Handle, error) {
+func startPTY(ctx context.Context, mgr *manager, spec Spec) (managedHandle, error) {
 	cmd := exec.Command(spec.Command, spec.Args...) //nolint:gosec
 	cmd.Env = spec.Env
 	cmd.Dir = spec.Dir
@@ -42,10 +42,13 @@ func startPTY(ctx context.Context, mgr *manager, spec Spec) (Handle, error) {
 		},
 		ptyFile: ptyFile,
 	}
-	safego.Go("processmgr-reap-pty-"+spec.Owner, func() {
+	return p, nil
+}
+
+func (p *ptyProcess) startLifecycle() {
+	safego.Go("processmgr-reap-pty-"+p.Owner(), func() {
 		p.reapLoopBody(p, func() { _ = p.ptyFile.Close() })
 	})
-	return p, nil
 }
 
 func (p *ptyProcess) PTY() *os.File { return p.ptyFile }

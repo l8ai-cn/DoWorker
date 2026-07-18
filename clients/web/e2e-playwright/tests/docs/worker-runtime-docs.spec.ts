@@ -34,11 +34,13 @@ test("public Worker docs use the runtime catalog instead of legacy terminology",
   }
   await expect(workerDocs).not.toContainText("AgentPod");
   await expect(workerDocs).toContainText(
-    "Local product flow verified; release image blocked",
-  );
-  await expect(workerDocs).toContainText(
     "Configured release digest cannot be pulled",
   );
+  const codexCard = page.locator("article.surface-card").filter({
+    has: page.getByRole("heading", { name: "Codex CLI", exact: true }),
+  });
+  await expect(codexCard).toContainText("Runtime ready; validation incomplete");
+  await expect(codexCard).toContainText("published digest verified");
   const geminiCard = page.locator("article.surface-card").filter({
     has: page.getByRole("heading", { name: "Gemini CLI", exact: true }),
   });

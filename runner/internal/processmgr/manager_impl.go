@@ -21,6 +21,11 @@ type manager struct {
 	processes map[Handle]struct{}
 }
 
+type managedHandle interface {
+	Handle
+	startLifecycle()
+}
+
 func newManager(parent context.Context, opts Options) *manager {
 	ctx, cancel := context.WithCancel(parent)
 	m := &manager{
@@ -49,12 +54,11 @@ func (m *manager) Start(ctx context.Context, spec Spec) (Handle, error) {
 	if err != nil {
 		return nil, err
 	}
-	m.register(p)
-	observeStart(spec.Mode, spec.Owner)
+	m.startTracking(p)
 	return p, nil
 }
 
-func (m *manager) dispatch(ctx context.Context, spec Spec) (Handle, error) {
+func (m *manager) dispatch(ctx context.Context, spec Spec) (managedHandle, error) {
 	switch spec.Mode {
 	case ModeNormal:
 		return startNormal(ctx, m, spec)
@@ -67,17 +71,34 @@ func (m *manager) dispatch(ctx context.Context, spec Spec) (Handle, error) {
 	}
 }
 
+func (m *manager) startTracking(p managedHandle) {
+	m.register(p)
+	observeStart(p.Mode(), p.Owner())
+	p.startLifecycle()
+}
+
 func (m *manager) register(p Handle) {
 	m.mu.Lock()
-	defer m.mu.Unlock()
 	m.processes[p] = struct{}{}
+	m.mu.Unlock()
+
+	select {
+	case <-p.Done():
+		m.unregister(p)
+	default:
+	}
 }
 
 func (m *manager) unregister(p Handle) {
 	m.mu.Lock()
-	delete(m.processes, p)
+	_, registered := m.processes[p]
+	if registered {
+		delete(m.processes, p)
+	}
 	m.mu.Unlock()
-	observeExit(p)
+	if registered {
+		observeExit(p)
+	}
 }
 
 func (m *manager) List() []Handle {

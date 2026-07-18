@@ -48,26 +48,15 @@ func (s *PromptOutbox) PersistAndQueue(ctx context.Context, in PromptInput) erro
 		if err := acquirePromptLocks(tx, in.RunnerID, in.Item.SessionID); err != nil {
 			return err
 		}
-		if err := ensureQueueCapacity(ctx, tx, in.RunnerID, s.queue.MaxPerRunner()); err != nil {
-			return err
-		}
-		position, err := nextItemPosition(ctx, tx, in.Item.SessionID)
-		if err != nil {
-			return err
-		}
-		in.Item.Position = position
-		if err := tx.Create(in.Item).Error; err != nil {
-			return err
-		}
-		return tx.Create(&agentpod.PendingCommand{
-			OrganizationID: in.OrganizationID,
-			RunnerID:       in.RunnerID,
-			PodKey:         in.PodKey,
-			CommandType:    agentpod.CommandTypeSendPrompt,
-			CommandID:      in.Item.ID,
-			Payload:        payload,
-			ExpiresAt:      time.Now().Add(s.queue.SendPromptTTL()),
-		}).Error
+		return persistPromptCommand(
+			ctx,
+			tx,
+			in,
+			payload,
+			s.queue,
+			s.queue.MaxPerRunner(),
+			time.Now().Add(s.queue.SendPromptTTL()),
+		)
 	}); err != nil {
 		return err
 	}

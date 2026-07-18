@@ -117,6 +117,15 @@ impl WasmApiClient {
         crate::service_agent::WasmAgentService::new(self.client.clone())
     }
 
+    pub fn create_agent_workbench_service(
+        &self,
+    ) -> crate::service_agent_workbench::WasmAgentWorkbenchService {
+        crate::service_agent_workbench::WasmAgentWorkbenchService::new(
+            self.client.clone(),
+            self.runtime.state.clone(),
+        )
+    }
+
     pub fn create_ai_resource_service(&self) -> crate::service_ai_resource::WasmAIResourceService {
         crate::service_ai_resource::WasmAIResourceService::new(self.client.clone())
     }

@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
   "worker_slug": "video-studio",
-  "validated_at": "2026-07-16T05:38:28.762Z",
-  "image": "do-worker/runner-video-studio:latest",
+  "validated_at": "2026-07-18T08:28:08+08:00",
+  "image": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:f3463bc567f1ed8516486e95e17d50f48834275aae7931221b1a3eeb3c526a5d",
   "platform": "linux/amd64",
   "checks": {
-    "local_image_inspect": "image_missing",
+    "local_image_inspect": "passed",
     "version_probe": [
       "video-studio-codex",
       "--version"
-    ]
+    ],
+    "video_runtime_contract": "passed"
   },
-  "verdict": "image_missing",
-  "observed_failure": "Docker reported that do-worker/runner-video-studio:latest does not exist locally.",
+  "verdict": "published_runtime_smoke_verified",
   "limits": [
-    "The local video-studio runtime contract and version probe were not executed because the image is absent.",
     "No Runner registration, backend creation request, model credential materialization, or browser flow was executed."
-  ]
+  ],
+  "image_id": "sha256:f3463bc567f1ed8516486e95e17d50f48834275aae7931221b1a3eeb3c526a5d"
 }

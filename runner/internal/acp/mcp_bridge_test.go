@@ -6,7 +6,7 @@ import (
 )
 
 func TestBuildMCPServersConfig_Format(t *testing.T) {
-	config := BuildMCPServersConfig(8080)
+	config := BuildMCPServersConfig(8080, "pod-one")
 
 	am, ok := config["agentsmesh"]
 	if !ok {
@@ -26,6 +26,15 @@ func TestBuildMCPServersConfig_Format(t *testing.T) {
 	if amMap["url"] != expectedURL {
 		t.Errorf("url = %v, want %q", amMap["url"], expectedURL)
 	}
+	headers, ok := amMap["headers"].([]map[string]string)
+	if !ok {
+		t.Fatalf("headers = %#v, want []map[string]string", amMap["headers"])
+	}
+	if len(headers) != 1 ||
+		headers[0]["name"] != "X-Pod-Key" ||
+		headers[0]["value"] != "pod-one" {
+		t.Fatalf("headers = %#v", headers)
+	}
 }
 
 func TestBuildMCPServersConfig_DifferentPorts(t *testing.T) {
@@ -33,7 +42,7 @@ func TestBuildMCPServersConfig_DifferentPorts(t *testing.T) {
 
 	for _, port := range ports {
 		t.Run(fmt.Sprintf("port_%d", port), func(t *testing.T) {
-			config := BuildMCPServersConfig(port)
+			config := BuildMCPServersConfig(port, "pod-one")
 
 			amMap := config["agentsmesh"].(map[string]any)
 			expectedURL := fmt.Sprintf("http://127.0.0.1:%d/mcp", port)
@@ -45,7 +54,7 @@ func TestBuildMCPServersConfig_DifferentPorts(t *testing.T) {
 }
 
 func TestBuildMCPServersConfig_OnlyOneKey(t *testing.T) {
-	config := BuildMCPServersConfig(8080)
+	config := BuildMCPServersConfig(8080, "pod-one")
 
 	if len(config) != 1 {
 		t.Errorf("expected exactly 1 key, got %d", len(config))
@@ -53,7 +62,7 @@ func TestBuildMCPServersConfig_OnlyOneKey(t *testing.T) {
 }
 
 func TestBuildMCPServersConfig_InnerMapHasThreeKeys(t *testing.T) {
-	config := BuildMCPServersConfig(8080)
+	config := BuildMCPServersConfig(8080, "pod-one")
 	amMap := config["agentsmesh"].(map[string]any)
 
 	if len(amMap) != 3 {

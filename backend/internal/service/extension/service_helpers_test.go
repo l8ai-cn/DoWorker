@@ -242,7 +242,7 @@ func (m *svcMockStorage) PresignPutURL(_ context.Context, _ string, _ string, _ 
 	return "", nil
 }
 
-func (m *svcMockStorage) InternalPresignPutURL(_ context.Context, _ string, _ string, _ time.Duration) (string, error) {
+func (m *svcMockStorage) InternalPresignPutURL(_ context.Context, _ string, _ string, _ int64, _ time.Duration) (string, error) {
 	return "", nil
 }
 

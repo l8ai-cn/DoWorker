@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
 	"time"
@@ -36,6 +37,42 @@ func TestGetInternalURL_UsesRunnerEndpoint(t *testing.T) {
 	}
 	if !strings.HasPrefix(url, "http://host.docker.internal:10004/") {
 		t.Errorf("expected presigned URL to target runner endpoint, got %q", url)
+	}
+}
+
+func TestInternalPresignPutURLSignsContentLength(t *testing.T) {
+	s, err := NewS3Storage(S3Config{
+		Endpoint:       "localhost:10004",
+		RunnerEndpoint: "host.docker.internal:10004",
+		Region:         "us-east-1",
+		Bucket:         "agentsmesh",
+		AccessKey:      "minioadmin",
+		SecretKey:      "minioadmin",
+		UsePathStyle:   true,
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	signed, err := s.InternalPresignPutURL(
+		context.Background(),
+		"workspace-artifacts/video.mp4",
+		"video/mp4",
+		32<<20,
+		5*time.Minute,
+	)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	parsed, err := url.Parse(signed)
+	if err != nil {
+		t.Fatalf("parse presigned URL: %v", err)
+	}
+	if !strings.Contains(parsed.Query().Get("X-Amz-SignedHeaders"), "content-length") {
+		t.Fatalf("expected content-length to be signed, got %q", signed)
+	}
+	if parsed.Host != "host.docker.internal:10004" {
+		t.Fatalf("expected runner-reachable upload URL, got %q", signed)
 	}
 }
 

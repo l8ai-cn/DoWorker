@@ -34,10 +34,12 @@ func (e *HTTPError) Error() string {
 }
 
 type Config struct {
-	BaseURL      string // API + clone base as seen from the backend
-	AdminToken   string
-	Namespace    string // Gitea org that owns all KB repos
-	CloneBaseURL string // clone base as seen from runners; falls back to BaseURL
+	BaseURL         string // API + clone base as seen from the backend
+	AdminToken      string
+	Namespace       string // Gitea org that owns all KB repos
+	CloneBaseURL    string // HTTP clone base as seen from runners
+	SSHCloneBaseURL string // SSH clone base as seen from runners
+	SSHKnownHosts   string // pinned host key distributed to runners
 }
 
 func (c Config) Enabled() bool { return c.BaseURL != "" && c.AdminToken != "" }
@@ -57,7 +59,8 @@ func NewClient(cfg Config) *Client {
 	return &Client{cfg: cfg, http: &http.Client{Timeout: 30 * time.Second}}
 }
 
-func (c *Client) Namespace() string { return c.cfg.Namespace }
+func (c *Client) Namespace() string     { return c.cfg.Namespace }
+func (c *Client) SSHKnownHosts() string { return c.cfg.SSHKnownHosts }
 
 type Repo struct {
 	Name          string `json:"name"`
@@ -130,7 +133,11 @@ func (c *Client) CreateRepo(ctx context.Context, name, defaultBranch string) (*R
 }
 
 func (c *Client) DeleteRepo(ctx context.Context, name string) error {
-	return c.do(ctx, http.MethodDelete, "/repos/"+c.cfg.Namespace+"/"+name, nil, nil)
+	err := c.do(ctx, http.MethodDelete, "/repos/"+c.cfg.Namespace+"/"+name, nil, nil)
+	if IsHTTPStatus(err, http.StatusNotFound) {
+		return nil
+	}
+	return err
 }
 
 // CloneURL returns the runner-facing HTTPS clone URL without credentials.
@@ -138,9 +145,17 @@ func (c *Client) CloneURL(name string) string {
 	return fmt.Sprintf("%s/%s/%s.git", strings.TrimRight(c.cfg.CloneBaseURL, "/"), c.cfg.Namespace, name)
 }
 
-// CloneToken returns the credential runners embed in the clone URL. Gitea
-// accepts an access token as the basic-auth password with any username.
-func (c *Client) CloneToken() string { return c.cfg.AdminToken }
+func (c *Client) SSHCloneURL(name string) string {
+	if c.cfg.SSHCloneBaseURL == "" {
+		return ""
+	}
+	return fmt.Sprintf(
+		"%s/%s/%s.git",
+		strings.TrimRight(c.cfg.SSHCloneBaseURL, "/"),
+		c.cfg.Namespace,
+		name,
+	)
+}
 
 func escapePath(p string) string {
 	segs := strings.Split(p, "/")
@@ -148,4 +163,9 @@ func escapePath(p string) string {
 		segs[i] = url.PathEscape(s)
 	}
 	return strings.Join(segs, "/")
+}
+
+func IsHTTPStatus(err error, status int) bool {
+	var httpErr *HTTPError
+	return errors.As(err, &httpErr) && httpErr.StatusCode == status
 }

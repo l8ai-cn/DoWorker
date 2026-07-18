@@ -124,6 +124,54 @@ func TestRegistryShapeValidationRejectsUnsupportedMapKeyType(t *testing.T) {
 	}
 }
 
+func TestRegistryShapeValidationRejectsNullForTypedValues(t *testing.T) {
+	registry, manifest := registryForShape(t, "NullShape", func() any {
+		return &registryShapeSpec{}
+	})
+	tests := []struct {
+		name string
+		spec string
+		path string
+	}{
+		{
+			name: "primitive",
+			spec: `{"embedded":null,"items":[],"entries":{},"opaque":{},"number":1}`,
+			path: "spec.embedded",
+		},
+		{
+			name: "array",
+			spec: `{"embedded":"value","items":null,"entries":{},"opaque":{},"number":1}`,
+			path: "spec.items",
+		},
+		{
+			name: "map",
+			spec: `{"embedded":"value","items":[],"entries":null,"opaque":{},"number":1}`,
+			path: "spec.entries",
+		},
+		{
+			name: "map value",
+			spec: `{"embedded":"value","items":[],"entries":{"first":null},` +
+				`"opaque":{},"number":1}`,
+			path: "spec.entries[map value]",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			manifest.Spec = json.RawMessage(tt.spec)
+			_, err := registry.DecodeAndValidate(manifest)
+			require.ErrorIs(t, err, ErrTypedJSONType)
+			require.Contains(t, err.Error(), "at path "+tt.path)
+			require.NotContains(t, err.Error(), tt.spec)
+		})
+	}
+
+	manifest.Spec = json.RawMessage(
+		`{"embedded":"value","items":[],"entries":{},"opaque":null,"number":null}`,
+	)
+	_, err := registry.DecodeAndValidate(manifest)
+	require.NoError(t, err)
+}
+
 func TestRegistryShapeValidationMatchesDashCommaJSONTag(t *testing.T) {
 	type dashTagSpec struct {
 		Dash    string `json:"-,"`

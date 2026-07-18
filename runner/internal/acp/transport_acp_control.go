@@ -3,24 +3,65 @@ package acp
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"time"
+)
+
+type agentsmeshExtensions struct {
+	ControlRequest  bool
+	PermissionModes []string
+	ArtifactActions []string
+}
+
+var artifactActionPattern = regexp.MustCompile(
+	`^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$`,
 )
 
 // parseAgentsmeshExtensions reads the agentsmeshExtensions block from an
 // initialize response: controlRequest (gates SendControlRequest's fast-fail
 // below) and permissionModes (the wire values this agent accepts for
 // set_permission_mode). Agents that omit the extension leave both at zero.
-func parseAgentsmeshExtensions(raw json.RawMessage) (controlRequest bool, permissionModes []string) {
+func parseAgentsmeshExtensions(raw json.RawMessage) (agentsmeshExtensions, error) {
 	var body struct {
 		AgentsmeshExtensions struct {
 			ControlRequest  bool     `json:"controlRequest"`
 			PermissionModes []string `json:"permissionModes"`
+			ArtifactActions []string `json:"artifactActions"`
 		} `json:"agentsmeshExtensions"`
 	}
 	if err := json.Unmarshal(raw, &body); err != nil {
-		return false, nil
+		return agentsmeshExtensions{}, err
 	}
-	return body.AgentsmeshExtensions.ControlRequest, body.AgentsmeshExtensions.PermissionModes
+	extension := agentsmeshExtensions{
+		ControlRequest:  body.AgentsmeshExtensions.ControlRequest,
+		PermissionModes: body.AgentsmeshExtensions.PermissionModes,
+		ArtifactActions: body.AgentsmeshExtensions.ArtifactActions,
+	}
+	if err := validateArtifactActions(extension); err != nil {
+		return agentsmeshExtensions{}, err
+	}
+	return extension, nil
+}
+
+func validateArtifactActions(extension agentsmeshExtensions) error {
+	if len(extension.ArtifactActions) > 64 {
+		return fmt.Errorf("artifactActions exceeds 64 entries")
+	}
+	if len(extension.ArtifactActions) > 0 && !extension.ControlRequest {
+		return fmt.Errorf("artifactActions requires controlRequest")
+	}
+	seen := make(map[string]struct{}, len(extension.ArtifactActions))
+	for _, action := range extension.ArtifactActions {
+		if len(action) < 2 || len(action) > 100 ||
+			!artifactActionPattern.MatchString(action) {
+			return fmt.Errorf("artifactActions contains invalid action %q", action)
+		}
+		if _, exists := seen[action]; exists {
+			return fmt.Errorf("artifactActions contains duplicate action %q", action)
+		}
+		seen[action] = struct{}{}
+	}
+	return nil
 }
 
 // SendControlRequest issues a `session/control_request` JSON-RPC and waits

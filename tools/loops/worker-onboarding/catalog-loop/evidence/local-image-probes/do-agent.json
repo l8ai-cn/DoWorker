@@ -3,14 +3,14 @@
   "worker_slug": "do-agent",
   "definition_hash": "sha256:f4348e3bb9baf3973078c475b5ac724fab016d06c10673d927d21dd80a267bb8",
   "platform": "linux/amd64",
-  "observed_at": "2026-07-12T23:09:26.554Z",
+  "observed_at": "2026-07-18T08:28:08+08:00",
   "image_reference": "do-worker/runner-do-agent:latest",
-  "image_id": "sha256:cafff00644942615a971e75155ad37e7ccff4b56ba869c6b8982cf07d7f37cce",
+  "image_id": "sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653",
   "probe_command": [
     "do-agent",
     "--version"
   ],
   "status": "passed",
   "exit_code": 0,
-  "output": "do-agent 0.2.7"
+  "output": "do-agent 0.2.0"
 }

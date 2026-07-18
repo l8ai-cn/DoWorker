@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Identifier contract lint
         run: bash tools/identifier-lint/lint.sh
       - name: Dev runner contract
@@ -62,7 +62,7 @@ jobs:
       MIGRATIONS_POSTGRES_TEST_DSN: postgres://postgres:postgres@localhost:5432/agentsmesh_migrations?sslmode=disable
       MARKETPLACE_POSTGRES_TEST_DSN: postgres://postgres:postgres@localhost:5432/agentsmesh_migrations?sslmode=disable
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
@@ -90,7 +90,7 @@ jobs:
       matrix:
         module: [backend, runner, relay, marketplace]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
@@ -113,7 +113,7 @@ jobs:
     timeout-minutes: 25
     needs: smoke
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
@@ -142,7 +142,7 @@ jobs:
     timeout-minutes: 30
     needs: smoke
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
@@ -184,7 +184,7 @@ jobs:
     timeout-minutes: 45
     needs: smoke
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown
@@ -210,7 +210,7 @@ jobs:
     timeout-minutes: 25
     needs: smoke
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
@@ -235,6 +235,7 @@ jobs:
       - run: pnpm run web:lint
       - run: pnpm run web:typecheck
       - run: pnpm run web:test
+      - run: pnpm --filter @do-worker/agent-ui test
       - run: pnpm run web-admin:typecheck
       - run: pnpm run marketplace-web:check
 
@@ -244,7 +245,7 @@ jobs:
     timeout-minutes: 20
     needs: smoke
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
@@ -262,7 +263,7 @@ jobs:
     timeout-minutes: 25
     needs: smoke
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
@@ -316,7 +317,7 @@ jobs:
           - service: mobile
             file: clients/mobile-lovable/Dockerfile
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Free disk
         if: matrix.service == 'web' || matrix.service == 'web-admin' || matrix.service == 'marketplace-web' || matrix.service == 'mobile'
         run: |
@@ -346,7 +347,7 @@ jobs:
     env:
       AGENTSMESH_WORKTREE_NAME: head-shard${{ matrix.shard }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
@@ -488,7 +489,7 @@ jobs:
     timeout-minutes: 30
     needs: smoke
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
@@ -538,7 +539,7 @@ jobs:
     timeout-minutes: 30
     needs: smoke
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}

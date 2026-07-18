@@ -1,9 +1,30 @@
-import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { authenticatedFetch } from "@/lib/identity";
 import { FileViewerContext } from "@/shell/FileViewerContext";
 import { BlockRenderer } from "./BlockRenderer";
 
-afterEach(cleanup);
+vi.mock("@/lib/identity", () => ({ authenticatedFetch: vi.fn() }));
+
+beforeEach(() => {
+  vi.mocked(authenticatedFetch).mockResolvedValue(
+    new Response("video", {
+      status: 200,
+      headers: { "Content-Type": "video/mp4" },
+    }),
+  );
+  vi.stubGlobal("URL", {
+    ...URL,
+    createObjectURL: vi.fn(() => "blob:block-file"),
+    revokeObjectURL: vi.fn(),
+  });
+});
+
+afterEach(() => {
+  cleanup();
+  vi.unstubAllGlobals();
+  vi.clearAllMocks();
+});
 
 const FILE_VIEWER_CONTEXT = {
   openFile: () => {},
@@ -14,7 +35,7 @@ const FILE_VIEWER_CONTEXT = {
 };
 
 describe("BlockRenderer file dispatch", () => {
-  it("renders a file item through OutputFileArtifact", () => {
+  it("forwards the content type to the lazy video artifact", async () => {
     render(
       <FileViewerContext.Provider value={FILE_VIEWER_CONTEXT}>
         <BlockRenderer
@@ -23,7 +44,7 @@ describe("BlockRenderer file dispatch", () => {
               kind: "file",
               itemId: "item_1",
               fileId: "file_1",
-              filename: "seedance.mp4",
+              filename: "seedance-output",
               contentType: "video/mp4",
             },
           ]}
@@ -32,9 +53,13 @@ describe("BlockRenderer file dispatch", () => {
       </FileViewerContext.Provider>,
     );
 
-    expect(screen.getByLabelText("seedance.mp4")).toHaveAttribute(
+    expect(authenticatedFetch).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "加载视频 seedance-output" }));
+    expect(
+      await screen.findByLabelText("视频预览：seedance-output"),
+    ).toHaveAttribute(
       "src",
-      "/v1/sessions/session_1/resources/files/file_1/content",
+      "blob:block-file",
     );
   });
 });

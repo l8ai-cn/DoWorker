@@ -28,19 +28,6 @@
       ]
     },
     {
-      "slug": "codex-cli",
-      "layer": "runtime-catalog",
-      "observed": "The published immutable runtime digest could not be pulled from the configured registry.",
-      "target": "Definition, immutable runtime, Runner, product-path, and browser evidence must all pass before support.",
-      "status": "blocked",
-      "blocker_code": "invalid-published-runtime-image",
-      "evidence_refs": [
-        "catalog/worker-evidence-matrix.json",
-        "evidence/runtime-builds/codex-cli.json",
-        "evidence/runtime-lock-probes.json"
-      ]
-    },
-    {
       "slug": "cursor-cli",
       "layer": "runtime-catalog",
       "observed": "A local runtime smoke result exists, but no published immutable runtime image digest is locked.",
@@ -55,11 +42,11 @@
     },
     {
       "slug": "do-agent",
-      "layer": "runtime-catalog",
-      "observed": "A local runtime smoke result exists, but no published immutable runtime image digest is locked.",
+      "layer": "product-path",
+      "observed": "The immutable image is locked, but Runner, product-path, or browser evidence remains incomplete.",
       "target": "Definition, immutable runtime, Runner, product-path, and browser evidence must all pass before support.",
       "status": "blocked",
-      "blocker_code": "missing-immutable-runtime-image",
+      "blocker_code": "product-path-unverified",
       "evidence_refs": [
         "catalog/worker-evidence-matrix.json",
         "evidence/runtime-builds/do-agent.json",
@@ -159,11 +146,11 @@
     },
     {
       "slug": "seedance-expert",
-      "layer": "runtime-catalog",
-      "observed": "A local runtime smoke result exists, but no published immutable runtime image digest is locked.",
+      "layer": "product-path",
+      "observed": "The immutable image is locked, but Runner, product-path, or browser evidence remains incomplete.",
       "target": "Definition, immutable runtime, Runner, product-path, and browser evidence must all pass before support.",
       "status": "blocked",
-      "blocker_code": "missing-immutable-runtime-image",
+      "blocker_code": "product-path-unverified",
       "evidence_refs": [
         "catalog/worker-evidence-matrix.json",
         "evidence/runtime-builds/seedance-expert.json",
@@ -172,11 +159,11 @@
     },
     {
       "slug": "video-studio",
-      "layer": "runtime-catalog",
-      "observed": "The published immutable runtime digest could not be pulled from the configured registry.",
+      "layer": "product-path",
+      "observed": "The immutable image is locked, but Runner, product-path, or browser evidence remains incomplete.",
       "target": "Definition, immutable runtime, Runner, product-path, and browser evidence must all pass before support.",
       "status": "blocked",
-      "blocker_code": "invalid-published-runtime-image",
+      "blocker_code": "product-path-unverified",
       "evidence_refs": [
         "catalog/worker-evidence-matrix.json",
         "evidence/runtime-builds/video-studio.json",

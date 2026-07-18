@@ -49,6 +49,9 @@ func safeValidationError(err error) string {
 	if errors.Is(err, ErrProbeUnsupported) {
 		return "validation unavailable"
 	}
+	if errors.Is(err, ErrProviderEndpointUnavailable) {
+		return "provider endpoint unavailable"
+	}
 	return "connection validation failed"
 }
 

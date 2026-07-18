@@ -33,6 +33,18 @@ func (r *Runner) recoverDaemonSessions() {
 	log.Info("found recoverable daemon sessions", "count", len(states))
 
 	for _, state := range states {
+		if err := poddaemon.ValidateWorkspaceIdentity(
+			state.WorkDir,
+			state.WorkspaceID,
+		); err != nil {
+			log.Warn(
+				"rejected recovered workspace",
+				"pod_key", state.PodKey,
+				"error", err,
+			)
+			_ = r.podDaemonManager.CleanupSession(state.SandboxPath)
+			continue
+		}
 		pod, err := r.recoverSingleSession(state)
 		if err != nil {
 			// Perpetual pod: daemon died → re-create it from the existing sandbox
@@ -66,9 +78,14 @@ func (r *Runner) recoverDaemonSessions() {
 
 // recoverSingleSession re-attaches to a surviving daemon and rebuilds its Pod.
 func (r *Runner) recoverSingleSession(state *poddaemon.PodDaemonState) (*Pod, error) {
+	workspace, err := openRecoveredSandboxWorkspace(state)
+	if err != nil {
+		return nil, fmt.Errorf("open recovered workspace: %w", err)
+	}
 	// Attach to daemon via IPC
 	dpty, err := r.podDaemonManager.AttachSession(state)
 	if err != nil {
+		workspace.Close()
 		return nil, fmt.Errorf("attach to daemon: %w", err)
 	}
 
@@ -88,6 +105,7 @@ func (r *Runner) recoverSingleSession(state *poddaemon.PodDaemonState) (*Pod, er
 		PTYFactory: ptyFactory,
 	})
 	if err != nil {
+		workspace.Close()
 		dpty.Close()
 		return nil, fmt.Errorf("create terminal: %w", err)
 	}
@@ -129,6 +147,7 @@ func (r *Runner) recoverSingleSession(state *poddaemon.PodDaemonState) (*Pod, er
 		StartedAt:       state.StartedAt,
 		Status:          PodStatusInitializing,
 		vtProvider:      func() *vt.VirtualTerminal { return virtualTerm },
+		workspace:       workspace,
 	}
 
 	comps := &PTYComponents{Terminal: term, VirtualTerminal: virtualTerm, Aggregator: agg, PTYLogger: ptyLogger}
@@ -154,6 +173,7 @@ func (r *Runner) recoverSingleSession(state *poddaemon.PodDaemonState) (*Pod, er
 
 	// Start Terminal I/O (readOutput + waitExit goroutines)
 	if err := pod.IO.Start(); err != nil {
+		pod.closeWorkspace()
 		if pod.IO != nil {
 			pod.IO.Teardown()
 		}
@@ -175,32 +195,4 @@ func (r *Runner) recoverSingleSession(state *poddaemon.PodDaemonState) (*Pod, er
 	pod.SubscribeAgentStatusBridge(r.conn.SendAgentStatus)
 
 	return pod, nil
-}
-
-// restartDeadPerpetualDaemon re-creates a daemon session for a perpetual pod
-// whose daemon died. Uses the existing sandbox and state to spawn a new daemon.
-func (r *Runner) restartDeadPerpetualDaemon(state *poddaemon.PodDaemonState) (*Pod, error) {
-	_, updatedState, err := r.podDaemonManager.CreateSession(poddaemon.CreateOpts{
-		PodKey:         state.PodKey,
-		Agent:          state.Agent,
-		Command:        state.Command,
-		Args:           state.Args,
-		WorkDir:        state.WorkDir,
-		Env:            state.Env,
-		Cols:           state.Cols,
-		Rows:           state.Rows,
-		SandboxPath:    state.SandboxPath,
-		RepositoryURL:  state.RepositoryURL,
-		Branch:         state.Branch,
-		TicketSlug:     state.TicketSlug,
-		VTHistoryLimit: state.VTHistoryLimit,
-		Perpetual:      true,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("create daemon session: %w", err)
-	}
-
-	// recoverSingleSession will AttachSession (new TCP conn). The CreateSession
-	// connection is implicitly replaced by daemon's single-client model.
-	return r.recoverSingleSession(updatedState)
 }
