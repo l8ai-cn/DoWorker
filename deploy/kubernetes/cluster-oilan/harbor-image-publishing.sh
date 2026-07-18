@@ -155,6 +155,8 @@ images:
     digest: ${PLATFORM_DIGEST_MC}
   - name: ${PROJ}/kubectl
     digest: ${PLATFORM_DIGEST_KUBECTL}
+  - name: repo.aiedulab.cn:8443/library/gitea
+    digest: sha256:422bb3c87796b89fe5360d046ca42cfbc3d8eaaa259278c5ca3f0b6843f7e4fd
 EOF
   mv "${temporary}" "${output}"
   release_write_source_metadata "${REPO_ROOT}"

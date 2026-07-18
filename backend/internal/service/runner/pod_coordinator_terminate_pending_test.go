@@ -22,7 +22,7 @@ func TestTerminateQueuedPod_UsesCompletedStatus(t *testing.T) {
 	require.NoError(t, seedQueuedPod(t, db, orgID, r.ID, "q-cancel"))
 
 	pc := NewPodCoordinator(podStore, runnerRepo, cm, tr, hb, logger)
-	pc.SetPendingQueue(NewPendingCommandQueue(&memPendingRepo{}, nil, 5, time.Minute, true, logger))
+	pc.SetPendingQueue(NewPendingCommandQueue(&memPendingRepo{}, nil, 5, time.Minute, true, testPendingEncryptor(), logger))
 
 	err := pc.TerminatePod(context.Background(), "q-cancel")
 	require.NoError(t, err)
@@ -44,7 +44,7 @@ func TestTerminatePod_CancelsPendingSendPrompt(t *testing.T) {
 	).Error)
 
 	repo := &memPendingRepo{}
-	queue := NewPendingCommandQueue(repo, nil, 5, time.Minute, true, logger)
+	queue := NewPendingCommandQueue(repo, nil, 5, time.Minute, true, testPendingEncryptor(), logger)
 	payload, err := proto.Marshal(&runnerv1.ServerMessage{
 		Payload: &runnerv1.ServerMessage_SendPrompt{
 			SendPrompt: &runnerv1.SendPromptCommand{PodKey: podKey, Prompt: "hello"},
@@ -95,7 +95,7 @@ func TestHandlePodTerminated_CancelsPendingSendPrompt(t *testing.T) {
 	}))
 
 	pc := NewPodCoordinator(podStore, runnerRepo, cm, tr, hb, logger)
-	pc.SetPendingQueue(NewPendingCommandQueue(repo, nil, 5, time.Minute, true, logger))
+	pc.SetPendingQueue(NewPendingCommandQueue(repo, nil, 5, time.Minute, true, testPendingEncryptor(), logger))
 
 	pc.handlePodTerminated(r.ID, &runnerv1.PodTerminatedEvent{
 		PodKey:   podKey,
@@ -139,7 +139,7 @@ func TestHandlePodTerminated_CancelsPendingWhenStoreUpdateFails(t *testing.T) {
 	})
 
 	pc := NewPodCoordinator(podStore, runnerRepo, cm, tr, hb, logger)
-	pc.SetPendingQueue(NewPendingCommandQueue(repo, nil, 5, time.Minute, true, logger))
+	pc.SetPendingQueue(NewPendingCommandQueue(repo, nil, 5, time.Minute, true, testPendingEncryptor(), logger))
 
 	pc.handlePodTerminated(r.ID, &runnerv1.PodTerminatedEvent{
 		PodKey:   podKey,

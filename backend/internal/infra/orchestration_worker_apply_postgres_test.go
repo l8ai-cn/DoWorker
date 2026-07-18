@@ -122,7 +122,7 @@ INSERT INTO pods (
 		claim,
 		workerplanner.WorkerPodLaunch{
 			PodID: 1, PodKey: "7-standalone-12345678", RunnerID: 11,
-			CommandPayload: []byte{1, 2, 3},
+			CommandPayload: encryptedWorkerLaunchPayload(t, "7-standalone-12345678"),
 		},
 		time.Hour,
 	)

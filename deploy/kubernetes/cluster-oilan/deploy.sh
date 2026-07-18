@@ -30,6 +30,10 @@ SECRET_MANIFESTS=(
 source "${DIR}/release_source_guard.sh"
 # shellcheck source=deploy-write-quiescence.sh
 source "${DIR}/deploy-write-quiescence.sh"
+# shellcheck source=internal_gitea_deploy.sh
+source "${DIR}/internal_gitea_deploy.sh"
+# shellcheck source=deploy_database.sh
+source "${DIR}/deploy_database.sh"
 
 echo "==> DoOps session ${SESSION} -> ${TARGET} (workspace ${WS})"
 
@@ -101,44 +105,14 @@ render_release() {
 }
 
 apply_pinned_manifest() {
-  local manifest="$1" image="$2"
-  dexec "digest=\$(awk -v name='${REG}/agentsmesh/${image}' '\$1 == \"-\" && \$2 == \"name:\" && \$3 == name { found=1; next } found && \$1 == \"digest:\" { print \$2; exit }' release/kustomization.yaml); test \"\${digest}\" != \"\"; sed -E \"s|image: ${REG}/agentsmesh/${image}:[^[:space:]]+|image: ${REG}/agentsmesh/${image}@\${digest}|g\" ${manifest} | kubectl apply -f -"
+  local manifest="$1" image="$2" repository
+  repository="${3:-${REG}/agentsmesh/${image}}"
+  dexec "digest=\$(awk -v name='${repository}' '\$1 == \"-\" && \$2 == \"name:\" && \$3 == name { found=1; next } found && \$1 == \"digest:\" { print \$2; exit }' release/kustomization.yaml); test \"\${digest}\" != \"\"; sed -E \"s|image: ${repository}:[^[:space:]]+|image: ${repository}@\${digest}|g\" ${manifest} | kubectl apply -f -"
 }
 
 apply_backend_job() {
   local manifest="$1"
   dexec "image=\$(awk '\$1 == \"image:\" && \$2 ~ /agentsmesh\\/backend@sha256:/ { print \$2; exit } \$1 == \"-\" && \$2 == \"image:\" && \$3 ~ /agentsmesh\\/backend@sha256:/ { print \$3; exit }' /tmp/agentsmesh-release.yaml); test -n \"\${image}\"; digest=\${image##*@}; sed -e \"s|__BACKEND_IMAGE__|\${image}|g\" -e \"s|__BACKEND_DIGEST__|\${digest}|g\" -e \"s|__RELEASE_COMMIT__|${RELEASE_DEPLOY_COMMIT}|g\" ${manifest} | kubectl apply -f -"
-}
-
-backup_database() {
-  echo "==> backup database before migrations"
-  dexec "set -eu; backup_dir=/root/backups/agentsmesh; timestamp=\$(date -u +%Y%m%dT%H%M%SZ); backup=\${backup_dir}/pre-migrate-${RELEASE_DEPLOY_COMMIT:0:12}-\${timestamp}.dump; umask 077; mkdir -p \"\${backup_dir}\"; kubectl -n ${NS} exec deploy/postgres -- sh -ceu 'PGPASSWORD=\"\$POSTGRES_PASSWORD\" exec pg_dump --format=custom --no-owner --no-privileges --username=\"\$POSTGRES_USER\" --dbname=\"\$POSTGRES_DB\"' > \"\${backup}.tmp\"; test -s \"\${backup}.tmp\"; mv \"\${backup}.tmp\" \"\${backup}\"; sha256sum \"\${backup}\" > \"\${backup}.sha256\"; echo \"database backup: \${backup}\""
-}
-
-require_clean_migration_state() {
-  local state
-  state="$(dexec "kubectl -n ${NS} exec deploy/postgres -- sh -ceu 'PGPASSWORD=\"\$POSTGRES_PASSWORD\" psql --username=\"\$POSTGRES_USER\" --dbname=\"\$POSTGRES_DB\" --tuples-only --no-align --command=\"SELECT version, dirty FROM schema_migrations\"'" |
-    tail -n 1 | tr -d '\r')"
-  [[ "${state}" =~ ^[0-9]+\|f$ ]] || {
-    echo "database migration state must be clean before deploy, got ${state}" >&2
-    return 1
-  }
-  echo "==> current migration state ${state}"
-}
-
-migrate_database() {
-  echo "==> apply migration prerequisites"
-  dexec "kubectl apply -f 02-configmap.yaml -f 30-backend-rbac.yaml"
-  require_clean_migration_state
-  stop_application_writes
-  backup_database
-  apply_pinned_manifest "10-postgres.yaml" pgvector
-  apply_pinned_manifest "11-redis.yaml" redis
-  apply_pinned_manifest "12-minio.yaml" minio
-  dexec "kubectl -n ${NS} rollout status deploy/postgres --timeout=300s"
-  dexec "kubectl -n ${NS} delete job migrate --ignore-not-found"
-  apply_backend_job "20-migrate-job.yaml"
-  dexec "kubectl -n ${NS} wait --for=condition=complete job/migrate --timeout=300s"
 }
 
 apply_all() {
@@ -148,6 +122,9 @@ apply_all() {
   echo "==> ensure wildcard TLS in ${NS}"
   ensure_tls_secret "l8ai-wildcard-tls" "dowork.l8ai.cn" "health-preview.l8ai.cn"
   render_release
+  stop_application_writes
+  require_empty_pending_commands
+  ensure_internal_gitea
   migrate_database
   echo "==> apply workloads after migrations"
   dexec "kubectl apply -f /tmp/agentsmesh-release.yaml"
@@ -167,7 +144,7 @@ apply_all() {
 
 status() {
   echo "==> rollout status"
-  for d in backend marketplace marketplace-web relay web web-admin mobile runner-e2e-echo; do
+  for d in gitea backend marketplace marketplace-web relay web web-admin mobile runner-e2e-echo; do
     dexec "kubectl -n ${NS} rollout status deploy/${d} --timeout=240s"
   done
   local preview_probe=release-preview-probe
@@ -181,6 +158,7 @@ main() {
   release_require_pushed_clean_tree "${repo_root}"
   release_verify_source_metadata "${repo_root}"
   release_verify_image_provenance "${repo_root}"
+  release_verify_gitea_provenance "${repo_root}"
   RELEASE_DEPLOY_COMMIT="$(git -C "${repo_root}" rev-parse HEAD)"
   generate_cluster_secrets
   push_manifests

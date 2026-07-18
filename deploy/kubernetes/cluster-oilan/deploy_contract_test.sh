@@ -26,10 +26,16 @@ case " $* " in
       if [[ "${args[index + 1]}" == *"SELECT version, dirty FROM schema_migrations"* ]]; then
         printf '222|f\n'
       fi
+      if [[ "${args[index + 1]}" == *"SELECT COUNT(*) FROM pending_runner_commands"* ]]; then
+        printf '0\n'
+      fi
       if [[ "${args[index + 1]}" == *"get deploy backend -o jsonpath"* ]]; then
         printf '1\n'
       fi
       if [[ "${args[index + 1]}" == *"get deploy marketplace -o jsonpath"* ]]; then
+        printf '1\n'
+      fi
+      if [[ "${args[index + 1]}" == *"get deploy/gitea -o jsonpath="*".spec.replicas"* ]]; then
         printf '1\n'
       fi
       exit 0
@@ -51,6 +57,7 @@ bash -c '
   release_require_pushed_clean_tree() { :; }
   release_verify_source_metadata() { :; }
   release_verify_image_provenance() { :; }
+  release_verify_gitea_provenance() { :; }
   generate_cluster_secrets() {
     mkdir -p "${SEC}"
     for name in "${SECRET_MANIFESTS[@]}"; do
@@ -73,6 +80,33 @@ ROOT="$ROOT" bash -c '
   [[ "${APP_WRITES_STOPPED}" == "true" ]]
 '
 
+ROOT="$ROOT" bash -c '
+  set -euo pipefail
+  source "${ROOT}/internal_gitea_deploy.sh"
+  NS=agentsmesh
+  REG=registry.example
+  RELEASE_DEPLOY_COMMIT=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  RESTORE_LOG="$(mktemp)"
+  trap "rm -f ${RESTORE_LOG}" EXIT
+  dexec() {
+    printf "%s\n" "$1" >> "${RESTORE_LOG}"
+    case "$1" in
+      *"get deploy/gitea -o jsonpath="*".spec.replicas"*) printf "1\n" ;;
+      *"PRAGMA quick_check"*) return 1 ;;
+    esac
+  }
+  apply_pinned_manifest() {
+    printf "apply %s %s %s\n" "$1" "$2" "$3" >> "${RESTORE_LOG}"
+  }
+  if backup_internal_gitea; then
+    echo "failed Gitea backup was accepted" >&2
+    exit 1
+  fi
+  grep -F "scale deploy/gitea --replicas=0" "${RESTORE_LOG}" >/dev/null
+  grep -F "scale deploy/gitea --replicas=1" "${RESTORE_LOG}" >/dev/null
+  grep -F "rollout status deploy/gitea --timeout=300s" "${RESTORE_LOG}" >/dev/null
+'
+
 require_command() {
   grep -F -- "$1" "$LOG" >/dev/null || {
     printf 'missing remote command: %s\n' "$1" >&2
@@ -87,8 +121,22 @@ line_number() {
 require_command 'kubectl kustomize . > /tmp/agentsmesh-release.yaml'
 require_command 'kubectl apply -f generated-secrets'
 require_command 'rm -f generated-secrets/*.yaml'
-require_command 'kubectl apply -f 02-configmap.yaml -f 30-backend-rbac.yaml'
+require_command "name='repo.aiedulab.cn:8443/library/gitea'"
 require_command 'scale deploy/backend deploy/marketplace --replicas=0'
+require_command 'SELECT COUNT(*) FROM pending_runner_commands'
+require_command 'scale deploy/gitea --replicas=0'
+require_command 'wait --for=delete pod -l app=gitea'
+require_command '15-gitea-backup-pod.yaml | kubectl apply -f -'
+require_command 'wait --for=condition=Ready pod/gitea-backup'
+require_command "sqlite3 /data/gitea/gitea.db 'PRAGMA quick_check;'"
+require_command 'tar -C /data -czf -'
+require_command 'sha256sum -c'
+require_command 'delete pod gitea-backup --wait=true'
+require_command '14-gitea.yaml | kubectl apply -f -'
+require_command 'gitea-'
+require_command 'rollout status deploy/gitea --timeout=300s'
+require_command 'bash bootstrap_internal_gitea.sh agentsmesh'
+require_command 'kubectl apply -f 02-configmap.yaml -f 30-backend-rbac.yaml'
 require_command 'wait --for=delete pod -l app=backend'
 require_command 'wait --for=delete pod -l app=marketplace'
 require_command '10-postgres.yaml | kubectl apply -f -'
@@ -117,8 +165,18 @@ require_command '13-minio-setup-job.yaml | kubectl apply -f -'
 require_command '23-worker-definition-sync-job.yaml | kubectl apply -f -'
 
 render_line="$(line_number 'kubectl kustomize . > /tmp/agentsmesh-release.yaml')"
-prereq_line="$(line_number 'kubectl apply -f 02-configmap.yaml -f 30-backend-rbac.yaml')"
 stop_line="$(line_number 'scale deploy/backend deploy/marketplace --replicas=0')"
+pending_line="$(line_number 'SELECT COUNT(*) FROM pending_runner_commands')"
+gitea_stop_line="$(line_number 'scale deploy/gitea --replicas=0')"
+gitea_wait_line="$(line_number 'wait --for=delete pod -l app=gitea')"
+gitea_backup_pod_line="$(line_number '15-gitea-backup-pod.yaml | kubectl apply -f -')"
+gitea_backup_ready_line="$(line_number 'wait --for=condition=Ready pod/gitea-backup')"
+gitea_check_line="$(line_number "sqlite3 /data/gitea/gitea.db 'PRAGMA quick_check;'")"
+gitea_backup_line="$(line_number 'tar -C /data -czf -')"
+gitea_checksum_line="$(line_number 'sha256sum -c')"
+gitea_backup_delete_line="$(line_number 'delete pod gitea-backup --wait=true')"
+gitea_line="$(line_number '14-gitea.yaml | kubectl apply -f -')"
+prereq_line="$(line_number 'kubectl apply -f 02-configmap.yaml -f 30-backend-rbac.yaml')"
 backup_line="$(line_number 'pg_dump --format=custom')"
 postgres_line="$(line_number '10-postgres.yaml | kubectl apply -f -')"
 migrate_line="$(line_number '20-migrate-job.yaml | kubectl apply -f -')"
@@ -127,9 +185,19 @@ workload_line="$(line_number 'kubectl apply -f /tmp/agentsmesh-release.yaml')"
 backend_line="$(line_number 'rollout status deploy/backend')"
 sync_line="$(line_number '23-worker-definition-sync-job.yaml | kubectl apply -f -')"
 
-(( render_line < prereq_line &&
-  prereq_line < stop_line &&
-  stop_line < backup_line &&
+(( render_line < stop_line &&
+  stop_line < pending_line &&
+  pending_line < gitea_stop_line &&
+  gitea_stop_line < gitea_wait_line &&
+  gitea_wait_line < gitea_backup_pod_line &&
+  gitea_backup_pod_line < gitea_backup_ready_line &&
+  gitea_backup_ready_line < gitea_check_line &&
+  gitea_check_line == gitea_backup_line &&
+  gitea_backup_line == gitea_checksum_line &&
+  gitea_checksum_line < gitea_backup_delete_line &&
+  gitea_backup_delete_line < gitea_line &&
+  gitea_line < prereq_line &&
+  prereq_line < backup_line &&
   backup_line < postgres_line &&
   postgres_line < migrate_line &&
   backup_line < migrate_line &&
@@ -147,6 +215,11 @@ grep -F 'workspace-artifacts/' "$ROOT/13-minio-setup-job.yaml" >/dev/null
 grep -F -- '--expire-days 1' "$ROOT/13-minio-setup-job.yaml" >/dev/null
 grep -F 'PREVIEW_PUBLIC_ORIGIN: "https://l8ai.cn"' "$ROOT/02-configmap.yaml" >/dev/null
 grep -F 'PREVIEW_COOKIE_MODE: "partitioned"' "$ROOT/02-configmap.yaml" >/dev/null
+grep -F 'KB_GITEA_URL: "http://gitea:3000"' "$ROOT/02-configmap.yaml" >/dev/null
+grep -F 'KB_GITEA_SSH_URL: "ssh://git@gitea.agentsmesh.svc.cluster.local:22"' "$ROOT/02-configmap.yaml" >/dev/null
+grep -F 'name: agentsmesh-gitea' "$ROOT/30-backend.yaml" >/dev/null
+grep -F 'readOnly: true' "$ROOT/15-gitea-backup-pod.yaml" >/dev/null
+grep -F 'tail -f /dev/null' "$ROOT/15-gitea-backup-pod.yaml" >/dev/null
 grep -F 'host: "*.l8ai.cn"' "$ROOT/44-preview-ingress.yaml" >/dev/null
 grep -F 'secretName: l8ai-wildcard-tls' "$ROOT/44-preview-ingress.yaml" >/dev/null
 grep -F 'ensure_tls_secret "l8ai-wildcard-tls" "dowork.l8ai.cn" "health-preview.l8ai.cn"' "$ROOT/deploy.sh" >/dev/null

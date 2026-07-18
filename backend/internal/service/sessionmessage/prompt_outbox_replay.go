@@ -8,6 +8,7 @@ import (
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	domainitem "github.com/anthropics/agentsmesh/backend/internal/domain/conversationitem"
+	runnerservice "github.com/anthropics/agentsmesh/backend/internal/service/runner"
 	"gorm.io/gorm"
 )
 
@@ -18,6 +19,7 @@ func persistPromptCommand(
 	tx *gorm.DB,
 	input PromptInput,
 	payload []byte,
+	queue *runnerservice.PendingCommandQueue,
 	maxPerRunner int,
 	expiresAt time.Time,
 ) error {
@@ -25,13 +27,13 @@ func persistPromptCommand(
 	err := tx.Where("id = ?", input.Item.ID).Take(&existing).Error
 	switch {
 	case errors.Is(err, gorm.ErrRecordNotFound):
-		return insertPromptCommand(ctx, tx, input, payload, maxPerRunner, expiresAt)
+		return insertPromptCommand(ctx, tx, input, payload, queue, maxPerRunner, expiresAt)
 	case err != nil:
 		return err
 	case !samePromptItem(existing, *input.Item):
 		return ErrPromptCommandConflict
 	}
-	return ensurePendingPrompt(ctx, tx, input, payload, maxPerRunner, expiresAt)
+	return ensurePendingPrompt(ctx, tx, input, payload, queue, maxPerRunner, expiresAt)
 }
 
 func insertPromptCommand(
@@ -39,6 +41,7 @@ func insertPromptCommand(
 	tx *gorm.DB,
 	input PromptInput,
 	payload []byte,
+	queue *runnerservice.PendingCommandQueue,
 	maxPerRunner int,
 	expiresAt time.Time,
 ) error {
@@ -61,7 +64,7 @@ func insertPromptCommand(
 	if err := tx.Create(input.Item).Error; err != nil {
 		return err
 	}
-	return createPendingPrompt(tx, input, payload, expiresAt)
+	return createPendingPrompt(tx, input, payload, queue, expiresAt)
 }
 
 func ensurePendingPrompt(
@@ -69,13 +72,18 @@ func ensurePendingPrompt(
 	tx *gorm.DB,
 	input PromptInput,
 	payload []byte,
+	queue *runnerservice.PendingCommandQueue,
 	maxPerRunner int,
 	expiresAt time.Time,
 ) error {
 	var command agentpod.PendingCommand
 	err := tx.Where("command_id = ?", input.Item.ID).Take(&command).Error
 	if err == nil {
-		if samePendingPrompt(command, input, payload) {
+		same, matchErr := samePendingPrompt(command, input, payload, queue)
+		if matchErr != nil {
+			return matchErr
+		}
+		if same {
 			return nil
 		}
 		return ErrPromptCommandConflict
@@ -86,22 +94,27 @@ func ensurePendingPrompt(
 	if err := ensureQueueCapacity(ctx, tx, input.RunnerID, maxPerRunner); err != nil {
 		return err
 	}
-	return createPendingPrompt(tx, input, payload, expiresAt)
+	return createPendingPrompt(tx, input, payload, queue, expiresAt)
 }
 
 func createPendingPrompt(
 	tx *gorm.DB,
 	input PromptInput,
 	payload []byte,
+	queue *runnerservice.PendingCommandQueue,
 	expiresAt time.Time,
 ) error {
+	encryptedPayload, err := queue.SealPayload(payload)
+	if err != nil {
+		return err
+	}
 	return tx.Create(&agentpod.PendingCommand{
 		OrganizationID: input.OrganizationID,
 		RunnerID:       input.RunnerID,
 		PodKey:         input.PodKey,
 		CommandType:    agentpod.CommandTypeSendPrompt,
 		CommandID:      input.Item.ID,
-		Payload:        payload,
+		Payload:        encryptedPayload,
 		ExpiresAt:      expiresAt,
 	}).Error
 }
@@ -119,11 +132,14 @@ func samePendingPrompt(
 	command agentpod.PendingCommand,
 	input PromptInput,
 	payload []byte,
-) bool {
-	return command.OrganizationID == input.OrganizationID &&
-		command.RunnerID == input.RunnerID &&
-		command.PodKey == input.PodKey &&
-		command.CommandType == agentpod.CommandTypeSendPrompt &&
-		command.CommandID == input.Item.ID &&
-		bytes.Equal(command.Payload, payload)
+	queue *runnerservice.PendingCommandQueue,
+) (bool, error) {
+	if command.OrganizationID != input.OrganizationID ||
+		command.RunnerID != input.RunnerID ||
+		command.PodKey != input.PodKey ||
+		command.CommandType != agentpod.CommandTypeSendPrompt ||
+		command.CommandID != input.Item.ID {
+		return false, nil
+	}
+	return queue.PayloadMatches(command.Payload, payload)
 }

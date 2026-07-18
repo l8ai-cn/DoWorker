@@ -52,6 +52,11 @@ data:
   STORAGE_USE_PATH_STYLE: "true"
   STORAGE_MAX_FILE_SIZE: "10"
 
+  KB_GITEA_URL: "http://gitea:3000"
+  KB_GITEA_CLONE_URL: "http://gitea.agentsmesh.svc.cluster.local:3000"
+  KB_GITEA_SSH_URL: "ssh://git@gitea.agentsmesh.svc.cluster.local:22"
+  KB_GITEA_ORG: "am-kb"
+
   # PKI CA is mounted from the agentsmesh-pki-ca secret at /app/ssl.
   PKI_CA_CERT_FILE: "/app/ssl/ca.crt"
   PKI_CA_KEY_FILE: "/app/ssl/ca.key"

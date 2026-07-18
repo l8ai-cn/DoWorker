@@ -145,12 +145,9 @@ func TestFake_NamingAndCloneHelpers(t *testing.T) {
 	assert.Equal(t, "org9-web-search", f.RepoNameFromPath("am-skills/org9-web-search"))
 	assert.Equal(t, "bare", f.RepoNameFromPath("bare"))
 	assert.Equal(t, "https://gitea.local/am-skills/org9-web-search.git", f.CloneURL("org9-web-search"))
-	assert.Equal(t, "fake-token", f.CloneToken())
 
 	f.CloneBaseURL = "https://git.example.com/"
-	f.Token = "secret"
 	assert.Equal(t, "https://git.example.com/am-skills/org9-web-search.git", f.CloneURL("org9-web-search"))
-	assert.Equal(t, "secret", f.CloneToken())
 }
 
 func TestFake_ImplementsServiceAndNilConvention(t *testing.T) {

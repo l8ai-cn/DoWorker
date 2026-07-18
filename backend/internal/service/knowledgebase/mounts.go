@@ -3,6 +3,7 @@ package knowledgebase
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/knowledgebase"
 )
@@ -36,8 +37,11 @@ func (s *Service) ListAgentMounts(ctx context.Context, orgID, kbID int64) ([]*kn
 
 // ResolvedMount pairs a KB with the effective mount mode for one pod.
 type ResolvedMount struct {
-	KB   *knowledgebase.KnowledgeBase
-	Mode string
+	KB            *knowledgebase.KnowledgeBase
+	Mode          string
+	SSHCloneURL   string
+	GitKnownHosts string
+	GitPrivateKey string
 }
 
 // MountRequest is a per-pod KB selection (KB slug, not agent slug).
@@ -108,7 +112,29 @@ func (s *Service) ResolveMountsForPod(
 		if !ok {
 			return nil, fmt.Errorf("%w: knowledge base %q not found", ErrNotFound, slug)
 		}
-		resolved = append(resolved, &ResolvedMount{KB: kb, Mode: modeBySlug[slug]})
+		if strings.TrimSpace(kb.GitRepoPath) == "" || strings.TrimSpace(kb.HTTPCloneURL) == "" {
+			return nil, fmt.Errorf("%w: knowledge base %q repository is unavailable", ErrNotConfigured, slug)
+		}
+		mode := modeBySlug[slug]
+		privateKey, err := s.mountPrivateKey(kb.SourceConfig, mode)
+		if err != nil {
+			return nil, fmt.Errorf("knowledgebase: resolve mount %q: %w", slug, err)
+		}
+		sshCloneURL := s.git.SSHCloneURL(repoNameFromPath(kb.GitRepoPath))
+		if sshCloneURL == "" {
+			return nil, fmt.Errorf("%w: Gitea SSH clone URL is not configured", ErrNotConfigured)
+		}
+		knownHosts := s.git.SSHKnownHosts()
+		if knownHosts == "" {
+			return nil, fmt.Errorf("%w: Gitea SSH host key is not configured", ErrNotConfigured)
+		}
+		resolved = append(resolved, &ResolvedMount{
+			KB:            kb,
+			Mode:          mode,
+			SSHCloneURL:   sshCloneURL,
+			GitKnownHosts: knownHosts,
+			GitPrivateKey: privateKey,
+		})
 	}
 	return resolved, nil
 }

@@ -1,7 +1,6 @@
 package config
 
 import (
-	"log/slog"
 	"time"
 )
 
@@ -156,41 +155,7 @@ func Load() (*Config, error) {
 			AllowedTypes:   getEnvList("STORAGE_ALLOWED_TYPES", []string{"image/jpeg", "image/png", "image/gif", "image/webp", "application/pdf"}),
 		},
 
-		Payment: PaymentConfig{
-			DeploymentType: DeploymentType(getEnv("DEPLOYMENT_TYPE", "global")),
-			MockEnabled:    getEnvBool("PAYMENT_MOCK", false),
-			MockBaseURL:    getEnv("PAYMENT_MOCK_BASE_URL", ""),
-			Stripe: StripeConfig{
-				SecretKey:      getEnv("STRIPE_SECRET_KEY", ""),
-				PublishableKey: getEnv("STRIPE_PUBLISHABLE_KEY", ""),
-				WebhookSecret:  getEnv("STRIPE_WEBHOOK_SECRET", ""),
-			},
-			LemonSqueezy: LemonSqueezyConfig{
-				APIKey:        getEnv("LEMONSQUEEZY_API_KEY", ""),
-				StoreID:       getEnv("LEMONSQUEEZY_STORE_ID", ""),
-				WebhookSecret: getEnv("LEMONSQUEEZY_WEBHOOK_SECRET", ""),
-			},
-			Alipay: AlipayConfig{
-				AppID:           getEnv("ALIPAY_APP_ID", ""),
-				PrivateKey:      getEnv("ALIPAY_PRIVATE_KEY", ""),
-				AlipayPublicKey: getEnv("ALIPAY_PUBLIC_KEY", ""),
-				IsSandbox:       getEnvBool("ALIPAY_SANDBOX", false),
-			},
-			WeChat: WeChatConfig{
-				AppID:     getEnv("WECHAT_APP_ID", ""),
-				MchID:     getEnv("WECHAT_MCH_ID", ""),
-				APIKey:    getEnv("WECHAT_API_KEY", ""),
-				APIv3Key:  getEnv("WECHAT_APIV3_KEY", ""),
-				CertPath:  getEnv("WECHAT_CERT_PATH", ""),
-				KeyPath:   getEnv("WECHAT_KEY_PATH", ""),
-				IsSandbox: getEnvBool("WECHAT_SANDBOX", false),
-			},
-			License: LicenseConfig{
-				PublicKeyPath:    getEnv("LICENSE_PUBLIC_KEY_PATH", ""),
-				LicenseFilePath:  getEnv("LICENSE_FILE_PATH", ""),
-				LicenseServerURL: getEnv("LICENSE_SERVER_URL", ""),
-			},
-		},
+		Payment: loadPaymentConfig(),
 
 		PKI: PKIConfig{
 			CACertFile:     getEnv("PKI_CA_CERT_FILE", ""),
@@ -209,51 +174,10 @@ func Load() (*Config, error) {
 			Enabled: getEnvBool("ADMIN_ENABLED", true),
 		},
 
-		Marketplace: MarketplaceConfig{
-			SyncInterval:    getEnvDuration("MARKETPLACE_SYNC_INTERVAL", 1*time.Hour),
-			RegistryEnabled: getEnvBool("MCP_REGISTRY_ENABLED", true),
-			RegistryURL:     getEnv("MCP_REGISTRY_URL", "https://registry.modelcontextprotocol.io"),
-		},
-
-		KnowledgeBase: KnowledgeBaseConfig{
-			GiteaURL:     getEnv("KB_GITEA_URL", ""),
-			GiteaToken:   getEnv("KB_GITEA_TOKEN", ""),
-			GiteaOrg:     getEnv("KB_GITEA_ORG", "am-kb"),
-			CloneBaseURL: getEnv("KB_GITEA_CLONE_URL", ""),
-			SyncInterval: getEnvDuration("KB_SYNC_INTERVAL", 1*time.Hour),
-		},
+		Marketplace:   loadMarketplaceConfig(),
+		KnowledgeBase: loadKnowledgeBaseConfig(),
 
 		PendingQueue: loadPendingQueueConfig(),
-
-		Relay: RelayConfig{
-			BaseDomain: getEnv("RELAY_BASE_DOMAIN", ""),
-			DNS: DNSConfig{
-				Provider:              getEnv("DNS_PROVIDER", ""),
-				CloudflareAPIToken:    getEnv("CLOUDFLARE_API_TOKEN", ""),
-				CloudflareZoneID:      getEnv("CLOUDFLARE_ZONE_ID", ""),
-				AliyunAccessKeyID:     getEnv("ALIYUN_ACCESS_KEY_ID", ""),
-				AliyunAccessKeySecret: getEnv("ALIYUN_ACCESS_KEY_SECRET", ""),
-			},
-			ACME: ACMEConfig{
-				Enabled:      getEnvBool("ACME_ENABLED", false),
-				Email:        getEnv("ACME_EMAIL", ""),
-				DirectoryURL: getEnv("ACME_DIRECTORY_URL", ""),
-				StorageDir:   getEnv("ACME_STORAGE_DIR", "/var/lib/agentsmesh/acme"),
-				Staging:      getEnvBool("ACME_STAGING", false),
-			},
-		},
+		Relay:        loadRelayConfig(),
 	}, nil
-}
-
-func (c *Config) WarnInsecureDefaults() {
-	if c.Server.InternalAPISecret == "change-me-internal-secret" {
-		slog.Warn("SECURITY: INTERNAL_API_SECRET is using the default value; set a strong random secret via environment variable")
-	}
-	if c.JWT.Secret == "change-me-in-production" {
-		if c.Server.Debug {
-			slog.Warn("SECURITY: JWT_SECRET is using the default value; set a strong random secret via environment variable")
-		} else {
-			slog.Error("SECURITY: JWT_SECRET is using the default value in non-debug mode; this is a critical security risk — set JWT_SECRET environment variable")
-		}
-	}
 }

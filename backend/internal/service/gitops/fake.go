@@ -2,11 +2,8 @@ package gitops
 
 import (
 	"context"
-	"crypto/sha1"
-	"encoding/hex"
 	"errors"
 	"path"
-	"sort"
 	"strings"
 )
 
@@ -21,7 +18,6 @@ type Fake struct {
 	FailCommit    bool
 
 	CloneBaseURL string // "" -> "https://gitea.local"
-	Token        string // "" -> "fake-token"
 }
 
 type fakeRepo struct {
@@ -176,43 +172,6 @@ func (f *Fake) CloneURL(repoName string) string {
 		base = "https://gitea.local"
 	}
 	return strings.TrimRight(base, "/") + "/" + f.NS + "/" + repoName + ".git"
-}
-
-func (f *Fake) CloneToken() string {
-	if f.Token == "" {
-		return "fake-token"
-	}
-	return f.Token
-}
-
-func (r *fakeRepo) put(path string, content []byte) {
-	buf := make([]byte, len(content))
-	copy(buf, content)
-	r.Files[path] = buf
-	sum := sha1.Sum(content)
-	r.SHAs[path] = hex.EncodeToString(sum[:])
-}
-
-// underDir reports whether p lives under dir and returns the path relative to
-// dir. dir "" matches everything (repo root).
-func underDir(p, dir string) (string, bool) {
-	if dir == "" {
-		return p, true
-	}
-	prefix := dir + "/"
-	if !strings.HasPrefix(p, prefix) {
-		return "", false
-	}
-	return p[len(prefix):], true
-}
-
-func sortedEntries(m map[string]Entry) []Entry {
-	out := make([]Entry, 0, len(m))
-	for _, e := range m {
-		out = append(out, e)
-	}
-	sort.Slice(out, func(i, j int) bool { return out[i].Path < out[j].Path })
-	return out
 }
 
 // Compile-time assertion that Fake satisfies the Service interface.

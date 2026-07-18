@@ -9,7 +9,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	runnerDomain "github.com/anthropics/agentsmesh/backend/internal/domain/runner"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
-	"google.golang.org/protobuf/proto"
+	"github.com/anthropics/agentsmesh/backend/pkg/crypto"
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
 
@@ -18,18 +18,19 @@ type queueExpiryMarker interface {
 }
 
 type PendingCommandDrainer struct {
-	repo          agentpod.PendingCommandRepository
-	podStore      PodStore
-	runnerRepo    runnerDomain.RunnerRepository
-	msgSender     ServerMessageSender
-	connChecker   ConnectionChecker
-	coordinator   *PodCoordinator
-	expiryMarker  queueExpiryMarker
-	eventBus      *eventbus.EventBus
-	sweepInterval time.Duration
-	inflight      sync.Map
+	repo           agentpod.PendingCommandRepository
+	podStore       PodStore
+	runnerRepo     runnerDomain.RunnerRepository
+	msgSender      ServerMessageSender
+	connChecker    ConnectionChecker
+	coordinator    *PodCoordinator
+	expiryMarker   queueExpiryMarker
+	eventBus       *eventbus.EventBus
+	payloadCipher  *pendingPayloadCipher
+	sweepInterval  time.Duration
+	inflight       sync.Map
 	onQueueExpired func(ctx context.Context, podKey string)
-	logger        *slog.Logger
+	logger         *slog.Logger
 }
 
 func NewPendingCommandDrainer(
@@ -42,6 +43,7 @@ func NewPendingCommandDrainer(
 	expiryMarker queueExpiryMarker,
 	eventBus *eventbus.EventBus,
 	sweepInterval time.Duration,
+	payloadEncryptor *crypto.Encryptor,
 	logger *slog.Logger,
 ) *PendingCommandDrainer {
 	if logger == nil {
@@ -59,6 +61,7 @@ func NewPendingCommandDrainer(
 		coordinator:   coordinator,
 		expiryMarker:  expiryMarker,
 		eventBus:      eventBus,
+		payloadCipher: newPendingPayloadCipher(payloadEncryptor),
 		sweepInterval: sweepInterval,
 		logger:        logger.With("component", "pending_command_drainer"),
 	}
@@ -106,24 +109,6 @@ func (d *PendingCommandDrainer) drainRunner(ctx context.Context, runnerID int64)
 				return
 			}
 		}
-	}
-}
-
-func (d *PendingCommandDrainer) dispatchOne(ctx context.Context, runnerID int64, row *agentpod.PendingCommand) (processed bool, stop bool) {
-	var msg runnerv1.ServerMessage
-	if err := proto.Unmarshal(row.Payload, &msg); err != nil {
-		d.logger.Error("dropping corrupt pending command", "id", row.ID, "error", err)
-		_ = d.repo.Delete(ctx, row.ID)
-		return true, false
-	}
-	switch row.CommandType {
-	case agentpod.CommandTypeCreatePod:
-		return d.dispatchCreatePod(ctx, runnerID, row, msg.GetCreatePod())
-	case agentpod.CommandTypeSendPrompt:
-		return d.dispatchSendPrompt(ctx, runnerID, row, msg.GetSendPrompt())
-	default:
-		_ = d.repo.Delete(ctx, row.ID)
-		return true, false
 	}
 }
 

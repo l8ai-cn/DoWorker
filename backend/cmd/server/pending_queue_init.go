@@ -5,12 +5,13 @@ import (
 	"log/slog"
 
 	"github.com/anthropics/agentsmesh/backend/internal/config"
+	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/infra"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/logger"
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
+	"github.com/anthropics/agentsmesh/backend/pkg/crypto"
 	"gorm.io/gorm"
 )
 
@@ -30,12 +31,14 @@ func initializePendingQueue(
 ) *pendingQueueWiring {
 	pqCfg := cfg.PendingQueue
 	repo := infra.NewPendingCommandRepository(db)
+	payloadEncryptor := crypto.NewEncryptor(cfg.JWT.Secret)
 	queue := runner.NewPendingCommandQueue(
 		repo,
 		eventBus,
 		pqCfg.MaxPerRunner,
 		pqCfg.DefaultTTL,
 		pqCfg.Enabled,
+		payloadEncryptor,
 		appLogger.Logger,
 	)
 	drainer := runner.NewPendingCommandDrainer(
@@ -48,6 +51,7 @@ func initializePendingQueue(
 		podSvc,
 		eventBus,
 		pqCfg.SweepInterval,
+		payloadEncryptor,
 		appLogger.Logger,
 	)
 	queue.SetDrainer(drainer)

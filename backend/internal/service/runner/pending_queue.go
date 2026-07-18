@@ -8,6 +8,7 @@ import (
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
+	"github.com/anthropics/agentsmesh/backend/pkg/crypto"
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 	"google.golang.org/protobuf/proto"
 )
@@ -18,14 +19,15 @@ const (
 )
 
 type PendingCommandQueue struct {
-	repo         agentpod.PendingCommandRepository
-	eventBus     *eventbus.EventBus
-	maxPerRunner int
-	defaultTTL   time.Duration
-	enabled      bool
-	connChecker  ConnectionChecker
-	drainer      *PendingCommandDrainer
-	logger       *slog.Logger
+	repo          agentpod.PendingCommandRepository
+	eventBus      *eventbus.EventBus
+	maxPerRunner  int
+	defaultTTL    time.Duration
+	enabled       bool
+	payloadCipher *pendingPayloadCipher
+	connChecker   ConnectionChecker
+	drainer       *PendingCommandDrainer
+	logger        *slog.Logger
 }
 
 func NewPendingCommandQueue(
@@ -34,18 +36,20 @@ func NewPendingCommandQueue(
 	maxPerRunner int,
 	defaultTTL time.Duration,
 	enabled bool,
+	payloadEncryptor *crypto.Encryptor,
 	logger *slog.Logger,
 ) *PendingCommandQueue {
 	if logger == nil {
 		logger = slog.Default()
 	}
 	return &PendingCommandQueue{
-		repo:         repo,
-		eventBus:     eventBus,
-		maxPerRunner: maxPerRunner,
-		defaultTTL:   defaultTTL,
-		enabled:      enabled,
-		logger:       logger.With("component", "pending_command_queue"),
+		repo:          repo,
+		eventBus:      eventBus,
+		maxPerRunner:  maxPerRunner,
+		defaultTTL:    defaultTTL,
+		enabled:       enabled,
+		payloadCipher: newPendingPayloadCipher(payloadEncryptor),
+		logger:        logger.With("component", "pending_command_queue"),
 	}
 }
 
@@ -125,6 +129,10 @@ func (q *PendingCommandQueue) enqueue(
 	if count >= q.maxPerRunner {
 		return time.Time{}, agentpod.ErrQueueFull
 	}
+	encryptedPayload, err := q.payloadCipher.encrypt(payload)
+	if err != nil {
+		return time.Time{}, err
+	}
 	expiresAt := time.Now().Add(ttl)
 	cmd := &agentpod.PendingCommand{
 		OrganizationID: orgID,
@@ -132,7 +140,7 @@ func (q *PendingCommandQueue) enqueue(
 		PodKey:         podKey,
 		CommandType:    commandType,
 		CommandID:      commandID,
-		Payload:        payload,
+		Payload:        encryptedPayload,
 		ExpiresAt:      expiresAt,
 	}
 	if err := q.repo.Enqueue(ctx, cmd); err != nil {

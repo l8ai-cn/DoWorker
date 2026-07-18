@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: gitea-backup
+  namespace: agentsmesh
+spec:
+  restartPolicy: Never
+  imagePullSecrets:
+    - name: agentsmesh-regcred
+  containers:
+    - name: backup
+      image: repo.aiedulab.cn:8443/library/gitea:1.21.0
+      command:
+        - /bin/sh
+        - -ec
+        - exec tail -f /dev/null
+      readinessProbe:
+        exec:
+          command:
+            - /bin/sh
+            - -ec
+            - test -d /data/gitea
+        initialDelaySeconds: 1
+        periodSeconds: 2
+      volumeMounts:
+        - name: data
+          mountPath: /data
+          readOnly: true
+  volumes:
+    - name: data
+      persistentVolumeClaim:
+        claimName: gitea-data
