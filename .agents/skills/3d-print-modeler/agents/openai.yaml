@@ -1,0 +1,4 @@
+interface:
+  display_name: "3D Print Modeler"
+  short_description: "Build and validate printable parametric 3D models"
+  default_prompt: "Create a dimensioned, manifold 3D-printable model and deliver its source, STL, and validation report."

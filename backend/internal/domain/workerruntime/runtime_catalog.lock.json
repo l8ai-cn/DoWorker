@@ -1,17 +1,17 @@
 {
   "schema_version": 1,
-  "revision": "runtime-catalog-2026-07-16-61b505bd1dcd",
+  "revision": "runtime-catalog-2026-07-18-854952254d5f",
   "images": [
     {
       "id": 1,
       "slug": "codex-cli-stable",
       "name": "Codex CLI",
-      "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1",
-      "digest": "sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1",
+      "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:854952254d5f7ce25db3258034bc71a07169a5730dfe0670243fc10ea437bacd",
+      "digest": "sha256:854952254d5f7ce25db3258034bc71a07169a5730dfe0670243fc10ea437bacd",
       "worker_type_slugs": [
         "codex-cli"
       ],
-      "enabled": false
+      "enabled": true
     },
     {
       "id": 2,

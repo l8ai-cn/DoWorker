@@ -173,15 +173,15 @@
       ],
       "config_documents": [],
       "runtime_catalog": {
-        "status": "invalid_published_digest",
-        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1",
-        "probe_status": "not_found"
+        "status": "locked_available",
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:854952254d5f7ce25db3258034bc71a07169a5730dfe0670243fc10ea437bacd",
+        "probe_status": "available"
       },
-      "runtime_evidence": "runtime_smoke_verified",
+      "runtime_evidence": "published_runtime_smoke_verified",
       "runner": "create_and_acp_prompt_verified",
       "product_path": "created_acp_prompt_and_cleanup_verified",
       "browser": "created_acp_prompt_and_cleanup_verified",
-      "support_status": "not_supported"
+      "support_status": "verified_local_dev"
     },
     {
       "slug": "cursor-cli",

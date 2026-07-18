@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-07-16T07:30:00Z",
+  "generated_at": "2026-07-18T04:22:11Z",
   "support_rule": "No worker is supported until every applicable gate is verified by runtime and browser evidence.",
   "workers": [
     {
@@ -34,9 +34,9 @@
       "support_status": "verified_local_dev",
       "definition": "verified",
       "database_registration": "projection_verified",
-      "runtime_catalog": "invalid_published_digest",
-      "live_create_option": "local_dev_explicit_catalog_only",
-      "image_target": "runtime_smoke_verified",
+      "runtime_catalog": "locked_available",
+      "live_create_option": "published_runtime_available",
+      "image_target": "published_runtime_smoke_verified",
       "runner": "create_and_acp_prompt_verified",
       "product_path": "created_acp_prompt_and_cleanup_verified",
       "browser": "created_acp_prompt_and_cleanup_verified",

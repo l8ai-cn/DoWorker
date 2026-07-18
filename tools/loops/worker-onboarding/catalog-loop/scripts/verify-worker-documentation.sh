@@ -37,6 +37,7 @@ actual="$(jq -r '.workers[].slug' clients/web/src/generated/worker-runtime-catal
 jq -e '
   .workers as $workers |
   all($workers[]; .validationStatus != "verified_local_dev") and
-  ([$workers[] | select(.validationStatus == "local_evidence_release_blocked")] | length) == 1 and
+  ([$workers[] | select(.validationStatus == "local_evidence_release_blocked")] | length) == 0 and
+  any($workers[]; .slug == "codex-cli" and .validationStatus == "runtime_ready_unverified") and
   any($workers[]; .slug == "video-studio" and .validationStatus == "runtime_ready_unverified")
 ' clients/web/src/generated/worker-runtime-catalog.json >/dev/null

@@ -1,16 +1,16 @@
 {
   "schema_version": 1,
   "worker_slug": "codex-cli",
-  "validated_at": "2026-07-12T12:26:07Z",
-  "image": "do-worker/runner-codex-cli:latest",
-  "image_id": "sha256:23b08ff7729c5c4673e42a1f6b42d3fc29f8aafe615dea61b7b7e1a4e9a841ad",
+  "validated_at": "2026-07-18T04:55:28Z",
+  "image": "repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:854952254d5f7ce25db3258034bc71a07169a5730dfe0670243fc10ea437bacd",
+  "image_id": "sha256:854952254d5f7ce25db3258034bc71a07169a5730dfe0670243fc10ea437bacd",
   "platform": "linux/amd64",
-  "build_command": "FORCE_REBUILD=1 BUILD_RETRIES=1 bash docker/agent-runtime/build.sh codex-cli",
-  "smoke_command": "docker run --rm --platform linux/amd64 --entrypoint sh do-worker/runner-codex-cli:latest -lc '<checks>'",
+  "build_command": "Published immutable Harbor runtime; no local rebuild was used.",
+  "smoke_command": "docker run --rm --platform linux/amd64 --entrypoint /bin/sh repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:854952254d5f7ce25db3258034bc71a07169a5730dfe0670243fc10ea437bacd -lc '<checks>'",
   "checks": {
     "container_user": "runner",
     "cli_path": "/usr/local/bin/codex",
-    "cli_version": "codex-cli 0.144.1",
+    "cli_version": "codex-cli 0.143.0",
     "config_directory": "/home/runner/.codex",
     "unexpected_sidecars_absent": [
       "e2e-mock-agent",
@@ -21,7 +21,7 @@
   },
   "verdict": "runtime_smoke_verified",
   "limits": [
-    "No Runner registration, backend create request, credential materialization, or browser flow was executed.",
-    "This evidence must not be used to mark codex-cli as product supported."
+    "This exact digest was smoke-tested for its user, CLI, config directory, sidecar exclusions, and Runner binary only.",
+    "Remote Worker creation, model execution, artifact discovery, and browser flow remain separate deployment checks."
   ]
 }

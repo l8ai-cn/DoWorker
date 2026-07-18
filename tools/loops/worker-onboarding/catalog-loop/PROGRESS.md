@@ -11,15 +11,15 @@ Loop: Worker Integration Evidence Rebuild
 - Last verifier: `loop-control-plane-consistency` passed
 - Budget exit: the durable token estimate reached the configured `720000` cap;
   no new Worker task may start until the maintainer explicitly re-budgets it.
-- Current support claims: no Worker is formally deployable; `codex-cli` is
-  verified in local development only
+- Current support claims: `codex-cli` has a verified local product path and a
+  published immutable runtime; remote product-path verification is pending
 
 ## Current Cycle Evidence
 
-- The official runtime catalog is release-gated: all three historical
-  published digests remain declared for audit but are disabled because actual
-  registry pulls return `not_found`. The default Worker wizard exposes no
-  formal deployable Worker.
+- The official runtime catalog now enables Codex CLI against immutable Harbor
+  index `sha256:854952254d5f...`; registry inspection confirms a real
+  `linux/amd64` manifest. Claude and Gemini remain disabled because their
+  historical published digests still return `not_found`.
 - Local development generates an explicit ignored catalog from actual Docker
   image IDs only. It currently contains Codex CLI and Gemini CLI, and starts
   only `runner-codex-cli` and `runner-gemini-cli`; it never promotes a mutable
@@ -141,8 +141,8 @@ The former inventory and shared-contract acceptance were invalidated on
   and received the ACP prompt `Reply with exactly READY. Do not modify files.`
   It moved to Executing, returned `READY`, and was terminated through
   `PodService/TerminatePod`; both API and browser then showed it was no longer
-  active. Its product path is verified locally, but the catalog remains
-  unpromoted until the formal Playwright flow is current and repeatable.
+  active. Its product path is verified locally, while the newly published
+  runtime remains unverified through a remote Worker product path.
 - The independent formal Worker wizard Playwright test now logs in without the
   stale global storage snapshot, creates Codex, acquires control, receives
   `READY`, and terminates its own Worker. `codex-cli` is therefore
