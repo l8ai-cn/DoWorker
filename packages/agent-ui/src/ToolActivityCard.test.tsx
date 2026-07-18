@@ -1,126 +1,90 @@
-import { render, screen, within } from "@testing-library/react";
+import { Image } from "lucide-react";
+import { fireEvent, render, screen } from "@testing-library/react";
 
 import type { AgentToolRendererRegistration } from "./react/rendererTypes";
 import { ToolRendererRegistry } from "./registry/ToolRendererRegistry";
 import { ToolActivityCard } from "./ToolActivityCard";
 
 describe("ToolActivityCard", () => {
-  it("uses a renderer only for the exact tool identity", () => {
+  it("uses presentation only for the exact renderer identity", () => {
     const registry =
       new ToolRendererRegistry<AgentToolRendererRegistration>();
     registry.register(
+      identity("1"),
       {
-        namespace: "agentsmesh.acp",
-        semanticKey: "generate_image",
-        schemaVersion: "1",
-      },
-      {
-        summary: ({ item }) => (
-          <div>图片任务：{String(item.inputValue)}</div>
-        ),
+        detail: () => <div>Registered detail</div>,
+        presentation: {
+          icon: Image,
+          inputLabel: "Prompt",
+          label: "Image task",
+          outputLabel: "Image result",
+        },
+        summary: () => <div>Registered summary</div>,
       },
       "builtin.image",
     );
 
     const { rerender } = render(
       <ToolActivityCard
-        item={tool({
-          identity: {
-            namespace: "agentsmesh.acp",
-            semanticKey: "generate_image",
-            schemaVersion: "1",
-          },
-          inputValue: "生成产品主图",
-          title: "generate_image",
-        })}
+        item={tool({ input: "Create a product image", output: "Done" })}
         renderers={registry}
       />,
     );
 
-    expect(screen.getByText("图片任务：生成产品主图")).toBeVisible();
+    expect(screen.getByText("Image task")).toBeVisible();
+    expect(screen.getByText("Registered summary")).toBeVisible();
+    fireEvent.click(screen.getByText("Details"));
+    expect(screen.getByText("Registered detail")).toBeVisible();
+    expect(screen.getByText("Prompt")).toBeVisible();
+    expect(screen.getByText("Image result")).toBeVisible();
 
     rerender(
       <ToolActivityCard
-        item={tool({
-          identity: {
-            namespace: "agentsmesh.acp",
-            semanticKey: "generate_image",
-            schemaVersion: "2",
-          },
-          input: "raw input",
-          title: "generate_image",
-        })}
+        item={tool({ identity: identity("2"), input: "raw input" })}
         renderers={registry}
       />,
     );
 
-    expect(screen.queryByText("图片任务：生成产品主图")).not.toBeInTheDocument();
-    expect(screen.getAllByText("raw input")[0]).toBeVisible();
+    expect(screen.queryByText("Registered summary")).not.toBeInTheDocument();
+    expect(screen.getByTestId("unsupported-tool-preview")).toBeVisible();
+    expect(screen.getByText("agentsmesh.acp/generate_image@2")).toBeVisible();
   });
 
-  it("summarizes completed file changes and keeps raw evidence collapsed", () => {
+  it("does not infer specialized UI from an unregistered title", () => {
     render(
       <ToolActivityCard
         item={tool({
-          id: "file-1",
-          title: "fileChange",
-          input: JSON.stringify({
-            changes: [
-              {
-                path: "/workspace/project/boundary.txt",
-                kind: { type: "add" },
-                diff: "BOUNDARY_OK\n",
-              },
-            ],
-          }),
-          output: "Add /workspace/project/boundary.txt",
-          status: "completed",
+          identity: {
+            namespace: "agentsmesh.acp",
+            semanticKey: "image.generate",
+            schemaVersion: "1",
+          },
+          input: "raw input",
+          inputValue: { prompt: "a chart" },
+          output: "raw output",
+          results: [{ id: "result-1", kind: "data", value: { asset: "x" } }],
+          title: "shell",
         })}
       />,
     );
 
-    expect(screen.getByText("Added boundary.txt")).toBeVisible();
-    expect(
-      within(screen.getByTestId("tool-summary")).getByText(
-        "Add /workspace/project/boundary.txt",
-      ),
-    ).toBeVisible();
-    expect(screen.getByText("Details").closest("details")).not.toHaveAttribute("open");
+    expect(screen.getByText("image.generate")).toBeVisible();
+    expect(screen.getByTestId("unsupported-tool-preview")).toBeVisible();
+    expect(screen.queryByText("Command")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("Details"));
+
+    expect(screen.getByText("raw input")).toBeVisible();
+    expect(screen.getByText("raw output")).toBeVisible();
+    expect(screen.getByText("Raw tool evidence")).toBeVisible();
+    expect(screen.getByText(/"title": "shell"/)).toBeVisible();
+    expect(screen.getByText(/"asset": "x"/)).toBeVisible();
   });
 
-  it("shows command and output summaries without expanding raw JSON", () => {
+  it("opens failed raw evidence immediately", () => {
     render(
       <ToolActivityCard
-        item={tool({
-          id: "shell-1",
-          title: "shell",
-          input: JSON.stringify({
-            command: "/bin/bash -lc 'cat boundary.txt'",
-            cwd: "/workspace/project",
-          }),
-          output: "BOUNDARY_OK\n",
-          status: "completed",
-        })}
-      />,
-    );
-
-    expect(screen.getByText("/bin/bash -lc 'cat boundary.txt'")).toBeVisible();
-    expect(
-      within(screen.getByTestId("tool-summary")).getByText("BOUNDARY_OK"),
-    ).toBeVisible();
-    expect(screen.getByText("Details").closest("details")).not.toHaveAttribute("open");
-  });
-
-  it("opens failed tool evidence so the error is immediately inspectable", () => {
-    render(
-      <ToolActivityCard
-        item={tool({
-          id: "shell-2",
-          title: "shell",
-          input: "pnpm test",
-          output: "exit status 1",
-          status: "failed",
-        })}
+        item={tool({ input: "pnpm test", output: "exit status 1", status: "failed" })}
       />,
     );
 
@@ -128,20 +92,24 @@ describe("ToolActivityCard", () => {
   });
 });
 
+function identity(schemaVersion: string) {
+  return {
+    namespace: "agentsmesh.acp",
+    semanticKey: "generate_image",
+    schemaVersion,
+  };
+}
+
 function tool(
   patch: Partial<Parameters<typeof ToolActivityCard>[0]["item"]> = {},
 ): Parameters<typeof ToolActivityCard>[0]["item"] {
   return {
     id: "tool-1",
-    identity: {
-      namespace: "agentsmesh.acp",
-      semanticKey: "shell",
-      schemaVersion: "1",
-    },
+    identity: identity("1"),
     kind: "tool",
     results: [],
     status: "completed",
-    title: "shell",
+    title: "generate_image",
     ...patch,
   };
 }

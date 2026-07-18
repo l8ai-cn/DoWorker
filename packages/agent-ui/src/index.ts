@@ -26,6 +26,7 @@ export type {
 } from "./react/contentRendererTypes";
 export type {
   AgentToolRendererComponent,
+  AgentToolPresentation,
   AgentToolRendererProps,
   AgentToolRendererRegistration,
   AgentToolWorkbenchRendererComponent,
@@ -54,7 +55,6 @@ export {
   type WorkbenchContainerMode,
 } from "./react/useWorkbenchContainerMode";
 export { TerminalSurface } from "./TerminalSurface";
-export { toolPresentation, type ToolPresentation } from "./toolPresentation";
 export { workspaceFileArtifacts } from "./workspaceFileArtifacts";
 export { WorkspaceHeader } from "./WorkspaceHeader";
 export {

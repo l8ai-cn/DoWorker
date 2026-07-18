@@ -2,6 +2,8 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import type { AgentSessionRuntime } from "./contracts";
+import type { AgentToolRendererRegistration } from "./react/rendererTypes";
+import { ToolRendererRegistry } from "./registry/ToolRendererRegistry";
 import { ActivityTimeline } from "./ActivityTimeline";
 
 describe("ActivityTimeline", () => {
@@ -33,20 +35,22 @@ describe("ActivityTimeline", () => {
       />,
     );
 
-    const summary = screen.getByText("Ran 2 commands");
+    const summary = screen.getByText("Used shell 2 times");
     const group = summary.closest("details");
 
     expect(group).not.toHaveAttribute("open");
-    expect(screen.getByText("pnpm test")).not.toBeVisible();
+    expect(screen.getByText(/pnpm test/)).not.toBeVisible();
     for (const output of screen.getAllByText("12 tests passed")) {
       expect(output).not.toBeVisible();
     }
 
-    fireEvent.click(within(group!).getByText("Ran 2 commands"));
+    fireEvent.click(within(group!).getByText("Used shell 2 times"));
 
     expect(group).toHaveAttribute("open");
-    expect(screen.getByText("pnpm test")).toBeVisible();
-    expect(screen.getByText("pnpm lint")).toBeVisible();
+    expect(screen.getByText(/pnpm test/)).not.toBeVisible();
+    fireEvent.click(within(group!).getAllByText("Details")[0]!);
+    expect(screen.getByText(/pnpm test/)).toBeVisible();
+    expect(screen.getByText(/pnpm lint/)).not.toBeVisible();
   });
 
   it("keeps failed tool groups collapsed while surfacing the failed status", () => {
@@ -68,12 +72,12 @@ describe("ActivityTimeline", () => {
       />,
     );
 
-    const group = screen.getByText("Ran 1 command").closest("details");
+    const group = screen.getByText("Used shell 1 time").closest("details");
     const groupSummary = group!.querySelector("summary")!;
 
     expect(group).not.toHaveAttribute("open");
     expect(within(groupSummary).getByText("Failed")).toBeVisible();
-    expect(screen.getByText("pnpm test")).not.toBeVisible();
+    expect(screen.getByText(/pnpm test/)).not.toBeVisible();
   });
 
   it("surfaces both running and failed states in a mixed tool group", () => {
@@ -100,7 +104,7 @@ describe("ActivityTimeline", () => {
       />,
     );
 
-    const group = screen.getByText("Ran 2 commands").closest("details");
+    const group = screen.getByText("Used shell 2 times").closest("details");
     const groupSummary = group!.querySelector("summary")!;
 
     expect(within(groupSummary).getByText("Failed")).toBeVisible();
@@ -124,37 +128,38 @@ describe("ActivityTimeline", () => {
       />,
     );
 
-    const group = screen.getByText("Ran 1 command").closest("details");
+    const group = screen.getByText("Used shell 1 time").closest("details");
     const groupSummary = group!.querySelector("summary")!;
 
     expect(within(groupSummary).getByText("Running")).toBeVisible();
   });
 
-  it("counts files inside a structured file change instead of tool calls", () => {
+  it("uses a renderer presentation instead of the reported title", () => {
+    const renderers = new ToolRendererRegistry<AgentToolRendererRegistration>();
+    renderers.register(
+      toolContract("shell").identity,
+      { presentation: { label: "Exact shell" } },
+      "test.shell",
+    );
+
     render(
       <ActivityTimeline
         items={[
           {
-            ...toolContract("fileChange"),
-            id: "file-change",
+            ...toolContract("shell"),
+            id: "tool-exact",
             kind: "tool",
-            title: "fileChange",
-            input: JSON.stringify({
-              changes: [
-                { path: "one.ts" },
-                { path: "two.ts" },
-                { path: "three.ts" },
-              ],
-            }),
+            title: "generate_image",
             status: "completed",
           },
         ]}
         runtime={{} as AgentSessionRuntime}
         sessionId="session-1"
+        toolRenderers={renderers}
       />,
     );
 
-    expect(screen.getByText("Changed 3 files")).toBeVisible();
+    expect(screen.getByText("Used Exact shell 1 time")).toBeVisible();
   });
 
   it("wraps long user paths inside narrow embedded workspaces", () => {

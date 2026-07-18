@@ -12,6 +12,8 @@ import {
   agentWorkspaceRuntime as runtime,
   agentWorkspaceSnapshot as sessionSnapshot,
 } from "./AgentWorkspace.test-fixture";
+import type { AgentToolRendererRegistration } from "./react/rendererTypes";
+import { ToolRendererRegistry } from "./registry/ToolRendererRegistry";
 
 describe("AgentWorkspace", () => {
   beforeEach(() => {
@@ -90,7 +92,8 @@ describe("AgentWorkspace", () => {
     expect(await screen.findByText("Release audit")).toBeVisible();
     expect(screen.getAllByText("Codex")).not.toHaveLength(0);
     expect(screen.getByText("Run verification")).toBeVisible();
-    expect(screen.getAllByText("Command")).not.toHaveLength(0);
+    expect(screen.getAllByText("shell")).not.toHaveLength(0);
+    expect(screen.getByTestId("unsupported-tool-preview")).toBeInTheDocument();
     expect(screen.getByText("Run release command")).toBeVisible();
     expect(screen.getByRole("tab", { name: "Terminal" })).toBeEnabled();
   });
@@ -135,7 +138,7 @@ describe("AgentWorkspace", () => {
 
     expect(await screen.findByRole("img", { name: "result.png" })).toBeVisible();
     expect(
-      screen.getByText("Ran 1 command").closest("section"),
+      screen.getByText("Used shell 1 time").closest("section"),
     ).toHaveAttribute("aria-hidden", "true");
   });
 
@@ -210,29 +213,31 @@ describe("AgentWorkspace", () => {
     expect(await screen.findByRole("heading", { name: "Result" })).toBeVisible();
     expect(screen.getByText("export const ready = true;")).toBeVisible();
     expect(screen.queryByText("```ts")).not.toBeInTheDocument();
-    const toolGroup = screen.getByText("Ran 1 command").closest("details");
+    const toolGroup = screen.getByText("Used shell 1 time").closest("details");
     expect(toolGroup).not.toHaveAttribute("open");
     for (const output of screen.getAllByText("12 tests passed")) {
       expect(output).not.toBeVisible();
     }
-    fireEvent.click(screen.getByText("Ran 1 command"));
+    fireEvent.click(screen.getByText("Used shell 1 time"));
+    fireEvent.click(within(toolGroup!).getByText("Details"));
     expect(screen.getAllByText("12 tests passed")[0]).toBeVisible();
     expect(screen.queryByText("{}")).not.toBeInTheDocument();
   });
 
   it("localizes structured task activity without changing its evidence", async () => {
     const snapshot = sessionSnapshot();
+    const shellIdentity = {
+      namespace: "agentsmesh.acp",
+      schemaVersion: "1",
+      semanticKey: "shell",
+    };
     snapshot.status = "idle";
     snapshot.plan = [];
     snapshot.permissions = [];
     snapshot.items = [
       {
         id: "tool-zh",
-        identity: {
-          namespace: "agentsmesh.acp",
-          schemaVersion: "1",
-          semanticKey: "shell",
-        },
+        identity: shellIdentity,
         kind: "tool",
         results: [],
         title: "shell",
@@ -242,12 +247,20 @@ describe("AgentWorkspace", () => {
       },
     ];
     const { agentRuntime } = runtime(snapshot);
+    const toolRenderers =
+      new ToolRendererRegistry<AgentToolRendererRegistration>();
+    toolRenderers.register(
+      shellIdentity,
+      { presentation: { label: "Command" } },
+      "test.shell",
+    );
 
     render(
       <AgentWorkspace
         locale="zh-CN"
         runtime={agentRuntime}
         sessionId={snapshot.sessionId}
+        toolRenderers={toolRenderers}
       />,
     );
 
@@ -257,13 +270,14 @@ describe("AgentWorkspace", () => {
 
     expect(group).not.toHaveAttribute("open");
     expect(within(groupSummary).getByText("执行中")).toBeVisible();
-    expect(screen.getByText("pnpm test")).not.toBeVisible();
+    expect(screen.getByText(/pnpm test/)).not.toBeVisible();
 
     fireEvent.click(summary);
+    fireEvent.click(within(group!).getByText("详细信息"));
 
     expect(group).toHaveAttribute("open");
     expect(screen.getByText("详细信息")).toBeVisible();
-    expect(screen.getByText("pnpm test")).toBeVisible();
+    expect(screen.getByText(/pnpm test/)).toBeVisible();
   });
 
   it("shows command failures inside the workspace", async () => {

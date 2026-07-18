@@ -23,25 +23,3 @@ const zhToolText: Record<string, string> = {
 export function localizeToolText(value: string) {
   return zhToolText[value] ?? value;
 }
-
-export function englishFileChangeVerb(kind: string) {
-  switch (kind.toLowerCase()) {
-    case "add":
-      return "Added";
-    case "delete":
-      return "Deleted";
-    default:
-      return "Updated";
-  }
-}
-
-export function localizeFileChangeVerb(kind: string) {
-  switch (kind.toLowerCase()) {
-    case "add":
-      return "新增";
-    case "delete":
-      return "删除";
-    default:
-      return "更新";
-  }
-}

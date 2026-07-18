@@ -10,7 +10,7 @@ import type { AgentToolRendererRegistration } from "./react/rendererTypes";
 import type { ToolRendererRegistry } from "./registry/ToolRendererRegistry";
 import type { AgentToolActivityItem } from "./toolActivityGrouping";
 import type { ToolActivityCount } from "./toolActivityGroupText";
-import { toolPresentation } from "./toolPresentation";
+import { resolveToolActivityPresentation } from "./toolActivityPresentation";
 
 export function ToolActivityGroup({
   renderers,
@@ -20,10 +20,13 @@ export function ToolActivityGroup({
   tools: AgentToolActivityItem[];
 }) {
   const text = useAgentWorkspaceText();
-  const counts = countToolKinds(tools);
+  const counts = countToolKinds(tools, renderers);
   const summary = text.toolActivityGroupSummary(counts);
   const status = groupStatus(tools);
-  const Icon = toolPresentation(tools[0].title).icon;
+  const Icon = resolveToolActivityPresentation(
+    tools[0]!,
+    renderers?.lookup(tools[0]!.identity),
+  ).icon;
 
   return (
     <details className="group/tool-run">
@@ -77,29 +80,23 @@ function StatusLabel({ status }: { status: "running" | "failed" }) {
   );
 }
 
-function countToolKinds(tools: AgentToolActivityItem[]) {
+function countToolKinds(
+  tools: AgentToolActivityItem[],
+  renderers?: ToolRendererRegistry<AgentToolRendererRegistration>,
+) {
   const counts = new Map<string, ToolActivityCount>();
   for (const tool of tools) {
-    const label = toolPresentation(tool.title).label;
+    const label = resolveToolActivityPresentation(
+      tool,
+      renderers?.lookup(tool.identity),
+    ).label;
     const count = counts.get(label);
     counts.set(label, {
       label,
-      count: (count?.count ?? 0) + toolActivityCount(tool, label),
+      count: (count?.count ?? 0) + 1,
     });
   }
   return [...counts.values()];
-}
-
-function toolActivityCount(tool: AgentToolActivityItem, label: string) {
-  if (label !== "File change" || !tool.input) return 1;
-  try {
-    const input = JSON.parse(tool.input);
-    if (!input || typeof input !== "object" || Array.isArray(input)) return 1;
-    const changes = (input as Record<string, unknown>).changes;
-    return Array.isArray(changes) ? changes.length : 1;
-  } catch {
-    return 1;
-  }
 }
 
 function groupStatus(tools: AgentToolActivityItem[]) {

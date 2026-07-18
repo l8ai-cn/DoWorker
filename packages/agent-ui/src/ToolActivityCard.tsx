@@ -9,8 +9,14 @@ import { useAgentWorkspaceText } from "./AgentWorkspaceLocaleContext";
 import type { AgentToolActivityItem } from "./agentToolContracts";
 import type { AgentToolRendererRegistration } from "./react/rendererTypes";
 import type { ToolRendererRegistry } from "./registry/ToolRendererRegistry";
-import { summarizeToolActivity } from "./toolActivitySummary";
-import { toolPresentation } from "./toolPresentation";
+import {
+  cleanToolEvidence,
+  toolActivityRawEvidence,
+} from "./toolActivityEvidence";
+import {
+  resolveToolActivityPresentation,
+  toolActivityIdentity,
+} from "./toolActivityPresentation";
 
 export function ToolActivityCard({
   item,
@@ -20,20 +26,18 @@ export function ToolActivityCard({
   renderers?: ToolRendererRegistry<AgentToolRendererRegistration>;
 }) {
   const text = useAgentWorkspaceText();
-  const input = cleanEvidence(item.input);
-  const output = cleanEvidence(item.output);
-  const detail = cleanEvidence(item.detail);
-  const hasEvidence = Boolean(input || output || detail);
-  const presentation = toolPresentation(item.title);
-  const summary = summarizeToolActivity(
-    item.title,
-    input,
-    output,
-    detail,
-    text.fileChangeVerb,
-  );
+  const renderer = renderers?.lookup(item.identity);
+  const presentation = resolveToolActivityPresentation(item, renderer);
+  const input = cleanToolEvidence(item.input);
+  const output = cleanToolEvidence(item.output);
+  const detail = cleanToolEvidence(item.detail);
+  const rawEvidence = presentation.specialized
+    ? undefined
+    : toolActivityRawEvidence(item);
+  const hasEvidence = Boolean(input || output || detail || rawEvidence);
   const Icon = presentation.icon;
-  const RegisteredSummary = renderers?.lookup(item.identity)?.summary;
+  const RegisteredSummary = renderer?.summary;
+  const RegisteredDetail = renderer?.detail;
 
   return (
     <article className="overflow-hidden rounded-md border border-border bg-card">
@@ -47,6 +51,17 @@ export function ToolActivityCard({
           status={item.status}
         />
       </div>
+      {!presentation.specialized && (
+        <div
+          className="border-t border-border bg-muted/15 px-3 py-2 text-xs text-muted-foreground"
+          data-testid="unsupported-tool-preview"
+        >
+          <div>{text.unsupportedToolPreview}</div>
+          <code className="mt-1 block break-all text-[11px] text-foreground">
+            {toolActivityIdentity(item)}
+          </code>
+        </div>
+      )}
       {RegisteredSummary ? (
         <div
           className="border-t border-border bg-muted/15 px-3 py-2"
@@ -54,24 +69,8 @@ export function ToolActivityCard({
         >
           <RegisteredSummary item={item} />
         </div>
-      ) : (summary.primary || summary.result) ? (
-        <div
-          className="space-y-1 border-t border-border bg-muted/15 px-3 py-2"
-          data-testid="tool-summary"
-        >
-          {summary.primary && (
-            <code className="block break-all text-xs leading-5 text-foreground">
-              {summary.primary}
-            </code>
-          )}
-          {summary.result && (
-            <pre className="max-h-20 overflow-auto whitespace-pre-wrap break-words text-xs leading-5 text-muted-foreground">
-              {summary.result}
-            </pre>
-          )}
-        </div>
       ) : null}
-      {hasEvidence && (
+      {(hasEvidence || RegisteredDetail) && (
         <details
           className="group border-t border-border"
           open={item.status === "failed"}
@@ -81,6 +80,7 @@ export function ToolActivityCard({
             {text.details}
           </summary>
           <div className="space-y-3 border-t border-border bg-muted/20 px-3 py-3">
+            {RegisteredDetail && <RegisteredDetail item={item} />}
             {input && (
               <Evidence
                 label={text.toolText(presentation.inputLabel)}
@@ -93,8 +93,11 @@ export function ToolActivityCard({
                 value={output}
               />
             )}
-            {!input && !output && detail && (
+            {detail && (
               <Evidence label={text.details} value={detail} />
+            )}
+            {rawEvidence && (
+              <Evidence label={text.rawToolEvidence} value={rawEvidence} />
             )}
           </div>
         </details>
@@ -143,9 +146,4 @@ function Evidence({ label, value }: { label: string; value: string }) {
       </pre>
     </section>
   );
-}
-
-function cleanEvidence(value?: string) {
-  const clean = value?.trim();
-  return !clean || clean === "{}" || clean === "null" ? undefined : clean;
 }
