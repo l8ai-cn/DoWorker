@@ -18,7 +18,7 @@ var archiveEpoch = time.Unix(0, 0).UTC()
 func packageSkillDir(dirPath string) ([]byte, error) {
 	var buf bytes.Buffer
 	gw := gzip.NewWriter(&buf)
-	gw.Header.ModTime = archiveEpoch
+	gw.ModTime = archiveEpoch
 	tw := tar.NewWriter(gw)
 
 	baseDir := dirPath
