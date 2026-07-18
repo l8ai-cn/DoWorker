@@ -56,9 +56,13 @@ func TestListPods(t *testing.T) {
 	})
 
 	allPods, _, _ := svc.ListPods(ctx, 1, agentpod.PodListQuery{Limit: 10})
-	if len(allPods) >= 3 {
-		svc.UpdatePodStatus(ctx, allPods[0].PodKey, agentpod.StatusRunning)
-		svc.UpdatePodStatus(ctx, allPods[1].PodKey, agentpod.StatusTerminated)
+	for _, pod := range allPods {
+		switch pod.CreatedByID {
+		case 1:
+			svc.UpdatePodStatus(ctx, pod.PodKey, agentpod.StatusRunning)
+		case 2:
+			svc.UpdatePodStatus(ctx, pod.PodKey, agentpod.StatusTerminated)
+		}
 	}
 
 	t.Run("list with multiple status filter", func(t *testing.T) {
