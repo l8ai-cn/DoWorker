@@ -14,6 +14,8 @@ import {
   LOOP_BLOCK_TYPES,
   registerLoopBlocks,
 } from "../loop-block-catalog";
+import { insertLoopBlock } from "../loop-block-insertion";
+import { loopBlockProgrammingHostAdapter } from "../loop-block-programming-host-adapter";
 import { customBlockType, type LoopCustomBlockDefinition } from "../loop-custom-block-types";
 import {
   findBlockByNodeId,
@@ -229,6 +231,53 @@ loop checkout-fix {
     );
     expect(result.source).toContain(
       'verify ppt-step-check { command "test -f output.pptx" accept "output.pptx 存在且可打开" }',
+    );
+  });
+
+  it("exposes Loop through the reusable host adapter contract", () => {
+    const definition = pptCustomBlock();
+    const workspace = new Blockly.Workspace();
+
+    loopBlockProgrammingHostAdapter.registerBlocks(
+      zhMessages.loopWorkbench.blockly,
+      [definition],
+    );
+    loopBlockProgrammingHostAdapter.projectProgram(workspace, customProgram(), [definition]);
+
+    const catalog = loopBlockProgrammingHostAdapter.createCatalog(
+      zhMessages.loopWorkbench.blockly,
+      [definition],
+    );
+    const result = loopBlockProgrammingHostAdapter.workspaceToSource(workspace, [definition]);
+
+    expect(loopBlockProgrammingHostAdapter.namespace).toBe("loop");
+    expect(JSON.stringify(catalog.toolbox).toLowerCase()).not.toContain("worker");
+    expect(result.complete).toBe(true);
+    expect(result.source).toContain("agent ppt-step-task");
+  });
+
+  it("inserts custom blocks into the repeat body as standard LoopScript steps", () => {
+    const definition = pptCustomBlock();
+    const workspace = new Blockly.Workspace();
+
+    registerLoopBlocks(zhMessages.loopWorkbench.blockly, [definition]);
+    projectProgramToWorkspace(workspace, program(), [definition]);
+    insertLoopBlock({
+      workspace,
+      type: customBlockType(definition),
+      customDefinitions: [definition],
+      insertPoint: { menuX: 0, menuY: 0, workspaceX: 0, workspaceY: 0 },
+    });
+
+    const result = workspaceToLoopSource(workspace, [definition]);
+
+    expect(result.complete).toBe(true);
+    expect(result.source.toLowerCase()).not.toContain("worker");
+    expect(result.source).toContain(
+      'agent ppt-step-task { prompt """制作 topic 的专业 PPT""" }',
+    );
+    expect(result.source).toContain(
+      'verify ppt-step-check { command "test -f file" accept "file 存在且可打开" }',
     );
   });
 

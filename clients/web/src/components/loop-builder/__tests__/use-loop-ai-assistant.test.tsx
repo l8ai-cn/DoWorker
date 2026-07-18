@@ -133,6 +133,7 @@ describe("useLoopAIAssistant", () => {
       revision: 7,
     });
     expect(result.current.proposal?.proposedSource).toBe("loop generated {}");
+    expect(mocks.applyDraft).not.toHaveBeenCalled();
     expect(onApplied).not.toHaveBeenCalled();
   });
 

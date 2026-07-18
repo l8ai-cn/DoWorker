@@ -39,9 +39,9 @@ export function LoopQuickInsert({
         type="button"
       />
       <div
-        className="absolute z-20 w-44 overflow-hidden rounded-md border border-border bg-popover py-1 shadow-lg"
+        className="absolute z-20 w-64 max-w-[calc(100%-1rem)] overflow-hidden rounded-md border border-border bg-popover py-1 shadow-lg"
         style={{
-          left: `clamp(0.5rem, ${x}px, calc(100% - 11.5rem))`,
+          left: `clamp(0.5rem, ${x}px, calc(100% - 16.5rem))`,
           top: `clamp(0.5rem, ${y}px, calc(100% - 20rem))`,
         }}
       >
@@ -50,13 +50,13 @@ export function LoopQuickInsert({
         </div>
         {options.map(([label, type]) => (
           <button
-            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-accent"
+            className="flex w-full items-start gap-2 px-3 py-2 text-left text-sm hover:bg-accent"
             key={type}
             onClick={() => onInsert(type)}
             type="button"
           >
-            <Plus className="h-3.5 w-3.5" />
-            {label}
+            <Plus className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+            <span className="min-w-0 whitespace-normal break-words">{label}</span>
           </button>
         ))}
         <div className="border-t border-border px-3 py-2 text-xs font-medium text-muted-foreground">
@@ -69,22 +69,22 @@ export function LoopQuickInsert({
         )}
         {customDefinitions.map((definition) => (
           <button
-            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-accent"
+            className="flex w-full items-start gap-2 px-3 py-2 text-left text-sm hover:bg-accent"
             key={`${definition.slug}@${definition.version}`}
             onClick={() => onInsert(customBlockType(definition))}
             type="button"
           >
-            <Plus className="h-3.5 w-3.5" />
-            {definition.label}
+            <Plus className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+            <span className="min-w-0 whitespace-normal break-words">{definition.label}</span>
           </button>
         ))}
         <button
-          className="flex w-full items-center gap-2 border-t border-border px-3 py-2 text-left text-sm hover:bg-accent"
+          className="flex w-full items-start gap-2 border-t border-border px-3 py-2 text-left text-sm hover:bg-accent"
           onClick={onCreateCustom}
           type="button"
         >
-          <Plus className="h-3.5 w-3.5" />
-          {messages.createCustom}
+          <Plus className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          <span className="min-w-0 whitespace-normal break-words">{messages.createCustom}</span>
         </button>
       </div>
     </>

@@ -8,10 +8,10 @@ import {
   insertPointFromDoubleClick,
   type LoopBlockInsertPoint,
 } from "./loop-block-insert-point";
-import { createLoopBlockCatalog, registerLoopBlocks } from "./loop-block-catalog";
+import { insertLoopBlock } from "./loop-block-insertion";
+import { loopBlockProgrammingHostAdapter } from "./loop-block-programming-host-adapter";
 import { loopBlocklyTheme } from "./loop-blockly-theme";
 import type { LoopCustomBlockDefinition } from "./loop-custom-block-types";
-import { nodeIdForBlock, projectProgramToWorkspace, workspaceToLoopSource } from "./loop-block-projection";
 import { LoopQuickInsert } from "./loop-quick-insert";
 import type { LoopBlockCatalogMessages, LoopQuickInsertMessages } from "./loop-workbench-messages";
 
@@ -65,8 +65,8 @@ export function LoopBlocklyCanvas({
 
   useEffect(() => {
     if (!hostRef.current) return;
-    registerLoopBlocks(messages.blockly, customDefinitionsRef.current);
-    const { toolbox } = createLoopBlockCatalog(
+    loopBlockProgrammingHostAdapter.registerBlocks(messages.blockly, customDefinitionsRef.current);
+    const { toolbox } = loopBlockProgrammingHostAdapter.createCatalog(
       messages.blockly,
       customDefinitionsRef.current,
     );
@@ -92,19 +92,27 @@ export function LoopBlocklyCanvas({
       if (event.type === Blockly.Events.SELECTED) {
         const selected = Blockly.getSelected();
         callbackRef.current.onSelectNode(
-          selected instanceof Blockly.Block ? nodeIdForBlock(selected) : undefined,
+          selected instanceof Blockly.Block
+            ? loopBlockProgrammingHostAdapter.nodeIdForBlock(selected)
+            : undefined,
         );
       }
       if (!event.isUiEvent) {
         callbackRef.current.onSourceChange(
-          workspaceToLoopSource(workspace, customDefinitionsRef.current).source,
+          loopBlockProgrammingHostAdapter
+            .workspaceToSource(workspace, customDefinitionsRef.current)
+            .source,
         );
       }
     };
     workspace.addChangeListener(listener);
     const currentProgram = programRef.current;
     if (currentProgram) {
-      projectProgramToWorkspace(workspace, currentProgram, customDefinitionsRef.current);
+      loopBlockProgrammingHostAdapter.projectProgram(
+        workspace,
+        currentProgram,
+        customDefinitionsRef.current,
+      );
       setLoopBlockAccess(workspace, readOnlyRef.current);
     }
     const observer = new ResizeObserver(() => Blockly.svgResize(workspace));
@@ -121,16 +129,24 @@ export function LoopBlocklyCanvas({
     const workspace = workspaceRef.current;
     const currentProgram = programRef.current;
     if (workspace && currentProgram) {
-      projectProgramToWorkspace(workspace, currentProgram, customDefinitionsRef.current);
+      loopBlockProgrammingHostAdapter.projectProgram(
+        workspace,
+        currentProgram,
+        customDefinitionsRef.current,
+      );
     }
   }, [semanticRevision]);
 
   useEffect(() => {
     const workspace = workspaceRef.current;
     if (!workspace) return;
-    registerLoopBlocks(messages.blockly, customDefinitions);
-    workspace.updateToolbox(createLoopBlockCatalog(messages.blockly, customDefinitions).toolbox);
-    callbackRef.current.onSourceChange(workspaceToLoopSource(workspace, customDefinitions).source);
+    loopBlockProgrammingHostAdapter.registerBlocks(messages.blockly, customDefinitions);
+    workspace.updateToolbox(
+      loopBlockProgrammingHostAdapter.createCatalog(messages.blockly, customDefinitions).toolbox,
+    );
+    callbackRef.current.onSourceChange(
+      loopBlockProgrammingHostAdapter.workspaceToSource(workspace, customDefinitions).source,
+    );
   }, [customDefinitions, messages.blockly]);
 
   useEffect(() => {
@@ -142,11 +158,12 @@ export function LoopBlocklyCanvas({
   function insert(type: string) {
     const workspace = workspaceRef.current;
     if (!workspace || !insertPoint || readOnly) return;
-    const created = workspace.newBlock(type) as Blockly.BlockSvg;
-    created.initSvg();
-    created.render();
-    created.moveBy(insertPoint.workspaceX, insertPoint.workspaceY);
-    created.select();
+    insertLoopBlock({
+      workspace,
+      type,
+      insertPoint,
+      customDefinitions: customDefinitionsRef.current,
+    });
     setInsertPoint(undefined);
   }
 
