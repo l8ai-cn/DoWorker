@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <link rel="icon" href="/icons/icon.svg">
+    <title>Do Worker - 网络连接中断</title>
+    <style>
+      :root {
+        font-family: Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+        color: #17201f;
+        background: #f7f9f8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+
+      main {
+        width: min(100%, 420px);
+        text-align: center;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 28px;
+        line-height: 1.25;
+        letter-spacing: 0;
+      }
+
+      p {
+        margin: 14px 0 24px;
+        color: #5f6b69;
+        font-size: 15px;
+        line-height: 1.7;
+      }
+
+      .retry {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        border: 1px solid #26766d;
+        border-radius: 6px;
+        padding: 0 20px;
+        color: #fff;
+        background: #26766d;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+      }
+
+      .retry:focus-visible {
+        outline: 3px solid #78b8af;
+        outline-offset: 3px;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          color: #f1f5f4;
+          background: #111615;
+        }
+
+        p {
+          color: #a9b5b2;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>网络连接中断</h1>
+      <p>暂时无法连接 Do Worker。请检查网络后重新连接，当前页面不会提交新的任务。</p>
+      <a class="retry" href="">重新连接</a>
+    </main>
+  </body>
+</html>
