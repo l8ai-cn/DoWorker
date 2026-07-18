@@ -167,8 +167,9 @@ images:
     digest: ${COPIED}
 EOF
 rm -f "${CREATE_MARKER}"
-if mirror pgvector/pgvector:pg16 pgvector:pg16; then
-  echo "missing release lock entries must block publication" >&2
-  exit 1
-fi
+set +e
+mirror pgvector/pgvector:pg16 pgvector:pg16
+status=$?
+set -e
+[[ "${status}" -eq "${INFRA_VERIFICATION_ERROR}" ]]
 [[ ! -e "${CREATE_MARKER}" ]]
