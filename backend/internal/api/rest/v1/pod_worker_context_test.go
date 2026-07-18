@@ -28,6 +28,10 @@ func (f workerContextSnapshots) GetByID(context.Context, int64, int64) (workersp
 	return f.snapshot, nil
 }
 
+func (f workerContextSnapshots) GetByIDs(context.Context, int64, []int64) ([]workerspecdomain.Snapshot, error) {
+	return []workerspecdomain.Snapshot{f.snapshot}, nil
+}
+
 func (f workerContextSnapshots) ListByOrganization(context.Context, int64) ([]workerspecdomain.Snapshot, error) {
 	return nil, nil
 }
