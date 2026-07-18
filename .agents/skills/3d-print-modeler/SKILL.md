@@ -24,12 +24,26 @@ Build a real-scale solid, preserve editable source, and prove the exported mesh 
 Use this backend for functional models in a Codex Node.js runtime:
 
 ```bash
-cp -R <skill-directory>/assets/jscad-runtime /tmp/3d-print-jscad-runtime
-npm ci --prefix /tmp/3d-print-jscad-runtime --ignore-scripts --no-audit --no-fund
+mkdir -p deliverables
+rm -rf deliverables/.jscad-runtime
+cp -R <skill-directory>/assets/jscad-runtime deliverables/.jscad-runtime
+npm ci --prefix deliverables/.jscad-runtime --ignore-scripts --no-audit --no-fund
 ```
 
 The committed lockfile fixes transitive package versions and integrity hashes.
 Treat installation failure as a blocked backend; do not switch modeling engines.
+Load the CommonJS packages from the installed sibling runtime:
+
+```javascript
+import { createRequire } from "node:module";
+
+const require = createRequire(import.meta.url);
+const modeling = require("./.jscad-runtime/node_modules/@jscad/modeling");
+const { serialize } = require(
+  "./.jscad-runtime/node_modules/@jscad/stl-serializer",
+);
+```
+
 Keep the model script in `deliverables/<model-name>.jscad.mjs`. Serialize a single unioned `geom3` to binary or ASCII STL. Do not export overlapping unmerged solids.
 
 ## Printability Contract
