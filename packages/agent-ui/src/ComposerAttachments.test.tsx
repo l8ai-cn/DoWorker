@@ -23,7 +23,6 @@ describe("ComposerAttachments", () => {
           attachments={[]}
           disabled={false}
           onChange={onChange}
-          onError={vi.fn()}
           runtime={runtime}
           sessionId="session-1"
         />
@@ -42,7 +41,6 @@ describe("ComposerAttachments", () => {
           attachments={[attachment]}
           disabled={false}
           onChange={onChange}
-          onError={vi.fn()}
           runtime={runtime}
           sessionId="session-1"
         />
@@ -51,5 +49,33 @@ describe("ComposerAttachments", () => {
     expect(screen.getByText("brief.txt")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "移除附件: brief.txt" }));
     expect(onChange).toHaveBeenLastCalledWith([]);
+  });
+
+  it("explains rejected attachment types in the composer", async () => {
+    const runtime = {
+      uploadAttachment: vi.fn(async () => {
+        throw new Error("agent_attachment_upload_unsupported");
+      }),
+    } as unknown as AgentSessionRuntime;
+
+    render(
+      <AgentWorkspaceLocaleProvider locale="zh-CN">
+        <ComposerAttachments
+          attachments={[]}
+          disabled={false}
+          onChange={vi.fn()}
+          runtime={runtime}
+          sessionId="session-1"
+        />
+      </AgentWorkspaceLocaleProvider>,
+    );
+
+    fireEvent.change(screen.getByTestId("agent-attachment-input"), {
+      target: { files: [new File(["test"], "unsupported.bin")] },
+    });
+
+    expect(
+      await screen.findByText("当前会话不支持此附件类型。"),
+    ).toBeVisible();
   });
 });

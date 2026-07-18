@@ -14,6 +14,7 @@ import {
 } from "@do-worker/agent-ui";
 import { CommandEnvelopeSchema } from "@proto/agent_workbench/v2/command_pb";
 import { defaultWebAgentWorkbenchRuntimeDeps } from "./webAgentWorkbenchRuntimeDefaults";
+import { createWebAgentWorkbenchAttachmentUploader } from "./webAgentWorkbenchAttachmentRuntime";
 import { WebAgentWorkbenchConnection } from "./WebAgentWorkbenchConnection";
 import {
   decodeWebAgentWorkbenchSnapshot,
@@ -27,13 +28,13 @@ import type {
 export class WebAgentWorkbenchRuntime implements AgentSessionRuntime {
   readonly sessionId: string;
   readonly loadArtifact?: AgentSessionRuntime["loadArtifact"];
+  readonly uploadAttachment?: AgentSessionRuntime["uploadAttachment"];
   private readonly listeners = new Set<() => void>();
   private readonly deps: WebAgentWorkbenchRuntimeDeps;
   private connection: AgentConnectionStatus = "connecting";
   private error: string | null = null;
   private snapshot: AgentSessionSnapshot;
   private readonly connectionRuntime: WebAgentWorkbenchConnection;
-
   constructor(private readonly input: WebAgentWorkbenchRuntimeInput) {
     if (!input.sessionId) throw new Error("agent_workbench_session_missing");
     this.sessionId = input.sessionId;
@@ -60,6 +61,10 @@ export class WebAgentWorkbenchRuntime implements AgentSessionRuntime {
         });
       };
     }
+    this.uploadAttachment = createWebAgentWorkbenchAttachmentUploader(
+      this.deps,
+      (sessionId) => this.assertSession(sessionId),
+    );
   }
 
   async open(sessionId: string): Promise<void> {
@@ -82,15 +87,13 @@ export class WebAgentWorkbenchRuntime implements AgentSessionRuntime {
     this.listeners.add(listener);
     return () => this.listeners.delete(listener);
   }
-
   sendMessage(
     sessionId: string,
     commandId: string,
-    input: { text: string },
+    input: Parameters<AgentSessionRuntime["sendMessage"]>[2],
   ): Promise<void> {
-    return this.execute(sessionId, commandId, sendPromptPayload(input.text));
+    return this.execute(sessionId, commandId, sendPromptPayload(input.text, input.attachments));
   }
-
   sendSlashCommand(
     sessionId: string,
     commandId: string,
@@ -99,7 +102,6 @@ export class WebAgentWorkbenchRuntime implements AgentSessionRuntime {
     const text = `/${input.name}${input.arguments ? ` ${input.arguments}` : ""}`;
     return this.execute(sessionId, commandId, sendPromptPayload(text));
   }
-
   interrupt(sessionId: string, commandId: string): Promise<void> {
     const turnId = this.rawSnapshot()?.activeTurnId;
     return this.execute(sessionId, commandId, interruptPayload(turnId));

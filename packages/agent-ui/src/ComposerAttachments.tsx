@@ -11,18 +11,17 @@ export function ComposerAttachments({
   attachments,
   disabled,
   onChange,
-  onError,
   runtime,
   sessionId,
 }: {
   attachments: AgentAttachmentReference[];
   disabled: boolean;
   onChange: (attachments: AgentAttachmentReference[]) => void;
-  onError: (error: unknown) => void;
   runtime: AgentSessionRuntime;
   sessionId: string;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const text = useAgentWorkspaceText();
 
@@ -30,12 +29,13 @@ export function ComposerAttachments({
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file || !runtime.uploadAttachment || uploading) return;
+    setUploadError(null);
     setUploading(true);
     try {
       const attachment = await runtime.uploadAttachment(sessionId, file);
       onChange([...attachments, attachment]);
     } catch (cause) {
-      onError(cause);
+      setUploadError(attachmentUploadError(cause, text));
     } finally {
       setUploading(false);
     }
@@ -85,6 +85,21 @@ export function ComposerAttachments({
           </button>
         </span>
       ))}
+      {uploadError && (
+        <span className="basis-full text-xs text-destructive" role="alert">
+          {uploadError}
+        </span>
+      )}
     </div>
   );
+}
+
+function attachmentUploadError(
+  cause: unknown,
+  text: ReturnType<typeof useAgentWorkspaceText>,
+) {
+  return cause instanceof Error &&
+    cause.message === "agent_attachment_upload_unsupported"
+    ? text.attachmentUploadUnsupported
+    : text.attachmentUploadFailed;
 }

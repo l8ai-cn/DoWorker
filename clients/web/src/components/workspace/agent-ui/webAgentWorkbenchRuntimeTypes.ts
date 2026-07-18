@@ -1,4 +1,5 @@
 import type {
+  AgentAttachmentReference,
   AgentArtifactLoadRequest,
   AgentSessionRuntime,
 } from "@do-worker/agent-ui";
@@ -43,6 +44,12 @@ export interface WebAgentWorkbenchAccess {
   orgSlug: string;
 }
 
+export interface WebAgentWorkbenchAttachmentUploadInput {
+  access: WebAgentWorkbenchAccess;
+  file: File;
+  sessionId: string;
+}
+
 export interface WebAgentWorkbenchRuntimeDeps {
   getAccess(): WebAgentWorkbenchAccess;
   loadArtifact?: (
@@ -52,6 +59,9 @@ export interface WebAgentWorkbenchRuntimeDeps {
   service: WebAgentWorkbenchService;
   sleep(milliseconds: number): Promise<void>;
   state: WebAgentWorkbenchState;
+  uploadAttachment?: (
+    input: WebAgentWorkbenchAttachmentUploadInput,
+  ) => Promise<AgentAttachmentReference>;
 }
 
 export interface WebAgentWorkbenchRuntimeInput {

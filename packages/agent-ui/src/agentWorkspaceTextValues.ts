@@ -46,6 +46,9 @@ export const englishAgentWorkspaceText: AgentWorkspaceText = {
   addAttachment: "Add attachment",
   removeAttachment: "Remove attachment",
   uploadingAttachment: "Uploading attachment",
+  attachmentUploadFailed: "Could not upload the attachment. Try again.",
+  attachmentUploadUnsupported:
+    "This attachment type is not supported by the current session.",
   reject: "Reject",
   approve: "Approve",
   submitAnswers: "Submit answers",
@@ -105,6 +108,8 @@ export const chineseAgentWorkspaceText: AgentWorkspaceText = {
   addAttachment: "添加附件",
   removeAttachment: "移除附件",
   uploadingAttachment: "正在上传附件",
+  attachmentUploadFailed: "附件上传失败，请重试。",
+  attachmentUploadUnsupported: "当前会话不支持此附件类型。",
   reject: "拒绝",
   approve: "批准",
   submitAnswers: "提交回答",

@@ -11,6 +11,57 @@ import {
 import { ConversationComposer } from "./ConversationComposer";
 
 describe("ConversationComposer", () => {
+  it("sends the uploaded attachment with a regular message", async () => {
+    const snapshot = agentWorkspaceSnapshot();
+    snapshot.status = "idle";
+    snapshot.items = [];
+    const { agentRuntime } = agentWorkspaceRuntime(snapshot);
+    agentRuntime.uploadAttachment = vi.fn(async () => ({
+      bytes: 4,
+      id: "file_1",
+      mediaType: "text/csv",
+      name: "sales.csv",
+    }));
+
+    render(
+      <AgentWorkspaceLocaleProvider locale="zh-CN">
+        <ConversationComposer
+          onError={vi.fn()}
+          presentation="developer"
+          runtime={agentRuntime}
+          snapshot={snapshot}
+        />
+      </AgentWorkspaceLocaleProvider>,
+    );
+
+    fireEvent.change(screen.getByTestId("agent-attachment-input"), {
+      target: {
+        files: [new File(["data"], "sales.csv", { type: "text/csv" })],
+      },
+    });
+    expect(await screen.findByText("sales.csv")).toBeVisible();
+    fireEvent.change(screen.getByLabelText("给智能体发送消息"), {
+      target: { value: "分析这份数据" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "发送消息" }));
+
+    await waitFor(() => {
+      expect(agentRuntime.sendMessage).toHaveBeenCalledWith(
+        snapshot.sessionId,
+        expect.any(String),
+        {
+          attachments: [{
+            bytes: 4,
+            id: "file_1",
+            mediaType: "text/csv",
+            name: "sales.csv",
+          }],
+          text: "分析这份数据",
+        },
+      );
+    });
+  });
+
   it("keeps attachments when a slash command cannot accept them", async () => {
     const snapshot = agentWorkspaceSnapshot();
     snapshot.status = "idle";

@@ -142,6 +142,97 @@ describe("WebAgentWorkbenchRuntime", () => {
     );
   });
 
+  it.each([
+    ["image", "brief.png", "image/png"],
+    ["CSV", "sales.csv", "text/csv"],
+    [
+      "Word document",
+      "brief.docx",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ],
+  ])("preserves a %s attachment in the command protocol", async (
+    _kind,
+    name,
+    mediaType,
+  ) => {
+    const { deps, service } = dependencies();
+    const runtime = new WebAgentWorkbenchRuntime({
+      agentLabel: "Codex",
+      deps,
+      interactionMode: "acp",
+      sessionId: "session-real-1",
+      title: "Attachment task",
+    });
+
+    await runtime.sendMessage(runtime.sessionId, "command-attachment", {
+      attachments: [{ bytes: 4, id: "file_1", mediaType, name }],
+      text: "Review the attachment",
+    });
+
+    const command = fromBinary(
+      CommandEnvelopeSchema,
+      service.executeCommandConnect.mock.calls[0]?.[2],
+    );
+    expect(command.command).toMatchObject({
+      case: "sendPrompt",
+      value: {
+        attachments: [
+          {
+            content: {
+              case: "file",
+              value: {
+                artifactId: "file_1",
+                filename: name,
+                mediaType,
+                representationId: "source",
+                revision: 1n,
+                role: "input",
+              },
+            },
+            contentId: "file_1",
+            identity: {
+              namespace: "agentsmesh.session-file",
+              schemaVersion: "1",
+              semanticKey: "attachment",
+            },
+          },
+        ],
+        text: "Review the attachment",
+      },
+    });
+  });
+
+  it("binds the current session and access scope when uploading an attachment", async () => {
+    const { deps } = dependencies();
+    const uploadAttachment = vi.fn(async () => ({
+      bytes: 4,
+      id: "file_1",
+      mediaType: "text/csv",
+      name: "sales.csv",
+    }));
+    deps.uploadAttachment = uploadAttachment;
+    const runtime = new WebAgentWorkbenchRuntime({
+      agentLabel: "Codex",
+      deps,
+      interactionMode: "acp",
+      sessionId: "session-real-1",
+      title: "Attachment task",
+    });
+    const file = new File(["data"], "sales.csv", { type: "text/csv" });
+
+    await expect(runtime.uploadAttachment?.(runtime.sessionId, file)).resolves.toEqual({
+      bytes: 4,
+      id: "file_1",
+      mediaType: "text/csv",
+      name: "sales.csv",
+    });
+    expect(uploadAttachment).toHaveBeenCalledWith({
+      access: { bearerToken: "token-1", orgSlug: "acme" },
+      file,
+      sessionId: "session-real-1",
+    });
+  });
+
   it("takes a fresh Rust snapshot after a remote stream close", async () => {
     const { closeRemote, deps, service, setSnapshot } = dependencies();
     const runtime = new WebAgentWorkbenchRuntime({

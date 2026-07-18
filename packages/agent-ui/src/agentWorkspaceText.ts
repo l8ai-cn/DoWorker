@@ -32,6 +32,8 @@ export interface AgentWorkspaceText {
   addAttachment: string;
   removeAttachment: string;
   uploadingAttachment: string;
+  attachmentUploadFailed: string;
+  attachmentUploadUnsupported: string;
   reject: string;
   approve: string;
   submitAnswers: string;

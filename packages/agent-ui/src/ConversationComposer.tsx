@@ -131,7 +131,6 @@ export function ConversationComposer({
               attachments={attachments}
               disabled={sending || isRunning || !snapshot.capabilities.sendMessage}
               onChange={setAttachments}
-              onError={onError}
               runtime={runtime}
               sessionId={snapshot.sessionId}
             />

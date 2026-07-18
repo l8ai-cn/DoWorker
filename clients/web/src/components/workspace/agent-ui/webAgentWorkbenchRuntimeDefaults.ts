@@ -5,6 +5,7 @@ import {
 } from "@/lib/wasm-core";
 import { getAgentWorkbenchStreamBaseUrl } from "@/lib/env";
 import { readCurrentOrg } from "@/stores/auth";
+import { uploadWebAgentWorkbenchAttachment } from "./webAgentWorkbenchAttachmentUpload";
 import type {
   WebAgentWorkbenchRuntimeDeps,
 } from "./webAgentWorkbenchRuntimeTypes";
@@ -56,4 +57,5 @@ export const defaultWebAgentWorkbenchRuntimeDeps:
       snapshotBytes: (sessionId) =>
         getAgentWorkbenchState().snapshotBytes(sessionId),
     },
+    uploadAttachment: uploadWebAgentWorkbenchAttachment,
   };
