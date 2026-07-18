@@ -68,7 +68,7 @@ test.describe("Loop workbench", () => {
     expect(externalBlocklyMediaRequests).toEqual([]);
   });
 
-  test("selects a runtime before starting a real GoalLoop", async ({
+  test("requires resource apply before starting a GoalLoop", async ({
     page,
     db,
     monitor,
@@ -98,15 +98,11 @@ test.describe("Loop workbench", () => {
       await expect(
         page.getByText("循环启动失败，请确认运行环境仍然可用"),
       ).toBeVisible();
-      expect(
-        db.queryValue(`
-          SELECT status
-          FROM goal_loops
-          WHERE worker_spec_snapshot_id = ${runtime.snapshotId}
-          ORDER BY id DESC
-          LIMIT 1
-        `),
-      ).toBe("failed");
+      expect(db.queryValue(`
+        SELECT count(*)
+        FROM goal_loops
+        WHERE worker_spec_snapshot_id = ${runtime.snapshotId}
+      `)).toBe("0");
     } finally {
       cleanupLoopRuntimeFixture(db, runtime);
     }

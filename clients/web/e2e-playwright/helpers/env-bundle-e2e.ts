@@ -2,7 +2,7 @@ import { execSync } from "node:child_process";
 import { TEST_ORG_SLUG, getComposeProject } from "./env";
 import { pollUntil } from "./retry";
 import type { ApiFixture } from "../fixtures/api.fixture";
-import { pickE2EEchoRunner } from "./e2e-echo-runner";
+import { createE2EEchoPod } from "./e2e-worker-spec";
 
 // Dev compose has TWO runner services (runner-1 + runner-2 — see
 // deploy/dev/docker-compose.yml). The pod scheduler picks one via
@@ -26,12 +26,7 @@ function listRunnerContainers(): string[] {
     return [];
   }
 }
-/**
- * Create an e2e-echo pod through the internal test-agent contract.
- *
- * e2e-echo is intentionally excluded from the public WorkerSpec catalog, so
- * browser worker creation cannot be used to validate Runner environment setup.
- */
+/** Create an e2e-echo pod with runtime EnvBundles through WorkerSpecDraft. */
 export async function createPodAndWaitRunning(args: {
   api: ApiFixture;
   agentSlug: string;
@@ -45,15 +40,17 @@ export async function createPodAndWaitRunning(args: {
     statusTimeoutMs = 30_000,
   } = args;
   const cc = await api.connect();
-  const { items: runners } = await cc.runner.listAvailableRunners({
-    orgSlug: TEST_ORG_SLUG,
-  }) as { items?: Array<{ id: bigint; nodeId?: string }> };
-  const created = await cc.pod.createPod({
-    orgSlug: TEST_ORG_SLUG,
-    runnerId: pickE2EEchoRunner(runners).id,
+  const listed = await cc.envBundle.listEnvBundles({
     agentSlug,
-    agentfileLayer: runtimeBundleLayer(runtimeBundleNames),
-    automationLevel: "interactive",
+  }) as { items: Array<{ id: bigint; name: string }> };
+  const bundleIds = runtimeBundleNames.map((name) => {
+    const bundle = listed.items.find((item) => item.name === name);
+    if (!bundle) throw new Error(`runtime EnvBundle not found: ${name}`);
+    return bundle.id;
+  });
+  const created = await createE2EEchoPod(cc, {
+    mode: "pty",
+    envBundleIds: bundleIds,
   }) as { pod?: { podKey?: string } };
   const podKey = created.pod?.podKey;
   if (!podKey) {
@@ -75,11 +72,6 @@ export async function createPodAndWaitRunning(args: {
     },
   );
   return podKey;
-}
-
-function runtimeBundleLayer(names: string[]): string {
-  // e2e-echo writes the child-environment dump only through its PTY launch path.
-  return ["MODE pty", ...names.map((name) => `USE_ENV_BUNDLE ${JSON.stringify(name)}`), ""].join("\n");
 }
 
 /**

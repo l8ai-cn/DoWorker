@@ -15,7 +15,8 @@
 //     the workflow-ref guard so any future refactor of DeleteRunner has to
 //     keep at least the workflow check intact.
 import { test, expect } from "../../fixtures/index";
-import { TEST_USER, TEST_ORG_SLUG } from "../../helpers/env";
+import { TEST_ORG_SLUG } from "../../helpers/env";
+import { createResourceWorkflow } from "../../helpers/resource-workflow";
 
 interface RunnerSummary {
   id: bigint;
@@ -34,30 +35,25 @@ test.describe("Cascade: runner delete blocked by workflow reference", () => {
     expect(target).toBeTruthy();
     const targetId = target!.id;
 
-    // Create a workflow that pins this runner.
+    // Create through the resource control plane, then pin the projection's
+    // legacy runner_id column because this test targets that delete guard.
     const workflowSlug = `cascade-workflow-${Date.now()}`;
     let workflowId: bigint | undefined;
     try {
-      const createResp = (await cc.workflow.createWorkflow({
-        orgSlug: TEST_ORG_SLUG,
+      const created = await createResourceWorkflow(cc, {
         name: "Cascade delete-runner guard",
         slug: workflowSlug,
-        agentSlug: "e2e-echo",
-        permissionMode: "bypassPermissions",
-        promptTemplate: "noop",
-        promptVariablesJson: "{}",
-        configOverridesJson: "{}",
-        autopilotConfigJson: "{}",
-        branchName: "",
+        prompt: "noop",
         executionMode: "direct",
-        cronExpression: "",
-        callbackUrl: "",
         sandboxStrategy: "fresh",
-        concurrencyPolicy: "skip",
-        runnerId: targetId,
-      })) as { id: bigint };
-      workflowId = createResp.id;
+      });
+      workflowId = created.workflowId;
       expect(workflowId).toBeTruthy();
+      db.setup(`
+        UPDATE workflows
+        SET runner_id = ${targetId}
+        WHERE id = ${workflowId}
+      `);
 
       // Cascade assertion: delete must fail because a workflow references it.
       let deleteBlocked = false;

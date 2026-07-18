@@ -19,24 +19,17 @@ import { clearAuthRateLimit } from "../../helpers/redis";
 import { withEventSubscription } from "../../helpers/eventbus-stream";
 import { createMockAgentPod } from "../../helpers/mock-agent";
 import { terminateAllPods } from "../../helpers/pod-cleanup";
-import { pickE2EEchoRunner } from "../../helpers/e2e-echo-runner";
 
 test.describe("Realtime · pod events (wire)", () => {
   test.beforeEach(async () => { clearAuthRateLimit(); });
   test.afterEach(async () => { await terminateAllPods(); });
 
   test("pod:created arrives with pod_key + runner_id + ticket fields", async ({ api }) => {
-    const cc = await api.connect();
     const token = api.getToken();
     if (!token) throw new Error("api fixture missing token");
 
-    const { items: runners } = await cc.runner.listAvailableRunners({ orgSlug: TEST_ORG_SLUG }) as {
-      items?: Array<{ id: bigint }>;
-    };
-    expect(runners?.length, "dev env must have an online runner").toBeGreaterThan(0);
-    const runnerId = pickE2EEchoRunner(runners).id;
-
     let createdPodKey: string | undefined;
+    let createdRunnerId: bigint | undefined;
     const { event } = await withEventSubscription<unknown, { pod_key?: string; runner_id?: number | string }>(
       {
         token, orgSlug: TEST_ORG_SLUG,
@@ -46,12 +39,13 @@ test.describe("Realtime · pod events (wire)", () => {
       async () => {
         const pod = await createMockAgentPod(api, { mode: "pty", scenario: "echo" });
         createdPodKey = pod.podKey;
+        createdRunnerId = pod.runnerId;
       },
     );
 
     expect(event.type).toBe("pod:created");
     expect(event.data.pod_key).toBe(createdPodKey);
-    expect(Number(event.data.runner_id)).toBe(Number(runnerId));
+    expect(Number(event.data.runner_id)).toBe(Number(createdRunnerId));
   });
 
   test("pod:terminated arrives with terminal status", async ({ api }) => {

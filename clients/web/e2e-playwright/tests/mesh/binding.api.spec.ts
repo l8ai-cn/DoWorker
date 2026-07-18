@@ -7,7 +7,7 @@ import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { pollUntil } from "../../helpers/retry";
 import type { ConnectClient } from "../../helpers/connect-client";
-import { E2E_ECHO_AGENT_SLUG, pickE2EEchoRunner } from "../../helpers/e2e-echo-runner";
+import { createE2EEchoPod } from "../../helpers/e2e-worker-spec";
 
 /**
  * Binding API tests — require running pods. The calling pod identity travels
@@ -22,17 +22,8 @@ test.describe("Pod Binding API", () => {
     cc: ConnectClient,
     prompt: string,
   ): Promise<string> {
-    const runnersRes = await cc.runner.listAvailableRunners({ orgSlug: TEST_ORG_SLUG }) as {
-      items: { id: bigint }[];
-    };
-    expect(runnersRes.items.length, "dev env must have an online runner").toBeGreaterThan(0);
-    const runnerId = pickE2EEchoRunner(runnersRes.items).id;
-
-    const created = await cc.pod.createPod({
-      orgSlug: TEST_ORG_SLUG,
-      agentSlug: E2E_ECHO_AGENT_SLUG,
-      runnerId,
-      agentfileLayer: `PROMPT ${JSON.stringify(prompt)}\n`,
+    const created = await createE2EEchoPod(cc, {
+      prompt,
       cols: 80,
       rows: 24,
     }) as { pod?: { podKey: string } };

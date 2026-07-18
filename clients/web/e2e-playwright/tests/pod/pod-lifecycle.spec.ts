@@ -3,10 +3,10 @@ import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { pollUntil } from "../../helpers/retry";
-import { E2E_ECHO_AGENT_SLUG, pickE2EEchoRunner } from "../../helpers/e2e-echo-runner";
+import { createE2EEchoPod } from "../../helpers/e2e-worker-spec";
 
 type Runner = { id: bigint; currentPods?: number };
-type Pod = { podKey: string; status: string };
+type Pod = { podKey: string; status: string; runnerId: bigint };
 type ConnectClient = Awaited<ReturnType<import("../../fixtures/api.fixture").ApiFixture["connect"]>>;
 
 /**
@@ -17,19 +17,12 @@ test.describe("Pod Lifecycle Scenarios", () => {
   test.beforeEach(async () => { clearAuthRateLimit(); });
 
   /** Helper: create a pod and return its key. Asserts prerequisites instead of skipping. */
-  async function createPod(cc: ConnectClient): Promise<string> {
-    const { items: runners } = await cc.runner.listAvailableRunners({ orgSlug: TEST_ORG_SLUG }) as { items: Runner[] };
-    expect(runners.length, "dev env must have an online runner").toBeGreaterThan(0);
-    const runnerId = pickE2EEchoRunner(runners).id;
-
-    const resp = await cc.pod.createPod({
-      orgSlug: TEST_ORG_SLUG,
-      runnerId,
-      agentSlug: E2E_ECHO_AGENT_SLUG,
-    }) as { pod: Pod };
+  async function createPod(cc: ConnectClient): Promise<Pod> {
+    const resp = await createE2EEchoPod(cc) as { pod: Pod };
     const podKey = resp.pod?.podKey;
     expect(podKey, "createPod must return a pod_key").toBeTruthy();
-    return podKey!;
+    expect(resp.pod.runnerId).toBeTruthy();
+    return resp.pod;
   }
 
   /**
@@ -37,7 +30,7 @@ test.describe("Pod Lifecycle Scenarios", () => {
    */
   test("full pod lifecycle", async ({ api }) => {
     const cc = await api.connect();
-    const podKey = await createPod(cc);
+    const { podKey } = await createPod(cc);
 
     await pollUntil(
       async () => {
@@ -60,19 +53,21 @@ test.describe("Pod Lifecycle Scenarios", () => {
     const cc = await api.connect();
     const { items: runners } = await cc.runner.listAvailableRunners({ orgSlug: TEST_ORG_SLUG }) as { items: Runner[] };
     expect(runners.length, "dev env must have an online runner").toBeGreaterThan(0);
-    const runner = pickE2EEchoRunner(runners);
-
-    const initialPods = runner.currentPods || 0;
-
-    const podKey = await createPod(cc);
+    const pod = await createPod(cc);
+    const runner = runners.find((item) => item.id === pod.runnerId);
+    expect(runner, "scheduled runner must be in the available runner list").toBeTruthy();
+    const initialPods = runner?.currentPods || 0;
 
     await new Promise((r) => setTimeout(r, 2000));
 
-    await cc.pod.terminatePod({ orgSlug: TEST_ORG_SLUG, podKey });
+    await cc.pod.terminatePod({ orgSlug: TEST_ORG_SLUG, podKey: pod.podKey });
 
     await pollUntil(
       async () => {
-        const resp = await cc.runner.getRunner({ orgSlug: TEST_ORG_SLUG, id: runner.id }) as { runner: Runner };
+        const resp = await cc.runner.getRunner({
+          orgSlug: TEST_ORG_SLUG,
+          id: pod.runnerId,
+        }) as { runner: Runner };
         return (resp.runner?.currentPods || 0) <= initialPods;
       },
       { maxAttempts: 5, intervalMs: 2000, label: "capacity-restore" }
@@ -89,7 +84,6 @@ test.describe("Pod Lifecycle Scenarios", () => {
     try {
       await cc.pod.createPod({
         orgSlug: TEST_ORG_SLUG,
-        agentSlug: E2E_ECHO_AGENT_SLUG,
         sourcePodKey: "non-existent-pod-key",
       });
     } catch (e) {

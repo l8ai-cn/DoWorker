@@ -4,12 +4,12 @@ import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { pollUntil } from "../../helpers/retry";
 import { terminateAllPods } from "../../helpers/pod-cleanup";
-import { E2E_ECHO_AGENT_SLUG, pickE2EEchoRunner } from "../../helpers/e2e-echo-runner";
+import { createE2EEchoPod } from "../../helpers/e2e-worker-spec";
 
 type Runner = { id: bigint; currentPods?: number };
 type Repository = { id: bigint };
 type Ticket = { slug: string };
-type Pod = { podKey: string; status: string };
+type Pod = { podKey: string; status: string; runnerId: bigint };
 
 /**
  * TC-SCENARIO-001: Full flow — Git Credential → Repository → Ticket → Pod
@@ -34,23 +34,15 @@ test.describe("Full E2E Scenario", () => {
     }) as Ticket;
     const ticketSlug = ticket.slug;
 
-    // Step 3: Check runner availability
-    const { items: runners } = await cc.runner.listAvailableRunners({ orgSlug: TEST_ORG_SLUG }) as { items: Runner[] };
-    expect(runners.length, "dev env must have an online runner").toBeGreaterThan(0);
-    const runner = pickE2EEchoRunner(runners);
-
-    // Step 5: Create pod with repository and ticket
-    const podResp = await cc.pod.createPod({
-      orgSlug: TEST_ORG_SLUG,
-      runnerId: runner.id,
-      agentSlug: E2E_ECHO_AGENT_SLUG,
+    // Step 3: Create pod with repository and ticket
+    const podResp = await createE2EEchoPod(cc, {
       repositoryId: repoId,
       ticketSlug,
     }) as { pod: Pod };
     const podKey = podResp.pod?.podKey;
 
     if (podKey) {
-      // Step 6: Wait for pod running
+      // Step 4: Wait for pod running
       await pollUntil(
         async () => {
           const pod = await cc.pod.getPod({ orgSlug: TEST_ORG_SLUG, podKey }) as Pod;
@@ -59,15 +51,18 @@ test.describe("Full E2E Scenario", () => {
         { maxAttempts: 10, intervalMs: 3000, label: "scenario-pod-running" }
       ).catch(() => {});
 
-      // Step 7: Verify runner capacity changed
-      const runnerCheck = await cc.runner.getRunner({ orgSlug: TEST_ORG_SLUG, id: runner.id }) as { runner: Runner };
+      // Step 5: Verify runner capacity changed
+      const runnerCheck = await cc.runner.getRunner({
+        orgSlug: TEST_ORG_SLUG,
+        id: podResp.pod.runnerId,
+      }) as { runner: Runner };
       expect((runnerCheck.runner?.currentPods ?? 0)).toBeGreaterThanOrEqual(0);
 
-      // Step 8: Terminate pod
+      // Step 6: Terminate pod
       await cc.pod.terminatePod({ orgSlug: TEST_ORG_SLUG, podKey });
     }
 
-    // Step 9: Cleanup ticket
+    // Step 7: Cleanup ticket
     if (ticketSlug) {
       await cc.ticket.deleteTicket({ orgSlug: TEST_ORG_SLUG, ticketSlug });
     }

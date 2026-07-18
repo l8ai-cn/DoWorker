@@ -1,5 +1,4 @@
 // Typed Connect-RPC client for the e2e suite.
-//
 // The legacy ApiFixture used REST-shaped `api.get(path)` calls that the R5
 // refactor turned into Connect RPCs behind the scenes (via a transparent
 // path-mapping adapter). That layer keeps old specs running but encodes
@@ -8,7 +7,6 @@
 //
 //     const cc = makeConnectClient(token);
 //     const { items } = await cc.channel.listChannels({ orgSlug: "dev-org" });
-//
 // Modeled after web-admin/src/lib/connect/transport.ts. Binary wire
 // (application/proto) — same as the production clients use, so this
 // suite asserts on what real users hit.
@@ -63,6 +61,7 @@ import { PromoCodeService } from "../../../../proto/gen/ts/promocode/v1/promocod
 import { FileService } from "../../../../proto/gen/ts/file/v1/file_pb";
 import { SSOService } from "../../../../proto/gen/ts/sso/v1/sso_pb";
 import { SSOAdminService } from "../../../../proto/gen/ts/sso/v1/sso_admin_pb";
+import { OrchestrationResourceService } from "../../../../proto/gen/ts/orchestration_resource/v1/orchestration_resource_pb";
 
 export class ConnectError extends Error {
   readonly code: string;
@@ -193,6 +192,7 @@ export function makeConnectClient(token: string | null) {
     file: makeServiceClient(FileService, token),
     sso: makeServiceClient(SSOService, token),
     ssoAdmin: makeServiceClient(SSOAdminService, token),
+    orchestrationResource: makeServiceClient(OrchestrationResourceService, token),
   };
 }
 

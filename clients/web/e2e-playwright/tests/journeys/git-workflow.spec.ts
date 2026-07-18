@@ -4,12 +4,11 @@ import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { pollUntil } from "../../helpers/retry";
 import { terminateAllPods } from "../../helpers/pod-cleanup";
-import { E2E_ECHO_AGENT_SLUG, pickE2EEchoRunner } from "../../helpers/e2e-echo-runner";
+import { createE2EEchoPod } from "../../helpers/e2e-worker-spec";
 
-type Runner = { id: bigint };
 type Repository = { id: bigint };
 type Ticket = { slug: string };
-type Pod = { podKey: string; status: string };
+type Pod = { podKey: string; status: string; runnerId: bigint };
 
 /**
  * Journey: Git Workflow
@@ -45,23 +44,17 @@ test.describe("Journey: Git Workflow", () => {
     // Connect throws on failure — a successful get is the assertion.
     await cc.ticket.getTicket({ orgSlug: TEST_ORG_SLUG, ticketSlug });
 
-    // ── Step 4: Get available runner and agent ──
-    const { items: runners } = await cc.runner.listAvailableRunners({ orgSlug: TEST_ORG_SLUG }) as { items: Runner[] };
-    expect(runners.length, "dev env must have an online runner").toBeGreaterThan(0);
-    const runner = pickE2EEchoRunner(runners);
-
-    // ── Step 5: Create pod WITH repository and ticket context ──
-    const podResp = await cc.pod.createPod({
-      orgSlug: TEST_ORG_SLUG,
-      runnerId: runner.id,
-      agentSlug: E2E_ECHO_AGENT_SLUG,
+    // ── Step 4: Create pod WITH repository and ticket context ──
+    const podResp = await createE2EEchoPod(cc, {
       repositoryId: repo.id,
       ticketSlug,
     }) as { pod: Pod };
-    const podKey = podResp.pod?.podKey;
+    const podKey = podResp.pod.podKey;
+    const runnerId = podResp.pod.runnerId;
     expect(podKey).toBeTruthy();
+    expect(runnerId).toBeTruthy();
 
-    // ── Step 6: Wait for pod to become running ──
+    // ── Step 5: Wait for pod to become running ──
     await pollUntil(
       async () => {
         const pod = await cc.pod.getPod({ orgSlug: TEST_ORG_SLUG, podKey }) as Pod;
@@ -70,23 +63,23 @@ test.describe("Journey: Git Workflow", () => {
       { maxAttempts: 10, intervalMs: 3000, label: "journey-pod-running" }
     ).catch(() => {});
 
-    // ── Step 7: Verify pod has repository association ──
+    // ── Step 6: Verify pod has repository association ──
     // Connect throws on failure — a successful get is the assertion.
     await cc.pod.getPod({ orgSlug: TEST_ORG_SLUG, podKey });
 
-    // ── Step 8: Verify runner has this pod associated ──
+    // ── Step 7: Verify runner has this pod associated ──
     // We can't assert `runner.current_pods >= 1` directly — the runner's own
     // heartbeat can race with the server-side IncrementPods write and clobber
     // the count back to 0 before the read lands. Instead, assert via the
     // pods list scoped to this runner, which is the authoritative source.
     const { items: podList } = await cc.pod.listPods({
       orgSlug: TEST_ORG_SLUG,
-      runnerId: runner.id,
+      runnerId,
     }) as { items: Pod[] };
     expect(Array.isArray(podList)).toBe(true);
     expect(podList.some((p) => p.podKey === podKey)).toBe(true);
 
-    // ── Step 9: Terminate pod ──
+    // ── Step 8: Terminate pod ──
     // Connect throws on failure; pod may have self-terminated if agent process
     // failed to start in the runner — accept both success and already-terminated.
     try {
@@ -96,7 +89,7 @@ test.describe("Journey: Git Workflow", () => {
       expect([400, 409]).toContain(err.status);
     }
 
-    // ── Step 10: Verify pod terminated ──
+    // ── Step 9: Verify pod terminated ──
     await pollUntil(
       async () => {
         const pod = await cc.pod.getPod({ orgSlug: TEST_ORG_SLUG, podKey }) as Pod;
@@ -105,7 +98,7 @@ test.describe("Journey: Git Workflow", () => {
       { maxAttempts: 5, intervalMs: 2000, label: "journey-pod-terminated" }
     ).catch(() => {});
 
-    // ── Step 11: Cleanup ticket ──
+    // ── Step 10: Cleanup ticket ──
     await cc.ticket.deleteTicket({ orgSlug: TEST_ORG_SLUG, ticketSlug });
   });
 
