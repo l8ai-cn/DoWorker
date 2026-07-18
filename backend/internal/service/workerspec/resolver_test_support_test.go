@@ -207,6 +207,14 @@ func (*snapshotRepositoryForTest) GetByID(
 	return domain.Snapshot{}, domain.ErrNotFound
 }
 
+func (*snapshotRepositoryForTest) GetByIDs(
+	context.Context,
+	int64,
+	[]int64,
+) ([]domain.Snapshot, error) {
+	return nil, nil
+}
+
 func (*snapshotRepositoryForTest) ListByOrganization(
 	context.Context,
 	int64,

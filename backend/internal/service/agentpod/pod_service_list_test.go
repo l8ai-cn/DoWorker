@@ -248,6 +248,42 @@ func TestGetPodsByTicket(t *testing.T) {
 	}
 }
 
+func TestGetPodsByOrganizationAndTicket(t *testing.T) {
+	db := setupTestDB(t)
+	svc := newTestPodService(db)
+	ctx := context.Background()
+	ticketID := int64(42)
+	seedTestRunner(t, db, 2, 2)
+
+	for _, input := range []struct {
+		organizationID int64
+		runnerID       int64
+	}{{1, 1}, {1, 1}, {2, 2}} {
+		_, err := svc.CreatePod(ctx, &CreatePodRequest{
+			OrganizationID: input.organizationID,
+			RunnerID:       input.runnerID,
+			CreatedByID:    1,
+			TicketID:       &ticketID,
+		})
+		if err != nil {
+			t.Fatalf("CreatePod failed: %v", err)
+		}
+	}
+
+	pods, err := svc.GetPodsByOrganizationAndTicket(ctx, 1, ticketID)
+	if err != nil {
+		t.Fatalf("GetPodsByOrganizationAndTicket failed: %v", err)
+	}
+	if len(pods) != 2 {
+		t.Fatalf("Pods count = %d, want 2", len(pods))
+	}
+	for _, pod := range pods {
+		if pod.OrganizationID != 1 {
+			t.Fatalf("OrganizationID = %d, want 1", pod.OrganizationID)
+		}
+	}
+}
+
 func TestListActiveResumedBy(t *testing.T) {
 	db := setupTestDB(t)
 	svc := newTestPodService(db)

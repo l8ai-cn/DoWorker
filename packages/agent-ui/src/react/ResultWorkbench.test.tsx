@@ -65,6 +65,11 @@ describe("ResultWorkbench", () => {
 
     expect(screen.getByText("Conversation surface")).toBeVisible();
     expect(await screen.findByRole("img", { name: "result.png" })).toBeVisible();
+    expect(
+      screen.getByText("Conversation surface").closest("section")?.parentElement,
+    ).toHaveStyle({
+      gridTemplateColumns: "minmax(360px, 2fr) minmax(480px, 3fr)",
+    });
   });
 
   it("defers result rendering until the narrow results tab is opened", async () => {

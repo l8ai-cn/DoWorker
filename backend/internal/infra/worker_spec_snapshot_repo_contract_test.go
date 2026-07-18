@@ -41,6 +41,13 @@ func TestWorkerSpecSnapshotRepositoryPersistsCanonicalScopedDocuments(t *testing
 
 	_, err = repo.GetByID(ctx, 78, created.ID)
 	assert.True(t, errors.Is(err, workerspec.ErrNotFound))
+
+	other, err := repo.Create(ctx, workerSpecSnapshotForContract(t, 78))
+	require.NoError(t, err)
+	loadedBatch, err := repo.GetByIDs(ctx, 77, []int64{created.ID, other.ID})
+	require.NoError(t, err)
+	require.Len(t, loadedBatch, 1)
+	assert.Equal(t, created.ID, loadedBatch[0].ID)
 }
 
 func TestWorkerSpecSnapshotRepositoryRejectsCorruptStoredDocuments(t *testing.T) {

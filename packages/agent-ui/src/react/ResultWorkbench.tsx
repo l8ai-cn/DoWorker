@@ -67,13 +67,14 @@ export function ResultWorkbench({
   );
 
   if (mode !== "narrow") {
+    const gridTemplateColumns =
+      mode === "wide"
+        ? "minmax(360px, 2fr) minmax(480px, 3fr)"
+        : "minmax(0, 1fr) minmax(360px, 1fr)";
     return (
       <div
-        className={`grid min-h-0 flex-1 ${
-          mode === "wide"
-            ? "grid-cols-[minmax(0,3fr)_minmax(360px,2fr)]"
-            : "grid-cols-[minmax(0,1fr)_minmax(320px,44%)]"
-        }`}
+        className="grid min-h-0 flex-1"
+        style={{ gridTemplateColumns }}
       >
         <section className="min-h-0 min-w-0">{conversation}</section>
         <aside

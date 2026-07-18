@@ -65,6 +65,7 @@ export function podToCache(p: ProtoPod): PodData {
     preview_path: p.previewPath,
     worker_spec_snapshot_id:
       p.workerSpecSnapshotId === undefined ? undefined : Number(p.workerSpecSnapshotId),
+    worker_skill_slugs: p.workerSkillSlugs,
     session_id: p.sessionId,
   };
 }

@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/grant"
+	"github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
@@ -75,6 +76,19 @@ type WorkerDraftFiller interface {
 	) (workercreation.FillResult, error)
 }
 
+type WorkerSpecSnapshotLoader interface {
+	GetByID(
+		context.Context,
+		int64,
+		int64,
+	) (workerspec.Snapshot, error)
+	GetByIDs(
+		context.Context,
+		int64,
+		[]int64,
+	) ([]workerspec.Snapshot, error)
+}
+
 type relayTokenGenerator interface {
 	GenerateToken(string, int64, int64, int64, time.Duration) (string, error)
 }
@@ -96,6 +110,7 @@ type Server struct {
 	eventBus          *eventbus.EventBus
 	workerCreation    WorkerCreationAPI
 	workerDraftFiller WorkerDraftFiller
+	workerSpecs       WorkerSpecSnapshotLoader
 	mobileBaseURL     string
 }
 
@@ -156,6 +171,10 @@ func WithWorkerCreation(service WorkerCreationAPI) Option {
 
 func WithWorkerDraftFiller(filler WorkerDraftFiller) Option {
 	return func(server *Server) { server.workerDraftFiller = filler }
+}
+
+func WithWorkerSpecSnapshotLoader(loader WorkerSpecSnapshotLoader) Option {
+	return func(server *Server) { server.workerSpecs = loader }
 }
 
 func WithMobileBaseURL(baseURL string) Option {

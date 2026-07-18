@@ -1,4 +1,5 @@
 import { CircleAlert, Clock3, Download, LoaderCircle } from "lucide-react";
+import { VideoPlaybackSurface } from "./VideoPlaybackSurface";
 
 export type VideoArtifactStatus =
   | "queued"
@@ -60,18 +61,12 @@ export function VideoArtifactViewer({
   return (
     <article className="overflow-hidden rounded-md border border-border bg-card">
       {status === "ready" ? (
-        <video
-          aria-label={`视频预览：${activeFilename}`}
-          className="aspect-video max-h-[70vh] w-full bg-muted object-contain"
-          controls
+        <VideoPlaybackSurface
+          filename={activeFilename}
           key={`${activeSrc}:${activeMimeType}`}
-          playsInline
-          poster={activePosterSrc}
-          preload="metadata"
+          posterSrc={activePosterSrc}
           src={activeSrc}
-        >
-          当前浏览器不支持视频播放。
-        </video>
+        />
       ) : (
         <VideoStatusPanel progress={progress} status={status} />
       )}

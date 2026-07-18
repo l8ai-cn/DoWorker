@@ -36,11 +36,11 @@ func TestBootstrapVideoExpertsIsIdempotent(t *testing.T) {
 	first, err := bootstrapper.Run(context.Background(), request)
 	require.NoError(t, err)
 	require.Equal(t, BootstrapResult{
-		CreatedSkills:  6,
+		CreatedSkills:  7,
 		CreatedExperts: 3,
 		Published:      3,
 	}, first)
-	require.Len(t, skills.rows, 6)
+	require.Len(t, skills.rows, 7)
 	require.Len(t, experts.experts, 3)
 	require.Len(t, experts.published, 3)
 	require.Equal(t, 3, workers.calls)

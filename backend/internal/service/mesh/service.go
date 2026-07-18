@@ -205,8 +205,12 @@ func (s *Service) GetActivePodsForTicket(ctx context.Context, ticketID int64) ([
 	return nodes, nil
 }
 
-func (s *Service) BatchGetTicketPods(ctx context.Context, ticketIDs []int64) (*mesh.BatchTicketPodsResponse, error) {
-	pods, err := s.repo.ListPodsByTicketIDs(ctx, ticketIDs)
+func (s *Service) BatchGetTicketPods(
+	ctx context.Context,
+	orgID int64,
+	ticketIDs []int64,
+) (*mesh.BatchTicketPodsResponse, error) {
+	pods, err := s.repo.ListPodsByTicketIDs(ctx, orgID, ticketIDs)
 	if err != nil {
 		return nil, err
 	}

@@ -9,6 +9,9 @@ export interface ArtifactWorkspaceText {
   preview(filename: string): string;
   videoPreview(filename: string): string;
   videoPlaybackFailed(filename: string): string;
+  videoUnsupported: string;
+  fullscreenVideo: string;
+  exitFullscreen: string;
   open(filename: string): string;
   download(filename: string): string;
 }
@@ -31,6 +34,9 @@ const enUS: ArtifactWorkspaceText = {
   videoPreview: (filename) => `Video preview for ${filename}`,
   videoPlaybackFailed: (filename) =>
     `Unable to play ${filename}. Try loading it again.`,
+  videoUnsupported: "Your browser does not support video playback.",
+  fullscreenVideo: "View video fullscreen",
+  exitFullscreen: "Exit fullscreen",
   open: (filename) => `Open ${filename}`,
   download: (filename) => `Download ${filename}`,
 };
@@ -46,6 +52,9 @@ const zhCN: ArtifactWorkspaceText = {
   preview: (filename) => `预览 ${filename}`,
   videoPreview: (filename) => `${filename} 的视频预览`,
   videoPlaybackFailed: (filename) => `${filename} 无法播放，请重新加载。`,
+  videoUnsupported: "当前浏览器不支持视频播放。",
+  fullscreenVideo: "全屏预览视频",
+  exitFullscreen: "退出全屏预览",
   open: (filename) => `打开 ${filename}`,
   download: (filename) => `下载 ${filename}`,
 };

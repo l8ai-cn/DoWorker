@@ -187,6 +187,7 @@ message Pod {
   optional int64 worker_spec_snapshot_id = 35 [
     (amesh.codegen.v1.field_rename) = "WorkerSpecSnapshotID"
   ];
+  repeated string worker_skill_slugs = 36 [(amesh.codegen.v1.field_skip) = true];
 }
 
 message PodConnectionInfo {

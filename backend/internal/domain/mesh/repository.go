@@ -14,7 +14,7 @@ type MeshRepository interface {
 
 	CountChannelMessages(ctx context.Context, channelID int64) (int64, error)
 
-	ListPodsByTicketIDs(ctx context.Context, ticketIDs []int64) ([]*agentpod.Pod, error)
+	ListPodsByTicketIDs(ctx context.Context, orgID int64, ticketIDs []int64) ([]*agentpod.Pod, error)
 
 	CreateChannelPod(ctx context.Context, cp *ChannelPod) error
 

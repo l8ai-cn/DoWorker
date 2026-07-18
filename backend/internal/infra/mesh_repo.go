@@ -49,10 +49,14 @@ func (r *meshRepository) CountChannelMessages(ctx context.Context, channelID int
 	return count, err
 }
 
-func (r *meshRepository) ListPodsByTicketIDs(ctx context.Context, ticketIDs []int64) ([]*agentpod.Pod, error) {
+func (r *meshRepository) ListPodsByTicketIDs(
+	ctx context.Context,
+	orgID int64,
+	ticketIDs []int64,
+) ([]*agentpod.Pod, error) {
 	var pods []*agentpod.Pod
 	err := r.db.WithContext(ctx).
-		Where("ticket_id IN ?", ticketIDs).
+		Where("organization_id = ? AND ticket_id IN ?", orgID, ticketIDs).
 		Find(&pods).Error
 	return pods, err
 }

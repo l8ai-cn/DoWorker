@@ -132,6 +132,19 @@ func (r *podRepo) ListByTicket(ctx context.Context, ticketID int64) ([]*agentpod
 	return pods, err
 }
 
+func (r *podRepo) ListByOrganizationAndTicket(
+	ctx context.Context,
+	organizationID, ticketID int64,
+) ([]*agentpod.Pod, error) {
+	var pods []*agentpod.Pod
+	err := r.db.WithContext(ctx).
+		Preload("Runner").Preload("Agent").Preload("Repository").
+		Where("organization_id = ? AND ticket_id = ?", organizationID, ticketID).
+		Order("created_at DESC").
+		Find(&pods).Error
+	return pods, err
+}
+
 func (r *podRepo) ListByRunner(ctx context.Context, runnerID int64, status string) ([]*agentpod.Pod, error) {
 	query := r.db.WithContext(ctx).Where("runner_id = ?", runnerID)
 	if status != "" {
