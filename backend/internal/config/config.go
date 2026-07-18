@@ -152,7 +152,7 @@ func Load() (*Config, error) {
 			UseSSL:         getEnvBool("STORAGE_USE_SSL", true),
 			UsePathStyle:   getEnvBool("STORAGE_USE_PATH_STYLE", false),
 			MaxFileSize:    int64(getEnvInt("STORAGE_MAX_FILE_SIZE", 10)),
-			AllowedTypes:   getEnvList("STORAGE_ALLOWED_TYPES", []string{"image/jpeg", "image/png", "image/gif", "image/webp", "application/pdf"}),
+			AllowedTypes:   getEnvList("STORAGE_ALLOWED_TYPES", []string{"image/jpeg", "image/png", "image/gif", "image/webp", "video/mp4", "application/pdf"}),
 		},
 
 		Payment: loadPaymentConfig(),
