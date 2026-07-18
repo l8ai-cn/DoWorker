@@ -1,0 +1,108 @@
+name: Oilan Image Publish
+
+on:
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+env:
+  REGISTRY: repo.aiedulab.cn:8443
+  IMAGE_PREFIX: repo.aiedulab.cn:8443/agentsmesh
+
+jobs:
+  verify-source:
+    name: Verify release source
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Require main with successful CI
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "${GITHUB_REF}" = "refs/heads/main"
+          test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+          gh api \
+            "repos/${GITHUB_REPOSITORY}/actions/runs?head_sha=${GITHUB_SHA}&event=push&per_page=100" \
+            | jq -e 'any(.workflow_runs[]; .name == "CI" and .conclusion == "success")'
+
+  publish:
+    name: Publish ${{ matrix.service }}
+    needs: verify-source
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: backend
+            file: backend/Dockerfile
+          - service: marketplace
+            file: marketplace/Dockerfile
+          - service: marketplace-web
+            file: clients/marketplace-web/Dockerfile
+          - service: web
+            file: clients/web/Dockerfile
+    steps:
+      - uses: actions/checkout@v7
+      - name: Free disk
+        if: matrix.service == 'marketplace-web' || matrix.service == 'web'
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+            /usr/local/share/boost "$AGENT_TOOLSDIRECTORY" || true
+          df -h /
+      - uses: docker/setup-buildx-action@v3
+      - name: Log in to Harbor
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.file }}
+          platforms: linux/amd64
+          provenance: false
+          push: true
+          tags: |
+            ${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:latest
+            ${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:sha-${{ github.sha }}
+          labels: org.opencontainers.image.revision=${{ github.sha }}
+          cache-from: type=gha,scope=oilan-${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=oilan-${{ matrix.service }}
+      - name: Resolve immutable platform digest
+        id: digest
+        env:
+          IMAGE: ${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:latest
+        run: |
+          set -euo pipefail
+          manifest="$(docker buildx imagetools inspect "$IMAGE" --format '{{json .Manifest}}')"
+          digest="$(
+            jq -er '
+              if has("manifests") then
+                [.manifests[]
+                  | select(.platform.os == "linux" and .platform.architecture == "amd64")
+                ][0].digest
+              else
+                .digest
+              end
+            ' <<<"$manifest"
+          )"
+          test "${digest#sha256:}" != "$digest"
+          docker buildx imagetools create \
+            --prefer-index=false \
+            --tag "$IMAGE" \
+            "$IMAGE@$digest"
+          test "$(docker buildx imagetools inspect "$IMAGE" --format '{{json .Manifest}}' | jq -er '.digest')" = "$digest"
+          mkdir -p digests
+          printf '%s\n' "$digest" > "digests/${{ matrix.service }}.txt"
+      - uses: actions/upload-artifact@v6
+        with:
+          name: oilan-digest-${{ matrix.service }}
+          path: digests/${{ matrix.service }}.txt
+          retention-days: 7
