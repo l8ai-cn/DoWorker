@@ -478,6 +478,214 @@
       "createFailed": "Ticket konnte nicht erstellt werden. Bitte versuchen Sie es erneut."
     }
   },
+  "loopWorkbench": {
+    "shell": {
+      "canvasTitle": "Block-Leinwand",
+      "canvasHint": "Doppelklick auf leeren Bereich zum Einfügen",
+      "editorTitle": "LoopScript-Editor",
+      "editorMetadata": "Entwurf {revision} · Semantik {semanticRevision}"
+    },
+    "toolbar": {
+      "back": "Zurück zu Loops",
+      "title": "Loop-Workbench",
+      "subtitle": "Blöcke und LoopScript teilen dieselbe backend-bestätigte Semantik",
+      "blocks": "Blöcke",
+      "code": "Code",
+      "run": "Loop starten"
+    },
+    "blockly": {
+      "loop": {
+        "message0": "Loop %1",
+        "message1": "Ausführungslimits %1",
+        "message2": "Loop-Schritte %1",
+        "message3": "Bei Fehler %1"
+      },
+      "limits": {
+        "message0": "Spätestens %1 Iterationen · %2 Tokens · %3 Minuten",
+        "message1": "Kein Fortschritt %1-mal · derselbe Fehler %2-mal"
+      },
+      "repeat": {
+        "message0": "Wiederholen %1 · höchstens %2 mal",
+        "message1": "Bis %1 . %2",
+        "message2": "Ausführen %1"
+      },
+      "agent": {
+        "message0": "Agentenaufgabe %1",
+        "message1": "Task-Prompt %1",
+        "defaultPrompt": "Beschreiben Sie die zu erledigende Aufgabe"
+      },
+      "verifier": {
+        "message0": "Verifizierungsschritt %1",
+        "message1": "Befehl %1",
+        "message2": "Bestehensbedingung %1",
+        "defaultAccept": "Verifizierung erfolgreich"
+      },
+      "failure": {
+        "message0": "Bei Fehler %1",
+        "pause": "Für manuelle Prüfung pausieren",
+        "fail": "Als fehlgeschlagen markieren"
+      },
+      "toolbox": {
+        "loop": "Loop",
+        "control": "Steuerung",
+        "agent": "Agent",
+        "verifier": "Verifizierung",
+        "limits": "Limits",
+        "failure": "Fehlerbehandlung"
+      }
+    },
+    "quickInsert": {
+      "close": "Schnelleinfügung schließen",
+      "title": "Block einfügen",
+      "options": {
+        "loop": "Loop",
+        "repeat": "Wiederholen",
+        "agent": "Agentenaufgabe",
+        "verifier": "Verifizierungsschritt",
+        "limits": "Ausführungslimits",
+        "failure": "Fehlerbehandlung"
+      }
+    },
+    "status": {
+      "diagnosticsTitle": "Diagnostik",
+      "runTitle": "Ausführung",
+      "valid": "Aktuelle Quelle hat Backend-Validierung bestanden",
+      "noRun": "Der Loop wurde noch nicht gestartet.",
+      "repairDiagnostic": "Diese Diagnose reparieren",
+      "repairingDiagnostic": "Diagnose wird repariert",
+      "nodeLabel": "Knoten: ",
+      "runStatusLabel": "Status: ",
+      "diagnosticLocation": "Zeile {line}, Spalte {column}",
+      "runInstance": " · Runtime-Instanz {podKey}",
+      "unknownStatus": "Unbekannter Status",
+      "parseStatus": {
+        "empty": "Warten auf Eingabe",
+        "parsing": "Validierung läuft",
+        "valid": "Gültig",
+        "syntax-error": "Fehler vorhanden"
+      },
+      "runStatus": {
+        "draft": "Entwurf",
+        "active": "Ausführung",
+        "paused": "Pausiert",
+        "verifying": "Verifizierung",
+        "completed": "Abgeschlossen",
+        "failed": "Fehlgeschlagen",
+        "cancelled": "Abgebrochen"
+      },
+      "diagnostics": {
+        "programNil": "Loop-Programm ist erforderlich",
+        "schemaVersionUnsupported": "LoopScript-Version wird nicht unterstützt",
+        "syntaxInvalidToken": "LoopScript enthält ein ungültiges Zeichen",
+        "syntaxInvalidNumber": "LoopScript enthält eine ungültige Zahl",
+        "syntaxUnexpectedToken": "LoopScript-Struktur ist ungültig",
+        "syntaxUnknown": "LoopScript enthält unbekannte Syntax",
+        "nodeIdMissing": "Ein Blockknoten fehlt seine eindeutige Kennung",
+        "nodeIdDuplicate": "Blockknoten-Kennungen müssen eindeutig sein",
+        "localIdDuplicate": "Schrittnamen müssen eindeutig sein",
+        "identifierInvalid": "Format des Schrittnamens ist ungültig",
+        "limitsCount": "Genau ein Ausführungslimits-Block ist erforderlich",
+        "repeatCount": "Genau ein Wiederholungsblock ist erforderlich",
+        "agentCount": "Der Wiederholungsblock muss genau eine Agentenaufgabe enthalten",
+        "verifierCount": "Der Wiederholungsblock muss genau einen Verifizierungsschritt enthalten",
+        "failureCount": "Genau eine Fehlerpolitik ist erforderlich",
+        "untilInvalid": "Die Stoppbedingung muss auf das Verifizierungs-Ergebnis verweisen",
+        "repeatMaxExceedsLimit": "Wiederholungszahl darf das globale Iterationslimit nicht überschreiten",
+        "failurePolicyInvalid": "Fehlerpolitik ist ungültig",
+        "valueOutOfRange": "Ein Blockparameter liegt außerhalb des erlaubten Bereichs",
+        "textEmpty": "Ein Blocktext-Parameter darf nicht leer sein",
+        "secretLiteralForbidden": "LoopScript darf keine wörtlichen Geheimnisse enthalten",
+        "unknown": "LoopScript-Validierung fehlgeschlagen"
+      }
+    },
+    "runtime": {
+      "title": "Runtime auswählen",
+      "description": "Die Runtime ist nur für diesen Start gebunden und nicht Teil der Loop-Orchestrierung.",
+      "field": "Runtime",
+      "placeholder": "Runtime auswählen",
+      "unnamed": "Unbenannte Runtime",
+      "loading": "Runtimes werden geladen",
+      "retry": "Neu laden",
+      "empty": "Diese Organisation hat keine verfügbare Runtime",
+      "cancel": "Abbrechen",
+      "start": "Loop starten",
+      "snapshotLabel": "{name} · {workerType} · Snapshot {id}"
+    },
+    "ai": {
+      "toolbar": "AI-Assistent",
+      "generateMode": "Generieren / Ändern",
+      "explainMode": "Aktuellen Loop erklären",
+      "generateTitle": "Loop mit AI generieren oder ändern",
+      "generateDescription": "AI schlägt eine generierte oder vollständige Änderung des Loops vor. Bestehende Verifier- und Budget-Schutzmechanismen bleiben aktiv, Änderungen werden nur nach Bestätigung übernommen.",
+      "explainTitle": "Aktuellen Loop erklären",
+      "explainDescription": "Eine deterministische Ansicht des validierten LoopProgram. Es wird kein Modell verwendet und der Loop wird nicht geändert.",
+      "resource": "AI-Modell",
+      "resourcePlaceholder": "AI-Modell auswählen",
+      "prompt": "Beschreiben Sie das Loop-Ziel oder die vollständige Loop-Änderung",
+      "promptPlaceholder": "Beispiel: Erstellen Sie ein professionelles PPT oder ändern Sie den Loop, um ein PDF-Materialblatt zu erzeugen",
+      "loadingResources": "AI-Modelle werden geladen",
+      "resourceError": "AI-Modelle konnten nicht geladen werden",
+      "retry": "Neu laden",
+      "noResources": "Kein textgenerierendes Modell verfügbar",
+      "generate": "Entwurf generieren",
+      "generating": "Wird generiert",
+      "generationError": "Loop-Entwurf konnte nicht generiert werden",
+      "unchanged": "AI hat keine Codeänderungen erzeugt",
+      "stale": "Der Loop hat sich während der Generierung geändert. Bitte erneut generieren.",
+      "current": "Aktueller Code",
+      "proposed": "AI-Vorschlag",
+      "cancel": "Abbrechen",
+      "close": "Schließen",
+      "back": "Zurück",
+      "confirm": "Vorschlag anwenden",
+      "projection": {
+        "title": "Struktur",
+        "unavailable": "Der aktuelle Loop hat die Validierung nicht bestanden, daher kann seine Struktur nicht angezeigt werden.",
+        "overview": "Loop",
+        "schemaVersion": "Schema-Version",
+        "loopName": "Loop-Kennung",
+        "limits": "Ausführungsbudget",
+        "iterations": "Maximale Iterationen",
+        "tokens": "Token-Budget",
+        "timeout": "Timeout",
+        "noProgress": "Keine Fortschritte-Limit",
+        "sameError": "Selber Fehler-Limit",
+        "repeat": "Wiederholte Ausführung",
+        "repeatName": "Schrittkennung",
+        "repeatMax": "Maximale Wiederholungen",
+        "until": "Stoppbedingung",
+        "agent": "Agentenaufgabe",
+        "agentName": "Task-Kennung",
+        "agentPrompt": "Task-Anweisung",
+        "verifier": "Verifizierung",
+        "verifierName": "Verifier-Kennung",
+        "verifierCommand": "Verifier-Befehl",
+        "verifierAccept": "Bedingung für Bestehen",
+        "failure": "Fehlerbehandlung",
+        "failurePolicy": "Policy",
+        "failurePause": "Pause für menschliches Eingreifen",
+        "failureFail": "Loop als fehlgeschlagen markieren",
+        "empty": "Nicht gesetzt",
+        "iterationsValue": "{value} Iterationen",
+        "tokensValue": "{value} Tokens",
+        "minutesValue": "{value} Minuten",
+        "timesValue": "{value} mal"
+      },
+      "repair": {
+        "title": "Diagnose reparieren",
+        "description": "AI schlägt eine gezielte Integer-Änderung für diese Diagnose vor. Prüfen Sie das resultierende LoopScript vor der Anwendung.",
+        "diagnostic": "Diagnose",
+        "field": "Zielfeld",
+        "prompt": "Zusätzliche Anweisung",
+        "promptPlaceholder": "Optionale Einschränkung für diese Reparatur",
+        "repair": "Reparatur generieren",
+        "repairing": "Reparatur wird generiert",
+        "error": "Zielgerichtete Reparatur konnte nicht gültig generiert werden",
+        "patch": "Gezielte Änderung",
+        "patchValue": "{oldValue} zu {newValue}"
+      }
+    }
+  },
   "loopal": {
     "activity": { "heading": "Aktivität" },
     "status": {
