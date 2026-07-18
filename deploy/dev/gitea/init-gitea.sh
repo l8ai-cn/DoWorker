@@ -13,6 +13,7 @@
 # =============================================================================
 
 set -e
+command -v jq >/dev/null
 
 GITEA_CONTAINER="$1"
 GITEA_HTTP_PORT="$2"
@@ -168,41 +169,27 @@ add_deploy_key() {
     keys_json=$(curl -s -u "${ADMIN_USER}:${ADMIN_PASS}" \
         "${GITEA_API}/repos/${ORG_NAME}/${repo_name}/keys")
 
-    local keys_file
-    keys_file=$(mktemp)
-    printf '%s' "$keys_json" > "$keys_file"
-
-    # Gitea returns the server-calculated fingerprint with each deploy key.
-    local registered_fp
-    registered_fp=$(python3 -c "
-import json, sys
-try:
-    for key in json.load(open(sys.argv[1])).copy():
-        if key.get('title') == sys.argv[2]:
-            print(key.get('fingerprint', ''))
-            break
-except Exception:
-    pass
-" "$keys_file" "$key_title" 2>/dev/null || true)
+    # Check if current key is already registered (compare fingerprints)
+    local registered_key registered_fp=""
+    registered_key=$(jq -r --arg title "$key_title" \
+        'map(select(.title == $title))[0].key // empty' <<<"$keys_json")
+    if [[ -n "$registered_key" ]]; then
+        local registered_key_file
+        registered_key_file=$(mktemp)
+        printf '%s\n' "$registered_key" > "$registered_key_file"
+        registered_fp=$(ssh-keygen -lf "$registered_key_file" 2>/dev/null | awk '{print $2}')
+        rm -f "$registered_key_file"
+    fi
 
     if [[ -n "$registered_fp" && "$registered_fp" == "$current_fp" ]]; then
-        rm -f "$keys_file"
         info "Deploy key already up-to-date for '${repo_name}'"
         return 0
     fi
 
     # Delete all stale keys with our title
     local stale_ids
-    stale_ids=$(python3 -c "
-import json, sys
-try:
-    for key in json.load(open(sys.argv[1])).copy():
-        if key.get('title') == sys.argv[2]:
-            print(key['id'])
-except Exception:
-    pass
-" "$keys_file" "$key_title" 2>/dev/null || true)
-    rm -f "$keys_file"
+    stale_ids=$(jq -r --arg title "$key_title" \
+        '.[] | select(.title == $title) | .id' <<<"$keys_json")
 
     for key_id in $stale_ids; do
         info "Removing stale deploy key (id: ${key_id}) from '${repo_name}'..."
@@ -272,7 +259,7 @@ ensure_backend_token() {
     local token_sha
     token_sha=$(api POST "/users/${ADMIN_USER}/tokens" \
         "{\"name\":\"${token_name}\",\"scopes\":[\"write:admin\",\"write:organization\",\"write:repository\",\"write:user\"]}" \
-        | python3 -c "import sys, json; print(json.load(sys.stdin).get('sha1', ''))")
+        | jq -r '.sha1 // empty')
 
     if [[ -z "$token_sha" ]]; then
         error "Failed to issue backend token"
