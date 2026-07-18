@@ -75,7 +75,7 @@ function matchesToolModelFamily(
     return modelId.trim().startsWith("doubao-seedance-");
   }
   if (providerKey === "sub2api-seedance") {
-    return modelId.trim() === "creative-video";
+    return modelId.trim() === "doubao-seedance-2-0-260128";
   }
   return true;
 }

@@ -7,20 +7,31 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestValidateProviderModelCapabilityRequiresProviderSpecificVideoModel(t *testing.T) {
-	doubao := slugkit.MustNewForTest("doubao")
-	require.NoError(t, ValidateProviderModelCapability(
-		doubao, "doubao-seedance-2-0-260128", CapabilityVideoGeneration,
-	))
-	require.Error(t, ValidateProviderModelCapability(
-		doubao, "creative-video", CapabilityVideoGeneration,
-	))
-
-	sub2api := slugkit.MustNewForTest("sub2api-seedance")
-	require.NoError(t, ValidateProviderModelCapability(
-		sub2api, "creative-video", CapabilityVideoGeneration,
-	))
-	require.Error(t, ValidateProviderModelCapability(
-		sub2api, "doubao-seedance-2-0-260128", CapabilityVideoGeneration,
-	))
+func TestValidateProviderModelCapabilityRequiresSeedanceModelForVideoProviders(t *testing.T) {
+	for _, provider := range []string{"doubao", "sub2api-seedance"} {
+		t.Run(provider, func(t *testing.T) {
+			require.NoError(t, ValidateProviderModelCapability(
+				slugkit.MustNewForTest(provider),
+				"doubao-seedance-2-0-260128",
+				CapabilityVideoGeneration,
+			))
+			require.Error(t, ValidateProviderModelCapability(
+				slugkit.MustNewForTest(provider),
+				"doubao-seed-1-8-251228",
+				CapabilityVideoGeneration,
+			))
+			require.Error(t, ValidateProviderModelCapability(
+				slugkit.MustNewForTest(provider),
+				"creative-video",
+				CapabilityVideoGeneration,
+			))
+			if provider == "sub2api-seedance" {
+				require.Error(t, ValidateProviderModelCapability(
+					slugkit.MustNewForTest(provider),
+					"doubao-seedance-2-0-260128-preview",
+					CapabilityVideoGeneration,
+				))
+			}
+		})
+	}
 }

@@ -15,15 +15,18 @@ func ValidateProviderModelCapability(
 	if capability != CapabilityVideoGeneration {
 		return nil
 	}
+	modelID = strings.TrimSpace(modelID)
 	switch providerKey.String() {
 	case "doubao":
-		if !strings.HasPrefix(strings.TrimSpace(modelID), "doubao-seedance-") {
-			return fmt.Errorf("provider model ID is not a Seedance video model")
+		if strings.HasPrefix(modelID, "doubao-seedance-") {
+			return nil
 		}
 	case "sub2api-seedance":
-		if strings.TrimSpace(modelID) != "creative-video" {
-			return fmt.Errorf("provider model ID is not creative-video")
+		if modelID == "doubao-seedance-2-0-260128" {
+			return nil
 		}
+	default:
+		return nil
 	}
-	return nil
+	return fmt.Errorf("provider model ID is not a Seedance video model")
 }

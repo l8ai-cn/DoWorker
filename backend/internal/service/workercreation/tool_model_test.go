@@ -38,7 +38,7 @@ func TestModelResolverBindsSub2APISeedanceVideoResource(t *testing.T) {
 	resources.resolved.Provider.Key = slugkit.MustNewForTest("sub2api-seedance")
 	resources.resolved.Provider.ProtocolAdapter = "ark-seedance"
 	resources.resolved.Connection.ProviderKey = slugkit.MustNewForTest("sub2api-seedance")
-	resources.resolved.Resource.ModelID = "creative-video"
+	resources.resolved.Resource.ModelID = "doubao-seedance-2-0-260128"
 
 	binding, err := newModelResolver(resources).ResolveToolModel(
 		context.Background(),
@@ -52,11 +52,11 @@ func TestModelResolverBindsSub2APISeedanceVideoResource(t *testing.T) {
 	assert.Equal(t, slugkit.MustNewForTest("ark-seedance"), binding.ModelBinding.ProtocolAdapter)
 }
 
-func TestModelResolverRejectsOfficialSeedanceIDForSub2API(t *testing.T) {
+func TestModelResolverRejectsLegacyCreativeVideoIDForSub2API(t *testing.T) {
 	resources := validModelResourceService()
 	resources.resolved.Provider.Key = slugkit.MustNewForTest("sub2api-seedance")
 	resources.resolved.Connection.ProviderKey = slugkit.MustNewForTest("sub2api-seedance")
-	resources.resolved.Resource.ModelID = "doubao-seedance-2-0-260128"
+	resources.resolved.Resource.ModelID = "creative-video"
 
 	_, err := newModelResolver(resources).ResolveToolModel(
 		context.Background(),
@@ -66,7 +66,7 @@ func TestModelResolverRejectsOfficialSeedanceIDForSub2API(t *testing.T) {
 	)
 
 	require.Error(t, err)
-	assert.ErrorContains(t, err, "creative-video")
+	assert.ErrorContains(t, err, "Seedance video model")
 }
 
 func TestModelResolverRejectsToolProviderSubstitution(t *testing.T) {

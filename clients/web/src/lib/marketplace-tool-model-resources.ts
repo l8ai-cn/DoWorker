@@ -101,12 +101,11 @@ function matchesModelFamily(
   modelID: string | undefined,
 ): boolean {
   if (requirement.capability !== "video-generation") return true;
-  const normalizedModelID = modelID?.trim();
   if (providerKey === "doubao") {
-    return normalizedModelID?.startsWith("doubao-seedance-") ?? false;
+    return modelID?.trim().startsWith("doubao-seedance-") ?? false;
   }
   if (providerKey === "sub2api-seedance") {
-    return normalizedModelID === "creative-video";
+    return modelID?.trim() === "doubao-seedance-2-0-260128";
   }
   return true;
 }
