@@ -71,6 +71,8 @@ spec:
               value: sqlite3
             - name: GITEA__database__PATH
               value: /data/gitea/gitea.db
+            - name: GITEA__indexer__ISSUE_INDEXER_TYPE
+              value: db
           readinessProbe:
             httpGet:
               path: /api/v1/version
