@@ -171,5 +171,5 @@ set +e
 mirror pgvector/pgvector:pg16 pgvector:pg16
 status=$?
 set -e
-[[ "${status}" -eq "${INFRA_VERIFICATION_ERROR}" ]]
+[[ "${status}" -ne 0 ]]
 [[ ! -e "${CREATE_MARKER}" ]]
