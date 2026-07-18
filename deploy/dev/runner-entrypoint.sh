@@ -22,6 +22,8 @@ fi
 CERTS_DIR="${CONFIG_DIR}/certs"
 CONFIG_FILE="${CONFIG_DIR}/config.yaml"
 
+source /usr/local/lib/runner-ssh-bootstrap.sh
+
 case "${AGENT_RUNTIME}" in
     claude-code|codex-cli|gemini-cli|minimax-cli|e2e-echo|loopal|do-agent|aider|opencode|grok-build|openclaw|hermes) ;;
     *)
@@ -228,6 +230,7 @@ EOF
 }
 main() {
     wait_for_backend
+    bootstrap_runner_ssh
     generate_runner_cert
     init_ai_cli_configs
     create_config

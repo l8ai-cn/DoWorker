@@ -7,6 +7,7 @@ DOCKERFILE="${ROOT}/docker/agent-runtime/Dockerfile"
 PREPARE="${ROOT}/docker/agent-runtime/prepare_binaries.sh"
 DOAGENT_BUILD="${ROOT}/deploy/dev/lib/build_do_agent_binary.sh"
 CI_WORKFLOW="${ROOT}/.github/workflows/ci.yml"
+SSH_BOOTSTRAP="${ROOT}/deploy/dev/runner-ssh-bootstrap.sh"
 
 if grep -q "^RUN npm install -g" "$DOCKERFILE" \
   && grep -A5 "^RUN npm install -g" "$DOCKERFILE" | grep -q "@anthropic-ai/claude-code" \
@@ -80,3 +81,28 @@ if ! awk '/runner-do-agent:/{flag=1; next} /runner-grok-build:/{flag=0} flag' do
   echo "runner-do-agent must use the do-agent runtime image stage" >&2
   exit 1
 fi
+
+if grep -q "./runner-ssh:/home/runner/.ssh" docker-compose.runners.yml; then
+  echo "runner SSH source must not be mounted over the runner home directory" >&2
+  exit 1
+fi
+
+grep -q "./runner-ssh:/run/runner-ssh-source:ro" docker-compose.runners.yml
+grep -q "runner-ssh-bootstrap.sh" "$DOCKERFILE"
+
+ssh_fixture="$(mktemp -d)"
+trap 'rm -rf "$ssh_fixture"' EXIT
+mkdir -p "$ssh_fixture/source" "$ssh_fixture/home"
+printf 'Host test\n' > "$ssh_fixture/source/config"
+printf 'private-key\n' > "$ssh_fixture/source/id_ed25519"
+HOME="$ssh_fixture/home" RUNNER_SSH_SOURCE="$ssh_fixture/source" \
+  bash -c 'source "$1"; bootstrap_runner_ssh' _ "$SSH_BOOTSTRAP"
+
+file_mode() {
+  stat -f '%Lp' "$1" 2>/dev/null || stat -c '%a' "$1"
+}
+
+test -d "$ssh_fixture/home/.ssh"
+test "$(file_mode "$ssh_fixture/home/.ssh")" = "700"
+test "$(file_mode "$ssh_fixture/home/.ssh/config")" = "600"
+test "$(file_mode "$ssh_fixture/home/.ssh/id_ed25519")" = "600"

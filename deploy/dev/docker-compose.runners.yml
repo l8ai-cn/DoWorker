@@ -56,7 +56,7 @@ services:
     volumes:
       - ./ssl:/app/ssl:ro
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
-      - ./runner-ssh:/home/runner/.ssh:ro
+      - ./runner-ssh:/run/runner-ssh-source:ro
       - runner_e2e_workspace:/workspace
       - runner_e2e_config:/home/runner/.agentsmesh
     ports:
@@ -69,7 +69,7 @@ services:
     volumes:
       - ./ssl:/app/ssl:ro
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
-      - ./runner-ssh:/home/runner/.ssh:ro
+      - ./runner-ssh:/run/runner-ssh-source:ro
       - runner2_e2e_workspace:/workspace
       - runner2_e2e_config:/home/runner/.agentsmesh
     ports:
@@ -82,7 +82,7 @@ services:
     volumes:
       - ./ssl:/app/ssl:ro
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
-      - ./runner-ssh:/home/runner/.ssh:ro
+      - ./runner-ssh:/run/runner-ssh-source:ro
       - runner_claude_workspace:/workspace
       - runner_claude_agentsmesh_config:/home/runner/.agentsmesh
       - runner_claude_config:/home/runner/.claude
@@ -94,7 +94,7 @@ services:
     volumes:
       - ./ssl:/app/ssl:ro
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
-      - ./runner-ssh:/home/runner/.ssh:ro
+      - ./runner-ssh:/run/runner-ssh-source:ro
       - runner_codex_workspace:/workspace
       - runner_codex_agentsmesh_config:/home/runner/.agentsmesh
       - runner_codex_config:/home/runner/.codex
@@ -107,7 +107,7 @@ services:
     volumes:
       - ./ssl:/app/ssl:ro
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
-      - ./runner-ssh:/home/runner/.ssh:ro
+      - ./runner-ssh:/run/runner-ssh-source:ro
       - runner2_codex_workspace:/workspace
       - runner2_codex_agentsmesh_config:/home/runner/.agentsmesh
       - runner2_codex_config:/home/runner/.codex
@@ -119,7 +119,7 @@ services:
     volumes:
       - ./ssl:/app/ssl:ro
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
-      - ./runner-ssh:/home/runner/.ssh:ro
+      - ./runner-ssh:/run/runner-ssh-source:ro
       - runner_gemini_workspace:/workspace
       - runner_gemini_agentsmesh_config:/home/runner/.agentsmesh
       - runner_gemini_config:/home/runner/.gemini
@@ -131,7 +131,7 @@ services:
     volumes:
       - ./ssl:/app/ssl:ro
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
-      - ./runner-ssh:/home/runner/.ssh:ro
+      - ./runner-ssh:/run/runner-ssh-source:ro
       - runner_loopal_workspace:/workspace
       - runner_loopal_agentsmesh_config:/home/runner/.agentsmesh
       - runner_loopal_config:/home/runner/.loopal
@@ -143,7 +143,7 @@ services:
     volumes:
       - ./ssl:/app/ssl:ro
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
-      - ./runner-ssh:/home/runner/.ssh:ro
+      - ./runner-ssh:/run/runner-ssh-source:ro
       - runner_doagent_workspace:/workspace
       - runner_doagent_agentsmesh_config:/home/runner/.agentsmesh
 
@@ -154,7 +154,7 @@ services:
     volumes:
       - ./ssl:/app/ssl:ro
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
-      - ./runner-ssh:/home/runner/.ssh:ro
+      - ./runner-ssh:/run/runner-ssh-source:ro
       - runner_grok_workspace:/workspace
       - runner_grok_agentsmesh_config:/home/runner/.agentsmesh
       - runner_grok_config:/home/runner/.grok
@@ -166,7 +166,7 @@ services:
     volumes:
       - ./ssl:/app/ssl:ro
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
-      - ./runner-ssh:/home/runner/.ssh:ro
+      - ./runner-ssh:/run/runner-ssh-source:ro
       - runner_openclaw_workspace:/workspace
       - runner_openclaw_agentsmesh_config:/home/runner/.agentsmesh
       - runner_openclaw_config:/home/runner/.openclaw
@@ -178,7 +178,7 @@ services:
     volumes:
       - ./ssl:/app/ssl:ro
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
-      - ./runner-ssh:/home/runner/.ssh:ro
+      - ./runner-ssh:/run/runner-ssh-source:ro
       - runner_hermes_workspace:/workspace
       - runner_hermes_agentsmesh_config:/home/runner/.agentsmesh
       - runner_hermes_config:/home/runner/.hermes
@@ -190,7 +190,7 @@ services:
     volumes:
       - ./ssl:/app/ssl:ro
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
-      - ./runner-ssh:/home/runner/.ssh:ro
+      - ./runner-ssh:/run/runner-ssh-source:ro
       - runner_aider_workspace:/workspace
       - runner_aider_agentsmesh_config:/home/runner/.agentsmesh
 
@@ -201,7 +201,7 @@ services:
     volumes:
       - ./ssl:/app/ssl:ro
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
-      - ./runner-ssh:/home/runner/.ssh:ro
+      - ./runner-ssh:/run/runner-ssh-source:ro
       - runner_opencode_workspace:/workspace
       - runner_opencode_agentsmesh_config:/home/runner/.agentsmesh
 
@@ -218,7 +218,7 @@ services:
     volumes:
       - ./ssl:/app/ssl:ro
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
-      - ./runner-ssh:/home/runner/.ssh:ro
+      - ./runner-ssh:/run/runner-ssh-source:ro
       - runner_admin_workspace:/workspace
       - runner_admin_workspace_config:/home/runner/.agentsmesh
 
@@ -234,7 +234,7 @@ services:
     volumes:
       - ./ssl:/app/ssl:ro
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
-      - ./runner-ssh:/home/runner/.ssh:ro
+      - ./runner-ssh:/run/runner-ssh-source:ro
       - runner_admin_doagent_workspace:/workspace
       - runner_admin_doagent_config:/home/runner/.agentsmesh
 

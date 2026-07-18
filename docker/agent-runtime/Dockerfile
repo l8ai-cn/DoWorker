@@ -87,6 +87,7 @@ RUN ln -sf do-worker-runner /usr/local/bin/agentsmesh-runner
 COPY --chmod=0755 e2e-mock-agent-binary /usr/local/bin/e2e-mock-agent
 COPY --chmod=0755 loopal-binary /usr/local/bin/loopal
 COPY --chmod=0755 runner-entrypoint.sh /usr/local/bin/runner-entrypoint.sh
+COPY --chmod=0755 runner-ssh-bootstrap.sh /usr/local/lib/runner-ssh-bootstrap.sh
 
 # ARG from a prior stage is not inherited; without this redeclare
 # AGENT_RUNTIME is empty and the *) branch deletes e2e-mock-agent.
