@@ -18,6 +18,7 @@ type initializeCapabilities struct {
 }
 
 type threadStartResult struct {
+	Model  string `json:"model"`
 	Thread struct {
 		ID string `json:"id"`
 	} `json:"thread"`
@@ -31,6 +32,26 @@ type turnStartParams struct {
 type turnInput struct {
 	Type string `json:"type"`
 	Text string `json:"text"`
+}
+
+type modelListParams struct {
+	Cursor *string `json:"cursor,omitempty"`
+	Limit  uint32  `json:"limit"`
+}
+
+type modelListResponse struct {
+	Data       []codexModel `json:"data"`
+	NextCursor *string      `json:"nextCursor"`
+}
+
+type codexModel struct {
+	Model  string `json:"model"`
+	Hidden bool   `json:"hidden"`
+}
+
+type threadSettingsUpdateParams struct {
+	ThreadID string `json:"threadId"`
+	Model    string `json:"model"`
 }
 
 type turnInterruptParams struct {

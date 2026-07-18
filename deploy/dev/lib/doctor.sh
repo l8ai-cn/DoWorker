@@ -30,6 +30,12 @@ check_dev_doctor() {
         warn "宿主机 AI CLI 未全装（${ai_missing[*]}）— 仅影响非 Docker runner"
         echo "  npm i -g @anthropic-ai/claude-code @openai/codex @google/gemini-cli"
     fi
+
+    if ! command -v soffice >/dev/null 2>&1; then
+        warn "LibreOffice soffice 未安装 — 非 Docker Runner 无法生成 DOCX/XLSX/PPTX 预览"
+        echo "  macOS: brew install --cask libreoffice"
+        echo "  Linux: install libreoffice-writer libreoffice-calc libreoffice-impress"
+    fi
 }
 
 # Docker Desktop can bind the wildcard address while another app owns the

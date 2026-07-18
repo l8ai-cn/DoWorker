@@ -54,7 +54,11 @@ function artifactItem(): AgentArtifactItem {
     actions: [],
     artifactId: "artifact-1",
     filename: "source.png",
-    grants: [],
+    grants: [{
+      actions: ["artifact.download"],
+      grantId: "grant-download",
+      representationIds: [],
+    }],
     id: "artifact-item-1",
     kind: "artifact",
     manifest: null,

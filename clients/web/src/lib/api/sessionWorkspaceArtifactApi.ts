@@ -1,22 +1,34 @@
 import { getApiBaseUrl } from "@/lib/env";
 import { getAuthManager } from "@/lib/wasm-core";
 import { readCurrentOrg } from "@/stores/auth";
-import { fetchSessionByPodKey } from "./sessionImportApi";
 
-export async function loadSessionWorkspaceArtifact(
-  podKey: string,
-  path: string,
+export async function loadSessionArtifactRepresentation(
+  input: {
+    artifactId: string;
+    digest: string;
+    representationId: string;
+    resourceId: string;
+    revision: bigint;
+    sessionId: string;
+  },
 ): Promise<Blob> {
-  const session = await fetchSessionByPodKey(podKey);
-  if (!session) throw new Error("No session is linked to this Worker");
+  requireSessionFileResource(input.resourceId);
+  if (!input.artifactId || !input.representationId || !input.digest) {
+    throw new Error("artifact_identity_missing");
+  }
   const token = getAuthManager().get_token();
   const org = readCurrentOrg()?.slug;
   if (!token || !org) throw new Error("Not authenticated");
-  const encodedPath = path.split("/").map(encodeURIComponent).join("/");
   const base = getApiBaseUrl().replace(/\/$/, "");
+  const query = new URLSearchParams({
+    artifact_id: input.artifactId,
+    digest: input.digest,
+    representation_id: input.representationId,
+    revision: input.revision.toString(),
+  });
   const response = await fetch(
-    `${base}/v1/sessions/${encodeURIComponent(session.id)}` +
-      `/resources/environments/workspace/filesystem/${encodedPath}`,
+    `${base}/v1/sessions/${encodeURIComponent(input.sessionId)}` +
+      `/artifacts/content?${query.toString()}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -25,29 +37,16 @@ export async function loadSessionWorkspaceArtifact(
     },
   );
   if (!response.ok) {
-    throw new Error(`Workspace artifact request failed (${response.status})`);
+    throw new Error(`Artifact request failed (${response.status})`);
   }
-  const body = (await response.json()) as {
-    content?: unknown;
-    content_type?: unknown;
-    encoding?: unknown;
-    truncated?: unknown;
-  };
-  if (body.truncated === true) {
-    throw new Error("Workspace artifact exceeds the preview size limit");
+  return response.blob();
+}
+
+function requireSessionFileResource(resourceId: string): void {
+  const fileID = resourceId.startsWith("session-file:")
+    ? resourceId.slice("session-file:".length)
+    : "";
+  if (!fileID) {
+    throw new Error(`artifact_resource_unsupported:${resourceId}`);
   }
-  if (typeof body.content !== "string") {
-    throw new Error("Workspace artifact response is invalid");
-  }
-  const mimeType =
-    typeof body.content_type === "string" ? body.content_type : "";
-  if (body.encoding === "base64") {
-    const decoded = atob(body.content);
-    const bytes = Uint8Array.from(decoded, (char) => char.charCodeAt(0));
-    return new Blob([bytes], { type: mimeType });
-  }
-  if (body.encoding !== undefined && body.encoding !== "utf-8") {
-    throw new Error("Workspace artifact encoding is unsupported");
-  }
-  return new Blob([body.content], { type: mimeType });
 }

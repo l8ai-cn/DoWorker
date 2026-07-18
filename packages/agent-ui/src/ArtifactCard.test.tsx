@@ -1,8 +1,10 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { vi } from "vitest";
 
 import { ActivityTimeline } from "./ActivityTimeline";
 import { AgentWorkspace } from "./AgentWorkspace";
+import type { AgentContentRendererRegistration } from "./react/contentRendererTypes";
+import { ContentRendererRegistry } from "./registry/ContentRendererRegistry";
 import {
   STATIC_HTML_CSP,
   STATIC_HTML_REFERRER_POLICY,
@@ -36,11 +38,23 @@ function artifact(
   patch: Partial<AgentArtifactItem> = {},
 ): AgentArtifactItem {
   return {
+    actions: [],
     id: "artifact-item-1",
     kind: "artifact",
     artifactId: "artifact-1",
     filename: "report.pdf",
+    grants: [{
+      actions: ["artifact.download"],
+      grantId: "grant-download",
+      representationIds: [],
+    }],
+    manifest: null,
     mimeType: "application/pdf",
+    representations: [],
+    revision: 1n,
+    role: "preview",
+    schemaVersion: "1",
+    selectedRepresentationId: null,
     status: "completed",
     ...patch,
   };
@@ -58,6 +72,67 @@ describe("ArtifactCard", () => {
       configurable: true,
       value: revokeObjectURL,
     });
+  });
+
+  it("uses a content viewer only for the exact content identity", async () => {
+    const renderers =
+      new ContentRendererRegistry<AgentContentRendererRegistration>();
+    renderers.register(
+      {
+        blockKind: "artifact",
+        mediaType: "video/mp4",
+        role: "preview",
+        schemaVersion: "1",
+      },
+      {
+        viewer: ({ filename }) => <div>专用视频查看器：{filename}</div>,
+      },
+      "test.video",
+    );
+    const agentRuntime = runtime(async () =>
+      new Blob(["video"], { type: "video/mp4" }),
+    );
+
+    const { rerender } = render(
+      <ActivityTimeline
+        contentRenderers={renderers}
+        items={[
+          artifact({
+            artifactId: "video-1",
+            filename: "demo.mp4",
+            mimeType: "video/mp4",
+          }),
+        ]}
+        runtime={agentRuntime}
+        sessionId="session-1"
+      />,
+    );
+
+    expect(await screen.findByText("专用视频查看器：demo.mp4")).toBeVisible();
+
+    rerender(
+      <ActivityTimeline
+        contentRenderers={renderers}
+        items={[
+          artifact({
+            artifactId: "video-2",
+            filename: "demo-v2.mp4",
+            mimeType: "video/mp4",
+            schemaVersion: "2",
+          }),
+        ]}
+        runtime={agentRuntime}
+        sessionId="session-1"
+      />,
+    );
+
+    expect(
+      screen.queryByText("专用视频查看器：demo-v2.mp4"),
+    ).not.toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole("button", { name: "Load demo-v2.mp4" }),
+    );
+    expect(await screen.findByLabelText("Video preview for demo-v2.mp4")).toBeVisible();
   });
 
   it("loads image blobs through the runtime and cleans the preview URL", async () => {
@@ -129,6 +204,7 @@ describe("ArtifactCard", () => {
       />,
     );
 
+    fireEvent.click(await screen.findByRole("tab", { name: "Results" }));
     expect(
       await screen.findByRole("img", { name: "workspace.png" }),
     ).toBeVisible();
@@ -157,6 +233,7 @@ describe("ArtifactCard", () => {
       />,
     );
 
+    fireEvent.click(screen.getByRole("button", { name: "Load demo.mp4" }));
     expect(
       await screen.findByLabelText("Video preview for demo.mp4"),
     ).toHaveAttribute("src", "blob:artifact-preview");
@@ -303,7 +380,7 @@ describe("ArtifactCard", () => {
 
     expect(
       await screen.findByRole("alert"),
-    ).toHaveTextContent("Artifact storage is unavailable");
+    ).toHaveTextContent("Artifact loading failed. Try again.");
     expect(createObjectURL).not.toHaveBeenCalled();
   });
 

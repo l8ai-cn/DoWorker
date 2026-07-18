@@ -3,11 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { EmbedSessionClient } from "@/embed-session-api";
 import { EmbeddedTerminalRuntime } from "./EmbeddedTerminalRuntime";
-import {
-  RelayFrameType,
-  decodeRelayFrame,
-  encodeControlLeaseFrame,
-} from "./relayFrameCodec";
+import { RelayFrameType, decodeRelayFrame, encodeControlLeaseFrame } from "./relayFrameCodec";
 
 const encoder = new TextEncoder();
 const resource: TerminalResource = {
@@ -43,9 +39,7 @@ class FakeWebSocket {
       return;
     }
     if (ArrayBuffer.isView(data)) {
-      this.sent.push(
-        new Uint8Array(data.buffer, data.byteOffset, data.byteLength),
-      );
+      this.sent.push(new Uint8Array(data.buffer, data.byteOffset, data.byteLength));
       return;
     }
     throw new Error("FakeWebSocket only accepts binary frames");
@@ -85,8 +79,10 @@ function createClient(
 ): EmbedSessionClient {
   return {
     getSession: vi.fn(),
-    getItems: vi.fn(),
-    openStream: vi.fn(),
+    getTerminals: vi.fn(),
+    loadDownload: vi.fn(),
+    loadResource: vi.fn(),
+    uploadAttachment: vi.fn(),
     getRelayConnection: vi.fn(async () => ({
       relayUrl,
       token,
@@ -125,9 +121,7 @@ describe("EmbeddedTerminalRuntime", () => {
     const pending = runtime.connect(resource);
     await vi.waitFor(() => expect(FakeWebSocket.instances).toHaveLength(1));
     const socket = latestSocket();
-    expect(socket.url).toBe(
-      "wss://relay.example.test/relay/browser/relay?token=token+%2B+value",
-    );
+    expect(socket.url).toBe("wss://relay.example.test/relay/browser/relay?token=token+%2B+value");
     expect(socket.binaryType).toBe("arraybuffer");
     expect(statuses).toEqual(["connecting"]);
 
@@ -135,9 +129,7 @@ describe("EmbeddedTerminalRuntime", () => {
     await pending;
     expect(statuses).toEqual(["connecting", "connected"]);
 
-    socket.emit(
-      new Uint8Array([RelayFrameType.Output, ...encoder.encode("output")]),
-    );
+    socket.emit(new Uint8Array([RelayFrameType.Output, ...encoder.encode("output")]));
     socket.emit(
       new Uint8Array([
         RelayFrameType.Snapshot,
@@ -152,9 +144,7 @@ describe("EmbeddedTerminalRuntime", () => {
     );
 
     socket.emit(new Uint8Array([RelayFrameType.Ping]));
-    expect(socket.sent.at(-1)).toEqual(
-      new Uint8Array([RelayFrameType.Pong]),
-    );
+    expect(socket.sent.at(-1)).toEqual(new Uint8Array([RelayFrameType.Pong]));
   });
 
   it("waits for granted or busy instead of fabricating control", async () => {
@@ -181,9 +171,7 @@ describe("EmbeddedTerminalRuntime", () => {
       encodeControlLeaseFrame({ action: "acquire", clientLabel: "iframe" }),
     );
 
-    socket.emit(
-      controlStatus("granted", "lease-1", Date.now() + 60_000),
-    );
+    socket.emit(controlStatus("granted", "lease-1", Date.now() + 60_000));
     await expect(pending).resolves.toEqual({
       leaseId: "lease-1",
       expiresAt: expect.any(Number),
@@ -192,9 +180,9 @@ describe("EmbeddedTerminalRuntime", () => {
 
   it("rejects busy acquisition and gates writes and resizes on a valid lease", async () => {
     const runtime = new EmbeddedTerminalRuntime(createClient());
-    await expect(
-      runtime.write(resource.id, encoder.encode("blocked")),
-    ).rejects.toThrow("Terminal terminal_tui_main is not connected");
+    await expect(runtime.write(resource.id, encoder.encode("blocked"))).rejects.toThrow(
+      "Terminal terminal_tui_main is not connected",
+    );
 
     const socket = await connect(runtime);
     await expect(runtime.resize(resource.id, 120, 36)).rejects.toThrow(
@@ -206,9 +194,7 @@ describe("EmbeddedTerminalRuntime", () => {
     await expect(busy).rejects.toThrow("Terminal control is busy");
 
     const granted = runtime.acquireControl(resource.id, "iframe");
-    socket.emit(
-      controlStatus("granted", "lease-2", Date.now() + 60_000),
-    );
+    socket.emit(controlStatus("granted", "lease-2", Date.now() + 60_000));
     await granted;
     await runtime.write(resource.id, encoder.encode("ls\r"));
     await runtime.resize(resource.id, 0x1234, 0xabcd);
@@ -232,15 +218,11 @@ describe("EmbeddedTerminalRuntime", () => {
     const socket = await connect(runtime);
 
     const acquire = runtime.acquireControl(resource.id, "iframe");
-    socket.emit(
-      controlStatus("granted", "lease-3", Date.now() + 60_000),
-    );
+    socket.emit(controlStatus("granted", "lease-3", Date.now() + 60_000));
     await acquire;
 
     const renew = runtime.renewControl(resource.id, "lease-3");
-    socket.emit(
-      controlStatus("granted", "lease-3", Date.now() + 120_000),
-    );
+    socket.emit(controlStatus("granted", "lease-3", Date.now() + 120_000));
     await expect(renew).resolves.toBeUndefined();
 
     const release = runtime.releaseControl(resource.id, "lease-3");
@@ -249,9 +231,7 @@ describe("EmbeddedTerminalRuntime", () => {
 
     const waiting = runtime.acquireControl(resource.id, "iframe");
     socket.drop();
-    await expect(waiting).rejects.toThrow(
-      "Relay connection for terminal_tui_main closed",
-    );
+    await expect(waiting).rejects.toThrow("Relay connection for terminal_tui_main closed");
     expect(statuses.at(-1)).toBe("disconnected");
   });
 
@@ -260,17 +240,11 @@ describe("EmbeddedTerminalRuntime", () => {
     const pending = runtime.connect(resource);
     await vi.waitFor(() => expect(FakeWebSocket.instances).toHaveLength(1));
     latestSocket().drop();
-    await expect(pending).rejects.toThrow(
-      "Relay connection for terminal_tui_main closed",
-    );
+    await expect(pending).rejects.toThrow("Relay connection for terminal_tui_main closed");
   });
 
   it("deduplicates credential loading and cancels a pending connect", async () => {
-    let resolveRelay = (_value: {
-      relayUrl: string;
-      token: string;
-      podKey: string;
-    }) => {};
+    let resolveRelay = (_value: { relayUrl: string; token: string; podKey: string }) => {};
     const relayConnection = new Promise<{
       relayUrl: string;
       token: string;
@@ -317,9 +291,7 @@ describe("EmbeddedTerminalRuntime", () => {
     vi.useFakeTimers();
 
     const pending = runtime.acquireControl(resource.id, "iframe");
-    const rejection = expect(pending).rejects.toThrow(
-      "Terminal control request timed out",
-    );
+    const rejection = expect(pending).rejects.toThrow("Terminal control request timed out");
     await vi.advanceTimersByTimeAsync(5_000);
 
     await rejection;
@@ -337,8 +309,5 @@ function controlStatus(
     ...(leaseId ? { lease_id: leaseId } : {}),
     ...(expiresAt ? { expires_at: expiresAt } : {}),
   };
-  return new Uint8Array([
-    RelayFrameType.Control,
-    ...encoder.encode(JSON.stringify(payload)),
-  ]);
+  return new Uint8Array([RelayFrameType.Control, ...encoder.encode(JSON.stringify(payload))]);
 }

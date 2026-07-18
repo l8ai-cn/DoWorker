@@ -141,8 +141,16 @@ func (t *transport) CancelSession(sessionID string) error {
 	return nil
 }
 
-func (t *transport) SendControlRequest(_ string, _ string, _ map[string]any) (map[string]any, error) {
-	return nil, acp.ErrControlNotSupported
+func (t *transport) SendControlRequest(sessionID string, subtype string, payload map[string]any) (map[string]any, error) {
+	if subtype != "set_model" {
+		return nil, acp.ErrControlNotSupported
+	}
+	model, _ := payload["model"].(string)
+	if err := t.updateThreadModel(sessionID, model); err != nil {
+		return nil, err
+	}
+	t.logger.Info("Codex model selected", "model", model)
+	return map[string]any{"model": model}, nil
 }
 
 func (t *transport) SupportedPermissionModes() []string { return nil }

@@ -19,6 +19,9 @@ func (d *Deps) handleUploadSessionFile(c *gin.Context) {
 	if !ok {
 		return
 	}
+	if !d.requireSessionLevel(c, row, levelEdit) {
+		return
+	}
 	if d.SessionFiles == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "file upload unavailable"})
 		return

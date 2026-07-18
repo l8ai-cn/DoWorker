@@ -12,9 +12,9 @@ vi.mock("@/stores/auth", () => ({
   readCurrentOrg: () => ({ slug: "dev-org" }),
 }));
 
-import { loadSessionWorkspaceArtifactById } from "../sessionWorkspaceArtifactApi";
+import { loadSessionArtifactRepresentation } from "../sessionWorkspaceArtifactApi";
 
-describe("sessionWorkspaceArtifactApi", () => {
+describe("session artifact API", () => {
   const originalFetch = globalThis.fetch;
 
   beforeEach(() => {
@@ -25,7 +25,7 @@ describe("sessionWorkspaceArtifactApi", () => {
     globalThis.fetch = originalFetch;
   });
 
-  it("loads workspace artifacts from the raw content endpoint", async () => {
+  it("loads an immutable representation by exact artifact identity", async () => {
     vi.mocked(globalThis.fetch).mockResolvedValueOnce(
       new Response(new Uint8Array([0, 1, 2, 3]), {
         status: 200,
@@ -33,15 +33,20 @@ describe("sessionWorkspaceArtifactApi", () => {
       }),
     );
 
-    const blob = await loadSessionWorkspaceArtifactById(
-      "session-1",
-      "output/demo clip.mp4",
-    );
+    const blob = await loadSessionArtifactRepresentation({
+      artifactId: "video-1",
+      digest: "sha256:abc",
+      representationId: "playable",
+      resourceId: "session-file:file_12345678",
+      revision: 3n,
+      sessionId: "session-1",
+    });
 
     expect(blob.type).toBe("video/mp4");
-    expect(blob.size).toBe(4);
     expect(globalThis.fetch).toHaveBeenCalledWith(
-      "https://api.example.test/v1/sessions/session-1/resources/environments/workspace/artifacts/content/output/demo%20clip.mp4",
+      "https://api.example.test/v1/sessions/session-1/artifacts/content?" +
+        "artifact_id=video-1&digest=sha256%3Aabc&" +
+        "representation_id=playable&revision=3",
       {
         headers: {
           Authorization: "Bearer test-token",
@@ -51,13 +56,53 @@ describe("sessionWorkspaceArtifactApi", () => {
     );
   });
 
-  it("rejects a failed raw artifact request", async () => {
+  it.each([
+    "",
+    "workspace:output/demo.mp4",
+    "artifact-cache:preview-1",
+    "session-file:",
+  ])("rejects non-durable resource IDs: %j", async (resourceId) => {
+    await expect(
+      loadSessionArtifactRepresentation({
+        artifactId: "video-1",
+        digest: "sha256:abc",
+        representationId: "playable",
+        resourceId,
+        revision: 3n,
+        sessionId: "session-1",
+      }),
+    ).rejects.toThrow(`artifact_resource_unsupported:${resourceId}`);
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+  });
+
+  it("rejects incomplete artifact identity before fetching", async () => {
+    await expect(
+      loadSessionArtifactRepresentation({
+        artifactId: "video-1",
+        digest: "",
+        representationId: "playable",
+        resourceId: "session-file:file_12345678",
+        revision: 3n,
+        sessionId: "session-1",
+      }),
+    ).rejects.toThrow("artifact_identity_missing");
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+  });
+
+  it("reports an authorized artifact request failure", async () => {
     vi.mocked(globalThis.fetch).mockResolvedValueOnce(
-      new Response(null, { status: 503 }),
+      new Response(null, { status: 403 }),
     );
 
     await expect(
-      loadSessionWorkspaceArtifactById("session-1", "output/demo.mp4"),
-    ).rejects.toThrow("Workspace artifact request failed (503)");
+      loadSessionArtifactRepresentation({
+        artifactId: "video-1",
+        digest: "sha256:abc",
+        representationId: "playable",
+        resourceId: "session-file:file_12345678",
+        revision: 3n,
+        sessionId: "session-1",
+      }),
+    ).rejects.toThrow("Artifact request failed (403)");
   });
 });

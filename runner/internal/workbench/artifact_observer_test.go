@@ -78,6 +78,62 @@ func TestArtifactObserverReportsModifiedBaselineFile(t *testing.T) {
 	require.Equal(t, "workspace:output/existing.png", artifacts[0].GetArtifactId())
 }
 
+func TestArtifactObserverProjectsWordDocument(t *testing.T) {
+	root := t.TempDir()
+	observer, err := NewArtifactObserver(root)
+	require.NoError(t, err)
+	writeArtifactFile(t, root, "outputs/report.docx", "word")
+
+	artifacts, err := observer.Scan()
+
+	require.NoError(t, err)
+	require.Len(t, artifacts, 1)
+	require.Equal(t, "workspace:outputs/report.docx", artifacts[0].GetArtifactId())
+	require.Equal(t,
+		"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+		artifacts[0].GetMediaType())
+}
+
+func TestArtifactObserverProjectsSpreadsheetCsvAndAudio(t *testing.T) {
+	root := t.TempDir()
+	observer, err := NewArtifactObserver(root)
+	require.NoError(t, err)
+	writeArtifactFile(t, root, "outputs/data.xlsx", "sheet")
+	writeArtifactFile(t, root, "outputs/results.csv", "name,value\nnorth,10")
+	writeArtifactFile(t, root, "outputs/briefing.mp3", "audio")
+
+	artifacts, err := observer.Scan()
+
+	require.NoError(t, err)
+	require.Len(t, artifacts, 3)
+	mediaTypes := map[string]string{}
+	for _, artifact := range artifacts {
+		mediaTypes[artifact.GetFilename()] = artifact.GetMediaType()
+	}
+	require.Equal(t,
+		"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+		mediaTypes["data.xlsx"])
+	require.Equal(t, "text/csv", mediaTypes["results.csv"])
+	require.Equal(t, "audio/mpeg", mediaTypes["briefing.mp3"])
+}
+
+func TestArtifactObserverIgnoresDerivedPreviewStorage(t *testing.T) {
+	root := t.TempDir()
+	observer, err := NewArtifactObserver(root)
+	require.NoError(t, err)
+	writeArtifactFile(
+		t,
+		root,
+		".do-worker/workbench/previews/report-r1.pdf",
+		"preview",
+	)
+
+	artifacts, err := observer.Scan()
+
+	require.NoError(t, err)
+	require.Empty(t, artifacts)
+}
+
 func TestArtifactObserverProjectsDeclaredImageEditArtifact(t *testing.T) {
 	root := t.TempDir()
 	observer, err := NewArtifactObserver(root)

@@ -1,10 +1,28 @@
 import type { AgentArtifactItem } from "./agentArtifactContracts";
+import type { AgentToolActivityItem } from "./agentToolContracts";
 import type {
   AgentPermissionRequest,
-  AgentPermissionResolution,
 } from "./agentPermissionContracts";
 
-export type { AgentArtifactItem } from "./agentArtifactContracts";
+export type {
+  AgentArtifactActionCommand,
+  AgentArtifactDimensions,
+  AgentArtifactGrant,
+  AgentArtifactItem,
+  AgentArtifactManifest,
+  AgentArtifactRepresentation,
+  AgentImageEditManifest,
+  AgentNormalizedRegion,
+  AgentPresentationManifest,
+  AgentPresentationSlide,
+  AgentPresentationVersion,
+  AgentVideoManifest,
+} from "./agentArtifactContracts";
+export type {
+  AgentToolActivityItem,
+  AgentToolResult,
+  AgentToolStatus,
+} from "./agentToolContracts";
 export type {
   AgentApprovalPermissionRequest,
   AgentPermissionAnswerContent,
@@ -14,6 +32,12 @@ export type {
   AgentPermissionResolution,
   AgentQuestionPermissionRequest,
 } from "./agentPermissionContracts";
+export type {
+  AgentAttachmentReference,
+  AgentSessionReference,
+  AgentSessionRuntime,
+  CreateAgentSessionInput,
+} from "./agentSessionRuntime";
 
 export type AgentSessionStatus =
   | "idle"
@@ -45,19 +69,27 @@ export interface AgentMessageItem {
   status: "streaming" | "completed" | "failed";
 }
 
+export interface AgentAttachmentItem {
+  attachmentId: string;
+  filename: string;
+  id: string;
+  kind: "attachment";
+  mimeType: string | null;
+}
+
 export interface AgentActivityItem {
   id: string;
-  kind: "reasoning" | "tool" | "error" | "system";
+  kind: "reasoning" | "error" | "system";
   title: string;
   detail?: string;
-  input?: string;
-  output?: string;
   status: "pending" | "running" | "completed" | "failed";
 }
 
 export type AgentTimelineItem =
   | AgentMessageItem
+  | AgentAttachmentItem
   | AgentActivityItem
+  | AgentToolActivityItem
   | AgentArtifactItem;
 
 export interface AgentPlanStep {
@@ -117,48 +149,6 @@ export interface AgentSessionSnapshot {
   terminals: TerminalResource[];
   hasOlderItems: boolean;
   error: string | null;
-}
-
-export interface CreateAgentSessionInput {
-  agentId: string;
-  title?: string;
-  initialMessage?: string;
-}
-
-export interface AgentSessionReference {
-  sessionId: string;
-}
-
-export interface AgentSessionRuntime {
-  create?(input: CreateAgentSessionInput): Promise<AgentSessionReference>;
-  open(sessionId: string): Promise<void>;
-  close(sessionId: string): void;
-  getSnapshot(sessionId: string): AgentSessionSnapshot;
-  subscribe(sessionId: string, listener: () => void): () => void;
-  sendMessage(
-    sessionId: string,
-    commandId: string,
-    input: { text: string },
-  ): Promise<void>;
-  sendSlashCommand?(
-    sessionId: string,
-    commandId: string,
-    input: { name: string; arguments: string },
-  ): Promise<void>;
-  interrupt(sessionId: string, commandId: string): Promise<void>;
-  resolvePermission(
-    sessionId: string,
-    commandId: string,
-    permissionId: string,
-    result: AgentPermissionResolution,
-  ): Promise<void>;
-  updateConfiguration(
-    sessionId: string,
-    commandId: string,
-    patch: Record<string, unknown>,
-  ): Promise<void>;
-  loadArtifact?(sessionId: string, artifactId: string): Promise<Blob>;
-  loadOlder(sessionId: string, beforeItemId?: string): Promise<void>;
 }
 
 export interface TerminalControlLease {

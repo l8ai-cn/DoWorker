@@ -591,6 +591,7 @@ message SandboxFsResultEvent {
   bytes content_bytes = 15;
   int64 content_offset = 16;
   bool eof = 17;
+  string content_digest = 18;
 }
 
 // ==================== OSC 终端通知相关 ====================

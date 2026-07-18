@@ -1,4 +1,5 @@
 import type {
+  AgentAttachmentReference,
   AgentArtifactActionCommand,
   AgentPermissionResolution,
   AgentSessionRuntime,
@@ -88,9 +89,13 @@ export class AgentSessionRuntimeV2 implements AgentSessionRuntime {
   async sendMessage(
     sessionId: string,
     commandId: string,
-    input: { text: string },
+    input: { text: string; attachments?: AgentAttachmentReference[] },
   ): Promise<void> {
-    await this.execute(sessionId, commandId, sendPromptPayload(input.text));
+    await this.execute(
+      sessionId,
+      commandId,
+      sendPromptPayload(input.text, input.attachments),
+    );
   }
 
   async interrupt(sessionId: string, commandId: string): Promise<void> {

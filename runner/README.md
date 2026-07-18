@@ -32,6 +32,13 @@ All binaries are available on the [Releases](https://github.com/l8ai-cn/DoWorker
 
 ## Quick Start
 
+### Optional document previews
+
+DOCX, XLS/XLSX, and PPT/PPTX previews require the `soffice` executable from
+LibreOffice. The official Runner container includes it. Native Runner installs
+must install LibreOffice separately; without it, the source artifact remains
+downloadable and the preview operation reports an explicit failure.
+
 ### 1. Register the runner
 
 Get a registration token from your Do Worker dashboard, then:

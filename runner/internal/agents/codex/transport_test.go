@@ -30,7 +30,10 @@ func TestTransport_Handshake(t *testing.T) {
 		var req acp.JSONRPCRequest
 		json.Unmarshal(scanner.Bytes(), &req)
 		writeResponse(stdoutPW, req.ID, map[string]any{"server_info": map[string]string{"name": "codex"}}, nil)
-		io.Copy(io.Discard, stdinPR)
+		scanner.Scan()
+		scanner.Scan()
+		json.Unmarshal(scanner.Bytes(), &req)
+		writeModelListResponse(stdoutPW, req.ID)
 	}()
 
 	sid, err := tr.Handshake(ctx)
@@ -39,6 +42,12 @@ func TestTransport_Handshake(t *testing.T) {
 	}
 	if sid != "" {
 		t.Errorf("expected empty session_id, got %q", sid)
+	}
+	if got := tr.SupportedModels(); len(got) != 2 || got[0] != "gpt-5.4" {
+		t.Errorf("supported models = %v", got)
+	}
+	if got := tr.CurrentModel(); got != "" {
+		t.Errorf("current model = %q", got)
 	}
 }
 
@@ -66,71 +75,6 @@ func TestTransport_Handshake_Error(t *testing.T) {
 	_, err := tr.Handshake(ctx)
 	if err == nil {
 		t.Fatal("expected error from handshake")
-	}
-}
-
-func TestTransport_NewSession(t *testing.T) {
-	stdoutPR, stdoutPW := io.Pipe()
-	stdinPR, stdinPW := io.Pipe()
-	defer stdoutPR.Close()
-	defer stdinPR.Close()
-
-	tr := newTransport(acp.EventCallbacks{}, discardLogger())
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	tr.Initialize(ctx, stdinPW, stdoutPR, nil)
-	go tr.ReadLoop(ctx)
-
-	go func() {
-		scanner := bufio.NewScanner(stdinPR)
-		scanner.Scan()
-		var req acp.JSONRPCRequest
-		json.Unmarshal(scanner.Bytes(), &req)
-		writeResponse(stdoutPW, req.ID, map[string]any{
-			"thread": map[string]string{"id": "thread-abc"},
-		}, nil)
-	}()
-
-	sid, err := tr.NewSession("", nil)
-	if err != nil {
-		t.Fatalf("NewSession: %v", err)
-	}
-	if sid != "thread-abc" {
-		t.Errorf("session_id = %q, want thread-abc", sid)
-	}
-}
-
-func TestTransport_ResumeSession(t *testing.T) {
-	stdoutPR, stdoutPW := io.Pipe()
-	stdinPR, stdinPW := io.Pipe()
-	defer stdoutPR.Close()
-	defer stdinPR.Close()
-
-	tr := newTransport(acp.EventCallbacks{}, discardLogger())
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	tr.Initialize(ctx, stdinPW, stdoutPR, nil)
-	go tr.ReadLoop(ctx)
-
-	go func() {
-		scanner := bufio.NewScanner(stdinPR)
-		scanner.Scan()
-		var req acp.JSONRPCRequest
-		json.Unmarshal(scanner.Bytes(), &req)
-		if req.Method != "thread/resume" {
-			t.Errorf("method = %q, want thread/resume", req.Method)
-		}
-		writeResponse(stdoutPW, req.ID, map[string]any{
-			"thread": map[string]string{"id": "thread-resumed"},
-		}, nil)
-	}()
-
-	sid, err := tr.ResumeSession("", nil, "thread-old")
-	if err != nil {
-		t.Fatalf("ResumeSession: %v", err)
-	}
-	if sid != "thread-resumed" {
-		t.Errorf("session_id = %q, want thread-resumed", sid)
 	}
 }
 

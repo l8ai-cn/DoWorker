@@ -169,7 +169,7 @@ start_backend_host_lite() {
     export STORAGE_USE_SSL=false
     export STORAGE_USE_PATH_STYLE=true
     export STORAGE_MAX_FILE_SIZE=10
-    export STORAGE_ALLOWED_TYPES="image/jpeg,image/png,image/gif,image/webp,video/mp4,application/pdf"
+    export STORAGE_ALLOWED_TYPES="image/jpeg,image/png,image/gif,image/webp,video/mp4,application/pdf,application/json,application/xml,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/markdown,text/csv,text/xml"
     export DEPLOYMENT_TYPE="${DEPLOYMENT_TYPE:-global}"
     export PAYMENT_MOCK="${PAYMENT_MOCK:-false}"
     export PKI_CA_CERT_FILE="$SCRIPT_DIR/ssl/ca.crt"

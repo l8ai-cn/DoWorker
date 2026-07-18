@@ -16,7 +16,7 @@ if [[ -f "$SCRIPT_DIR/.env" ]]; then
   source "$SCRIPT_DIR/.env"
 fi
 
-export COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.yml:docker-compose.runners.yml}"
+export COMPOSE_FILE="docker-compose.yml:docker-compose.runners.yml"
 
 case "$agent_slug" in
   claude-code) service=runner-claude-code ;;

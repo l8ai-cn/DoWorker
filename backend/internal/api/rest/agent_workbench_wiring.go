@@ -10,6 +10,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/infra"
 	sessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
 	agentworkbenchsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentworkbench"
+	sessionfilesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionfile"
 	sessionmessagesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionmessage"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -22,10 +23,16 @@ func wireAgentWorkbench(
 ) {
 	repository := infra.NewAgentWorkbenchRepository(db)
 	hub := agentworkbenchsvc.NewDeltaHub(128)
+	sessionFiles := sessionfilesvc.NewService(db, services.File)
 	ingress, err := agentworkbenchsvc.NewIngress(
 		sessions,
+		services.Pod,
 		repository,
 		hub,
+		agentworkbenchsvc.NewSessionFileArtifactMaterializer(
+			sessionFiles,
+			services.SandboxFsService,
+		),
 		uuid.NewString,
 	)
 	if err != nil {
@@ -59,6 +66,10 @@ func wireAgentWorkbenchCommands(
 		services.PodCoordinator.GetCommandSender(),
 		hub,
 		time.Now,
+		agentworkbenchsvc.WithAttachmentDelivery(
+			sessionfilesvc.NewService(db, services.File),
+			services.SandboxFsService,
+		),
 	)
 	if err != nil {
 		panic(fmt.Sprintf("initialize agent workbench commands: %v", err))

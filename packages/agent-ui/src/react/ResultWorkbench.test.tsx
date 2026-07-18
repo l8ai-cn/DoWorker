@@ -14,7 +14,11 @@ const artifact: AgentArtifactItem = {
   actions: [],
   artifactId: "image-1",
   filename: "result.png",
-  grants: [],
+  grants: [{
+    actions: ["artifact.download"],
+    grantId: "grant-download",
+    representationIds: [],
+  }],
   id: "artifact-1",
   kind: "artifact",
   manifest: null,
@@ -93,6 +97,9 @@ describe("ResultWorkbench", () => {
 
     fireEvent.click(resultsTab);
     const image = await screen.findByRole("img", { name: "result.png" });
+    expect(screen.getByRole("button", { name: "result.png" })).toHaveTextContent(
+      "result.png",
+    );
     expect(image.closest("section")).toHaveAttribute("aria-hidden", "false");
     expect(image.closest("section")).not.toHaveClass("hidden");
 

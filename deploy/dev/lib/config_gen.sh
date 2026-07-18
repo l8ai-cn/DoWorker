@@ -504,8 +504,8 @@ EOF
 generate_web_env() {
     local offset="${PORT_OFFSET:-0}"
     local worktree_name="${WORKTREE_NAME:-main}"
-    local http_port=$((10000 + offset * 50))
-    local backend_http_port=$((10015 + offset * 50))
+    local http_port="${HTTP_PORT:-$((10000 + offset * 50))}"
+    local backend_http_port="${BACKEND_HTTP_PORT:-$((10015 + offset * 50))}"
     local web_env_file="$SCRIPT_DIR/../../clients/web/.env.local"
     local primary_domain="${PRIMARY_DOMAIN:-localhost:$http_port}"
     local websocket_protocol="ws"
@@ -549,7 +549,7 @@ EOF
 generate_web_admin_env() {
     local offset="${PORT_OFFSET:-0}"
     local worktree_name="${WORKTREE_NAME:-main}"
-    local http_port=$((10000 + offset * 50))
+    local http_port="${HTTP_PORT:-$((10000 + offset * 50))}"
     local web_admin_env_file="$SCRIPT_DIR/../../clients/web-admin/.env.local"
 
     cat > "$web_admin_env_file" << EOF

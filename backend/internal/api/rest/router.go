@@ -183,13 +183,14 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 		)
 	}
 
+	sessions := sessionsvc.NewService(db)
 	sessionDeps := sessionapi.Deps{
 		Auth:               svc.Auth,
 		User:               svc.User,
 		Org:                svc.Org,
 		Agent:              svc.AgentSvc,
 		Runner:             svc.Runner,
-		Sessions:           sessionsvc.NewService(db),
+		Sessions:           sessions,
 		Items:              itemsvc.NewService(db),
 		Hub:                sessionapi.NewSessionHub(),
 		Elicitations:       sessionapi.NewElicitationStore(),
@@ -223,6 +224,8 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 	sessionDeps.Updates = sessionapi.NewSessionUpdatesHub(&sessionDeps)
 	sessionDeps.Stream.Updates = sessionDeps.Updates
 	svc.EmbedTokens = sessionDeps.EmbedTokens
+	wireAgentWorkbench(svc, db, sessions)
+	sessionDeps.WorkbenchRepo = svc.AgentWorkbenchRepo
 	if svc.PodCoordinator != nil {
 		sessionDeps.PodCoordinator = svc.PodCoordinator
 		sessionDeps.CommandSender = svc.PodCoordinator.GetCommandSender()
@@ -233,7 +236,6 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 	}
 	sessionapi.RegisterHealthRoute(r, sessionDeps)
 	sessionapi.RegisterRoutes(r, sessionDeps)
-	wireAgentWorkbench(svc, db, sessionDeps.Sessions)
 	if svc.RunnerGRPCAdapter != nil {
 		svc.RunnerGRPCAdapter.SetPodEventSink(sessionDeps.Stream)
 	}

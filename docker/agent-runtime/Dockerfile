@@ -30,7 +30,7 @@ ENV HTTP_PROXY=${HTTP_PROXY} \
 RUN printf 'Acquire::http::Proxy "false";\nAcquire::https::Proxy "false";\n' \
       > /etc/apt/apt.conf.d/99noproxy \
     && set -ux; \
-    packages="git openssh-client sudo ca-certificates curl wget openssl"; \
+    packages="git openssh-client sudo ca-certificates curl wget openssl libreoffice-core libreoffice-writer libreoffice-calc libreoffice-impress fonts-liberation fonts-noto-cjk"; \
     ok=0; \
     for attempt in 1 2 3 4 5 6 7 8; do \
       if apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends $packages; then \

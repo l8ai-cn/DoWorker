@@ -40,7 +40,14 @@ function descriptor(
     revision: 1n,
     status: 3,
     revisions: [],
-    grants: [],
+    grants: [
+      {
+        actions: ["artifact.download"],
+        grantId: "grant-download",
+        representationIds: ["source"],
+        $typeName: "proto.agent_workbench.v2.ArtifactGrant",
+      },
+    ],
     $typeName: "proto.agent_workbench.v2.ArtifactDescriptor",
   };
 }
@@ -92,7 +99,7 @@ describe("createEmbeddedArtifactLoader", () => {
       loadResource: vi.fn().mockResolvedValue(resourceBlob),
     };
     const resourceLoader = createEmbeddedArtifactLoader(
-      connection(descriptor({ case: "resourceId", value: "workspace:deliverables/a.png" })),
+      connection(descriptor({ case: "resourceId", value: "session-file:file_a" })),
       resources,
     );
     const downloadLoader = createEmbeddedArtifactLoader(
@@ -114,7 +121,14 @@ describe("createEmbeddedArtifactLoader", () => {
         sessionId: "session-1",
       }),
     ).resolves.toBe(downloadBlob);
-    expect(resources.loadResource).toHaveBeenCalledWith("workspace:deliverables/a.png");
+    expect(resources.loadResource).toHaveBeenCalledWith(
+      "session-file:file_a",
+      expect.objectContaining({
+        artifactId: "artifact-1",
+        representationId: "source",
+        sessionId: "session-1",
+      }),
+    );
     expect(resources.loadDownload).toHaveBeenCalledWith("/downloads/a.png");
   });
 

@@ -153,7 +153,12 @@ func Load() (*Config, error) {
 			PublicUseSSL:   getEnvBool("STORAGE_PUBLIC_USE_SSL", storageUseSSL),
 			UsePathStyle:   getEnvBool("STORAGE_USE_PATH_STYLE", false),
 			MaxFileSize:    int64(getEnvInt("STORAGE_MAX_FILE_SIZE", 10)),
-			AllowedTypes:   getEnvList("STORAGE_ALLOWED_TYPES", []string{"image/jpeg", "image/png", "image/gif", "image/webp", "video/mp4", "application/pdf"}),
+			AllowedTypes: getEnvList("STORAGE_ALLOWED_TYPES", []string{
+				"image/jpeg", "image/png", "image/gif", "image/webp", "video/mp4",
+				"application/pdf", "application/json", "application/xml",
+				"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+				"text/plain", "text/markdown", "text/csv", "text/xml",
+			}),
 		},
 
 		Payment: loadPaymentConfig(),

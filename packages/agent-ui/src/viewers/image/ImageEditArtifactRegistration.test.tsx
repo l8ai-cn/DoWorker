@@ -69,7 +69,11 @@ function imageEditRoleWithoutManifest(): AgentArtifactItem {
     actions: ["image.edit"],
     artifactId: "image-1",
     filename: "result.png",
-    grants: [],
+    grants: [{
+      actions: ["artifact.download"],
+      grantId: "grant-download",
+      representationIds: [],
+    }],
     id: "artifact-image-1",
     kind: "artifact",
     manifest: null,
@@ -102,6 +106,11 @@ function editableImage(): AgentArtifactItem {
   return {
     ...imageEditRoleWithoutManifest(),
     grants: [
+      {
+        actions: ["artifact.download"],
+        grantId: "grant-download",
+        representationIds: [],
+      },
       {
         actions: ["image.edit"],
         grantId: "image-edit",

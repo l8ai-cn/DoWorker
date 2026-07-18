@@ -97,11 +97,50 @@ func (s *Service) PutObject(ctx context.Context, key string, reader io.Reader, s
 	return nil
 }
 
+func (s *Service) PrepareInternalUpload(
+	ctx context.Context,
+	key string,
+	contentType string,
+	size int64,
+) (string, error) {
+	if s == nil || s.storage == nil {
+		return "", ErrStorageError
+	}
+	if size < 0 || size > MaxWorkspaceArtifactBytes {
+		return "", fmt.Errorf(
+			"%w: max workspace artifact size is %d MB",
+			ErrFileTooLarge,
+			MaxWorkspaceArtifactBytes>>20,
+		)
+	}
+	url, err := s.storage.InternalPresignPutURL(
+		ctx,
+		key,
+		workspaceArtifactContentType(key, contentType),
+		size,
+		5*time.Minute,
+	)
+	if err != nil {
+		return "", fmt.Errorf("%w: %v", ErrStorageError, err)
+	}
+	return url, nil
+}
+
 func (s *Service) OpenObject(ctx context.Context, key string) (io.ReadCloser, int64, error) {
 	if s == nil || s.storage == nil {
 		return nil, 0, ErrStorageError
 	}
 	return s.storage.Download(ctx, key)
+}
+
+func (s *Service) DeleteObject(ctx context.Context, key string) error {
+	if s == nil || s.storage == nil || key == "" {
+		return ErrStorageError
+	}
+	if err := s.storage.Delete(ctx, key); err != nil {
+		return fmt.Errorf("%w: %v", ErrStorageError, err)
+	}
+	return nil
 }
 
 func (s *Service) GetInternalURL(ctx context.Context, key string, expiry time.Duration) (string, error) {

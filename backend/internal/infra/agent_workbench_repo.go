@@ -47,6 +47,12 @@ func (repo *agentWorkbenchRepository) Append(
 			return err
 		}
 		now := time.Now().UTC()
+		if err := insertAgentWorkbenchArtifactFiles(
+			tx,
+			request.ArtifactFiles,
+		); err != nil {
+			return err
+		}
 		for _, receipt := range request.Receipts {
 			if _, err := putAgentWorkbenchReceiptTx(tx, receipt, now); err != nil {
 				return err

@@ -17,6 +17,8 @@ export type ArtifactCatalog = ReadonlyMap<string, ArtifactDescriptor>;
 
 export interface ArtifactProjectionReference {
   artifactId: string;
+  filename?: string;
+  mediaType?: string;
   representationId?: string;
   revision?: bigint;
   role?: string;
@@ -43,17 +45,16 @@ export function projectArtifactDescriptor(
   );
   const representations = projectRepresentations(descriptor.representations);
   const grants = projectGrants(descriptor.grants);
-  const selectedRepresentationId =
-    representation?.representationId ?? options.representationId ?? null;
+  const selectedRepresentationId = representation?.representationId ?? options.representationId ?? null;
   return {
-    actions: projectGrantActions(
-      grants,
-      descriptor.revision,
-    ),
+    actions: projectGrantActions(grants, descriptor.revision),
     id,
     kind: "artifact",
     artifactId: descriptor.artifactId,
-    filename: representation?.filename || descriptor.filename,
+    filename:
+      representation?.representationId === "preview-pdf"
+        ? descriptor.filename
+        : representation?.filename || descriptor.filename,
     grants,
     manifest: projectManifest(descriptor.manifest),
     mimeType: representation?.mediaType || descriptor.mediaType || null,
@@ -63,9 +64,7 @@ export function projectArtifactDescriptor(
     schemaVersion:
       options.schemaVersion || extensionSchemaVersion(descriptor) || "1",
     selectedRepresentationId,
-    status: projectArtifactStatus(
-      representation?.status ?? descriptor.status,
-    ),
+    status: projectArtifactStatus(representation?.status ?? descriptor.status),
   };
 }
 
@@ -75,9 +74,7 @@ export function projectArtifactReference(
   catalog: ArtifactCatalog,
   options: { label?: string; schemaVersion?: string } = {},
 ): AgentArtifactItem | AgentActivityItem {
-  if (!reference) {
-    return missingArtifact(id, "artifact reference is missing");
-  }
+  if (!reference) return missingArtifact(id, "artifact reference is missing");
   const descriptor = catalog.get(reference.artifactId);
   if (!descriptor) {
     return missingArtifact(
@@ -129,6 +126,11 @@ function selectRepresentation(
     );
   }
   return (
+    descriptor.representations.find(
+      (representation) =>
+        representation.status === ArtifactStatus.READY &&
+        representation.representationId === "preview-pdf",
+    ) ??
     descriptor.representations.find(
       (representation) =>
         representation.status === ArtifactStatus.READY &&

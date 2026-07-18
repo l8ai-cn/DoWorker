@@ -81,6 +81,29 @@ real Runner results for code, HTML, image editing, presentations, and video.
 - Mobile conversation/results and conversation/terminal tabs have linked
   tabpanels, roving focus, arrow-key navigation, and at least 44 px touch
   targets.
+- Generic results now render Markdown with GFM, bounded CSV tables, native PDF
+  readers, and opt-in audio players. Runner and frontend discovery agree on
+  `artifacts`, `deliverables`, `output`, and `outputs` roots and recognize CSV,
+  XLS/XLSX, DOCX, PPT/PPTX, and common audio extensions.
+- Artifact projection accepts same-revision representation enrichment only when
+  the descriptor envelope is unchanged, existing representations are retained,
+  status moves forward, and optional metadata is filled without mutation.
+- Runner-private immutable `artifact-cache:` resources now carry derived
+  previews without writing mutable files back into the workspace. The Backend,
+  Web, and Web User stream those resources through the same validated ranged
+  artifact endpoint.
+- DOCX, PPT/PPTX, and XLS/XLSX artifacts retain an `original` representation
+  and receive an asynchronous `preview-pdf` representation from isolated
+  LibreOffice conversion. The UI preserves the source filename as result
+  identity, renders the PDF derivative, and exposes separate source and preview
+  downloads.
+- Deep-linked Web workspaces fetch authoritative Pod state before choosing the
+  mobile surface. ACP Workers therefore open the shared conversation/results
+  workbench instead of a stale terminal pane, and terminal-only controls are
+  hidden for ACP Pods.
+- Narrow result panes use a horizontal filename selector instead of an
+  indistinguishable icon rail. Compact observer mode reduces the control prompt
+  to a mobile action button so artifact content remains browsable.
 
 ## Final Verification
 
@@ -102,18 +125,52 @@ real Runner results for code, HTML, image editing, presentations, and video.
 - Published `dist-embed` JS/CSS was loaded in a standalone QA host. The mount
   root received `.do-worker-app`; a scoped `h-8` probe computed to 32 px.
 - The current `29970` iframe session produced no console errors or warnings.
-- Shared Agent UI: 56 files, 276 tests passed; TypeScript check passed.
+- Real Office session `conv_f10bd1f1fc3feec9` on Pod
+  `1-standalone-d815761f` generated and LibreOffice-validated a 1-page DOCX, a
+  2-page XLSX, and a 3-page PPTX. Source SHA256 values were
+  `c593f93da3e752497b06c9f1f422e9f2592c3fa04a6b3138a96ea14cbefdb553`,
+  `340917fa67f71e98db7b358ba965a674608f9f7b84572397a568f1f44ba72967`,
+  and `fd7028ede3c2c06d45c2867cd1a46c8cc66f4236c38ef0434c5803d970d8dd57`.
+- Desktop Web rendered the real PPTX as three PDF.js pages. At 390x844, the ACP
+  workbench showed filename-bearing result tabs, all three pages, separate
+  PPTX/PDF download actions, and no document horizontal overflow
+  (`scrollWidth = clientWidth = 390`).
+- Shared Agent UI: 59 files, 289 tests passed; Web TypeScript check passed.
 - Rust Agent Workbench state: 22 tests passed. Final WASM release build passed.
 - Web User focused embed tests: 10 passed; type check, application build, and
   embed distribution build passed.
 - Web type check and production Next build passed.
 - Backend Connect/service/infra and Runner client/Codex/workbench/runner focused
   suites passed during the same verification cycle.
+- A temporary local QA harness rendered shared-component Markdown, CSV, and
+  audio previews and mounted the PDF blob reader at 1440x900 and 390x844. Both
+  viewports had no workspace or body horizontal overflow; the PDF-only check had
+  no console or page errors. The harness was removed after verification so it
+  does not become a public production route. Headless Chromium does not paint
+  its native PDF plugin into screenshots, so PDF visual fidelity still needs a
+  headed-browser check with a real Runner artifact.
 - `git diff --check` passed; edited production files remain below the 200-line
   project limit.
 
 ## Residual Baseline
 
+- AgentForge result parity is broad but not universal. Inline viewers now cover
+  raster images, video, sandboxed HTML, code/text, Markdown, CSV, PDF, audio,
+  DOCX, PPT/PPTX, XLS/XLSX, image-edit manifests, video manifests, and
+  presentation manifests.
+- SVG remains intentionally download-only because active SVG content is not
+  rendered in the page. Unknown binaries remain explicit open/download files.
+- Office rendering is a read-only PDF derivative, not native Word/Excel/
+  PowerPoint editing. Spreadsheet formulas, chart behavior, slide animations,
+  comments, tracked changes, and embedded media are represented only as
+  LibreOffice's PDF output.
+- Legacy `.doc`, OpenDocument files, archives, 3D models, notebooks, geospatial
+  data, and specialized AgentForge extension artifacts do not yet have dedicated
+  viewers. They require explicit media contracts and deterministic renderers;
+  they must not be guessed from arbitrary tool output.
+- Real Runner acceptance still needs focused desktop/mobile evidence for
+  Markdown, CSV/XLSX, audio, image, video, and HTML in one current lifecycle
+  stack. Office desktop/mobile evidence is complete.
 - The full legacy Web User suite is not green: 70 of 3,608 tests fail in old
   Sidebar, AgentInfo, filesystem hook, settings navigation, and related areas.
   The failures are outside the shared Agent Workbench paths verified above.

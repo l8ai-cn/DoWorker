@@ -58,31 +58,42 @@ function deliverableMimeType(path: string): string | undefined {
 }
 
 function hasDeliverableRoot(path: string): boolean {
-  return ["deliverables", "output", "artifacts"].includes(path.split("/")[0]);
+  return ["artifacts", "deliverables", "output", "outputs"].includes(
+    path.split("/")[0],
+  );
 }
 
 const deliverableTypes: Record<string, string> = {
+  aac: "audio/aac",
   avif: "image/avif",
+  flac: "audio/flac",
   gif: "image/gif",
   htm: "text/html",
   html: "text/html",
   jpeg: "image/jpeg",
   jpg: "image/jpeg",
+  m4a: "audio/mp4",
   m4v: "video/x-m4v",
   mov: "video/quicktime",
+  mp3: "audio/mpeg",
   mp4: "video/mp4",
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   pdf: "application/pdf",
   png: "image/png",
   ppt: "application/vnd.ms-powerpoint",
   pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
   svg: "image/svg+xml",
+  wav: "audio/wav",
   webm: "video/webm",
   webp: "image/webp",
+  xls: "application/vnd.ms-excel",
+  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 };
 
 const textDeliverableTypes: Record<string, string> = {
   cjs: "text/javascript",
   css: "text/css",
+  csv: "text/csv",
   go: "text/x-go",
   js: "text/javascript",
   jsx: "text/javascript",

@@ -57,6 +57,7 @@ export function ResultWorkbench({
   if (workbenchResults.length === 0) return conversation;
   const results = (
     <WorkbenchResultsPane
+      compact={mode === "narrow"}
       contentRenderers={contentRenderers}
       onSelect={setSelectedId}
       results={workbenchResults}

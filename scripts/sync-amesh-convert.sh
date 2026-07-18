@@ -36,6 +36,9 @@ export PATH="$GOBIN:$PATH"
 PLUGIN="/tmp/protoc-gen-amesh-convert"
 echo "Building protoc-gen-amesh-convert..."
 go build -o "$PLUGIN" ./tools/protoc-gen-amesh-convert
+if [[ "$(uname -s)" == "Darwin" ]]; then
+    codesign --force --sign - "$PLUGIN" >/dev/null
+fi
 
 if ! command -v protoc >/dev/null 2>&1; then
     echo "error: protoc required" >&2

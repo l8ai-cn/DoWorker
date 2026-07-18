@@ -88,9 +88,9 @@ type PermissionRequest struct {
 type Configuration struct {
 	PermissionMode string `json:"permissionMode,omitempty"`
 	Model          string `json:"model,omitempty"`
-	// SupportedPermissionModes is the agent's static capability (advertised at
-	// initialize), not live state. The set_*/configChanged delta path must never
-	// carry it — core merge treats an empty slice as "unchanged" to protect it.
+	// Supported* fields are static capabilities discovered during initialize.
+	// Config deltas carry only current values so core cannot erase capabilities.
+	SupportedModels          []string `json:"supportedModels,omitempty"`
 	SupportedPermissionModes []string `json:"supportedPermissionModes,omitempty"`
 	SupportedArtifactActions []string `json:"supportedArtifactActions,omitempty"`
 }

@@ -42,7 +42,8 @@ func capabilitiesMutation(
 		commandCapability("interrupt", "session.interrupt"),
 		commandCapability("resolve_permission", "session.permission.resolve"),
 	}
-	if len(configuration.SupportedPermissionModes) > 0 {
+	if len(configuration.SupportedModels) > 0 ||
+		len(configuration.SupportedPermissionModes) > 0 {
 		commandSchemas = append(
 			commandSchemas,
 			commandCapability("change_configuration", "session.configure"),
@@ -53,15 +54,28 @@ func capabilitiesMutation(
 			Capabilities: &agentworkbenchv2.SupportCapabilities{
 				ProtocolVersion: "2",
 				CommandSchemas:  commandSchemas,
+				Models:          append([]string(nil), configuration.SupportedModels...),
 				PermissionModes: append([]string(nil), configuration.SupportedPermissionModes...),
 				ArtifactOperations: append(
-					[]string(nil),
-					configuration.SupportedArtifactActions...,
+					[]string{"artifact.download"},
+					withoutArtifactDownload(
+						configuration.SupportedArtifactActions,
+					)...,
 				),
 				History: true,
 			},
 		},
 	}
+}
+
+func withoutArtifactDownload(actions []string) []string {
+	filtered := make([]string, 0, len(actions))
+	for _, action := range actions {
+		if action != "" && action != "artifact.download" {
+			filtered = append(filtered, action)
+		}
+	}
+	return filtered
 }
 
 func commandCapability(

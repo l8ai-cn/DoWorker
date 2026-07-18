@@ -12,11 +12,16 @@ import (
 )
 
 type acpWorkbenchForwarder struct {
-	podKey     string
-	mapper     *workbench.Mapper
-	observer   *workbench.ArtifactObserver
-	sender     client.ConnectionSender
-	artifactMu sync.Mutex
+	podKey         string
+	workDir        string
+	mapper         *workbench.Mapper
+	observer       *workbench.ArtifactObserver
+	sender         client.ConnectionSender
+	convertOffice  officePreviewConverter
+	artifactMu     sync.Mutex
+	previewMu      sync.Mutex
+	converting     map[string]struct{}
+	latestRevision map[string]uint64
 }
 
 func newACPWorkbenchForwarder(
@@ -28,10 +33,14 @@ func newACPWorkbenchForwarder(
 		return nil, err
 	}
 	return &acpWorkbenchForwarder{
-		podKey:   podKey,
-		mapper:   workbench.NewMapper(podKey, adapterID),
-		observer: observer,
-		sender:   sender,
+		podKey:         podKey,
+		workDir:        workDir,
+		mapper:         workbench.NewMapper(podKey, adapterID),
+		observer:       observer,
+		sender:         sender,
+		convertOffice:  convertOfficePreview,
+		converting:     make(map[string]struct{}),
+		latestRevision: make(map[string]uint64),
 	}, nil
 }
 
@@ -95,6 +104,10 @@ func (f *acpWorkbenchForwarder) scanArtifacts() {
 		return
 	}
 	f.send(f.mapper.Artifacts(artifacts))
+	for _, artifact := range artifacts {
+		f.recordArtifactRevision(artifact)
+		f.queueOfficePreview(artifact)
+	}
 }
 
 func (f *acpWorkbenchForwarder) log(level, message string) {

@@ -2,7 +2,7 @@ root = "."
 tmp_dir = "deploy/dev/runtime/marketplace/air"
 
 [build]
-cmd = "go build -o ./deploy/dev/runtime/marketplace/air/main ./marketplace/cmd/server"
+cmd = "bash deploy/dev/build-host-go-binary.sh ./marketplace/cmd/server ./deploy/dev/runtime/marketplace/air/main"
 bin = "./deploy/dev/runtime/marketplace/air/main"
 full_bin = "./deploy/dev/runtime/marketplace/air/main"
 include_ext = ["go"]

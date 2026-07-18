@@ -5,6 +5,7 @@ import type {
 
 import type {
   AgentActivityItem,
+  AgentAttachmentItem,
   AgentArtifactItem,
   AgentToolResult,
 } from "../contracts";
@@ -25,6 +26,7 @@ import { formatUnsupported } from "./projectGeneratedSessionSnapshotPayload";
 
 export interface TimelineContentProjection {
   artifacts: AgentArtifactItem[];
+  attachments: AgentAttachmentItem[];
   evidence: AgentActivityItem[];
   text: string[];
 }
@@ -36,6 +38,7 @@ export function projectTimelineContent(
 ): TimelineContentProjection {
   const projection: TimelineContentProjection = {
     artifacts: [],
+    attachments: [],
     evidence: [],
     text: [],
   };
@@ -128,6 +131,16 @@ function projectBlockArtifacts(
   projection: TimelineContentProjection,
 ): void {
   blockArtifactReferences(block).forEach((reference, index) => {
+    if (reference.role === "input" && !catalog.has(reference.artifactId)) {
+      projection.attachments.push({
+        attachmentId: reference.artifactId,
+        filename: reference.filename || reference.artifactId,
+        id: index === 0 ? id : `${id}:${index}`,
+        kind: "attachment",
+        mimeType: reference.mediaType || null,
+      });
+      return;
+    }
     const projected = projectArtifactReference(
       reference,
       index === 0 ? id : `${id}:${index}`,
@@ -172,7 +185,10 @@ function blockArtifactReferences(
 function mediaReference(media: MediaContent): ArtifactProjectionReference {
   return {
     artifactId: media.artifactId,
+    filename: media.filename,
+    mediaType: media.mediaType,
     representationId: media.representationId,
+    revision: media.revision,
     role: media.role,
   };
 }

@@ -33,6 +33,7 @@ func artifactDescriptor(
 	status agentworkbenchv2.ArtifactStatus,
 ) *agentworkbenchv2.ArtifactDescriptor {
 	now := time.Now().UTC().Format(time.RFC3339Nano)
+	artifactID := "workspace:" + file.path
 	role := "preview"
 	representation := &agentworkbenchv2.ArtifactRepresentation{
 		RepresentationId: "original",
@@ -51,8 +52,8 @@ func artifactDescriptor(
 			},
 		}
 	}
-	return &agentworkbenchv2.ArtifactDescriptor{
-		ArtifactId: "workspace:" + file.path,
+	descriptor := &agentworkbenchv2.ArtifactDescriptor{
+		ArtifactId: artifactID,
 		Revision:   revision,
 		Filename:   file.filename,
 		MediaType:  file.mediaType,
@@ -74,4 +75,15 @@ func artifactDescriptor(
 			CreatedAt:         &now,
 		}},
 	}
+	if status == agentworkbenchv2.ArtifactStatus_ARTIFACT_STATUS_READY {
+		descriptor.Grants = []*agentworkbenchv2.ArtifactGrant{
+			artifactDownloadGrant(
+				artifactID,
+				revision,
+				[]string{"original"},
+				now,
+			),
+		}
+	}
+	return descriptor
 }

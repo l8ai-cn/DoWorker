@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 
+	agentpod "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	sessiondomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
 	sessionmessagesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionmessage"
 	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
@@ -22,11 +23,11 @@ func (dispatcher *CommandDispatcher) deliver(
 	}
 	switch value := command.Command.(type) {
 	case *agentworkbenchv2.CommandEnvelope_SendPrompt:
-		if value.SendPrompt == nil || value.SendPrompt.Text == "" ||
-			len(value.SendPrompt.Attachments) > 0 {
+		if value.SendPrompt == nil ||
+			(value.SendPrompt.Text == "" && len(value.SendPrompt.Attachments) == 0) {
 			return ErrInvalidCommand
 		}
-		return dispatcher.deliverPrompt(ctx, session, pod.RunnerID, command, value.SendPrompt.Text)
+		return dispatcher.deliverPrompt(ctx, session, pod, command, value.SendPrompt)
 	case *agentworkbenchv2.CommandEnvelope_Interrupt:
 		return dispatcher.sendACP(ctx, pod.RunnerID, pod.PodKey, map[string]any{
 			"type": "interrupt", "requestId": command.CommandId,
@@ -47,24 +48,41 @@ func (dispatcher *CommandDispatcher) deliver(
 func (dispatcher *CommandDispatcher) deliverPrompt(
 	ctx context.Context,
 	session *sessiondomain.Session,
-	runnerID int64,
+	pod *agentpod.Pod,
 	command *agentworkbenchv2.CommandEnvelope,
-	text string,
+	prompt *agentworkbenchv2.SendPromptCommand,
 ) error {
+	fileIDs, err := attachmentFileIDs(prompt.Attachments)
+	if err != nil {
+		return err
+	}
+	var attachmentPaths []string
+	if len(fileIDs) > 0 {
+		if dispatcher.attachments == nil || dispatcher.sandbox == nil {
+			return ErrCommandUnavailable
+		}
+		attachmentPaths, err = dispatcher.attachments.Stage(
+			ctx, dispatcher.sandbox, pod, session.ID, fileIDs,
+		)
+		if err != nil {
+			return err
+		}
+	}
+	promptText := materializedPrompt(prompt.Text, attachmentPaths)
 	itemID := stableCommandID("item", session.ID, command.CommandId)
 	responseID := stableCommandID("resp", session.ID, command.CommandId)
 	item, err := sessionmessagesvc.UserItem(
 		itemID,
 		session.ID,
 		responseID,
-		[]map[string]string{{"type": "input_text", "text": text}},
+		promptItemContent(prompt.Text, attachmentPaths),
 	)
 	if err != nil {
 		return err
 	}
 	return dispatcher.outbox.PersistAndQueue(ctx, sessionmessagesvc.PromptInput{
-		OrganizationID: session.OrganizationID, RunnerID: runnerID,
-		PodKey: session.PodKey, Item: item, Prompt: text,
+		OrganizationID: session.OrganizationID, RunnerID: pod.RunnerID,
+		PodKey: session.PodKey, Item: item, Prompt: promptText,
 	})
 }
 

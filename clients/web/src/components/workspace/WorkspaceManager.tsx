@@ -5,6 +5,8 @@ import { cn } from "@/lib/utils";
 import { CenteredSpinner } from "@/components/ui/spinner";
 import { useBreakpoint } from "@/components/layout/useBreakpoint";
 import { useWorkspaceStore } from "@/stores/workspace";
+import { usePod } from "@/stores/pod";
+import { POD_MODE_PTY } from "@/lib/pod-modes";
 import { TerminalGrid } from "./TerminalGrid";
 import { TerminalSwiper } from "./TerminalSwiper";
 import { TerminalToolbar } from "./TerminalToolbar";
@@ -17,11 +19,13 @@ interface WorkspaceManagerProps {
 export function WorkspaceManager({ className }: WorkspaceManagerProps) {
   const { isMobile } = useBreakpoint();
   const panes = useWorkspaceStore((s) => s.panes);
+  const mobileActiveIndex = useWorkspaceStore((s) => s.mobileActiveIndex);
   const addPane = useWorkspaceStore((s) => s.addPane);
   const _hasHydrated = useWorkspaceStore((s) => s._hasHydrated);
   const [showPodSelector, setShowPodSelector] = useState(false);
 
   const openPodKeys = useMemo(() => panes.map((p) => p.podKey), [panes]);
+  const mobilePod = usePod(panes[mobileActiveIndex]?.podKey);
 
   const handleAddNew = () => {
     setShowPodSelector(true);
@@ -68,7 +72,7 @@ export function WorkspaceManager({ className }: WorkspaceManagerProps) {
       {isMobile && (
         <>
           <TerminalSwiper onAddNew={handleAddNew} className="flex-1" />
-          <TerminalToolbar />
+          {mobilePod?.interaction_mode === POD_MODE_PTY && <TerminalToolbar />}
         </>
       )}
 
