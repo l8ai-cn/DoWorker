@@ -1,10 +1,10 @@
 // Do Worker Service Worker
 const CACHE_NAME = 'do-worker-v1';
-const STATIC_CACHE_NAME = 'do-worker-static-v1';
+const STATIC_CACHE_NAME = 'do-worker-static-v2';
 
 // Static assets to cache on install
 const STATIC_ASSETS = [
-  '/offline',
+  '/offline.html',
   '/manifest.json',
   '/icons/icon.svg',
 ];
@@ -82,7 +82,7 @@ self.addEventListener('fetch', (event) => {
 
           // Return offline page for navigation requests
           if (request.mode === 'navigate') {
-            return caches.match('/offline');
+            return caches.match('/offline.html');
           }
 
           return new Response('Offline', {
