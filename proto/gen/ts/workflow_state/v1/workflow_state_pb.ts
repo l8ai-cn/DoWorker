@@ -171,3 +171,4 @@ export type ClearWorkflowRunsRequest = Message<"proto.workflow_state.v1.ClearWor
  */
 export const ClearWorkflowRunsRequestSchema: GenMessage<ClearWorkflowRunsRequest> = /*@__PURE__*/
   messageDesc(file_workflow_state_v1_workflow_state, 8);
+

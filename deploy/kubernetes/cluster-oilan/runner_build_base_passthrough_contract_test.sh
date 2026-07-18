@@ -68,4 +68,4 @@ for runtime in \
   grep -Fq "bash docker/agent-runtime/build.sh ${runtime}" "${LOG}"
 done
 grep -Fq "docker build --platform linux/amd64 --target runtime" "${LOG}"
-grep -Fq -- "--build-arg RUNTIME_BUILD_BASE=${EXPECTED}" "${LOG}"
+grep -Fq -- "--build-arg RUNTIME_SHARED_BASE=${EXPECTED}" "${LOG}"

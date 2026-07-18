@@ -1427,3 +1427,4 @@ export type SessionDeltaBatch = Message<"proto.agent_workbench.v2.SessionDeltaBa
  */
 export const SessionDeltaBatchSchema: GenMessage<SessionDeltaBatch> = /*@__PURE__*/
   messageDesc(file_agent_workbench_v2_session, 41);
+

@@ -21,7 +21,7 @@ AGENT_RUNTIMES=(
 )
 RUNTIME="${1:-all}"
 IMAGE_PREFIX="${IMAGE_PREFIX:-do-worker/runner}"
-BASE_IMAGE="${BASE_IMAGE:-do-worker/runner-base:latest}"
+BASE_IMAGE="${BASE_IMAGE:-${RUNTIME_BUILD_BASE:-do-worker/runner-base:latest}}"
 NODE_BASE_IMAGE="${NODE_BASE_IMAGE:-node:24-bookworm-slim}"
 PYTHON_BASE_IMAGE="${PYTHON_BASE_IMAGE:-python:3.11-slim-bookworm}"
 PLATFORM="${PLATFORM:-linux/amd64}"

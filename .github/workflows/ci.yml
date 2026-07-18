@@ -108,6 +108,8 @@ jobs:
           bash scripts/ci-install-codegen-tools.sh
       - name: Generate Go protos + amesh
         run: bash scripts/ensure-go-codegen.sh
+      - name: Install media tooling
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ffmpeg
       - name: Unit tests
         run: |
           go test -count=1 ./backend/... ./runner/... ./relay/... ./marketplace/... ./agentfile/... ./proto/...
@@ -161,6 +163,9 @@ jobs:
       - name: Generate Go protos + amesh
         shell: bash
         run: bash scripts/ensure-go-codegen.sh
+      - name: Install media tooling
+        shell: pwsh
+        run: choco install ffmpeg -y --no-progress
       - name: Runner unit tests
         shell: bash
         run: |

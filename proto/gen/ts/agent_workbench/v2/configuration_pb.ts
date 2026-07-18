@@ -33,3 +33,4 @@ export type SessionConfiguration = Message<"proto.agent_workbench.v2.SessionConf
  */
 export const SessionConfigurationSchema: GenMessage<SessionConfiguration> = /*@__PURE__*/
   messageDesc(file_agent_workbench_v2_configuration, 0);
+

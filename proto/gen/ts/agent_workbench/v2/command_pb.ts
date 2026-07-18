@@ -689,3 +689,4 @@ export enum CommandReceiptState {
  */
 export const CommandReceiptStateSchema: GenEnum<CommandReceiptState> = /*@__PURE__*/
   enumDesc(file_agent_workbench_v2_command, 1);
+

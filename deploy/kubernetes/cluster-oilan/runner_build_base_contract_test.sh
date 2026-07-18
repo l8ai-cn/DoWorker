@@ -35,9 +35,11 @@ docker() {
 
 source "$(dirname "$0")/runner-build-base.sh"
 
-DOCKERFILE="$(dirname "$0")/../../../docker/agent-runtime/Dockerfile"
-DEFAULT_DIGEST="$(awk -F@ '/^ARG RUNTIME_BUILD_BASE=/ { print $2 }' "${DOCKERFILE}")"
-[[ "${DEFAULT_DIGEST}" == "${RUNNER_BUILD_BASE_DIGEST}" ]]
+ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
+DOCKERFILE="${ROOT}/docker/agent-runtime/Dockerfile"
+BUILD_SCRIPT="${ROOT}/docker/agent-runtime/build.sh"
+grep -Fq "ARG RUNTIME_SHARED_BASE=base" "${DOCKERFILE}"
+grep -Fq 'BASE_IMAGE="${BASE_IMAGE:-${RUNTIME_BUILD_BASE:-do-worker/runner-base:latest}}"' "${BUILD_SCRIPT}"
 verify_runner_build_base
 
 for failure_mode in inspect-error wrong-digest single invalid-json; do

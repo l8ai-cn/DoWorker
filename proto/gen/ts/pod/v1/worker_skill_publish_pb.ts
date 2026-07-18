@@ -188,3 +188,4 @@ export type PublishWorkerSkillsResponse = Message<"proto.pod.v1.PublishWorkerSki
  */
 export const PublishWorkerSkillsResponseSchema: GenMessage<PublishWorkerSkillsResponse> = /*@__PURE__*/
   messageDesc(file_pod_v1_worker_skill_publish, 5);
+

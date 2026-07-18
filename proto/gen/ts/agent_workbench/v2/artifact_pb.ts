@@ -865,3 +865,4 @@ export enum VideoStage {
  */
 export const VideoStageSchema: GenEnum<VideoStage> = /*@__PURE__*/
   enumDesc(file_agent_workbench_v2_artifact, 1);
+

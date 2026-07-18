@@ -424,3 +424,4 @@ export type ResourceUpdate = Message<"proto.ai_resource.v1.ResourceUpdate"> & {
  */
 export const ResourceUpdateSchema: GenMessage<ResourceUpdate> = /*@__PURE__*/
   messageDesc(file_ai_resource_v1_types, 8);
+

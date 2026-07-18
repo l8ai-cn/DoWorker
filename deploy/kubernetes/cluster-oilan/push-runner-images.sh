@@ -166,7 +166,7 @@ push_all() {
     --label "org.opencontainers.image.revision=${RELEASE_SOURCE_COMMIT}" \
     -f "${REPO_ROOT}/docker/agent-runtime/Dockerfile" \
     --build-arg AGENT_RUNTIME=e2e-echo \
-    --build-arg "RUNTIME_BUILD_BASE=${RUNTIME_BUILD_BASE}" \
+    --build-arg "RUNTIME_SHARED_BASE=${RUNTIME_BUILD_BASE}" \
     -t do-worker/runner-e2e-echo:latest \
     "${REPO_ROOT}/docker/agent-runtime/_context"
   for runtime in claude-code codex-cli video-studio gemini-cli grok-build minimax-cli openclaw hermes e2e-echo; do

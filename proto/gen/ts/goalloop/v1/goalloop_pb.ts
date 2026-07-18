@@ -1051,3 +1051,4 @@ export const GoalLoopService: GenService<{
   },
 }> = /*@__PURE__*/
   serviceDesc(file_goalloop_v1_goalloop, 0);
+

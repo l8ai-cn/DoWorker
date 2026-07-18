@@ -586,3 +586,4 @@ export const AIResourceService: GenService<{
   },
 }> = /*@__PURE__*/
   serviceDesc(file_ai_resource_v1_ai_resource, 0);
+
