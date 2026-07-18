@@ -17,6 +17,7 @@ const workerTypeLabels: Record<string, string> = {
   openclaw: "workerCreate.runtime.options.openclaw",
   "do-agent": "workerCreate.runtime.options.doAgent",
   "seedance-expert": "workerCreate.runtime.options.seedance",
+  "pattern-designer": "workerCreate.runtime.options.patternDesigner",
   aider: "workerCreate.runtime.options.aider",
   opencode: "workerCreate.runtime.options.openCode",
   cursor: "workerCreate.runtime.options.cursor",

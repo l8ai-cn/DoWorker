@@ -27,6 +27,18 @@
     },
     {
       "schema_version": 1,
+      "worker_slug": "pattern-designer",
+      "runtime_catalog_revision": "runtime-catalog-2026-07-18-854952254d5f",
+      "image_reference": "repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:854952254d5f7ce25db3258034bc71a07169a5730dfe0670243fc10ea437bacd",
+      "image_digest": "sha256:854952254d5f7ce25db3258034bc71a07169a5730dfe0670243fc10ea437bacd",
+      "platform": "linux/amd64",
+      "status": "available",
+      "exit_code": 0,
+      "output": "Pattern Designer shares the Codex CLI runtime digest. Harbor returned OCI index sha256:854952254d5f7ce25db3258034bc71a07169a5730dfe0670243fc10ea437bacd with linux/amd64 manifest sha256:5b47d9b735f6f60be6c6b52e73a92e3755ef8320a9ee26d2fe99799ede364fff.",
+      "observed_at": "2026-07-18T12:22:11+08:00"
+    },
+    {
+      "schema_version": 1,
       "worker_slug": "do-agent",
       "runtime_catalog_revision": "runtime-catalog-2026-07-16-61b505bd1dcd",
       "image_reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653",

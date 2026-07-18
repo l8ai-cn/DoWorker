@@ -6,6 +6,10 @@ import {
   synchronizeConfigDocumentBindings,
   synchronizeCredentialReferences,
 } from "./worker-template-definition-bindings";
+import {
+  patternDesignerSecretRefs,
+  patternDesignerWorkspace,
+} from "./pattern-designer-template-defaults";
 
 interface RuntimeOption {
   value: string;
@@ -141,10 +145,13 @@ function withRuntimeChoice(
       optionsRevision,
       workerType: type.slug,
       runtime: { ...draft.spec.runtime, runtimeImageId },
-      workspace: { ...draft.spec.workspace, configDocumentBindings },
+      workspace: patternDesignerWorkspace(type.slug, {
+        ...draft.spec.workspace,
+        configDocumentBindings,
+      }),
       typeConfig: {
         ...draft.spec.typeConfig,
-        secretRefs,
+        secretRefs: patternDesignerSecretRefs(type.slug, secretRefs),
         schemaVersion: type.schema_version,
         interactionMode: supportedInteractionMode(
           type.supported_interaction_modes,

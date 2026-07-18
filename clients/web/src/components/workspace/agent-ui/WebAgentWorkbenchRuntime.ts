@@ -42,6 +42,7 @@ export class WebAgentWorkbenchRuntime implements AgentSessionRuntime {
     this.connectionRuntime = new WebAgentWorkbenchConnection(
       this.deps,
       this.sessionId,
+      input.live !== false,
       ({ connection, error }) => {
         this.connection = connection;
         this.error = error;

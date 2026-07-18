@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "runtimeCatalogRevision": "runtime-catalog-2026-07-13-release-gated",
+  "runtimeCatalogRevision": "runtime-catalog-2026-07-18-854952254d5f",
   "workers": [
     {
       "slug": "aider",
@@ -145,10 +145,10 @@
       "configDocuments": [],
       "runtimeImage": {
         "name": "Codex CLI",
-        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1",
-        "availability": "invalid_published_digest"
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:854952254d5f7ce25db3258034bc71a07169a5730dfe0670243fc10ea437bacd",
+        "availability": "locked_available"
       },
-      "validationStatus": "invalid_published_runtime"
+      "validationStatus": "runtime_ready_unverified"
     },
     {
       "slug": "cursor-cli",
@@ -219,8 +219,12 @@
           "required": true
         }
       ],
-      "runtimeImage": null,
-      "validationStatus": "runtime_image_unavailable"
+      "runtimeImage": {
+        "name": "Do Agent",
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653",
+        "availability": "locked_available"
+      },
+      "validationStatus": "runtime_ready_unverified"
     },
     {
       "slug": "gemini-cli",
@@ -482,6 +486,58 @@
       "validationStatus": "runtime_image_unavailable"
     },
     {
+      "slug": "pattern-designer",
+      "name": "Pattern Designer",
+      "executable": "codex",
+      "adapterId": "codex-app-server",
+      "interactionModes": [
+        "pty",
+        "acp"
+      ],
+      "modelRequirement": {
+        "required": true,
+        "protocol_adapters": [
+          "openai-compatible"
+        ]
+      },
+      "credentialBindings": [
+        {
+          "sourceKind": "model_resource",
+          "sourceRef": "openai-compatible",
+          "environmentVariable": "OPENAI_API_KEY"
+        },
+        {
+          "sourceKind": "credential_bundle",
+          "sourceRef": "lovart",
+          "environmentVariable": "LOVART_ACCESS_KEY"
+        },
+        {
+          "sourceKind": "credential_bundle",
+          "sourceRef": "lovart",
+          "environmentVariable": "LOVART_SECRET_KEY"
+        }
+      ],
+      "configFields": [
+        {
+          "name": "approval_mode",
+          "kind": "select",
+          "options": [
+            "untrusted",
+            "on-request",
+            "never"
+          ],
+          "defaultValue": "\"never\""
+        }
+      ],
+      "configDocuments": [],
+      "runtimeImage": {
+        "name": "Codex CLI",
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:854952254d5f7ce25db3258034bc71a07169a5730dfe0670243fc10ea437bacd",
+        "availability": "locked_available"
+      },
+      "validationStatus": "runtime_ready_unverified"
+    },
+    {
       "slug": "seedance-expert",
       "name": "Seedance Expert",
       "executable": "do-agent",
@@ -543,8 +599,12 @@
           "required": true
         }
       ],
-      "runtimeImage": null,
-      "validationStatus": "runtime_image_unavailable"
+      "runtimeImage": {
+        "name": "Do Agent",
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653",
+        "availability": "locked_available"
+      },
+      "validationStatus": "runtime_ready_unverified"
     }
   ]
 }

@@ -37,7 +37,7 @@ test("builds an explicit local catalog from every verified local runtime", () =>
   assert.deepEqual(
     catalog.images.map((image) => image.worker_type_slugs),
     [
-      ["codex-cli"],
+      ["codex-cli", "pattern-designer"],
       ["gemini-cli"],
       ["minimax-cli"],
       ["openclaw"],
@@ -87,7 +87,7 @@ test("supports every formal Worker runtime in the local catalog", () => {
     [
       "aider", "claude-code", "codex-cli", "cursor-cli", "do-agent", "gemini-cli",
       "grok-build", "hermes", "loopal", "minimax-cli", "openclaw", "opencode",
-      "seedance-expert",
+      "pattern-designer", "seedance-expert",
     ],
   );
   assert.match(catalog.revision, /^local-dev-[a-f0-9]{64}$/);

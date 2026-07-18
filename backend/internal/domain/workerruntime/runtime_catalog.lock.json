@@ -9,7 +9,8 @@
       "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:854952254d5f7ce25db3258034bc71a07169a5730dfe0670243fc10ea437bacd",
       "digest": "sha256:854952254d5f7ce25db3258034bc71a07169a5730dfe0670243fc10ea437bacd",
       "worker_type_slugs": [
-        "codex-cli"
+        "codex-cli",
+        "pattern-designer"
       ],
       "enabled": true
     },

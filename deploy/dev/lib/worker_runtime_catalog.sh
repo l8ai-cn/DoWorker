@@ -7,7 +7,7 @@ local_worker_runner_services() {
     local services=()
     while IFS= read -r worker_type; do
         case "$worker_type" in
-            codex-cli) service="runner-codex-cli" ;;
+            codex-cli|pattern-designer) service="runner-codex-cli" ;;
             gemini-cli) service="runner-gemini-cli" ;;
         minimax-cli) service="runner-minimax-cli" ;;
         openclaw) service="runner-openclaw" ;;

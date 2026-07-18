@@ -60,6 +60,27 @@ describe("worker template runtime options", () => {
     });
   });
 
+  it("binds Pattern skills and Lovart credentials into the WorkerTemplate draft", () => {
+    const draft = configuredDraft();
+
+    const next = selectWorkerTemplateType(
+      draft,
+      workerOptions(),
+      "pattern-designer",
+    );
+
+    expect(next?.spec.workspace.skillRefs).toEqual([
+      { kind: "Skill", name: "pattern-generate" },
+      { kind: "Skill", name: "canvas-compose" },
+      { kind: "Skill", name: "pattern-seam-review" },
+      { kind: "Skill", name: "lovart-api" },
+    ]);
+    expect(next?.spec.typeConfig.secretRefs).toMatchObject({
+      LOVART_ACCESS_KEY: { kind: "EnvironmentBundle", name: "lovart" },
+      LOVART_SECRET_KEY: { kind: "EnvironmentBundle", name: "lovart" },
+    });
+  });
+
   it("derives credential required state from the projected Worker schema", () => {
     expect([...requiredCredentialReferenceFields({
       fields: {
@@ -107,10 +128,24 @@ function workerOptions(): WorkerCreateOptions {
         target_kind: "env",
         target_name: "CURSOR_API_KEY",
       }]),
+      workerType("pattern-designer", [], [{
+        id: "lovart-access-key",
+        source_kind: "credential_bundle",
+        source_ref: "lovart",
+        target_kind: "env",
+        target_name: "LOVART_ACCESS_KEY",
+      }, {
+        id: "lovart-secret-key",
+        source_kind: "credential_bundle",
+        source_ref: "lovart",
+        target_kind: "env",
+        target_name: "LOVART_SECRET_KEY",
+      }]),
     ],
     runtime_images: [
       runtimeImage(11, "codex-cli"),
       runtimeImage(42, "minimax-cli"),
+      runtimeImage(43, "pattern-designer"),
     ],
     compute_targets: [],
     deployment_modes: [],

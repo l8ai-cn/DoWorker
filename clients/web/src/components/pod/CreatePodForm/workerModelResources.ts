@@ -5,6 +5,7 @@ const AGENT_PROTOCOLS: Record<string, string[]> = {
   "do-agent": ["openai-compatible", "anthropic", "minimax"],
   "seedance-expert": ["openai-compatible", "anthropic"],
   "codex-cli": ["openai-compatible"],
+  "pattern-designer": ["openai-compatible"],
   "video-studio": ["openai-compatible"],
   "claude-code": ["anthropic"],
   "gemini-cli": ["gemini"],

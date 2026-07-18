@@ -62,6 +62,11 @@
       "definition_hash": "sha256:6681ce02048799d625df1b48fb1834233365eb8d586a28cbe948158eaa26c6f4"
     },
     {
+      "slug": "pattern-designer",
+      "definition_path": "config/worker-types/pattern-designer/definition.json",
+      "definition_hash": "sha256:4f5cf080d9655c4de274f0fc45b44866e9a0edd9dc10338d4917b582d02bdf01"
+    },
+    {
       "slug": "seedance-expert",
       "definition_path": "config/worker-types/seedance-expert/definition.json",
       "definition_hash": "sha256:2ba96bfee7b58f1c681cfe4c23965503c9df7cd97a5e2fa299686a0e9cb14825"

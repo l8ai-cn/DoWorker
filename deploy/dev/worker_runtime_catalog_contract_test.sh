@@ -13,7 +13,7 @@ trap 'rm -f "$catalog"' EXIT
 cat >"$catalog" <<'JSON'
 {
   "images": [
-    {"worker_type_slugs": ["codex-cli"]},
+    {"worker_type_slugs": ["codex-cli", "pattern-designer"]},
     {"worker_type_slugs": ["gemini-cli"]},
     {"worker_type_slugs": ["minimax-cli"]},
     {"worker_type_slugs": ["openclaw"]},

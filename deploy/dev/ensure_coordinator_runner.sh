@@ -20,7 +20,7 @@ export COMPOSE_FILE="docker-compose.yml:docker-compose.runners.yml"
 
 case "$agent_slug" in
   claude-code) service=runner-claude-code ;;
-  codex-cli) service=runner-codex-cli ;;
+  codex-cli|pattern-designer) service=runner-codex-cli ;;
   cursor-cli) service=runner-cursor-cli ;;
   gemini-cli) service=runner-gemini-cli ;;
   e2e-echo) service=runner-e2e-echo ;;

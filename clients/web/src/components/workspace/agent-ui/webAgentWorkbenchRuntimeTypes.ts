@@ -61,6 +61,7 @@ export interface WebAgentWorkbenchRuntimeInput {
   loadArtifact?: (
     request: AgentArtifactLoadRequest,
   ) => Promise<Blob>;
+  live?: boolean;
   sessionId: string;
   title: string;
 }

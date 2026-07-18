@@ -27,6 +27,7 @@ export class WebAgentWorkbenchConnection {
   constructor(
     private readonly deps: WebAgentWorkbenchRuntimeDeps,
     private readonly sessionId: string,
+    private readonly live: boolean,
     private readonly onState: (
       state: WebAgentWorkbenchConnectionState,
     ) => void,
@@ -63,6 +64,7 @@ export class WebAgentWorkbenchConnection {
     if (!this.isCurrent(generation)) return;
     this.recordProgress();
     this.update("connected", null);
+    if (!this.live) return;
     const cycle = ++this.streamCycle;
     const stream = await this.deps.service.streamSessionDeltasConnect(
       access.orgSlug,

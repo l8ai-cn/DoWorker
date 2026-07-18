@@ -153,7 +153,7 @@ func filterSkillsBySlugSet(
 
 func skillTargetPath(agentSlug, skillSlug string) string {
 	switch agentSlug {
-	case "codex-cli", "codex", "video-studio":
+	case "codex-cli", "codex", "pattern-designer", "video-studio":
 		return "{{.sandbox.root_path}}/codex-home/skills/" + skillSlug
 	case "claude-code", "claude":
 		return "{{.sandbox.work_dir}}/.claude/skills/" + skillSlug

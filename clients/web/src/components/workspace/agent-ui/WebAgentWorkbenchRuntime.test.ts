@@ -193,4 +193,27 @@ describe("WebAgentWorkbenchRuntime", () => {
       expect(service.getSessionSnapshotConnect).toHaveBeenCalledTimes(3);
     });
   });
+
+  it("opens a read-only completed session without a live delta stream", async () => {
+    const { deps, service } = dependencies();
+    const runtime = new WebAgentWorkbenchRuntime({
+      agentLabel: "Codex",
+      deps,
+      interactionMode: "acp",
+      live: false,
+      sessionId: "session-real-1",
+      title: "Completed task",
+    });
+
+    await runtime.open(runtime.sessionId);
+
+    expect(service.getSessionSnapshotConnect).toHaveBeenCalledTimes(1);
+    expect(service.streamSessionDeltasConnect).not.toHaveBeenCalled();
+    expect(runtime.getSnapshot(runtime.sessionId).connection).toBe("connected");
+    expect(runtime.getSnapshot(runtime.sessionId).items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ artifactId: "video-1" }),
+      ]),
+    );
+  });
 });

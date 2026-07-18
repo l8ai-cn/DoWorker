@@ -68,13 +68,14 @@ export function AgentPanel({
   const { podStatus, isPodReady, podError } = usePodStatus(podKey);
   const controlLease = useWorkerControlLease(podKey, controlClientLabel);
 
-  const shouldSubscribe = isPodReady || podStatus === "running";
-  useAcpRelay(podKey, paneId, shouldSubscribe);
+  const liveSession = isPodReady || podStatus === "running";
+  const canReadSession = liveSession || podStatus === "completed";
+  useAcpRelay(podKey, paneId, liveSession);
   const {
     error: sessionLinkError,
     loading: sessionLinkLoading,
     sessionId,
-  } = useAgentSessionLink(podKey, shouldSubscribe);
+  } = useAgentSessionLink(podKey, canReadSession);
   const runtime = useMemo(
     () => {
       if (!sessionId) return null;
@@ -83,6 +84,7 @@ export function AgentPanel({
         agentLabel: pod?.agent?.name ?? "Agent",
         interactionMode: pod?.interaction_mode ?? "acp",
         loadArtifact: createWebAgentWorkbenchArtifactLoader(workbenchState),
+        live: liveSession,
         sessionId,
         title: pod?.title ?? pod?.alias ?? podKey,
       });
@@ -93,6 +95,7 @@ export function AgentPanel({
       pod?.interaction_mode,
       pod?.title,
       podKey,
+      liveSession,
       sessionId,
     ],
   );
@@ -128,7 +131,7 @@ export function AgentPanel({
         />
       )}
 
-      {!shouldSubscribe ? (
+      {!canReadSession ? (
         podError ? (
           <PaneErrorState
             error={
@@ -174,16 +177,18 @@ export function AgentPanel({
           contentRenderers={AGENT_CONTENT_RENDERERS}
           locale={locale === "zh" ? "zh-CN" : "en-US"}
           presentation="user"
-          readOnly={controlLease.status !== "granted"}
+          readOnly={!liveSession || controlLease.status !== "granted"}
           runtime={runtime}
           sessionId={sessionId}
         />
       )}
-      <WorkerControlOverlay
-        blocking={false}
-        lease={controlLease}
-        preserveHeader={showHeader}
-      />
+      {liveSession && (
+        <WorkerControlOverlay
+          blocking={false}
+          lease={controlLease}
+          preserveHeader={showHeader}
+        />
+      )}
 
       {pendingSplitDirection && (
         <PodSelectorModal

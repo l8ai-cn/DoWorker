@@ -102,6 +102,11 @@ func TestBuildSkillResources_FiltersByAgentfileSlugs(t *testing.T) {
 }
 
 func TestSkillTargetPathMatchesAgentDiscoveryRoots(t *testing.T) {
+	assert.Equal(
+		t,
+		"{{.sandbox.root_path}}/codex-home/skills/pattern-generate",
+		skillTargetPath("pattern-designer", "pattern-generate"),
+	)
 	for _, agentSlug := range []string{"do-agent", "seedance-expert"} {
 		assert.Equal(
 			t,

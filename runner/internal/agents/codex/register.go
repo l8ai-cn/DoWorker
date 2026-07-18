@@ -16,13 +16,14 @@ func init() {
 	})
 
 	tokenusage.RegisterParser(
-		[]string{"codex", "codex-cli", "video-studio"},
+		[]string{"codex", "codex-cli", "pattern-designer", "video-studio"},
 		&codexParser{},
 	)
 
 	adapter := &codexInputAdapter{}
 	agentkit.RegisterInputAdapter("codex", adapter)
 	agentkit.RegisterInputAdapter("codex-cli", adapter)
+	agentkit.RegisterInputAdapter("pattern-designer", adapter)
 	agentkit.RegisterInputAdapter("video-studio", adapter)
 
 	agentkit.RegisterAgentHome(agentkit.AgentHomeSpec{
