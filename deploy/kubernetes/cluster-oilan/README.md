@@ -46,6 +46,31 @@ git push
 DOOPS_TARGET=gw-oilan-node ./deploy.sh         # secrets + manifests + jobs via DoOps
 ```
 
+When the build host cannot reach the node-local Harbor, dispatch the
+`Oilan Image Publish` workflow on the verified `main` commit. It builds the
+affected platform images into immutable Docker Hub staging tags and publishes
+the `oilan-staging-release` artifact. Download its JSON manifest on an operator
+machine that can reach both registries, then promote the exact manifests:
+
+```bash
+gh run download <run-id> -n oilan-staging-release -D /tmp/oilan-release
+docker login docker.io
+docker login repo.aiedulab.cn:8443
+./promote-staged-images.sh /tmp/oilan-release/oilan-staging-release.json
+git status --short
+```
+
+Harbor API calls use normal TLS verification. When Harbor uses a private CA,
+set `HARBOR_CA_CERT=/path/to/harbor-ca.pem`; insecure TLS is not supported.
+Docker credentials may use `auths`, `credHelpers`, or `credsStore`.
+
+Promotion refuses a staging manifest from a different `main` commit, pulls
+and verifies every source before changing Harbor, checks each `linux/amd64`
+platform and source revision label, pushes all layers, and requires the Harbor
+digest to equal the staged digest. It then updates the immutable release lock
+and provenance metadata. Commit and push those generated files before running
+`deploy.sh`.
+
 Runner runtime builds resolve their Node base only through the locked
 `runner-node-base@sha256:...` Harbor reference and fail before building if its
 digest differs or either `linux/amd64` or `linux/arm64` is absent.

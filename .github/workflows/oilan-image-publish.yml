@@ -101,3 +101,45 @@ jobs:
           name: oilan-digest-${{ matrix.service }}
           path: digests/${{ matrix.service }}.txt
           retention-days: 7
+
+  manifest:
+    name: Assemble staging manifest
+    needs: publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: oilan-digest-*
+          path: digests
+          merge-multiple: true
+      - name: Write promotion manifest
+        env:
+          SOURCE_COMMIT: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          entries="$(mktemp)"
+          for service in backend marketplace marketplace-web relay web; do
+            digest="$(cat "digests/${service}.txt")"
+            jq -nc \
+              --arg service "${service}" \
+              --arg source "${IMAGE_PREFIX}-${service}:sha-${SOURCE_COMMIT}" \
+              --arg digest "${digest}" \
+              '{key: $service, value: {source: $source, digest: $digest}}' \
+              >> "${entries}"
+          done
+          jq -s \
+            --arg commit "${SOURCE_COMMIT}" \
+            '{
+              schema_version: 1,
+              source_commit: $commit,
+              platform: "linux/amd64",
+              images: (from_entries)
+            }' "${entries}" > oilan-staging-release.json
+          jq -e '
+            .source_commit | test("^[a-f0-9]{40}$")
+          ' oilan-staging-release.json >/dev/null
+      - uses: actions/upload-artifact@v6
+        with:
+          name: oilan-staging-release
+          path: oilan-staging-release.json
+          retention-days: 7
