@@ -44,6 +44,8 @@ jobs:
             file: marketplace/Dockerfile
           - service: marketplace-web
             file: clients/marketplace-web/Dockerfile
+          - service: relay
+            file: relay/Dockerfile
           - service: web
             file: clients/web/Dockerfile
     steps:
