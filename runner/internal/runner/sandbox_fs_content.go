@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	"github.com/anthropics/agentsmesh/runner/internal/workbench"
 )
 
 const maxSandboxFsReadChunkBytes int64 = 4 << 20
@@ -157,12 +158,14 @@ func (h *RunnerMessageHandler) sandboxFsReadVerifiedArtifactWorkspace(
 }
 
 func sandboxFsContentType(path string) string {
-	if strings.EqualFold(filepath.Ext(path), ".pptx") {
-		return "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+	if contentType := workbench.ArtifactMediaType(
+		filepath.ToSlash(path),
+	); contentType != "" {
+		return contentType
 	}
 	contentType := mime.TypeByExtension(filepath.Ext(path))
 	if contentType == "" {
 		return "application/octet-stream"
 	}
-	return contentType
+	return strings.TrimSpace(strings.Split(contentType, ";")[0])
 }

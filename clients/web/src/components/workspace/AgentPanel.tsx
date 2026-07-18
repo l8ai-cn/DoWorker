@@ -111,6 +111,7 @@ export function AgentPanel({
         "relative flex flex-col h-full bg-background rounded-lg overflow-hidden border",
         isActive ? "border-primary" : "border-border",
         isMaximized && "fixed inset-4 z-50",
+        !showHeader && controlLease.status !== "granted" && "max-sm:pb-20",
         className
       )}
       onClick={handleFocus}

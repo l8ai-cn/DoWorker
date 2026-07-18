@@ -110,6 +110,10 @@ func artifactMediaType(path string) string {
 	return artifactTextMediaTypes[extension]
 }
 
+func ArtifactMediaType(path string) string {
+	return artifactMediaType(path)
+}
+
 func artifactDeliverableRoot(path string) bool {
 	root, _, _ := strings.Cut(filepath.ToSlash(path), "/")
 	switch root {
@@ -125,7 +129,7 @@ var artifactMediaTypes = map[string]string{
 	"blend": "application/x-blender", "gif": "image/gif",
 	"docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 	"flac": "audio/flac",
-	"glb": "model/gltf-binary", "gltf": "model/gltf+json",
+	"glb":  "model/gltf-binary", "gltf": "model/gltf+json",
 	"htm": "text/html", "html": "text/html",
 	"jpeg": "image/jpeg", "jpg": "image/jpeg",
 	"m4a": "audio/mp4", "m4v": "video/x-m4v", "mov": "video/quicktime",

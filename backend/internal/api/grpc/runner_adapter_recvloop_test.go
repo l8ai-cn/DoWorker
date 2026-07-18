@@ -4,8 +4,11 @@ import (
 	"context"
 	"io"
 	"testing"
+	"time"
 
+	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
@@ -163,4 +166,97 @@ func TestGRPCRunnerAdapter_ReceiveLoop_ProcessMessages(t *testing.T) {
 	// Should return nil after processing all messages and hitting EOF
 	assert.NoError(t, err)
 	assert.Equal(t, 2, heartbeatCount)
+}
+
+type blockingWorkbenchSink struct {
+	resultHandled <-chan struct{}
+	completed     chan struct{}
+}
+
+func (sink *blockingWorkbenchSink) HandleWorkbenchEvents(
+	ctx context.Context,
+	_ int64,
+	_ *agentworkbenchv2.RunnerWorkbenchEventBatch,
+) error {
+	defer close(sink.completed)
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-sink.resultHandled:
+		return nil
+	}
+}
+
+type resultAwareRecvStream struct {
+	mockRecvStream
+	messages []*runnerv1.RunnerMessage
+	done     <-chan struct{}
+}
+
+func (stream *resultAwareRecvStream) Recv() (*runnerv1.RunnerMessage, error) {
+	if len(stream.messages) > 0 {
+		message := stream.messages[0]
+		stream.messages = stream.messages[1:]
+		return message, nil
+	}
+	<-stream.done
+	return nil, io.EOF
+}
+
+func TestGRPCRunnerAdapter_ReceiveLoopHandlesResultWhileWorkbenchWaits(
+	t *testing.T,
+) {
+	logger := newTestLogger()
+	connManager := runner.NewRunnerConnectionManager(logger)
+	defer connManager.Close()
+	resultHandled := make(chan struct{})
+	completed := make(chan struct{})
+	connManager.SetSandboxFsResultCallback(
+		func(_ int64, _ *runnerv1.SandboxFsResultEvent) {
+			close(resultHandled)
+		},
+	)
+	adapter := NewGRPCRunnerAdapter(
+		logger, nil, nil, nil, nil, nil, connManager, nil,
+	)
+	adapter.SetWorkbenchEventSink(&blockingWorkbenchSink{
+		resultHandled: resultHandled,
+		completed:     completed,
+	})
+	conn := connManager.AddConnection(
+		1, "test-node", "test-org", &mockRunnerStream{},
+	)
+	stream := &resultAwareRecvStream{
+		done: completed,
+		messages: []*runnerv1.RunnerMessage{
+			{
+				Payload: &runnerv1.RunnerMessage_WorkbenchEvents{
+					WorkbenchEvents: &agentworkbenchv2.RunnerWorkbenchEventBatch{
+						PodKey: "pod-1",
+					},
+				},
+			},
+			{
+				Payload: &runnerv1.RunnerMessage_SandboxFsResult{
+					SandboxFsResult: &runnerv1.SandboxFsResultEvent{
+						RequestId: "request-1",
+					},
+				},
+			},
+		},
+	}
+
+	finished := make(chan error, 1)
+	go func() {
+		finished <- adapter.receiveLoop(
+			context.Background(), 1, conn, stream,
+		)
+	}()
+
+	select {
+	case err := <-finished:
+		require.NoError(t, err)
+	case <-time.After(time.Second):
+		t.Fatal("receive loop blocked behind workbench artifact handling")
+	}
 }

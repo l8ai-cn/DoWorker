@@ -12,12 +12,17 @@ func sameRevisionArtifactEnrichment(
 	if !revisionRepresentationIDsEnrich(current, next) {
 		return false
 	}
+	if !artifactGrantRepresentationIDsEnrich(current, next) {
+		return false
+	}
 	currentEnvelope := proto.Clone(current).(*agentworkbenchv2.ArtifactDescriptor)
 	nextEnvelope := proto.Clone(next).(*agentworkbenchv2.ArtifactDescriptor)
 	currentEnvelope.Representations = nil
 	nextEnvelope.Representations = nil
 	clearCurrentRevisionRepresentationIDs(currentEnvelope)
 	clearCurrentRevisionRepresentationIDs(nextEnvelope)
+	clearArtifactGrantRepresentationIDs(currentEnvelope)
+	clearArtifactGrantRepresentationIDs(nextEnvelope)
 	if !proto.Equal(currentEnvelope, nextEnvelope) {
 		return false
 	}

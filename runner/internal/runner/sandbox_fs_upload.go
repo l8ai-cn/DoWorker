@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
@@ -75,9 +76,17 @@ func (h *RunnerMessageHandler) sandboxFsUploadWorkspace(
 		return fsErrResult(fmt.Sprintf("upload failed: %v", err)), nil
 	}
 	defer response.Body.Close()
-	_, _ = io.Copy(io.Discard, io.LimitReader(response.Body, 1<<20))
+	responseBody, _ := io.ReadAll(io.LimitReader(response.Body, 4<<10))
 	if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusMultipleChoices {
-		return fsErrResult(fmt.Sprintf("upload failed: HTTP %d", response.StatusCode)), nil
+		detail := strings.TrimSpace(string(responseBody))
+		if detail == "" {
+			detail = http.StatusText(response.StatusCode)
+		}
+		return fsErrResult(fmt.Sprintf(
+			"upload failed: HTTP %d: %s",
+			response.StatusCode,
+			detail,
+		)), nil
 	}
 	return &runnerv1.SandboxFsResultEvent{
 		ContentType:   contentType,

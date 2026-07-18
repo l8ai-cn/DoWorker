@@ -73,3 +73,38 @@ func TestSandboxFsUploadRejectsRedirect(t *testing.T) {
 	assert.Contains(t, result.GetError(), "HTTP 307")
 	assert.False(t, targetCalled)
 }
+
+func TestSandboxFsUploadIncludesServerError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusForbidden)
+		_, _ = w.Write([]byte("signature mismatch"))
+	}))
+	t.Cleanup(server.Close)
+	root := t.TempDir()
+	require.NoError(t, os.WriteFile(filepath.Join(root, "result.png"), []byte("png"), 0o644))
+
+	result, err := (&RunnerMessageHandler{}).sandboxFsUpload(root, "result.png", server.URL)
+
+	require.NoError(t, err)
+	assert.Equal(t, "upload failed: HTTP 403: signature mismatch", result.GetError())
+}
+
+func TestSandboxFsContentTypeIsCanonical(t *testing.T) {
+	assert.Equal(t, "text/html", sandboxFsContentType("deliverables/result.html"))
+	assert.Equal(t, "text/csv", sandboxFsContentType("deliverables/result.csv"))
+	assert.Equal(t, "text/markdown", sandboxFsContentType("deliverables/result.md"))
+	assert.Equal(t, "audio/wav", sandboxFsContentType("deliverables/result.wav"))
+	assert.Equal(
+		t,
+		"application/vnd.openxmlformats-officedocument.presentationml.presentation",
+		sandboxFsContentType("deliverables/result.pptx"),
+	)
+	assert.Equal(
+		t,
+		"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+		sandboxFsContentType("deliverables/result.xlsx"),
+	)
+	assert.Equal(t, "text/yaml", sandboxFsContentType("deliverables/result.yaml"))
+	assert.Equal(t, "image/png", sandboxFsContentType("deliverables/result.png"))
+	assert.Equal(t, "application/octet-stream", sandboxFsContentType("result.unknown"))
+}

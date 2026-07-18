@@ -99,10 +99,77 @@ func TestValidateArtifactTransitionAllowsSameRevisionRepresentationAddition(t *t
 		next.Revisions[0].RepresentationIds,
 		"pdf-preview",
 	)
+	current.Grants = []*agentworkbenchv2.ArtifactGrant{
+		artifactGrant("download", "original"),
+	}
+	next.Grants = []*agentworkbenchv2.ArtifactGrant{
+		artifactGrant("download", "original", "pdf-preview"),
+	}
 	require.NoError(t, validateArtifactTransition(
 		[]*agentworkbenchv2.ArtifactDescriptor{current},
 		next,
 	))
+}
+
+func TestValidateArtifactTransitionRejectsGrantRewrites(t *testing.T) {
+	current := transitionArtifact(3, "tool-one")
+	current.Representations = []*agentworkbenchv2.ArtifactRepresentation{
+		previewRepresentation(
+			"original",
+			agentworkbenchv2.ArtifactStatus_ARTIFACT_STATUS_READY,
+		),
+	}
+	current.Revisions[0].RepresentationIds = []string{"original"}
+	current.Grants = []*agentworkbenchv2.ArtifactGrant{
+		artifactGrant("download", "original"),
+	}
+
+	for name, mutate := range map[string]func(*agentworkbenchv2.ArtifactDescriptor){
+		"action changed": func(value *agentworkbenchv2.ArtifactDescriptor) {
+			value.Grants[0].Actions = []string{"artifact.delete"}
+		},
+		"existing grant widened": func(value *agentworkbenchv2.ArtifactDescriptor) {
+			value.Grants[0].RepresentationIds = append(
+				value.Grants[0].RepresentationIds,
+				"ungranted-existing",
+			)
+		},
+		"unknown representation": func(value *agentworkbenchv2.ArtifactDescriptor) {
+			value.Grants[0].RepresentationIds = append(
+				value.Grants[0].RepresentationIds,
+				"missing",
+			)
+		},
+		"representation removed": func(value *agentworkbenchv2.ArtifactDescriptor) {
+			value.Grants[0].RepresentationIds = nil
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			baseline := proto.Clone(current).(*agentworkbenchv2.ArtifactDescriptor)
+			if name == "existing grant widened" {
+				baseline.Representations = append(
+					baseline.Representations,
+					previewRepresentation(
+						"ungranted-existing",
+						agentworkbenchv2.ArtifactStatus_ARTIFACT_STATUS_PROCESSING,
+					),
+				)
+				baseline.Revisions[0].RepresentationIds = append(
+					baseline.Revisions[0].RepresentationIds,
+					"ungranted-existing",
+				)
+			}
+			next := proto.Clone(baseline).(*agentworkbenchv2.ArtifactDescriptor)
+			mutate(next)
+			require.ErrorIs(t,
+				validateArtifactTransition(
+					[]*agentworkbenchv2.ArtifactDescriptor{baseline},
+					next,
+				),
+				ErrInvalidBatch,
+			)
+		})
+	}
 }
 
 func TestValidateArtifactTransitionRejectsReadyRepresentationAddition(t *testing.T) {
@@ -224,4 +291,21 @@ func previewRepresentation(
 		}
 	}
 	return representation
+}
+
+func artifactGrant(
+	id string,
+	representationIDs ...string,
+) *agentworkbenchv2.ArtifactGrant {
+	minimumRevision := uint64(3)
+	maximumRevision := uint64(3)
+	return &agentworkbenchv2.ArtifactGrant{
+		GrantId:           id,
+		Issuer:            stringPointer("agentsmesh.runner"),
+		Subject:           stringPointer("session.viewer"),
+		RepresentationIds: representationIDs,
+		Actions:           []string{"artifact.download"},
+		MinimumRevision:   &minimumRevision,
+		MaximumRevision:   &maximumRevision,
+	}
 }

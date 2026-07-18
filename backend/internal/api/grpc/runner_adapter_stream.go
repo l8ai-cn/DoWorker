@@ -70,6 +70,8 @@ func (a *GRPCRunnerAdapter) sendLoop(runnerID int64, conn *runner.GRPCConnection
 }
 
 func (a *GRPCRunnerAdapter) receiveLoop(ctx context.Context, runnerID int64, conn *runner.GRPCConnection, stream runnerv1.RunnerService_ConnectServer) error {
+	workbenchDispatcher := newRunnerWorkbenchDispatcher(ctx, a, runnerID, conn)
+	defer workbenchDispatcher.stop()
 	for {
 		msg, err := stream.Recv()
 		if err != nil {
@@ -89,6 +91,10 @@ func (a *GRPCRunnerAdapter) receiveLoop(ctx context.Context, runnerID int64, con
 		}
 
 		msgType := extractMessageType(msg)
+		if msgType == "WorkbenchEvents" {
+			workbenchDispatcher.enqueue(msg)
+			continue
+		}
 		if isHighFrequencyMessage(msgType) {
 			a.handleProtoMessage(ctx, runnerID, conn, msg)
 		} else {
