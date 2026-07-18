@@ -1,4 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
+import { create } from "@bufbuild/protobuf";
+import {
+  ArtifactDescriptorSchema,
+  ArtifactGrantSchema,
+  ArtifactRepresentationSchema,
+} from "@do-worker/proto/agent_workbench/v2/artifact_pb";
+import type { AgentArtifactTransportContext } from "@do-worker/agent-ui";
 
 import { createEmbedSessionClient } from "./embed-session-api";
 
@@ -19,7 +26,35 @@ describe("embedded session API", () => {
       "getTerminals",
       "loadDownload",
       "loadResource",
+      "uploadAttachment",
     ]);
+  });
+
+  it("附件上传复用 embed bearer request 和 session 文件 endpoint", async () => {
+    const fetcher = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          id: "file_12345678",
+          metadata: { bytes: 7 },
+          name: "notes.txt",
+        }),
+        { status: 200 },
+      ),
+    );
+    const client = createEmbedSessionClient(access, fetcher);
+    const file = new File(["content"], "notes.txt", { type: "text/plain" });
+
+    await expect(client.uploadAttachment(file)).resolves.toMatchObject({
+      id: "file_12345678",
+      name: "notes.txt",
+    });
+    expect(String(fetcher.mock.calls[0]?.[0])).toBe(
+      "https://api.example.test/v1/embed/sessions/conv_embed/resources/files",
+    );
+    expect(requestAuthorization(fetcher, 0)).toBe("Bearer session-token");
+    const init = fetcher.mock.calls[0]?.[1] as RequestInit;
+    expect(init.method).toBe("POST");
+    expect(init.body).toBeInstanceOf(FormData);
   });
 
   it("一次性读取 session 元数据并刷新 bearer token", async () => {
@@ -52,34 +87,39 @@ describe("embedded session API", () => {
     expect(requestAuthorization(fetcher, 1)).toBe("Bearer token-2");
   });
 
-  it("resourceId 使用 session-bound 文件和 workspace endpoint", async () => {
-    const fetcher = vi
-      .fn()
-      .mockResolvedValueOnce(
-        new Response("image-bytes", {
-          status: 200,
-          headers: { "Content-Type": "image/png" },
-        }),
-      )
-      .mockResolvedValueOnce(
-        new Response("workspace-bytes", {
-          status: 200,
-          headers: { "Content-Type": "image/png" },
-        }),
-      );
+  it("resourceId 通过精确成果身份 endpoint 读取", async () => {
+    const fetcher = vi.fn().mockResolvedValueOnce(
+      new Response("artifact-bytes", {
+        status: 200,
+        headers: { "Content-Type": "application/pdf" },
+      }),
+    );
     const client = createEmbedSessionClient(access, fetcher);
 
-    await expect(client.loadResource("file-1")).resolves.toEqual(expect.any(Blob));
-    const workspace = await client.loadResource("workspace:deliverables/preview.png");
+    const blob = await client.loadResource("session-file:file_12345678", artifactContext());
 
-    await expect(workspace.text()).resolves.toBe("workspace-bytes");
+    await expect(blob.text()).resolves.toBe("artifact-bytes");
     expect(String(fetcher.mock.calls[0]?.[0])).toBe(
-      "https://api.example.test/v1/embed/sessions/conv_embed/resources/files/file-1/content",
-    );
-    expect(String(fetcher.mock.calls[1]?.[0])).toBe(
-      "https://api.example.test/v1/embed/sessions/conv_embed/resources/environments/workspace/artifacts/content/deliverables/preview.png",
+      "https://api.example.test/v1/embed/sessions/conv_embed/artifacts/content?" +
+        "artifact_id=artifact-1&digest=sha256%3Aabc&" +
+        "representation_id=preview-pdf&revision=2",
     );
   });
+
+  it.each(["", "workspace:preview.pdf", "artifact-cache:preview-1", "session-file:"])(
+    "非法 artifact resourceId 在读取 token 前被拒绝: %j",
+    async (resourceId) => {
+      const getAccessToken = vi.fn(() => "session-token");
+      const fetcher = vi.fn();
+      const client = createEmbedSessionClient({ ...access, getAccessToken }, fetcher);
+
+      await expect(client.loadResource(resourceId, artifactContext())).rejects.toThrow(
+        `artifact_resource_unsupported:${resourceId}`,
+      );
+      expect(getAccessToken).not.toHaveBeenCalled();
+      expect(fetcher).not.toHaveBeenCalled();
+    },
+  );
 
   it("downloadUrl 走带 access token 的明确 fetch", async () => {
     const fetcher = vi.fn().mockResolvedValue(
@@ -102,14 +142,11 @@ describe("embedded session API", () => {
   it("跨源 downloadUrl 在读取 token 前被拒绝", async () => {
     const getAccessToken = vi.fn(() => "session-token");
     const fetcher = vi.fn();
-    const client = createEmbedSessionClient(
-      { ...access, getAccessToken },
-      fetcher,
-    );
+    const client = createEmbedSessionClient({ ...access, getAccessToken }, fetcher);
 
-    await expect(
-      client.loadDownload("https://files.attacker.test/result.bin"),
-    ).rejects.toThrow("agent_workbench_download_origin_mismatch");
+    await expect(client.loadDownload("https://files.attacker.test/result.bin")).rejects.toThrow(
+      "agent_workbench_download_origin_mismatch",
+    );
     expect(getAccessToken).not.toHaveBeenCalled();
     expect(fetcher).not.toHaveBeenCalled();
   });
@@ -156,6 +193,34 @@ describe("embedded session API", () => {
     });
   });
 });
+
+function artifactContext(): AgentArtifactTransportContext {
+  const representation = create(ArtifactRepresentationSchema, {
+    digest: "sha256:abc",
+    mediaType: "application/pdf",
+    representationId: "preview-pdf",
+    revision: 2n,
+  });
+  const descriptor = create(ArtifactDescriptorSchema, {
+    artifactId: "artifact-1",
+    grants: [
+      create(ArtifactGrantSchema, {
+        actions: ["artifact.download"],
+        grantId: "grant-download",
+        representationIds: ["preview-pdf"],
+      }),
+    ],
+    representations: [representation],
+    revision: 2n,
+  });
+  return {
+    artifactId: "artifact-1",
+    descriptor,
+    representation,
+    representationId: "preview-pdf",
+    sessionId: "conv_embed",
+  };
+}
 
 function requestAuthorization(fetcher: ReturnType<typeof vi.fn>, index: number): string | null {
   const init = fetcher.mock.calls[index]?.[1] as RequestInit | undefined;

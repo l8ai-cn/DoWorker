@@ -82,6 +82,7 @@ function createClient(
     getTerminals: vi.fn(),
     loadDownload: vi.fn(),
     loadResource: vi.fn(),
+    uploadAttachment: vi.fn(),
     getRelayConnection: vi.fn(async () => ({
       relayUrl,
       token,

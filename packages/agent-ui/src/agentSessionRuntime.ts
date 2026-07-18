@@ -16,6 +16,13 @@ export interface AgentSessionReference {
   sessionId: string;
 }
 
+export interface AgentAttachmentReference {
+  id: string;
+  name: string;
+  mediaType: string;
+  bytes: number;
+}
+
 export interface AgentSessionRuntime {
   create?(input: CreateAgentSessionInput): Promise<AgentSessionReference>;
   open(sessionId: string): Promise<void>;
@@ -25,8 +32,12 @@ export interface AgentSessionRuntime {
   sendMessage(
     sessionId: string,
     commandId: string,
-    input: { text: string },
+    input: { text: string; attachments?: AgentAttachmentReference[] },
   ): Promise<void>;
+  uploadAttachment?(
+    sessionId: string,
+    file: File,
+  ): Promise<AgentAttachmentReference>;
   sendSlashCommand?(
     sessionId: string,
     commandId: string,

@@ -3,6 +3,7 @@ package sessionapi
 import (
 	"context"
 
+	agentworkbenchdomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentworkbench"
 	agentservice "github.com/anthropics/agentsmesh/backend/internal/service/agent"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	sessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
@@ -73,6 +74,7 @@ type Deps struct {
 	ReadState          *ReadStateStore
 	SandboxFs          sandboxFilesystem
 	SessionFiles       *sessionfilesvc.Service
+	WorkbenchRepo      agentworkbenchdomain.Repository
 	MessageOutbox      sessionPromptOutbox
 	SessionComments    *commentsvc.Service
 	SessionPermissions *permgrantsvc.Service

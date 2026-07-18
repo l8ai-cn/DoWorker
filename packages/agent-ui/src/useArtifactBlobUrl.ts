@@ -4,6 +4,7 @@ import type {
   AgentArtifactItem,
   AgentSessionRuntime,
 } from "./contracts";
+import { artifactActionAllowed } from "./artifactGrantActions";
 import { artifactPresentation } from "./artifactPresentation";
 
 export type ArtifactBlobState =
@@ -14,10 +15,15 @@ export type ArtifactBlobState =
       url: string;
       mimeType: string | null;
       text: string | null;
+      textTruncated: boolean;
     }
   | {
       status: "error";
-      code: "generation_failed" | "loading_unavailable" | "load_failed";
+      code:
+        | "generation_failed"
+        | "loading_unavailable"
+        | "authorization_required"
+        | "load_failed";
       retryable: boolean;
       message: string;
     };
@@ -51,6 +57,19 @@ export function useArtifactBlobUrl(
       setState({ status: "loading" });
       return;
     }
+    if (!artifactActionAllowed(
+      item,
+      "artifact.download",
+      item.selectedRepresentationId ?? undefined,
+    )) {
+      setState({
+        status: "error",
+        code: "authorization_required",
+        retryable: false,
+        message: "artifact_download_not_authorized",
+      });
+      return;
+    }
     if (!runtime.loadArtifact) {
       setState({
         status: "error",
@@ -75,22 +94,32 @@ export function useArtifactBlobUrl(
       .then(async (blob) => {
         if (!active) return;
         objectUrl = URL.createObjectURL(blob);
-        const mimeType = item.mimeType || blob.type || null;
+        const mimeType = blob.type || item.mimeType || null;
         const kind = artifactPresentation(mimeType, item.filename).kind;
-        const text =
-          kind === "code" || kind === "html" || kind === "text"
-            ? await readBlobText(blob)
-            : null;
+        const readsText =
+          kind === "code" ||
+          kind === "csv" ||
+          kind === "html" ||
+          kind === "markdown" ||
+          kind === "text";
+        const text = readsText
+          ? await readBlobText(blob.slice(0, MAX_TEXT_PREVIEW_BYTES))
+          : null;
         if (!active) return;
         setState({
           status: "ready",
           url: objectUrl,
           mimeType,
           text,
+          textTruncated: readsText && blob.size > MAX_TEXT_PREVIEW_BYTES,
         });
       })
       .catch((cause: unknown) => {
         if (!active) return;
+        if (objectUrl) {
+          URL.revokeObjectURL(objectUrl);
+          objectUrl = null;
+        }
         console.error("Artifact loading failed", cause);
         setState({
           status: "error",
@@ -118,6 +147,8 @@ export function useArtifactBlobUrl(
 
   return state;
 }
+
+export const MAX_TEXT_PREVIEW_BYTES = 2 << 20;
 
 function readBlobText(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {

@@ -75,6 +75,7 @@ func RegisterRoutes(r *gin.Engine, d Deps) {
 		orgScoped.GET("/sessions/:id/resources/terminals/:terminal_id/attach", d.handleTerminalAttach)
 		orgScoped.POST("/sessions/:id/resources/files", d.handleUploadSessionFile)
 		orgScoped.GET("/sessions/:id/resources/files/:file_id/content", d.handleGetSessionFileContent)
+		orgScoped.GET("/sessions/:id/artifacts/content", d.handleGetSessionArtifactRepresentation)
 		orgScoped.GET("/sessions/:id/resources/environments/:env", d.handleSessionEnvironment)
 		orgScoped.GET("/sessions/:id/resources/environments/:env/changes", d.handleSessionFilesystemChanges)
 		orgScoped.GET("/sessions/:id/resources/environments/:env/diff/*filepath", d.handleSessionFilesystemDiff)
@@ -82,7 +83,6 @@ func RegisterRoutes(r *gin.Engine, d Deps) {
 		orgScoped.GET("/sessions/:id/resources/environments/:env/filesystem", d.handleSessionFilesystemList)
 		orgScoped.PUT("/sessions/:id/resources/environments/:env/filesystem/*filepath", d.handleSessionFilesystemWrite)
 		orgScoped.GET("/sessions/:id/resources/environments/:env/filesystem/*filepath", d.handleSessionFilesystemList)
-		orgScoped.GET("/sessions/:id/resources/environments/:env/artifacts/content/*filepath", d.handleSessionArtifactContent)
 		orgScoped.GET("/model-resources", d.handleListModelResources)
 		orgScoped.GET("/virtual-keys", d.handleListVirtualKeys)
 		orgScoped.POST("/virtual-keys", d.handleCreateVirtualKey)
@@ -115,12 +115,12 @@ func registerEmbedRoutes(v1 *gin.RouterGroup, d Deps) {
 		d.handleGetSessionFileContent,
 	)
 	embedded.GET(
-		"/sessions/:id/resources/environments/:env/filesystem/*filepath",
-		d.handleSessionFilesystemList,
+		"/sessions/:id/artifacts/content",
+		d.handleGetSessionArtifactRepresentation,
 	)
 	embedded.GET(
-		"/sessions/:id/resources/environments/:env/artifacts/content/*filepath",
-		d.handleSessionArtifactContent,
+		"/sessions/:id/resources/environments/:env/filesystem/*filepath",
+		d.handleSessionFilesystemList,
 	)
 	embedded.GET(
 		"/sessions/:id/resources/environments/:env/changes",
@@ -128,6 +128,7 @@ func registerEmbedRoutes(v1 *gin.RouterGroup, d Deps) {
 	)
 
 	embedded.POST("/sessions/:id/events", d.handlePostEvent)
+	registerEmbedAttachmentRoutes(embedded, d)
 
 	approvals := embedded.Group("")
 	approvals.Use(requireEmbedCapability("approve"))

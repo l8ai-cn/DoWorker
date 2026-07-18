@@ -258,7 +258,7 @@ func TestEmbedReadCapabilityReachesSessionArtifactRoute(t *testing.T) {
 	assert.Equal(t, http.StatusServiceUnavailable, response.Code, response.Body.String())
 }
 
-func TestEmbedReadCapabilityReachesWorkspaceArtifactContentRoute(t *testing.T) {
+func TestEmbedReadCapabilityReachesArtifactContentRoute(t *testing.T) {
 	deps := embedContextDeps(t)
 	router := gin.New()
 	registerEmbedRoutes(router.Group("/v1"), *deps)
@@ -266,7 +266,7 @@ func TestEmbedReadCapabilityReachesWorkspaceArtifactContentRoute(t *testing.T) {
 	response := embedSessionRequest(
 		router,
 		http.MethodGet,
-		"/v1/embed/sessions/conv_embed/resources/environments/workspace/artifacts/content/output/demo.mp4",
+		"/v1/embed/sessions/conv_embed/artifacts/content?artifact_id=a&representation_id=r&revision=1&digest=d",
 		embedSessionToken(t, deps, []string{"read"}),
 	)
 

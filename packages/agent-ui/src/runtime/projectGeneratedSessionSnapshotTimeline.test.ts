@@ -20,6 +20,66 @@ import { projectGeneratedSessionSnapshot } from "./projectGeneratedSessionSnapsh
 const encoder = new TextEncoder();
 
 describe("projectGeneratedSessionSnapshot message content", () => {
+  it("renders input files as attachments without requiring artifact descriptors", () => {
+    const message = create(MessageTimelineItemSchema, {
+      role: MessageRole.USER,
+      status: TimelineItemStatus.COMPLETED,
+      content: [
+        create(ContentBlockSchema, {
+          contentId: "file-1",
+          content: {
+            case: "file",
+            value: {
+              artifactId: "file-1",
+              filename: "brief.txt",
+              mediaType: "text/plain",
+              representationId: "source",
+              revision: 1n,
+              role: "input",
+            },
+          },
+        }),
+      ],
+    });
+    const snapshot = create(SessionSnapshotSchema, {
+      sessionId: "session-attachment",
+      streamEpoch: "epoch-attachment",
+      revision: 1n,
+      latestSequence: 1n,
+      status: SessionStatus.IDLE,
+      history: [
+        create(TimelineItemSchema, {
+          envelope: {
+            sessionId: "session-attachment",
+            streamEpoch: "epoch-attachment",
+            revision: 1n,
+            sequence: 1n,
+            itemId: "message-attachment",
+          },
+          content: create(TimelineItemContentSchema, {
+            content: { case: "message", value: message },
+          }),
+        }),
+      ],
+    });
+
+    expect(
+      projectGeneratedSessionSnapshot(snapshot, {
+        title: "Attachment timeline",
+        agentLabel: "Codex",
+        connection: "connected",
+        interactionMode: "pty",
+        hasOlderItems: false,
+      }).items,
+    ).toContainEqual({
+      attachmentId: "file-1",
+      filename: "brief.txt",
+      id: "message-attachment:file-1",
+      kind: "attachment",
+      mimeType: "text/plain",
+    });
+  });
+
   it("preserves displayable blocks and emits evidence for unsupported blocks", () => {
     const message = create(MessageTimelineItemSchema, {
       role: MessageRole.USER,

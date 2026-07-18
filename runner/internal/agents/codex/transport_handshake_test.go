@@ -38,7 +38,22 @@ func TestTransportHandshakeEnablesExperimentalAPI(t *testing.T) {
 
 		if !scanner.Scan() {
 			t.Error("initialized notification was not written")
+			return
 		}
+		if !scanner.Scan() {
+			t.Error("model/list request was not written")
+			return
+		}
+		var modelRequest struct {
+			ID     int64  `json:"id"`
+			Method string `json:"method"`
+		}
+		requireNoError(t, json.Unmarshal(scanner.Bytes(), &modelRequest))
+		if modelRequest.Method != "model/list" {
+			t.Errorf("method = %q", modelRequest.Method)
+			return
+		}
+		writeModelListResponse(fixture.PW, modelRequest.ID)
 	}()
 
 	_, err := fixture.transport.Handshake(fixture.transport.ctx)

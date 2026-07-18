@@ -15,3 +15,6 @@ effective="$(resolve_effective_runners_launcher "$requested" docker false)"
 requested="$(resolve_requested_runners_launcher docker --runners-k8s)"
 effective="$(resolve_effective_runners_launcher "$requested" coordinator true)"
 [[ "$effective" == "k8s" ]]
+
+grep -q 'export COMPOSE_FILE="docker-compose.yml:docker-compose.runners.yml"' \
+    "$SCRIPT_DIR/ensure_coordinator_runner.sh"

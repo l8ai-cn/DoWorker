@@ -33,6 +33,7 @@ export type {
   AgentQuestionPermissionRequest,
 } from "./agentPermissionContracts";
 export type {
+  AgentAttachmentReference,
   AgentSessionReference,
   AgentSessionRuntime,
   CreateAgentSessionInput,
@@ -68,6 +69,14 @@ export interface AgentMessageItem {
   status: "streaming" | "completed" | "failed";
 }
 
+export interface AgentAttachmentItem {
+  attachmentId: string;
+  filename: string;
+  id: string;
+  kind: "attachment";
+  mimeType: string | null;
+}
+
 export interface AgentActivityItem {
   id: string;
   kind: "reasoning" | "error" | "system";
@@ -78,6 +87,7 @@ export interface AgentActivityItem {
 
 export type AgentTimelineItem =
   | AgentMessageItem
+  | AgentAttachmentItem
   | AgentActivityItem
   | AgentToolActivityItem
   | AgentArtifactItem;

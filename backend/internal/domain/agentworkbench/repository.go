@@ -3,6 +3,7 @@ package agentworkbench
 import (
 	"context"
 	"errors"
+	"time"
 )
 
 var (
@@ -18,10 +19,21 @@ var (
 type AppendRequest struct {
 	SessionID        string
 	ExpectedRevision uint64
+	ArtifactFiles    []ArtifactFile
 	Sources          []SourceEvent
 	Receipts         []CommandReceipt
 	Events           []Event
 	Projection       SessionState
+}
+
+type ArtifactFile struct {
+	ID          string
+	SessionID   string
+	Filename    string
+	Bytes       int64
+	ContentType string
+	MinioKey    string
+	CreatedAt   time.Time
 }
 
 type AppendResult struct {

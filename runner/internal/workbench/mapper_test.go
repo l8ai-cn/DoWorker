@@ -127,6 +127,7 @@ func TestSessionInitializedPublishesCapabilitiesAndCurrentConfiguration(t *testi
 
 	batch := mapper.SessionInitialized(acp.Configuration{
 		Model:                    "gpt-5.4",
+		SupportedModels:          []string{"gpt-5.4", "gpt-5.3-codex"},
 		PermissionMode:           "ask_dangerous",
 		SupportedPermissionModes: []string{"ask_dangerous", "bypass"},
 		SupportedArtifactActions: []string{"image.edit", "presentation.export"},
@@ -135,9 +136,10 @@ func TestSessionInitializedPublishesCapabilitiesAndCurrentConfiguration(t *testi
 	require.Len(t, batch.GetMutations(), 2)
 	capabilities := batch.GetMutations()[0].GetCapabilities()
 	require.Equal(t, "2", capabilities.GetProtocolVersion())
+	require.Equal(t, []string{"gpt-5.4", "gpt-5.3-codex"}, capabilities.GetModels())
 	require.Equal(t, []string{"ask_dangerous", "bypass"}, capabilities.GetPermissionModes())
 	require.Equal(t,
-		[]string{"image.edit", "presentation.export"},
+		[]string{"artifact.download", "image.edit", "presentation.export"},
 		capabilities.GetArtifactOperations())
 	configuration := batch.GetMutations()[1].GetConfiguration()
 	require.Equal(t, "gpt-5.4", configuration.GetModel())

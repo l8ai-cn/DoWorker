@@ -101,8 +101,9 @@ func (c *ACPClient) SetModel(model string) error {
 	if err != nil {
 		return err
 	}
+	merged := c.applyConfiguration(ConfigUpdate{Model: model})
 	if c.cfg.Callbacks.OnConfigChange != nil {
-		c.cfg.Callbacks.OnConfigChange(c.SessionID(), ConfigUpdate{Model: model})
+		c.cfg.Callbacks.OnConfigChange(c.SessionID(), configDelta(merged))
 	}
 	return nil
 }

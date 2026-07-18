@@ -25,6 +25,7 @@ export default function WorkspacePage() {
   const addPane = useWorkspaceStore((s) => s.addPane);
   const openDeepLinkedPane = useWorkspaceStore((s) => s.openDeepLinkedPane);
   const _hasHydrated = useWorkspaceStore((s) => s._hasHydrated);
+  const fetchPod = usePodStore((s) => s.fetchPod);
   // KB detail page "Ingest" entry (?ingest_kb=slug): the KB page seeds the
   // pod-creation store with the rw mount before navigating; here we only
   // open the create modal pre-filled with the llm-wiki maintenance prompt.
@@ -82,6 +83,9 @@ export default function WorkspacePage() {
     if (podKey && podKey !== processedPodRef.current) {
       processedPodRef.current = podKey;
       openDeepLinkedPane(podKey);
+      void fetchPod(podKey).catch(() => {
+        toast.error(t("common.error"));
+      });
       toast.info(t("workspace.podOpened"), {
         description: `Pod: ${getShortPodKey(podKey)}`,
       });
@@ -90,7 +94,7 @@ export default function WorkspacePage() {
     if (searchParams.get("ingest_kb")) {
       router.replace(window.location.pathname);
     }
-  }, [_hasHydrated, searchParams, router, t, openDeepLinkedPane]);
+  }, [_hasHydrated, fetchPod, searchParams, router, t, openDeepLinkedPane]);
 
   if (!_hasHydrated) {
     return <CenteredSpinner />;

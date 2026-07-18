@@ -118,6 +118,20 @@ func normalizeContentType(ct, filename string) string {
 		return "image/webp"
 	case ".pdf":
 		return "application/pdf"
+	case ".docx":
+		return "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+	case ".json":
+		return "application/json"
+	case ".md", ".markdown":
+		return "text/markdown"
+	case ".csv":
+		return "text/csv"
+	case ".xml":
+		return "application/xml"
+	case ".txt", ".log", ".go", ".rs", ".ts", ".tsx", ".js", ".jsx",
+		".py", ".java", ".c", ".cpp", ".h", ".hpp", ".sh", ".yaml",
+		".yml", ".toml", ".sql":
+		return "text/plain"
 	default:
 		if ct == "" {
 			return "application/octet-stream"

@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useRef, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDrag } from "@use-gesture/react";
 import { cn } from "@/lib/utils";
 import { useWorkspaceStore } from "@/stores/workspace";
-import { usePodTitle } from "@/hooks/usePodTitle";
 import { useTerminalInput } from "@/hooks/useTerminalInput";
-import { TerminalPane } from "./TerminalPane";
-import { Terminal as TerminalIcon, Plus, ChevronLeft, ChevronRight, Scaling } from "lucide-react";
+import { Terminal as TerminalIcon, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { MobileWorkspacePane } from "./MobileWorkspacePane";
+import { TerminalSwiperHeader } from "./TerminalSwiperHeader";
 
 interface TerminalSwiperProps {
   onAddNew?: () => void;
@@ -16,7 +16,6 @@ interface TerminalSwiperProps {
 }
 
 export function TerminalSwiper({ onAddNew, className }: TerminalSwiperProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
   const panes = useWorkspaceStore((s) => s.panes);
   const mobileActiveIndex = useWorkspaceStore((s) => s.mobileActiveIndex);
   const setMobileActiveIndex = useWorkspaceStore((s) => s.setMobileActiveIndex);
@@ -120,9 +119,9 @@ export function TerminalSwiper({ onAddNew, className }: TerminalSwiperProps) {
 
   return (
     <div className={cn("flex flex-col h-full", className)}>
-      <SwiperHeader
+      <TerminalSwiperHeader
+        activeIndex={mobileActiveIndex}
         podKey={currentPane?.podKey}
-        mobileActiveIndex={mobileActiveIndex}
         paneCount={panes.length}
         onPrev={goToPrev}
         onNext={goToNext}
@@ -130,7 +129,11 @@ export function TerminalSwiper({ onAddNew, className }: TerminalSwiperProps) {
       />
 
       {panes.length > 1 && (
-        <div className="flex items-center justify-center gap-1.5 py-2 bg-terminal-bg-secondary">
+        <div
+          {...bind()}
+          className="flex items-center justify-center gap-1.5 py-2 bg-terminal-bg-secondary"
+          style={{ touchAction: "pan-y" }}
+        >
           {panes.map((pane, index) => (
             <button
               key={pane.id}
@@ -147,93 +150,22 @@ export function TerminalSwiper({ onAddNew, className }: TerminalSwiperProps) {
       )}
 
       <div
-        ref={containerRef}
-        {...bind()}
         className="flex-1 overflow-hidden"
         style={{
           transform: isDragging ? `translateX(${translateX}px)` : "none",
           transition: isDragging ? "none" : "transform 0.2s ease-out",
-          touchAction: "pan-y", // Allow vertical scrolling, capture horizontal for swipe
         }}
       >
         {currentPane && (
-          <TerminalPane
+          <MobileWorkspacePane
             paneId={currentPane.id}
             podKey={currentPane.podKey}
-            isActive={true}
             onClose={() => removePane(currentPane.id)}
-            showHeader={false}
-            className="h-full rounded-none border-0"
           />
         )}
       </div>
     </div>
   );
-}
-
-function SwiperHeader({
-  podKey,
-  mobileActiveIndex,
-  paneCount,
-  onPrev,
-  onNext,
-  onSyncSize,
-}: {
-  podKey?: string;
-  mobileActiveIndex: number;
-  paneCount: number;
-  onPrev: () => void;
-  onNext: () => void;
-  onSyncSize: () => void;
-}) {
-  return (
-    <div className="h-10 flex items-center justify-between px-3 bg-terminal-bg-secondary border-b border-terminal-border">
-      <Button
-        variant="ghost"
-        size="sm"
-        className="h-7 w-7 p-0 text-terminal-text-muted"
-        onClick={onPrev}
-        disabled={mobileActiveIndex === 0}
-      >
-        <ChevronLeft className="w-4 h-4" />
-      </Button>
-
-      <div className="flex items-center gap-2">
-        <span className="text-sm text-terminal-text font-medium">
-          {podKey ? <SwiperPaneTitle podKey={podKey} /> : "Terminal"}
-        </span>
-        <span className="text-xs text-terminal-text-muted">
-          {mobileActiveIndex + 1} / {paneCount}
-        </span>
-      </div>
-
-      <div className="flex items-center gap-1">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-7 w-7 p-0 text-terminal-text-muted"
-          onClick={onSyncSize}
-          title="Sync terminal size"
-        >
-          <Scaling className="w-4 h-4" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-7 w-7 p-0 text-terminal-text-muted"
-          onClick={onNext}
-          disabled={mobileActiveIndex === paneCount - 1}
-        >
-          <ChevronRight className="w-4 h-4" />
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-function SwiperPaneTitle({ podKey }: { podKey: string }) {
-  const title = usePodTitle(podKey, "Terminal");
-  return <>{title}</>;
 }
 
 export default TerminalSwiper;

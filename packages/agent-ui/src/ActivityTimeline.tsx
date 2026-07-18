@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle2, Loader2 } from "lucide-react";
+import { AlertTriangle, CheckCircle2, FileText, Loader2 } from "lucide-react";
 
 import { useAgentWorkspaceText } from "./AgentWorkspaceLocaleContext";
 import { ArtifactCard } from "./ArtifactCard";
@@ -49,6 +49,8 @@ export function ActivityTimeline({
           />
         ) : item.kind === "message" ? (
           <MessageRow item={item} key={item.id} />
+        ) : item.kind === "attachment" ? (
+          <AttachmentRow item={item} key={item.id} />
         ) : item.kind === "artifact" ? (
           <ArtifactCard
             item={item}
@@ -62,6 +64,26 @@ export function ActivityTimeline({
         ),
       )}
     </div>
+  );
+}
+
+function AttachmentRow({
+  item,
+}: {
+  item: Extract<AgentTimelineItem, { kind: "attachment" }>;
+}) {
+  return (
+    <article className="ml-auto flex max-w-[85%] items-center gap-2 rounded-md border border-border bg-muted/40 px-3 py-2">
+      <FileText className="size-4 shrink-0 text-muted-foreground" />
+      <div className="min-w-0">
+        <div className="truncate text-sm font-medium">{item.filename}</div>
+        {item.mimeType && (
+          <div className="truncate text-xs text-muted-foreground">
+            {item.mimeType}
+          </div>
+        )}
+      </div>
+    </article>
   );
 }
 
@@ -96,7 +118,10 @@ function MessageRow({
 function ActivityRow({
   item,
 }: {
-  item: Exclude<AgentTimelineItem, { kind: "artifact" | "message" }>;
+  item: Exclude<
+    AgentTimelineItem,
+    { kind: "artifact" | "attachment" | "message" }
+  >;
 }) {
   const text = useAgentWorkspaceText();
   const Icon =

@@ -23,6 +23,9 @@ type transport struct {
 	workDir   string
 	turnID    string
 	turnMu    sync.RWMutex
+	modelMu   sync.RWMutex
+	models    []string
+	model     string
 
 	streamMu            sync.Mutex
 	streamedAgentMsgIDs map[string]struct{}
@@ -94,8 +97,11 @@ func (t *transport) Handshake(_ context.Context) (string, error) {
 	if err := t.tracker.Writer.WriteNotification("initialized", nil); err != nil {
 		return "", fmt.Errorf("write initialized: %w", err)
 	}
+	if err := t.loadModels(); err != nil {
+		return "", err
+	}
 
-	t.logger.Info("Codex initialize succeeded")
+	t.logger.Info("Codex initialize succeeded", "models", len(t.SupportedModels()))
 	return "", nil
 }
 
@@ -103,13 +109,14 @@ func (t *transport) SendPrompt(sessionID, prompt string) error {
 	if sessionID == "" {
 		return fmt.Errorf("thread id required")
 	}
-	params := mergeHeadlessFields(map[string]any{
+	params := map[string]any{
 		"threadId": sessionID,
 		"input": []turnInput{{
 			Type: "text",
 			Text: prompt,
 		}},
-	}, t.workDir)
+	}
+	params = mergeHeadlessFields(params, t.workDir)
 
 	pr, err := t.tracker.SendRequest("turn/start", params)
 	if err != nil {
@@ -129,8 +136,16 @@ func (t *transport) SendPrompt(sessionID, prompt string) error {
 	return nil
 }
 
-func (t *transport) SendControlRequest(_ string, _ string, _ map[string]any) (map[string]any, error) {
-	return nil, acp.ErrControlNotSupported
+func (t *transport) SendControlRequest(sessionID string, subtype string, payload map[string]any) (map[string]any, error) {
+	if subtype != "set_model" {
+		return nil, acp.ErrControlNotSupported
+	}
+	model, _ := payload["model"].(string)
+	if err := t.updateThreadModel(sessionID, model); err != nil {
+		return nil, err
+	}
+	t.logger.Info("Codex model selected", "model", model)
+	return map[string]any{"model": model}, nil
 }
 
 func (t *transport) SupportedPermissionModes() []string { return nil }

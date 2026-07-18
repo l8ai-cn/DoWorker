@@ -7,6 +7,10 @@ export function artifactActionAllowed(
 ): boolean {
   return item.grants.some((grant) => {
     if (!grant.actions.includes(actionType)) return false;
+    if (grant.expiresAt) {
+      const expiresAt = Date.parse(grant.expiresAt);
+      if (!Number.isFinite(expiresAt) || expiresAt <= Date.now()) return false;
+    }
     if (
       grant.representationIds.length > 0 &&
       (!representationId || !grant.representationIds.includes(representationId))

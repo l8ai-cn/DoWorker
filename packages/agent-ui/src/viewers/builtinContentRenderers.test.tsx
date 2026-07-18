@@ -61,7 +61,11 @@ function videoProps(): AgentContentRendererProps {
       actions: [],
       artifactId: "video-1",
       filename: "demo.mp4",
-      grants: [],
+      grants: [{
+        actions: ["artifact.download"],
+        grantId: "grant-download",
+        representationIds: [],
+      }],
       id: "artifact-video-1",
       kind: "artifact",
       manifest: null,

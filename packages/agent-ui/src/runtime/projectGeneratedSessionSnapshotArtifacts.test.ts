@@ -189,4 +189,40 @@ describe("generated artifact projection", () => {
       detail: expect.stringContaining("revision=2"),
     });
   });
+
+  it("keeps the source identity when selecting a generated preview", () => {
+    const descriptor = create(ArtifactDescriptorSchema, {
+      artifactId: "office-report",
+      revision: 1n,
+      filename: "report.docx",
+      mediaType:
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      status: ArtifactStatus.READY,
+      representations: [
+        {
+          representationId: "original",
+          revision: 1n,
+          mediaType:
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          role: "source",
+          filename: "report.docx",
+          status: ArtifactStatus.READY,
+        },
+        {
+          representationId: "preview-pdf",
+          revision: 1n,
+          mediaType: "application/pdf",
+          role: "preview",
+          filename: "report.pdf",
+          status: ArtifactStatus.READY,
+        },
+      ],
+    });
+
+    expect(projectArtifactDescriptor(descriptor, "artifact-item")).toMatchObject({
+      filename: "report.docx",
+      mimeType: "application/pdf",
+      selectedRepresentationId: "preview-pdf",
+    });
+  });
 });

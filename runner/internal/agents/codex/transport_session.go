@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
+
+	"github.com/anthropics/agentsmesh/runner/internal/acp"
 )
 
 func headlessAutomationFields(cwd string) map[string]any {
@@ -52,10 +54,9 @@ func (t *transport) NewSession(cwd string, mcpServers map[string]any) (string, e
 	if err := json.Unmarshal(resp.Result, &result); err != nil {
 		return "", fmt.Errorf("parse thread/start result: %w", err)
 	}
-
-	t.sessionMu.Lock()
-	t.sessionID = result.Thread.ID
-	t.sessionMu.Unlock()
+	if err := t.activateSession(result.Thread.ID, result.Model); err != nil {
+		return "", fmt.Errorf("activate thread/start result: %w", err)
+	}
 
 	return result.Thread.ID, nil
 }
@@ -88,8 +89,24 @@ func (t *transport) ResumeSession(cwd string, mcpServers map[string]any, externa
 	if result.Thread.ID == "" {
 		result.Thread.ID = externalSessionID
 	}
-	t.sessionMu.Lock()
-	t.sessionID = result.Thread.ID
-	t.sessionMu.Unlock()
+	if err := t.activateSession(result.Thread.ID, result.Model); err != nil {
+		return "", fmt.Errorf("activate thread/resume result: %w", err)
+	}
 	return result.Thread.ID, nil
+}
+
+func (t *transport) activateSession(sessionID, model string) error {
+	if sessionID == "" {
+		return fmt.Errorf("thread response missing id")
+	}
+	if err := t.setCurrentModel(model); err != nil {
+		return err
+	}
+	t.sessionMu.Lock()
+	t.sessionID = sessionID
+	t.sessionMu.Unlock()
+	if t.callbacks.OnConfigChange != nil {
+		t.callbacks.OnConfigChange(sessionID, acp.ConfigUpdate{Model: model})
+	}
+	return nil
 }

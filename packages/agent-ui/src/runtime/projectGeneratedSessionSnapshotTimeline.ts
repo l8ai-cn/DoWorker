@@ -55,7 +55,7 @@ export function projectTimeline(
           status: projectMessageStatus(content.value.status),
         });
       }
-      projection.items.push(...blocks.artifacts, ...blocks.evidence);
+      projection.items.push(...blocks.attachments, ...blocks.artifacts, ...blocks.evidence);
       return;
     }
     if (content.case === "reasoning") {
@@ -67,7 +67,7 @@ export function projectTimeline(
         detail: blocks.text.join("\n\n") || undefined,
         status: projectActivityStatus(content.value.status),
       });
-      projection.items.push(...blocks.artifacts, ...blocks.evidence);
+      projection.items.push(...blocks.attachments, ...blocks.artifacts, ...blocks.evidence);
       return;
     }
     if (content.case === "toolExecution") {
@@ -137,7 +137,7 @@ export function projectTimeline(
         detail: blocks.text.join("\n\n") || undefined,
         status: "completed",
       });
-      projection.items.push(...blocks.artifacts, ...blocks.evidence);
+      projection.items.push(...blocks.attachments, ...blocks.artifacts, ...blocks.evidence);
       return;
     }
     projection.items.push(

@@ -9,6 +9,7 @@ import (
 	poddomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	sessiondomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
 	domainworkbench "github.com/anthropics/agentsmesh/backend/internal/domain/agentworkbench"
+	sessionfile "github.com/anthropics/agentsmesh/backend/internal/service/sessionfile"
 	sessionmessagesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionmessage"
 	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
 )
@@ -30,13 +31,31 @@ type ACPCommandSender interface {
 	SendAcpRelay(context.Context, int64, string, string) error
 }
 
+type AttachmentDelivery interface {
+	Stage(context.Context, sessionfile.AttachmentSandbox, *poddomain.Pod, string, []string) ([]string, error)
+}
+
 type CommandDispatcher struct {
-	repository domainworkbench.Repository
-	pods       CommandPodLookup
-	outbox     PromptOutbox
-	acp        ACPCommandSender
-	publisher  DeltaPublisher
-	now        func() time.Time
+	repository  domainworkbench.Repository
+	pods        CommandPodLookup
+	outbox      PromptOutbox
+	acp         ACPCommandSender
+	publisher   DeltaPublisher
+	attachments AttachmentDelivery
+	sandbox     sessionfile.AttachmentSandbox
+	now         func() time.Time
+}
+
+type CommandDispatcherOption func(*CommandDispatcher)
+
+func WithAttachmentDelivery(
+	attachments AttachmentDelivery,
+	sandbox sessionfile.AttachmentSandbox,
+) CommandDispatcherOption {
+	return func(dispatcher *CommandDispatcher) {
+		dispatcher.attachments = attachments
+		dispatcher.sandbox = sandbox
+	}
 }
 
 func NewCommandDispatcher(
@@ -46,15 +65,20 @@ func NewCommandDispatcher(
 	acp ACPCommandSender,
 	publisher DeltaPublisher,
 	now func() time.Time,
+	options ...CommandDispatcherOption,
 ) (*CommandDispatcher, error) {
 	if repository == nil || pods == nil || outbox == nil ||
 		acp == nil || publisher == nil || now == nil {
 		return nil, ErrIngressConfiguration
 	}
-	return &CommandDispatcher{
+	dispatcher := &CommandDispatcher{
 		repository: repository, pods: pods, outbox: outbox,
 		acp: acp, publisher: publisher, now: now,
-	}, nil
+	}
+	for _, option := range options {
+		option(dispatcher)
+	}
+	return dispatcher, nil
 }
 
 func (dispatcher *CommandDispatcher) Execute(

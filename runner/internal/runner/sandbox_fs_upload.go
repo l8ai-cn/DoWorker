@@ -2,6 +2,8 @@ package runner
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"net/http"
@@ -64,6 +66,8 @@ func (h *RunnerMessageHandler) sandboxFsUploadWorkspace(
 	if err != nil {
 		return fsErrResult(err.Error()), nil
 	}
+	hasher := sha256.New()
+	request.Body = io.NopCloser(io.TeeReader(file, hasher))
 	request.ContentLength = info.Size()
 	request.Header.Set("Content-Type", contentType)
 	response, err := sandboxFsUploadClient.Do(request)
@@ -77,6 +81,7 @@ func (h *RunnerMessageHandler) sandboxFsUploadWorkspace(
 	}
 	return &runnerv1.SandboxFsResultEvent{
 		ContentType:   contentType,
+		ContentDigest: "sha256:" + hex.EncodeToString(hasher.Sum(nil)),
 		FileBytes:     info.Size(),
 		WorkspaceRoot: workspace.displayPath(),
 	}, nil

@@ -5,6 +5,7 @@ import WorkspacePage from "../page";
 
 const mockOpenDeepLinkedPane = vi.fn();
 const mockReplace = vi.fn();
+const mockFetchPod = vi.fn();
 let mockSearch = "pod=2-standalone-02467fd1";
 
 vi.mock("next/navigation", () => ({
@@ -36,7 +37,11 @@ vi.mock("@/stores/workspace", () => ({
 }));
 
 vi.mock("@/stores/pod", () => ({
-  usePodStore: { getState: () => ({ upsertPod: vi.fn() }) },
+  usePodStore: Object.assign(
+    (selector: (state: { fetchPod: typeof mockFetchPod }) => unknown) =>
+      selector({ fetchPod: mockFetchPod }),
+    { getState: () => ({ upsertPod: vi.fn() }) },
+  ),
 }));
 
 vi.mock("@/components/workspace", () => ({
@@ -56,6 +61,8 @@ describe("WorkspacePage", () => {
     mockSearch = "pod=2-standalone-02467fd1";
     mockOpenDeepLinkedPane.mockReset();
     mockReplace.mockReset();
+    mockFetchPod.mockReset();
+    mockFetchPod.mockResolvedValue(undefined);
   });
 
   it("keeps the pod query after opening a Worker from a direct link", async () => {
@@ -63,6 +70,7 @@ describe("WorkspacePage", () => {
 
     await waitFor(() => {
       expect(mockOpenDeepLinkedPane).toHaveBeenCalledWith("2-standalone-02467fd1");
+      expect(mockFetchPod).toHaveBeenCalledWith("2-standalone-02467fd1");
     });
 
     expect(mockReplace).not.toHaveBeenCalled();

@@ -354,6 +354,9 @@ func agentWorkbenchPostgresRepository(
 	require.NoError(t, db.Exec(
 		`CREATE TABLE agent_sessions (id VARCHAR(100) PRIMARY KEY)`,
 	).Error)
+	sessionFiles, err := migrations.FS.ReadFile("000172_session_files.up.sql")
+	require.NoError(t, err)
+	require.NoError(t, db.Exec(string(sessionFiles)).Error)
 	up, err := migrations.FS.ReadFile("000225_agent_workbench_stream.up.sql")
 	require.NoError(t, err)
 	require.NoError(t, db.Exec(string(up)).Error)

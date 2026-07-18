@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
   ArtifactDescriptorSchema,
+  ArtifactGrantSchema,
   ArtifactRepresentationSchema,
 } from "@do-worker/proto/agent_workbench/v2/artifact_pb";
 import { createAgentArtifactLoader } from "./createAgentArtifactLoader";
@@ -16,6 +17,13 @@ function descriptor(
 ) {
   return create(ArtifactDescriptorSchema, {
     artifactId: "artifact-1",
+    grants: [
+      create(ArtifactGrantSchema, {
+        actions: ["artifact.download"],
+        grantId: "grant-download",
+        representationIds: ["representation-1"],
+      }),
+    ],
     representations: [
       create(ArtifactRepresentationSchema, {
         mediaType: "video/mp4",
@@ -74,5 +82,54 @@ describe("createAgentArtifactLoader", () => {
       representationId: "missing",
       sessionId: "session-1",
     })).rejects.toThrow("artifact_representation_missing");
+  });
+
+  it("rejects transport reads without an artifact download grant", async () => {
+    const artifact = descriptor({
+      case: "resourceId",
+      value: "session-file:file_12345678",
+    });
+    artifact.grants = [];
+    const loadResource = vi.fn();
+    const loader = createAgentArtifactLoader({
+      getArtifacts: () => [artifact],
+      loadDownload: vi.fn(),
+      loadResource,
+    });
+
+    await expect(loader({
+      artifactId: "artifact-1",
+      representationId: "representation-1",
+      sessionId: "session-1",
+    })).rejects.toThrow("artifact_download_not_authorized");
+    expect(loadResource).not.toHaveBeenCalled();
+  });
+
+  it("rejects invalid or expired artifact grants", async () => {
+    const artifact = descriptor({
+      case: "resourceId",
+      value: "session-file:file_12345678",
+    });
+    const loadResource = vi.fn();
+    const loader = createAgentArtifactLoader({
+      getArtifacts: () => [artifact],
+      loadDownload: vi.fn(),
+      loadResource,
+    });
+
+    artifact.grants[0].expiresAt = "invalid";
+    await expect(loader({
+      artifactId: "artifact-1",
+      representationId: "representation-1",
+      sessionId: "session-1",
+    })).rejects.toThrow("artifact_download_not_authorized");
+
+    artifact.grants[0].expiresAt = "2026-07-18T00:00:00Z";
+    await expect(loader({
+      artifactId: "artifact-1",
+      representationId: "representation-1",
+      sessionId: "session-1",
+    })).rejects.toThrow("artifact_download_not_authorized");
+    expect(loadResource).not.toHaveBeenCalled();
   });
 });

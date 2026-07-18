@@ -47,6 +47,7 @@ func (o *ArtifactObserver) PublishedArtifact(
 		artifact: artifact,
 		revision: artifact.revision,
 	}
+	o.pendingState = o.snapshotState()
 	return descriptor, nil
 }
 

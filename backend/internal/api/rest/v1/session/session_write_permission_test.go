@@ -59,6 +59,27 @@ func TestReadOnlySessionPermissionCannotWriteFilesystem(t *testing.T) {
 	assert.Equal(t, http.StatusForbidden, response.Code)
 }
 
+func TestReadOnlySessionPermissionCannotUploadAttachment(t *testing.T) {
+	deps := readOnlySessionPermissionDeps(t)
+	response := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(response)
+	ctx.Request = httptest.NewRequest(
+		http.MethodPost,
+		"/v1/sessions/conv_read/resources/files",
+		nil,
+	)
+	ctx.Params = gin.Params{{Key: "id", Value: "conv_read"}}
+	ctx.Set("tenant", &middleware.TenantContext{
+		OrganizationID: 21,
+		UserID:         12,
+	})
+
+	deps.handleUploadSessionFile(ctx)
+	ctx.Writer.WriteHeaderNow()
+
+	assert.Equal(t, http.StatusForbidden, response.Code)
+}
+
 func TestSessionFilesystemWriteRejectsOversizedBody(t *testing.T) {
 	deps := ownerSessionPermissionDeps(t)
 	body := `{"content":"` + strings.Repeat("a", int(maxSessionFilesystemWriteBodyBytes)+1) +

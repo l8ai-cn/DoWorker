@@ -19,6 +19,7 @@ export interface AgentArtifactTransportResources {
 
 export interface AgentArtifactTransportContext
   extends AgentArtifactLoadRequest {
+  descriptor: ArtifactDescriptor;
   representation: ArtifactRepresentation;
 }
 
@@ -39,13 +40,47 @@ export function createAgentArtifactLoader(
     if (!representation) {
       throw new Error("artifact_representation_missing");
     }
+    if (!downloadGranted(descriptor, representationId)) {
+      throw new Error("artifact_download_not_authorized");
+    }
     return loadArtifactRepresentation(resources, {
       artifactId,
+      descriptor,
       representation,
       representationId,
       sessionId,
     });
   };
+}
+
+function downloadGranted(
+  descriptor: ArtifactDescriptor,
+  representationId: string,
+): boolean {
+  return descriptor.grants.some((grant) => {
+    if (!grant.actions.includes("artifact.download")) return false;
+    if (
+      grant.representationIds.length > 0 &&
+      !grant.representationIds.includes(representationId)
+    ) {
+      return false;
+    }
+    if (
+      grant.minimumRevision !== undefined &&
+      descriptor.revision < grant.minimumRevision
+    ) {
+      return false;
+    }
+    if (
+      grant.maximumRevision !== undefined &&
+      descriptor.revision > grant.maximumRevision
+    ) {
+      return false;
+    }
+    if (!grant.expiresAt) return true;
+    const expiresAt = Date.parse(grant.expiresAt);
+    return Number.isFinite(expiresAt) && expiresAt > Date.now();
+  });
 }
 
 async function loadArtifactRepresentation(

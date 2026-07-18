@@ -1,10 +1,11 @@
-export const STATIC_HTML_SANDBOX = "";
+export const STATIC_HTML_SANDBOX = "allow-scripts";
 export const STATIC_HTML_REFERRER_POLICY = "no-referrer";
 export const STATIC_HTML_CSP = [
   "default-src 'none'",
   "img-src data: blob:",
   "media-src data: blob:",
   "style-src 'unsafe-inline'",
+  "script-src 'unsafe-inline'",
   "font-src data:",
   "connect-src 'none'",
   "frame-src 'none'",

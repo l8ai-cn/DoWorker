@@ -1,6 +1,7 @@
 import { PermissionDecision } from "@do-worker/proto/agent_workbench/v2/command_pb";
 
 import type {
+  AgentAttachmentReference,
   AgentArtifactActionCommand,
   AgentPermissionResolution,
 } from "../contracts";
@@ -8,12 +9,38 @@ import type { CreateAgentCommandEnvelopeInput } from "./createAgentCommandEnvelo
 
 type CommandPayload = CreateAgentCommandEnvelopeInput["command"];
 
-export function sendPromptPayload(text: string): CommandPayload {
+export function sendPromptPayload(
+  text: string,
+  attachments: AgentAttachmentReference[] = [],
+): CommandPayload {
   const normalized = text.trim();
-  if (!normalized) throw new Error("agent_workbench_prompt_missing");
+  if (!normalized && attachments.length === 0) {
+    throw new Error("agent_workbench_prompt_missing");
+  }
   return {
     case: "sendPrompt",
-    value: { text: normalized, attachments: [] },
+    value: {
+      text: normalized,
+      attachments: attachments.map((attachment) => ({
+        contentId: attachment.id,
+        identity: {
+          namespace: "agentsmesh.session-file",
+          semanticKey: "attachment",
+          schemaVersion: "1",
+        },
+        content: {
+          case: "file",
+          value: {
+            artifactId: attachment.id,
+            representationId: "source",
+            revision: BigInt(1),
+            mediaType: attachment.mediaType,
+            role: "input",
+            filename: attachment.name,
+          },
+        },
+      })),
+    },
   };
 }
 

@@ -3,13 +3,9 @@ import {
   type AgentArtifactLoadRequest,
 } from "@do-worker/agent-ui";
 
-import { loadSessionWorkspaceArtifactById } from "@/lib/api/sessionWorkspaceArtifactApi";
-import {
-  decodeWebAgentWorkbenchSnapshot,
-} from "./webAgentWorkbenchProjection";
-import type {
-  WebAgentWorkbenchState,
-} from "./webAgentWorkbenchRuntimeTypes";
+import { loadSessionArtifactRepresentation } from "@/lib/api/sessionWorkspaceArtifactApi";
+import { decodeWebAgentWorkbenchSnapshot } from "./webAgentWorkbenchProjection";
+import type { WebAgentWorkbenchState } from "./webAgentWorkbenchRuntimeTypes";
 
 export function createWebAgentWorkbenchArtifactLoader(
   state: WebAgentWorkbenchState,
@@ -17,10 +13,8 @@ export function createWebAgentWorkbenchArtifactLoader(
 ): (request: AgentArtifactLoadRequest) => Promise<Blob> {
   return createAgentArtifactLoader({
     getArtifacts: (sessionId) =>
-      decodeWebAgentWorkbenchSnapshot(
-        state.snapshotBytes(sessionId),
-        sessionId,
-      )?.artifacts ?? [],
+      decodeWebAgentWorkbenchSnapshot(state.snapshotBytes(sessionId), sessionId)
+        ?.artifacts ?? [],
     loadDownload: async (url) => {
       const response = await fetcher(url, {
         cache: "no-store",
@@ -31,14 +25,14 @@ export function createWebAgentWorkbenchArtifactLoader(
       }
       return response.blob();
     },
-    loadResource: (resourceId, context) => {
-      if (!resourceId.startsWith("workspace:")) {
-        throw new Error(`artifact_resource_unsupported:${resourceId}`);
-      }
-      return loadSessionWorkspaceArtifactById(
-        context.sessionId,
-        resourceId.slice("workspace:".length),
-      );
-    },
+    loadResource: (resourceId, context) =>
+      loadSessionArtifactRepresentation({
+        artifactId: context.artifactId,
+        digest: context.representation.digest ?? "",
+        representationId: context.representationId ?? "",
+        resourceId,
+        revision: context.descriptor.revision,
+        sessionId: context.sessionId,
+      }),
   });
 }

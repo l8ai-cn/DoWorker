@@ -13,9 +13,17 @@ func validateArtifactTransition(
 		if current.GetArtifactId() != next.GetArtifactId() {
 			continue
 		}
+		if !sameArtifactProducer(current.GetProvenance(), next.GetProvenance()) {
+			return ErrInvalidBatch
+		}
+		if next.GetRevision() == current.GetRevision() {
+			if !sameRevisionArtifactEnrichment(current, next) {
+				return ErrInvalidBatch
+			}
+			return nil
+		}
 		if current.GetRevision() == ^uint64(0) ||
-			next.GetRevision() != current.GetRevision()+1 ||
-			!sameArtifactProducer(current.GetProvenance(), next.GetProvenance()) {
+			next.GetRevision() != current.GetRevision()+1 {
 			return ErrInvalidBatch
 		}
 		return nil

@@ -44,6 +44,8 @@ grep -q "runner-codex-cli" docker-compose.runners.yml
 grep -q "runner-cursor-cli" docker-compose.runners.yml
 grep -q "docker/agent-runtime/Dockerfile" docker-compose.runners.yml
 grep -q "COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICES" lib/host_services.sh
+grep -A15 "start_marketplace_host_lite()" lib/host_services_lite.sh \
+  | grep -q 'export INTERNAL_API_SECRET='
 grep -q "case \"\${AGENT_RUNTIME}\"" runner-entrypoint.sh
 grep -q "default_agent: \"\${DEFAULT_AGENT}\"" runner-entrypoint.sh
 grep -q "init_runner_ssh" runner-entrypoint.sh

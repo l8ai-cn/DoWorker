@@ -6,6 +6,7 @@ import {
 } from "react";
 
 import { ComposerCapabilityBar } from "./ComposerCapabilityBar";
+import { ComposerAttachments } from "./ComposerAttachments";
 import { useAgentWorkspaceText } from "./AgentWorkspaceLocaleContext";
 import {
   commandQuery,
@@ -13,6 +14,7 @@ import {
   parseAgentCommand,
 } from "./ComposerCommandMenu";
 import type {
+  AgentAttachmentReference,
   AgentSessionRuntime,
   AgentSessionSnapshot,
 } from "./contracts";
@@ -27,6 +29,7 @@ export function ConversationComposer({
   snapshot: AgentSessionSnapshot;
 }) {
   const [value, setValue] = useState("");
+  const [attachments, setAttachments] = useState<AgentAttachmentReference[]>([]);
   const [sending, setSending] = useState(false);
   const text = useAgentWorkspaceText();
   const hasActiveTool = snapshot.items.some(
@@ -38,16 +41,21 @@ export function ConversationComposer({
     snapshot.status === "running" ||
     snapshot.status === "waiting" ||
     hasActiveTool;
-  const hasDraft = value.trim().length > 0;
+  const hasDraft = value.trim().length > 0 || attachments.length > 0;
   const showInterrupt = isRunning && snapshot.capabilities.interrupt;
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     const message = value.trim();
-    if (!message || sending || isRunning || !snapshot.capabilities.sendMessage) return;
+    if ((!message && attachments.length === 0) || sending || isRunning ||
+      !snapshot.capabilities.sendMessage) return;
     const parsedCommand = parseAgentCommand(message, snapshot.commands ?? []);
     if (parsedCommand?.command.requiresArgument && !parsedCommand.arguments) {
       onError(new Error(text.requiresArgument(parsedCommand.command.label)));
+      return;
+    }
+    if (parsedCommand && attachments.length > 0) {
+      onError(new Error(text.slashCommandAttachmentsUnsupported));
       return;
     }
     setSending(true);
@@ -64,9 +72,11 @@ export function ConversationComposer({
       } else {
         await runtime.sendMessage(snapshot.sessionId, crypto.randomUUID(), {
           text: message,
+          ...(attachments.length > 0 ? { attachments } : {}),
         });
       }
       setValue("");
+      setAttachments([]);
     } catch (cause) {
       onError(cause);
     } finally {
@@ -111,11 +121,21 @@ export function ConversationComposer({
           value={value}
         />
         <div className="flex min-h-11 items-end justify-between gap-2 px-2 pb-2">
-          <ComposerCapabilityBar
-            onError={onError}
-            runtime={runtime}
-            snapshot={snapshot}
-          />
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <ComposerAttachments
+              attachments={attachments}
+              disabled={sending || isRunning || !snapshot.capabilities.sendMessage}
+              onChange={setAttachments}
+              onError={onError}
+              runtime={runtime}
+              sessionId={snapshot.sessionId}
+            />
+            <ComposerCapabilityBar
+              onError={onError}
+              runtime={runtime}
+              snapshot={snapshot}
+            />
+          </div>
           {showInterrupt ? (
             <button
               aria-label={text.stopAgent}

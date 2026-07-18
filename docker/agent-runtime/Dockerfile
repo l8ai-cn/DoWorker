@@ -25,7 +25,7 @@ ENV HTTP_PROXY=${HTTP_PROXY} \
 RUN printf 'Acquire::http::Proxy "false";\nAcquire::https::Proxy "false";\n' \
       > /etc/apt/apt.conf.d/99noproxy \
     && set -ux; \
-    packages="git=1:2.39.5-0+deb12u3 openssh-client=1:9.2p1-2+deb12u10 sudo=1.9.13p3-1+deb12u4 ca-certificates=20230311+deb12u1 curl=7.88.1-10+deb12u15 wget=1.21.3-1+deb12u1 openssl=3.0.20-1~deb12u2"; \
+    packages="git=1:2.39.5-0+deb12u3 openssh-client=1:9.2p1-2+deb12u10 sudo=1.9.13p3-1+deb12u4 ca-certificates=20230311+deb12u1 curl=7.88.1-10+deb12u15 wget=1.21.3-1+deb12u1 openssl=3.0.20-1~deb12u2 libreoffice-core libreoffice-writer libreoffice-calc libreoffice-impress fonts-liberation fonts-noto-cjk"; \
     ok=0; \
     for attempt in 1 2 3 4 5 6 7 8; do \
       if apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends $packages; then \

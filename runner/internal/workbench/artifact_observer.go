@@ -28,6 +28,7 @@ type ArtifactObserver struct {
 	declaredBaseline map[string]declaredArtifact
 	declaredEmitted  map[string]emittedDeclaredArtifact
 	reservedPaths    map[string]struct{}
+	pendingState     *artifactObserverState
 }
 
 func NewArtifactObserver(root string) (*ArtifactObserver, error) {
@@ -50,17 +51,34 @@ func NewArtifactObserver(root string) (*ArtifactObserver, error) {
 	if err != nil {
 		return nil, fmt.Errorf("scan artifact baseline: %w", err)
 	}
-	return &ArtifactObserver{
+	observer := &ArtifactObserver{
 		root:             absolute,
-		baseline:         baseline,
+		baseline:         make(map[string]artifactFile),
 		emitted:          make(map[string]emittedArtifact),
-		declaredBaseline: declaredBaseline,
+		declaredBaseline: make(map[string]declaredArtifact),
 		declaredEmitted:  make(map[string]emittedDeclaredArtifact),
 		reservedPaths:    reservedPaths,
-	}, nil
+	}
+	state, exists, err := loadArtifactObserverState(absolute)
+	if err != nil {
+		return nil, fmt.Errorf("load artifact observer state: %w", err)
+	}
+	if exists {
+		observer.restoreState(state)
+		return observer, nil
+	}
+	observer.baseline = baseline
+	observer.declaredBaseline = declaredBaseline
+	if err := writeArtifactObserverState(absolute, observer.snapshotState()); err != nil {
+		return nil, fmt.Errorf("initialize artifact observer state: %w", err)
+	}
+	return observer, nil
 }
 
 func (o *ArtifactObserver) Scan() ([]*ArtifactDescriptor, error) {
+	if err := o.commitPendingState(); err != nil {
+		return nil, fmt.Errorf("commit artifact observer state: %w", err)
+	}
 	declared, reservedPaths, err := scanArtifactDeclarations(o.root)
 	if err != nil {
 		return nil, fmt.Errorf("scan workspace artifact declarations: %w", err)
@@ -109,6 +127,7 @@ func (o *ArtifactObserver) Scan() ([]*ArtifactDescriptor, error) {
 		previous.deleted = true
 		o.emitted[path] = previous
 	}
+	o.pendingState = o.snapshotState()
 	return descriptors, nil
 }
 

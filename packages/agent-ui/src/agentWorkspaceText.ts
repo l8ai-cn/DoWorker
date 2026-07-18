@@ -48,6 +48,9 @@ export interface AgentWorkspaceText {
   readOnly: string;
   stopAgent: string;
   sendMessage: string;
+  addAttachment: string;
+  removeAttachment: string;
+  uploadingAttachment: string;
   reject: string;
   approve: string;
   submitAnswers: string;
@@ -59,6 +62,7 @@ export interface AgentWorkspaceText {
   emptyHeading(agentLabel: string): string;
   composerPlaceholder(agentLabel: string): string;
   requiresArgument(commandLabel: string): string;
+  slashCommandAttachmentsUnsupported: string;
   customAnswerFor(prompt: string): string;
   configurationOptions(label: string): string;
   configurationLabel(id: string, fallback: string): string;
@@ -103,6 +107,9 @@ const enUS: AgentWorkspaceText = {
   readOnly: "This session is read-only",
   stopAgent: "Stop agent",
   sendMessage: "Send message",
+  addAttachment: "Add attachment",
+  removeAttachment: "Remove attachment",
+  uploadingAttachment: "Uploading attachment",
   reject: "Reject",
   approve: "Approve",
   submitAnswers: "Submit answers",
@@ -114,6 +121,8 @@ const enUS: AgentWorkspaceText = {
   emptyHeading: (agentLabel) => `${agentLabel}, what should we work on?`,
   composerPlaceholder: (agentLabel) => `Ask ${agentLabel} to work on a task…`,
   requiresArgument: (commandLabel) => `${commandLabel} requires an argument`,
+  slashCommandAttachmentsUnsupported:
+    "Slash commands cannot include attachments. Remove the attachments or send a regular message.",
   customAnswerFor: (prompt) => `Custom answer for ${prompt}`,
   configurationOptions: (label) => `${label} options`,
   configurationLabel: englishConfigurationLabel,
@@ -147,6 +156,9 @@ const zhCN: AgentWorkspaceText = {
   readOnly: "此会话为只读状态",
   stopAgent: "停止智能体",
   sendMessage: "发送消息",
+  addAttachment: "添加附件",
+  removeAttachment: "移除附件",
+  uploadingAttachment: "正在上传附件",
   reject: "拒绝",
   approve: "批准",
   submitAnswers: "提交回答",
@@ -158,6 +170,8 @@ const zhCN: AgentWorkspaceText = {
   emptyHeading: (agentLabel) => `${agentLabel}，我能为你做什么？`,
   composerPlaceholder: (agentLabel) => `让 ${agentLabel} 帮你完成任务…`,
   requiresArgument: (commandLabel) => `${commandLabel} 需要填写参数`,
+  slashCommandAttachmentsUnsupported:
+    "斜杠命令不能携带附件。请移除附件，或改为发送普通消息。",
   customAnswerFor: (prompt) => `${prompt}的自定义回答`,
   configurationOptions: (label) => `${label}选项`,
   configurationLabel: localizeConfigurationLabel,

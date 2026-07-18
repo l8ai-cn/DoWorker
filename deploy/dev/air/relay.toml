@@ -4,7 +4,7 @@ root = "."
 tmp_dir = "deploy/dev/runtime/relay/air"
 
 [build]
-cmd = "go build -o ./deploy/dev/runtime/relay/air/main ./relay/cmd/relay"
+cmd = "bash deploy/dev/build-host-go-binary.sh ./relay/cmd/relay ./deploy/dev/runtime/relay/air/main"
 bin = "./deploy/dev/runtime/relay/air/main"
 full_bin = "./deploy/dev/runtime/relay/air/main"
 include_ext = ["go"]

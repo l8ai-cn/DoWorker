@@ -334,6 +334,7 @@ func TestTransport_NewSession_StoresSessionID(t *testing.T) {
 		json.Unmarshal(scanner.Bytes(), &req)
 		writeResponse(stdoutPW, req.ID, map[string]any{
 			"thread": map[string]string{"id": "thread-stored"},
+			"model":  "gpt-5.4",
 		}, nil)
 	}()
 

@@ -236,6 +236,11 @@ function imageEditArtifact(): AgentArtifactItem {
     filename: "result.png",
     grants: [
       {
+        actions: ["artifact.download"],
+        grantId: "grant-download",
+        representationIds: [],
+      },
+      {
         actions: ["image.edit"],
         grantId: "image-edit",
         representationIds: ["source"],
@@ -284,7 +289,11 @@ function videoArtifact(): AgentArtifactItem {
     actions: [],
     artifactId: "video-1",
     filename: "playable.mp4",
-    grants: [],
+    grants: [{
+      actions: ["artifact.download"],
+      grantId: "grant-download",
+      representationIds: [],
+    }],
     id: "artifact-video-1",
     kind: "artifact",
     manifest: {
@@ -335,6 +344,11 @@ function presentationArtifact(): AgentArtifactItem {
     artifactId: "deck-1",
     filename: "deck.pptx",
     grants: [
+      {
+        actions: ["artifact.download"],
+        grantId: "grant-download",
+        representationIds: [],
+      },
       {
         actions: [
           "presentation.regenerate_slide",

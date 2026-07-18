@@ -7,6 +7,10 @@ describe("workspaceFileArtifacts", () => {
       workspaceFileArtifacts("tool-1", [
         { path: "deliverables/preview.png" },
         { path: "deliverables/deck.pptx" },
+        { path: "outputs/report.docx" },
+        { path: "outputs/data.xlsx" },
+        { path: "outputs/results.csv" },
+        { path: "outputs/briefing.mp3" },
         { path: "deliverables/generate-assets.mjs" },
         { path: "deliverables/README.md" },
         { path: "src/main.ts" },
@@ -22,6 +26,25 @@ describe("workspaceFileArtifacts", () => {
         filename: "deck.pptx",
         mimeType:
           "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      }),
+      expect.objectContaining({
+        artifactId: "workspace:outputs/report.docx",
+        filename: "report.docx",
+        mimeType:
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      }),
+      expect.objectContaining({
+        artifactId: "workspace:outputs/data.xlsx",
+        mimeType:
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      }),
+      expect.objectContaining({
+        artifactId: "workspace:outputs/results.csv",
+        mimeType: "text/csv",
+      }),
+      expect.objectContaining({
+        artifactId: "workspace:outputs/briefing.mp3",
+        mimeType: "audio/mpeg",
       }),
       expect.objectContaining({
         artifactId: "workspace:deliverables/generate-assets.mjs",

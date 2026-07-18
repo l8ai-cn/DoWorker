@@ -1,5 +1,8 @@
 export type ArtifactKind =
+  | "audio"
+  | "csv"
   | "image"
+  | "markdown"
   | "video"
   | "pdf"
   | "presentation"
@@ -19,6 +22,15 @@ export function artifactPresentation(
   }
   if (mime === "image/svg+xml" || extension === "svg") {
     return { kind: "file", label: "SVG document" };
+  }
+  if (mime.startsWith("audio/") || audioExtensions.has(extension)) {
+    return { kind: "audio", label: "Audio" };
+  }
+  if (mime === "text/csv" || extension === "csv") {
+    return { kind: "csv", label: "CSV table" };
+  }
+  if (mime === "text/markdown" || extension === "md") {
+    return { kind: "markdown", label: "Markdown" };
   }
   if (mime.startsWith("image/") || imageExtensions.has(extension)) {
     return { kind: "image", label: "Image" };
@@ -46,6 +58,7 @@ export function artifactPresentation(
 }
 
 const imageExtensions = new Set(["avif", "gif", "jpeg", "jpg", "png", "webp"]);
+const audioExtensions = new Set(["aac", "flac", "m4a", "mp3", "oga", "ogg", "wav"]);
 const videoExtensions = new Set(["mov", "mp4", "m4v", "webm"]);
 const codeMimeTypes = new Set([
   "application/javascript",

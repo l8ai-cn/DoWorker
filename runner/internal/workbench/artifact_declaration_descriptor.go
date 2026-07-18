@@ -65,6 +65,14 @@ func readyDeclaredArtifactDescriptor(
 			Revision: revision, RepresentationIds: representationIDs,
 			Digest: &artifact.fingerprint, CreatedAt: &now,
 		}},
+		Grants: []*agentworkbenchv2.ArtifactGrant{
+			artifactDownloadGrant(
+				artifact.artifactID,
+				revision,
+				representationIDs,
+				now,
+			),
+		},
 		Manifest: cloneManifest(artifact.manifest),
 	}
 }

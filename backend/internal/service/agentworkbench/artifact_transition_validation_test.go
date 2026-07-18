@@ -43,6 +43,130 @@ func TestValidateArtifactTransitionRequiresContinuousStableProducer(t *testing.T
 	}
 }
 
+func TestValidateArtifactTransitionAllowsSameRevisionRepresentationEnrichment(t *testing.T) {
+	current := transitionArtifact(3, "tool-one")
+	current.Representations = []*agentworkbenchv2.ArtifactRepresentation{
+		previewRepresentation(
+			"pdf-preview",
+			agentworkbenchv2.ArtifactStatus_ARTIFACT_STATUS_QUEUED,
+		),
+	}
+	current.Revisions[0].RepresentationIds = []string{"pdf-preview"}
+
+	processing := proto.Clone(current).(*agentworkbenchv2.ArtifactDescriptor)
+	processing.Representations[0].Status =
+		agentworkbenchv2.ArtifactStatus_ARTIFACT_STATUS_PROCESSING
+	require.NoError(t, validateArtifactTransition(
+		[]*agentworkbenchv2.ArtifactDescriptor{current},
+		processing,
+	))
+
+	ready := proto.Clone(processing).(*agentworkbenchv2.ArtifactDescriptor)
+	ready.Representations[0].Status =
+		agentworkbenchv2.ArtifactStatus_ARTIFACT_STATUS_READY
+	ready.Representations[0].ByteSize = uint64Pointer(2048)
+	ready.Representations[0].Digest = stringPointer("sha256:preview")
+	ready.Representations[0].Transport = &agentworkbenchv2.ArtifactTransport{
+		Transport: &agentworkbenchv2.ArtifactTransport_ResourceId{
+			ResourceId: "artifact-cache:pdf-preview",
+		},
+	}
+	require.NoError(t, validateArtifactTransition(
+		[]*agentworkbenchv2.ArtifactDescriptor{processing},
+		ready,
+	))
+}
+
+func TestValidateArtifactTransitionAllowsSameRevisionRepresentationAddition(t *testing.T) {
+	current := transitionArtifact(3, "tool-one")
+	current.Representations = []*agentworkbenchv2.ArtifactRepresentation{
+		previewRepresentation(
+			"original",
+			agentworkbenchv2.ArtifactStatus_ARTIFACT_STATUS_READY,
+		),
+	}
+	current.Revisions[0].RepresentationIds = []string{"original"}
+
+	next := proto.Clone(current).(*agentworkbenchv2.ArtifactDescriptor)
+	next.Representations = append(
+		next.Representations,
+		previewRepresentation(
+			"pdf-preview",
+			agentworkbenchv2.ArtifactStatus_ARTIFACT_STATUS_QUEUED,
+		),
+	)
+	next.Revisions[0].RepresentationIds = append(
+		next.Revisions[0].RepresentationIds,
+		"pdf-preview",
+	)
+	require.NoError(t, validateArtifactTransition(
+		[]*agentworkbenchv2.ArtifactDescriptor{current},
+		next,
+	))
+}
+
+func TestValidateArtifactTransitionRejectsReadyRepresentationAddition(t *testing.T) {
+	current := transitionArtifact(3, "tool-one")
+	next := proto.Clone(current).(*agentworkbenchv2.ArtifactDescriptor)
+	next.Representations = []*agentworkbenchv2.ArtifactRepresentation{
+		previewRepresentation(
+			"pdf-preview",
+			agentworkbenchv2.ArtifactStatus_ARTIFACT_STATUS_READY,
+		),
+	}
+	next.Revisions[0].RepresentationIds = []string{"pdf-preview"}
+
+	require.ErrorIs(t,
+		validateArtifactTransition(
+			[]*agentworkbenchv2.ArtifactDescriptor{current},
+			next,
+		),
+		ErrInvalidBatch,
+	)
+}
+
+func TestValidateArtifactTransitionRejectsSameRevisionArtifactRewrites(t *testing.T) {
+	current := transitionArtifact(3, "tool-one")
+	current.Representations = []*agentworkbenchv2.ArtifactRepresentation{
+		previewRepresentation(
+			"pdf-preview",
+			agentworkbenchv2.ArtifactStatus_ARTIFACT_STATUS_READY,
+		),
+	}
+	current.Revisions[0].RepresentationIds = []string{"pdf-preview"}
+
+	for name, mutate := range map[string]func(*agentworkbenchv2.ArtifactDescriptor){
+		"descriptor changed": func(value *agentworkbenchv2.ArtifactDescriptor) {
+			value.Filename = "rewritten.pdf"
+		},
+		"representation removed": func(value *agentworkbenchv2.ArtifactDescriptor) {
+			value.Representations = nil
+		},
+		"representation media changed": func(value *agentworkbenchv2.ArtifactDescriptor) {
+			value.Representations[0].MediaType = "text/html"
+		},
+		"representation revision reference missing": func(value *agentworkbenchv2.ArtifactDescriptor) {
+			value.Revisions[0].RepresentationIds = nil
+		},
+		"ready representation regressed": func(value *agentworkbenchv2.ArtifactDescriptor) {
+			value.Representations[0].Status =
+				agentworkbenchv2.ArtifactStatus_ARTIFACT_STATUS_PROCESSING
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			next := proto.Clone(current).(*agentworkbenchv2.ArtifactDescriptor)
+			mutate(next)
+			require.ErrorIs(t,
+				validateArtifactTransition(
+					[]*agentworkbenchv2.ArtifactDescriptor{current},
+					next,
+				),
+				ErrInvalidBatch,
+			)
+		})
+	}
+}
+
 func transitionArtifact(
 	revision uint64,
 	toolExecutionID string,
@@ -76,4 +200,28 @@ func artifactRevision(
 			ToolExecutionId:   stringPointer(toolExecutionID),
 		},
 	}
+}
+
+func previewRepresentation(
+	id string,
+	status agentworkbenchv2.ArtifactStatus,
+) *agentworkbenchv2.ArtifactRepresentation {
+	representation := &agentworkbenchv2.ArtifactRepresentation{
+		RepresentationId: id,
+		Revision:         3,
+		MediaType:        "application/pdf",
+		Role:             stringPointer("preview"),
+		Filename:         stringPointer("preview.pdf"),
+		Status:           status,
+	}
+	if status == agentworkbenchv2.ArtifactStatus_ARTIFACT_STATUS_READY {
+		representation.ByteSize = uint64Pointer(2048)
+		representation.Digest = stringPointer("sha256:ready")
+		representation.Transport = &agentworkbenchv2.ArtifactTransport{
+			Transport: &agentworkbenchv2.ArtifactTransport_ResourceId{
+				ResourceId: "session-file:file-" + id,
+			},
+		}
+	}
+	return representation
 }

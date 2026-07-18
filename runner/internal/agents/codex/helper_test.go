@@ -48,6 +48,17 @@ func writeResponse(w io.Writer, id int64, result any, rpcErr *acp.JSONRPCError) 
 	writeLine(w, msg)
 }
 
+func writeModelListResponse(w io.Writer, id int64) {
+	writeResponse(w, id, map[string]any{
+		"data": []map[string]any{
+			{"model": "gpt-5.4", "isDefault": true, "hidden": false},
+			{"model": "gpt-5.3-codex", "isDefault": false, "hidden": false},
+			{"model": "hidden-model", "isDefault": false, "hidden": true},
+		},
+		"nextCursor": nil,
+	}, nil)
+}
+
 type testFixture struct {
 	transport *transport
 	PW        *io.PipeWriter // write to transport's stdin (reader side)

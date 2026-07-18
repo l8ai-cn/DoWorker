@@ -2,6 +2,10 @@ import { AlertCircle, Loader2, Play, RotateCcw } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import type { ArtifactKind } from "./artifactPresentation";
+import { ArtifactAudioPreview } from "./viewers/audio/ArtifactAudioPreview";
+import { ArtifactCsvPreview } from "./viewers/csv/ArtifactCsvPreview";
+import { ArtifactMarkdownPreview } from "./viewers/markdown/ArtifactMarkdownPreview";
+import { LazyArtifactPdfPreview } from "./viewers/pdf/LazyArtifactPdfPreview";
 import { useAgentWorkspaceText } from "./AgentWorkspaceLocaleContext";
 import {
   STATIC_HTML_REFERRER_POLICY,
@@ -61,6 +65,8 @@ export function ArtifactPreview({
     const message =
       state.code === "generation_failed"
         ? text.generationFailed
+        : state.code === "authorization_required"
+          ? text.downloadNotAuthorized
         : state.code === "loading_unavailable"
           ? text.loadingUnavailable
           : text.loadFailed;
@@ -80,6 +86,9 @@ export function ArtifactPreview({
         onRetry={onRetry}
       />
     );
+  }
+  if (kind === "audio") {
+    return <ArtifactAudioPreview filename={filename} src={state.url} />;
   }
   if (kind === "image") {
     return (
@@ -113,6 +122,26 @@ export function ArtifactPreview({
         title={text.preview(filename)}
       />
     );
+  }
+  if (kind === "markdown" && state.text !== null) {
+    return (
+      <ArtifactMarkdownPreview
+        text={state.text}
+        truncated={state.textTruncated}
+      />
+    );
+  }
+  if (kind === "csv" && state.text !== null) {
+    return (
+      <ArtifactCsvPreview
+        filename={filename}
+        text={state.text}
+        truncated={state.textTruncated}
+      />
+    );
+  }
+  if (kind === "pdf") {
+    return <LazyArtifactPdfPreview filename={filename} src={state.url} />;
   }
   if ((kind === "code" || kind === "text") && state.text !== null) {
     return (

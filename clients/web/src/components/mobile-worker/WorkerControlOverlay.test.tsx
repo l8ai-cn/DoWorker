@@ -80,6 +80,7 @@ describe("WorkerControlOverlay", () => {
     );
 
     expect(container.firstChild).toHaveClass("pointer-events-none");
+    expect(container.firstChild).toHaveClass("max-sm:right-3");
     expect(container.querySelector(".pointer-events-auto")).toBeInTheDocument();
   });
 });

@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	poddomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	sessiondomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
 	domainworkbench "github.com/anthropics/agentsmesh/backend/internal/domain/agentworkbench"
 	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
@@ -13,6 +14,19 @@ import (
 type ingressSessionResolver struct {
 	session *sessiondomain.Session
 	err     error
+}
+
+type ingressPodResolver struct {
+	pod *poddomain.Pod
+	err error
+}
+
+func (resolver ingressPodResolver) GetByKeyAndRunner(
+	context.Context,
+	string,
+	int64,
+) (*poddomain.Pod, error) {
+	return resolver.pod, resolver.err
 }
 
 func (resolver ingressSessionResolver) GetByPodKey(
@@ -88,6 +102,23 @@ type ingressPublisher struct {
 	count     int
 }
 
+type ingressArtifactMaterializer struct {
+	count *int
+}
+
+func (materializer ingressArtifactMaterializer) Materialize(
+	_ context.Context,
+	_ int64,
+	_ string,
+	_ string,
+	batch *agentworkbenchv2.RunnerWorkbenchEventBatch,
+) (*ArtifactMaterialization, error) {
+	if materializer.count != nil {
+		(*materializer.count)++
+	}
+	return &ArtifactMaterialization{Batch: batch}, nil
+}
+
 func (publisher *ingressPublisher) Publish(
 	sessionID string,
 	delta *agentworkbenchv2.SessionDeltaBatch,
@@ -104,10 +135,14 @@ func TestIngressPersistsAndPublishesRichArtifactBatch(t *testing.T) {
 	publisher := &ingressPublisher{}
 	service, err := NewIngress(
 		ingressSessionResolver{session: &sessiondomain.Session{
-			ID: "conv_1", PodKey: "pod-1",
+			ID: "conv_1", PodKey: "pod-1", OrganizationID: 9,
+		}},
+		ingressPodResolver{pod: &poddomain.Pod{
+			PodKey: "pod-1", RunnerID: 17, OrganizationID: 9,
 		}},
 		repo,
 		publisher,
+		ingressArtifactMaterializer{},
 		func() string { return "stream-1" },
 	)
 	require.NoError(t, err)
@@ -135,10 +170,14 @@ func TestIngressDoesNotRepublishDuplicateSourceBatch(t *testing.T) {
 	publisher := &ingressPublisher{}
 	service, err := NewIngress(
 		ingressSessionResolver{session: &sessiondomain.Session{
-			ID: "conv_1", PodKey: "pod-1",
+			ID: "conv_1", PodKey: "pod-1", OrganizationID: 9,
+		}},
+		ingressPodResolver{pod: &poddomain.Pod{
+			PodKey: "pod-1", RunnerID: 17, OrganizationID: 9,
 		}},
 		repo,
 		publisher,
+		ingressArtifactMaterializer{},
 		func() string { return "stream-1" },
 	)
 	require.NoError(t, err)
@@ -169,10 +208,14 @@ func TestIngressRetriesRevisionConflictBeforePublishing(t *testing.T) {
 	publisher := &ingressPublisher{}
 	service, err := NewIngress(
 		ingressSessionResolver{session: &sessiondomain.Session{
-			ID: "conv_1", PodKey: "pod-1",
+			ID: "conv_1", PodKey: "pod-1", OrganizationID: 9,
+		}},
+		ingressPodResolver{pod: &poddomain.Pod{
+			PodKey: "pod-1", RunnerID: 17, OrganizationID: 9,
 		}},
 		repo,
 		publisher,
+		ingressArtifactMaterializer{},
 		func() string { return "stream-1" },
 	)
 	require.NoError(t, err)
@@ -198,10 +241,14 @@ func TestIngressStopsAfterRevisionConflictLimit(t *testing.T) {
 	publisher := &ingressPublisher{}
 	service, err := NewIngress(
 		ingressSessionResolver{session: &sessiondomain.Session{
-			ID: "conv_1", PodKey: "pod-1",
+			ID: "conv_1", PodKey: "pod-1", OrganizationID: 9,
+		}},
+		ingressPodResolver{pod: &poddomain.Pod{
+			PodKey: "pod-1", RunnerID: 17, OrganizationID: 9,
 		}},
 		repo,
 		publisher,
+		ingressArtifactMaterializer{},
 		func() string { return "stream-1" },
 	)
 	require.NoError(t, err)
@@ -212,6 +259,60 @@ func TestIngressStopsAfterRevisionConflictLimit(t *testing.T) {
 	require.ErrorIs(t, err, domainworkbench.ErrRevisionConflict)
 	require.Len(t, repo.requests, ingressAppendAttempts)
 	require.Zero(t, publisher.count)
+}
+
+func TestIngressRejectsRunnerThatDoesNotOwnPod(t *testing.T) {
+	repo := &ingressRepository{}
+	publisher := &ingressPublisher{}
+	materialized := 0
+	service, err := NewIngress(
+		ingressSessionResolver{session: &sessiondomain.Session{
+			ID: "conv_1", PodKey: "pod-1", OrganizationID: 9,
+		}},
+		ingressPodResolver{pod: &poddomain.Pod{
+			PodKey: "pod-1", RunnerID: 18, OrganizationID: 9,
+		}},
+		repo,
+		publisher,
+		ingressArtifactMaterializer{count: &materialized},
+		func() string { return "stream-1" },
+	)
+	require.NoError(t, err)
+
+	err = service.Ingest(context.Background(), 17, runnerBatch(
+		statusMutation("source:1", 1, agentworkbenchv2.SessionStatus_SESSION_STATUS_RUNNING),
+	))
+
+	require.ErrorIs(t, err, ErrInvalidBatch)
+	require.Zero(t, materialized)
+	require.Empty(t, repo.requests)
+	require.Zero(t, publisher.count)
+}
+
+func TestIngressRejectsPodFromAnotherOrganization(t *testing.T) {
+	repo := &ingressRepository{}
+	materialized := 0
+	service, err := NewIngress(
+		ingressSessionResolver{session: &sessiondomain.Session{
+			ID: "conv_1", PodKey: "pod-1", OrganizationID: 9,
+		}},
+		ingressPodResolver{pod: &poddomain.Pod{
+			PodKey: "pod-1", RunnerID: 17, OrganizationID: 10,
+		}},
+		repo,
+		&ingressPublisher{},
+		ingressArtifactMaterializer{count: &materialized},
+		func() string { return "stream-1" },
+	)
+	require.NoError(t, err)
+
+	err = service.Ingest(context.Background(), 17, runnerBatch(
+		statusMutation("source:1", 1, agentworkbenchv2.SessionStatus_SESSION_STATUS_RUNNING),
+	))
+
+	require.ErrorIs(t, err, ErrInvalidBatch)
+	require.Zero(t, materialized)
+	require.Empty(t, repo.requests)
 }
 
 func storedProjectedSnapshot(

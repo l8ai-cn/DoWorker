@@ -37,7 +37,11 @@ function singleFilePresentation(): AgentArtifactItem {
     actions: [],
     artifactId: "deck-1",
     filename: "deck.pptx",
-    grants: [],
+    grants: [{
+      actions: ["artifact.download"],
+      grantId: "grant-download",
+      representationIds: [],
+    }],
     id: "artifact-deck-1",
     kind: "artifact",
     manifest: {

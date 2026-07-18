@@ -172,7 +172,7 @@ start_backend_host_lite() {
     export STORAGE_USE_SSL=false
     export STORAGE_USE_PATH_STYLE=true
     export STORAGE_MAX_FILE_SIZE=10
-    export STORAGE_ALLOWED_TYPES="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+    export STORAGE_ALLOWED_TYPES="image/jpeg,image/png,image/gif,image/webp,application/pdf,application/json,application/xml,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/markdown,text/csv,text/xml"
     export DEPLOYMENT_TYPE="${DEPLOYMENT_TYPE:-global}"
     export PAYMENT_MOCK="${PAYMENT_MOCK:-false}"
     export PKI_CA_CERT_FILE="$SCRIPT_DIR/ssl/ca.crt"
@@ -230,6 +230,7 @@ start_marketplace_host_lite() {
     export MARKETPLACE_IDENTITY_AUDIENCE="marketplace-api"
     export MARKETPLACE_IDENTITY_JWKS_URL="http://${PRIMARY_DOMAIN}/.well-known/jwks.json"
     export MARKETPLACE_RUNTIME_BRIDGE_URL="http://localhost:${BACKEND_HTTP_PORT}/api/internal/marketplace/installations"
+    export INTERNAL_API_SECRET="${INTERNAL_API_SECRET:-dev-internal-secret}"
 
     info "预编译 Marketplace..."
     (cd "$repo_root" && go build -o "$(_runtime_dir)/marketplace/air/main" ./marketplace/cmd/server) || {

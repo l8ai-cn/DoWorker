@@ -1,13 +1,28 @@
 type EmbeddedRequest = (path: string, init?: RequestInit) => Promise<Response>;
 
-export async function loadEmbeddedWorkspaceArtifact(
+export async function loadEmbeddedArtifactRepresentation(
   request: EmbeddedRequest,
   sessionPath: string,
-  path: string,
+  input: {
+    artifactId: string;
+    digest: string;
+    representationId: string;
+    resourceId: string;
+    revision: bigint;
+  },
 ): Promise<Blob> {
-  if (!path) throw new Error("Workspace artifact path is empty");
+  requireSessionFileResource(input.resourceId);
+  if (!input.artifactId || !input.representationId || !input.digest) {
+    throw new Error("artifact_identity_missing");
+  }
+  const query = new URLSearchParams({
+    artifact_id: input.artifactId,
+    digest: input.digest,
+    representation_id: input.representationId,
+    revision: input.revision.toString(),
+  });
   const response = await request(
-    `${sessionPath}/resources/environments/workspace/artifacts/content/${encodePath(path)}`,
+    `${sessionPath}/artifacts/content?${query.toString()}`,
   );
   if (!response.ok) {
     throw new Error(`Embedded session request failed (${response.status})`);
@@ -15,6 +30,11 @@ export async function loadEmbeddedWorkspaceArtifact(
   return response.blob();
 }
 
-function encodePath(path: string): string {
-  return path.split("/").map(encodeURIComponent).join("/");
+function requireSessionFileResource(resourceId: string): void {
+  const fileID = resourceId.startsWith("session-file:")
+    ? resourceId.slice("session-file:".length)
+    : "";
+  if (!fileID) {
+    throw new Error(`artifact_resource_unsupported:${resourceId}`);
+  }
 }

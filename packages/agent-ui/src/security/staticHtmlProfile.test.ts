@@ -9,8 +9,9 @@ import {
 } from "./staticHtmlProfile";
 
 describe("static HTML profile", () => {
-  it("uses an opaque sandbox with no referrer", () => {
-    expect(STATIC_HTML_SANDBOX).toBe("");
+  it("runs scripts inside an opaque sandbox with no referrer", () => {
+    expect(STATIC_HTML_SANDBOX).toBe("allow-scripts");
+    expect(STATIC_HTML_SANDBOX).not.toContain("allow-same-origin");
     expect(STATIC_HTML_REFERRER_POLICY).toBe("no-referrer");
   });
 
@@ -42,6 +43,7 @@ describe("static HTML profile", () => {
     expect(referrer[0]?.getAttribute("content")).toBe("no-referrer");
     expect(refresh).toHaveLength(0);
     expect(STATIC_HTML_CSP).toContain("default-src 'none'");
+    expect(STATIC_HTML_CSP).toContain("script-src 'unsafe-inline'");
     expect(STATIC_HTML_CSP).toContain("connect-src 'none'");
     expect(STATIC_HTML_CSP).toContain("frame-src 'none'");
     expect(STATIC_HTML_CSP).toContain("worker-src 'none'");
@@ -80,7 +82,7 @@ describe("static HTML profile", () => {
 
     const frame = shellDocument.querySelector("iframe");
     expect(frame).not.toBeNull();
-    expect(frame?.getAttribute("sandbox")).toBe("");
+    expect(frame?.getAttribute("sandbox")).toBe("allow-scripts");
     expect(frame?.getAttribute("referrerpolicy")).toBe("no-referrer");
     expect(frame?.hasAttribute("src")).toBe(false);
     expect(frame?.srcdoc).toBe(staticHtmlDocument(html));

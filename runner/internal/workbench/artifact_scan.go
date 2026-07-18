@@ -113,7 +113,7 @@ func artifactMediaType(path string) string {
 func artifactDeliverableRoot(path string) bool {
 	root, _, _ := strings.Cut(filepath.ToSlash(path), "/")
 	switch root {
-	case "artifacts", "deliverables", "output":
+	case "artifacts", "deliverables", "output", "outputs":
 		return true
 	default:
 		return false
@@ -121,17 +121,22 @@ func artifactDeliverableRoot(path string) bool {
 }
 
 var artifactMediaTypes = map[string]string{
-	"avif": "image/avif", "gif": "image/gif", "htm": "text/html",
+	"aac": "audio/aac", "avif": "image/avif", "flac": "audio/flac",
+	"gif": "image/gif", "htm": "text/html",
 	"html": "text/html", "jpeg": "image/jpeg", "jpg": "image/jpeg",
-	"m4v": "video/x-m4v", "mov": "video/quicktime", "mp4": "video/mp4",
-	"pdf": "application/pdf", "png": "image/png",
+	"m4a": "audio/mp4", "m4v": "video/x-m4v", "mov": "video/quicktime",
+	"mp3": "audio/mpeg", "mp4": "video/mp4",
+	"docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+	"pdf":  "application/pdf", "png": "image/png",
 	"ppt":  "application/vnd.ms-powerpoint",
 	"pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-	"svg":  "image/svg+xml", "webm": "video/webm", "webp": "image/webp",
+	"svg":  "image/svg+xml", "wav": "audio/wav", "webm": "video/webm",
+	"webp": "image/webp", "xls": "application/vnd.ms-excel",
+	"xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 }
 
 var artifactTextMediaTypes = map[string]string{
-	"cjs": "text/javascript", "css": "text/css", "go": "text/x-go",
+	"cjs": "text/javascript", "css": "text/css", "csv": "text/csv", "go": "text/x-go",
 	"js": "text/javascript", "jsx": "text/javascript", "json": "application/json",
 	"md": "text/markdown", "mjs": "text/javascript", "py": "text/x-python",
 	"rs": "text/x-rust", "scss": "text/x-scss", "sh": "text/x-shellscript",

@@ -36,7 +36,7 @@ export function WorkerControlOverlay({
         "absolute z-20 flex p-3",
         blocking
           ? "inset-x-0 bottom-0 items-center justify-center bg-background/80 backdrop-blur-[1px]"
-          : "inset-x-0 bottom-0 pointer-events-none justify-center",
+          : "inset-x-0 bottom-0 pointer-events-none justify-center max-sm:inset-x-auto max-sm:bottom-3 max-sm:right-3",
         blocking && (preserveHeader ? "top-8" : "top-0"),
       )}
     >
@@ -45,7 +45,7 @@ export function WorkerControlOverlay({
           "w-full rounded-md border bg-background shadow-sm",
           blocking
             ? "max-w-sm space-y-3 p-4 text-center"
-            : "pointer-events-auto flex max-w-xl items-center gap-3 p-3",
+            : "pointer-events-auto flex max-w-xl items-center gap-3 p-3 max-sm:w-auto max-sm:gap-2 max-sm:p-2",
         )}
       >
         {busy ? (
@@ -53,7 +53,7 @@ export function WorkerControlOverlay({
         ) : (
           <Eye className={cn("h-5 w-5 shrink-0 text-muted-foreground", blocking && "mx-auto")} />
         )}
-        <div className={cn("space-y-1", !blocking && "min-w-0 flex-1")}>
+        <div className={cn("space-y-1", !blocking && "min-w-0 flex-1 max-sm:hidden")}>
           <p className="text-sm font-medium text-foreground">
             {busy ? t("busy") : t("observer")}
           </p>

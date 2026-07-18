@@ -4,6 +4,7 @@ import type {
   AgentArtifactItem,
   AgentSessionRuntime,
 } from "./contracts";
+import { artifactActionAllowed } from "./artifactGrantActions";
 
 export type ArtifactRepresentationUrlState =
   | { status: "loading" }
@@ -49,10 +50,21 @@ export function useArtifactRepresentationUrls(
       setStates(errorStates(uniqueIds, "Artifact loading is unavailable"));
       return;
     }
+    const unauthorized = uniqueIds.filter(
+      (representationId) =>
+        !artifactActionAllowed(item, "artifact.download", representationId),
+    );
+    if (unauthorized.length > 0) {
+      setStates((current) => ({
+        ...current,
+        ...errorStates(unauthorized, "artifact_download_not_authorized"),
+      }));
+    }
 
     let active = true;
     const urls = new Set<string>();
     for (const representationId of uniqueIds) {
+      if (unauthorized.includes(representationId)) continue;
       void runtime
         .loadArtifact(sessionId, item.artifactId, representationId)
         .then((blob) => {

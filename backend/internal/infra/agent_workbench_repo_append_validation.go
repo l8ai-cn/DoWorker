@@ -27,11 +27,44 @@ func validateAgentWorkbenchAppend(
 	if err := validateAgentWorkbenchSources(request); err != nil {
 		return err
 	}
+	if err := validateAgentWorkbenchArtifactFiles(request); err != nil {
+		return err
+	}
 	for _, receipt := range request.Receipts {
 		if receipt.SessionID != request.SessionID ||
 			validateAgentWorkbenchReceipt(receipt) != nil {
 			return agentworkbench.ErrInvalidArgument
 		}
+	}
+	return nil
+}
+
+func validateAgentWorkbenchArtifactFiles(
+	request agentworkbench.AppendRequest,
+) error {
+	ids := make(map[string]struct{}, len(request.ArtifactFiles))
+	keys := make(map[string]struct{}, len(request.ArtifactFiles))
+	keyPrefix := "sessions/" + request.SessionID + "/artifacts/"
+	for _, file := range request.ArtifactFiles {
+		if file.SessionID != request.SessionID ||
+			!validAgentWorkbenchText(file.ID, 100) ||
+			!validAgentWorkbenchText(file.Filename, 255) ||
+			file.Bytes < 0 || file.Bytes > 128<<20 ||
+			!validAgentWorkbenchText(file.ContentType, 100) ||
+			!validAgentWorkbenchText(file.MinioKey, 500) ||
+			!strings.HasPrefix(file.MinioKey, keyPrefix) ||
+			strings.Contains(file.MinioKey, "..") ||
+			file.CreatedAt.IsZero() {
+			return agentworkbench.ErrInvalidArgument
+		}
+		if _, exists := ids[file.ID]; exists {
+			return agentworkbench.ErrInvalidArgument
+		}
+		if _, exists := keys[file.MinioKey]; exists {
+			return agentworkbench.ErrInvalidArgument
+		}
+		ids[file.ID] = struct{}{}
+		keys[file.MinioKey] = struct{}{}
 	}
 	return nil
 }

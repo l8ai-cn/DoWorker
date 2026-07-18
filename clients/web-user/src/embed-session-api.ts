@@ -1,4 +1,5 @@
 import type { TerminalResource } from "@do-worker/agent-ui";
+import type { AgentArtifactTransportContext, AgentAttachmentReference } from "@do-worker/agent-ui";
 import type { EmbeddedAgentWorkbenchAccess } from "./embed-session/embeddedAgentWorkbenchAccess";
 import {
   parseEmbeddedRelayConnection,
@@ -6,7 +7,8 @@ import {
   parseEmbeddedTerminals,
   readEmbeddedJson,
 } from "./embed-session-response-parsers";
-import { loadEmbeddedWorkspaceArtifact } from "./embed-workspace-artifact-api";
+import { loadEmbeddedArtifactRepresentation } from "./embed-workspace-artifact-api";
+import { uploadEmbeddedAttachment } from "./embed-attachment-api";
 
 export interface EmbeddedSession {
   agentLabel: string;
@@ -22,8 +24,9 @@ export interface EmbedRelayConnection {
 
 export interface EmbedSessionClient {
   getSession(): Promise<EmbeddedSession>;
+  uploadAttachment(file: File): Promise<AgentAttachmentReference>;
   loadDownload(downloadUrl: string): Promise<Blob>;
-  loadResource(resourceId: string): Promise<Blob>;
+  loadResource(resourceId: string, context: AgentArtifactTransportContext): Promise<Blob>;
   getTerminals(): Promise<TerminalResource[]>;
   getRelayConnection(): Promise<EmbedRelayConnection>;
 }
@@ -49,19 +52,17 @@ export function createEmbedSessionClient(
       const response = await request(sessionPath);
       return parseEmbeddedSession(await readEmbeddedJson(response));
     },
-    async loadResource(resourceId) {
-      if (resourceId.startsWith("workspace:")) {
-        return loadEmbeddedWorkspaceArtifact(
-          request,
-          sessionPath,
-          resourceId.slice("workspace:".length),
-        );
-      }
-      const response = await request(
-        `${sessionPath}/resources/files/${encodeURIComponent(resourceId)}/content`,
-      );
-      await requireOk(response);
-      return response.blob();
+    uploadAttachment(file) {
+      return uploadEmbeddedAttachment(request, sessionPath, file);
+    },
+    async loadResource(resourceId, context) {
+      return loadEmbeddedArtifactRepresentation(request, sessionPath, {
+        artifactId: context.artifactId,
+        digest: context.representation.digest ?? "",
+        representationId: context.representationId ?? "",
+        resourceId,
+        revision: context.descriptor.revision,
+      });
     },
     async loadDownload(downloadUrl) {
       const target = new URL(downloadUrl, baseUrl);

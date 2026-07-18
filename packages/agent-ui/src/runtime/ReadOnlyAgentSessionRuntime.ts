@@ -1,4 +1,5 @@
 import type {
+  AgentAttachmentReference,
   AgentPermissionResolution,
   AgentSessionRuntime,
   AgentSessionSnapshot,
@@ -53,7 +54,7 @@ export class ReadOnlyAgentSessionRuntime implements AgentSessionRuntime {
   sendMessage(
     _sessionId: string,
     _commandId: string,
-    _input: { text: string },
+    _input: { text: string; attachments?: AgentAttachmentReference[] },
   ): Promise<void> {
     return rejectedReadOnlyCommand();
   }

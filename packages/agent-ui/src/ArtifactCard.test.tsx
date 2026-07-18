@@ -43,7 +43,11 @@ function artifact(
     kind: "artifact",
     artifactId: "artifact-1",
     filename: "report.pdf",
-    grants: [],
+    grants: [{
+      actions: ["artifact.download"],
+      grantId: "grant-download",
+      representationIds: [],
+    }],
     manifest: null,
     mimeType: "application/pdf",
     representations: [],
