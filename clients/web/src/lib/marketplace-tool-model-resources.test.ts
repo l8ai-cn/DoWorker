@@ -72,8 +72,8 @@ describe("listMarketplaceToolModelResources", () => {
           },
           resource: {
             id: "80",
-            displayName: "Legacy Sub2API model",
-            modelId: "creative-video",
+            displayName: "Invalid Sub2API model",
+            modelId: "doubao-seedance-2-0-260128-preview",
             isEnabled: true,
             modalities: ["video"],
             capabilities: ["video-generation"],

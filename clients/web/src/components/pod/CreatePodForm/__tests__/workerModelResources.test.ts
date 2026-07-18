@@ -175,12 +175,12 @@ describe("workerModelResources", () => {
         modelId: "doubao-seedance-2-0-260128",
       },
     };
-    const sub2apiLegacyModelID = {
+    const sub2apiInvalidModelID = {
       ...sub2apiVideo,
       resource: {
         ...sub2apiVideo.resource!,
         id: 80,
-        modelId: "creative-video",
+        modelId: "doubao-seedance-2-0-260128-preview",
       },
     };
 
@@ -195,7 +195,7 @@ describe("workerModelResources", () => {
       languageModelMarkedAsVideo,
       video,
       sub2apiVideo,
-      sub2apiLegacyModelID,
+      sub2apiInvalidModelID,
     ])).toEqual([
       video,
       sub2apiVideo,

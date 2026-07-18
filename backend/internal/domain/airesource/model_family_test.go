@@ -25,6 +25,13 @@ func TestValidateProviderModelCapabilityRequiresSeedanceModelForVideoProviders(t
 				"creative-video",
 				CapabilityVideoGeneration,
 			))
+			if provider == "sub2api-seedance" {
+				require.Error(t, ValidateProviderModelCapability(
+					slugkit.MustNewForTest(provider),
+					"doubao-seedance-2-0-260128-preview",
+					CapabilityVideoGeneration,
+				))
+			}
 		})
 	}
 }
