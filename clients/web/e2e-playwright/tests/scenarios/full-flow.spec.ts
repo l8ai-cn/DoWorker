@@ -7,7 +7,7 @@ import { terminateAllPods } from "../../helpers/pod-cleanup";
 import { createE2EEchoPod } from "../../helpers/e2e-worker-spec";
 
 type Runner = { id: bigint; currentPods?: number };
-type Repository = { id: bigint };
+type Repository = { id: bigint; defaultBranch: string };
 type Ticket = { slug: string };
 type Pod = { podKey: string; status: string; runnerId: bigint };
 
@@ -24,19 +24,21 @@ test.describe("Full E2E Scenario", () => {
     // Step 1: Verify repositories exist (from seed)
     const { items: repos } = await cc.repository.listRepositories({ orgSlug: TEST_ORG_SLUG }) as { items: Repository[] };
     expect(repos.length).toBeGreaterThan(0);
-    const repoId = repos[0].id;
+    const repository = repos[0];
+    expect(repository.defaultBranch, "seeded repository must declare a default branch").toBeTruthy();
 
     // Step 2: Create ticket linked to repository
     const ticket = await cc.ticket.createTicket({
       orgSlug: TEST_ORG_SLUG,
       title: "E2E Scenario Ticket",
-      repositoryId: repoId,
+      repositoryId: repository.id,
     }) as Ticket;
     const ticketSlug = ticket.slug;
 
     // Step 3: Create pod with repository and ticket
     const podResp = await createE2EEchoPod(cc, {
-      repositoryId: repoId,
+      repositoryId: repository.id,
+      branch: repository.defaultBranch,
       ticketSlug,
     }) as { pod: Pod };
     const podKey = podResp.pod?.podKey;

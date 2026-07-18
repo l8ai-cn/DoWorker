@@ -13,18 +13,18 @@ import (
 func TestGoalLoop_ListShowsCreatedLoop(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	rest := fixture.SharedREST(t, env)
-	snapshotID := fixture.NewGoalLoopSnapshot(t, env)
+	workerTemplate := fixture.NewGoalLoopWorkerTemplate(t, env)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	name := fmt.Sprintf("e2e-goal-loop-list-%d", time.Now().UnixMilli())
 	loop, err := rest.CreateGoalLoop(ctx, env.DevOrgSlug, client.CreateGoalLoopRequest{
-		Name:                 name,
-		WorkerSpecSnapshotID: snapshotID,
-		Objective:            "Create a valid goal loop.",
-		AcceptanceCriteria:   []string{"The loop is visible in its organization."},
-		VerificationCommand:  "true",
+		Name:                name,
+		WorkerTemplateName:  workerTemplate,
+		Objective:           "Create a valid goal loop.",
+		AcceptanceCriteria:  []string{"The loop is visible in its organization."},
+		VerificationCommand: "true",
 	})
 	if err != nil {
 		t.Fatalf("create goal loop: %v", err)
@@ -48,17 +48,17 @@ func TestGoalLoop_ListShowsCreatedLoop(t *testing.T) {
 func TestGoalLoop_StaleSnapshotDoesNotStart(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	rest := fixture.SharedREST(t, env)
-	snapshotID := fixture.NewGoalLoopSnapshot(t, env)
+	workerTemplate := fixture.NewGoalLoopWorkerTemplate(t, env)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	loop, err := rest.CreateGoalLoop(ctx, env.DevOrgSlug, client.CreateGoalLoopRequest{
-		Name:                 fmt.Sprintf("e2e-goal-loop-start-%d", time.Now().UnixMilli()),
-		WorkerSpecSnapshotID: snapshotID,
-		Objective:            "Reject a stale runtime before launch.",
-		AcceptanceCriteria:   []string{"The loop remains a draft."},
-		VerificationCommand:  "true",
+		Name:                fmt.Sprintf("e2e-goal-loop-start-%d", time.Now().UnixMilli()),
+		WorkerTemplateName:  workerTemplate,
+		Objective:           "Reject a stale runtime before launch.",
+		AcceptanceCriteria:  []string{"The loop remains a draft."},
+		VerificationCommand: "true",
 	})
 	if err != nil {
 		t.Fatalf("create goal loop: %v", err)

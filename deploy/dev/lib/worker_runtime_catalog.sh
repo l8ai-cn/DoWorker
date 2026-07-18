@@ -12,6 +12,7 @@ local_worker_runner_services() {
             minimax-cli) service="runner-minimax-cli" ;;
             openclaw) service="runner-openclaw" ;;
             do-agent|seedance-expert) service="runner-do-agent" ;;
+            e2e-echo) service="runner-e2e-echo" ;;
             *) continue ;;
         esac
         if [[ " ${services[*]-} " != *" $service "* ]]; then
@@ -19,6 +20,15 @@ local_worker_runner_services() {
         fi
     done < <(jq -r '.images[].worker_type_slugs[]' "$catalog")
     printf '%s' "${services[*]}"
+}
+
+local_worker_bootstrap_services() {
+    local services
+    services="$(local_worker_runner_services "$1")"
+    if [[ " $services " != *" runner-e2e-echo "* ]]; then
+        services="${services:+$services }runner-e2e-echo"
+    fi
+    printf '%s' "$services"
 }
 
 prepare_local_worker_runtime_catalog() {
@@ -32,12 +42,15 @@ prepare_local_worker_runtime_catalog() {
         --runtime "gemini-cli=${COMPOSE_PROJECT_NAME}-runner-gemini-cli:latest" \
         --runtime "minimax-cli=${COMPOSE_PROJECT_NAME}-runner-minimax-cli:latest" \
         --runtime "openclaw=${COMPOSE_PROJECT_NAME}-runner-openclaw:latest" \
-        --runtime "do-agent=${COMPOSE_PROJECT_NAME}-runner-do-agent:latest" || status=$?
+        --runtime "do-agent=${COMPOSE_PROJECT_NAME}-runner-do-agent:latest" \
+        --runtime "e2e-echo=${COMPOSE_PROJECT_NAME}-runner-e2e-echo:latest" || status=$?
 
     if [[ "$status" -eq 0 ]]; then
         export WORKER_RUNTIME_CATALOG_FILE="$output"
         export DEV_LOCAL_WORKER_RUNTIME_SERVICES
-        DEV_LOCAL_WORKER_RUNTIME_SERVICES="$(local_worker_runner_services "$output")"
+        DEV_LOCAL_WORKER_RUNTIME_SERVICES="$(
+            local_worker_bootstrap_services "$output"
+        )"
         return 0
     fi
     if [[ "$status" -eq 2 ]]; then

@@ -1,0 +1,11 @@
+AGENT e2e-mock-agent
+EXECUTABLE e2e-mock-agent
+
+MODE pty
+MODE acp "--mode=acp"
+
+CONFIG scenario SELECT("echo", "autopilot", "autopilot_fs", "streaming_3", "thinking_then_answer", "tool_call_edit", "permission_request_edit", "config_change_plan", "fail_after_1s", "malformed_json", "tool_call_failed", "log_warnings", "loopal_panels", "permission_modes_loopal") = "echo"
+
+MCP ON
+
+arg "--scenario" config.scenario when config.scenario != ""

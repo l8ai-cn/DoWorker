@@ -110,15 +110,20 @@ export function TicketToolsSection() {
   );
 }
 
-export function LoopToolsSection() {
+export function WorkflowToolsSection() {
   const t = useTranslations();
-  const prefix = `${PREFIX}.loop`;
+  const prefix = `${PREFIX}.workflow`;
   return (
     <McpToolTableSection
       title={t(`${prefix}.title`)}
       description={t(`${prefix}.description`)}
       columns={threeColumnHeaders(t, prefix, "toolHeader", "descriptionHeader", "paramsHeader")}
-      rows={buildDocsRows(t, prefix, ["listLoops", "triggerLoop"], { params: true })}
+      rows={buildDocsRows(
+        t,
+        prefix,
+        ["createWorkflow", "listWorkflows", "triggerWorkflow"],
+        { params: true },
+      )}
     />
   );
 }

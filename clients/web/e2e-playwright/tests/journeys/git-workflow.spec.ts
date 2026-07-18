@@ -6,7 +6,7 @@ import { pollUntil } from "../../helpers/retry";
 import { terminateAllPods } from "../../helpers/pod-cleanup";
 import { createE2EEchoPod } from "../../helpers/e2e-worker-spec";
 
-type Repository = { id: bigint };
+type Repository = { id: bigint; defaultBranch: string };
 type Ticket = { slug: string };
 type Pod = { podKey: string; status: string; runnerId: bigint };
 
@@ -30,6 +30,7 @@ test.describe("Journey: Git Workflow", () => {
     const { items: repos } = await cc.repository.listRepositories({ orgSlug: TEST_ORG_SLUG }) as { items: Repository[] };
     expect(repos.length).toBeGreaterThan(0);
     const repo = repos[0];
+    expect(repo.defaultBranch, "seeded repository must declare a default branch").toBeTruthy();
 
     // ── Step 2: Create ticket linked to repository ──
     const ticket = await cc.ticket.createTicket({
@@ -47,6 +48,7 @@ test.describe("Journey: Git Workflow", () => {
     // ── Step 4: Create pod WITH repository and ticket context ──
     const podResp = await createE2EEchoPod(cc, {
       repositoryId: repo.id,
+      branch: repo.defaultBranch,
       ticketSlug,
     }) as { pod: Pod };
     const podKey = podResp.pod.podKey;

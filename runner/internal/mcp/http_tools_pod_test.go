@@ -1,298 +1,115 @@
 package mcp
 
 import (
-	"bytes"
+	"context"
 	"encoding/json"
-	"net/http"
-	"net/http/httptest"
-	"strings"
+	"errors"
 	"testing"
+
+	"github.com/anthropics/agentsmesh/runner/internal/mcp/tools"
 )
 
-func TestHTTPServerMCPToolsCallCreatePod(t *testing.T) {
-	server := NewHTTPServer(nil, 9090)
-	server.RegisterPod("test-pod", "test-org", nil, nil, "claude")
-
-	body := bytes.NewBufferString(`{
-		"jsonrpc": "2.0",
-		"id": 1,
-		"method": "tools/call",
-		"params": {
-			"name": "create_pod",
-			"arguments": {
-				"ticket_slug": "AM-123",
-				"command": "echo hello"
-			}
-		}
-	}`)
-
-	req := httptest.NewRequest(http.MethodPost, "/mcp", body)
-	req.Header.Set("X-Pod-Key", "test-pod")
-	rec := httptest.NewRecorder()
-
-	server.handleMCP(rec, req)
-
-	var resp MCPResponse
-	json.NewDecoder(rec.Body).Decode(&resp)
-	// Tool should be found
-}
-
-func TestHTTPServerMCPToolsCallCreatePodWithAllParams(t *testing.T) {
-	server := NewHTTPServer(nil, 9090)
-	server.RegisterPod("test-pod", "test-org", nil, nil, "claude")
-
-	body := bytes.NewBufferString(`{
-		"jsonrpc": "2.0",
-		"id": 1,
-		"method": "tools/call",
-		"params": {
-			"name": "create_pod",
-			"arguments": {
-				"agent_slug": "claude-code",
-				"runner_id": 2,
-				"ticket_slug": "AM-123",
-				"prompt": "Hello, start working on this task",
-				"model": "claude-opus-4",
-				"repository_id": 456,
-				"branch_name": "feature/new-feature",
-				"model_resource_id": 789,
-				"permission_mode": "plan",
-				"config_overrides": {
-					"timeout": 300,
-					"max_tokens": 4096
-				}
-			}
-		}
-	}`)
-
-	req := httptest.NewRequest(http.MethodPost, "/mcp", body)
-	req.Header.Set("X-Pod-Key", "test-pod")
-	rec := httptest.NewRecorder()
-
-	server.handleMCP(rec, req)
-
-	var resp MCPResponse
-	json.NewDecoder(rec.Body).Decode(&resp)
-	// Tool should be found (may error on backend call, but params should be parsed)
-}
-
-func TestHTTPServerMCPToolsCallCreatePodWithRepositoryURL(t *testing.T) {
-	server := NewHTTPServer(nil, 9090)
-	server.RegisterPod("test-pod", "test-org", nil, nil, "claude")
-
-	body := bytes.NewBufferString(`{
-		"jsonrpc": "2.0",
-		"id": 1,
-		"method": "tools/call",
-		"params": {
-			"name": "create_pod",
-			"arguments": {
-				"agent_slug": "claude-code",
-				"repository_url": "https://github.com/example/repo.git",
-				"branch_name": "main"
-			}
-		}
-	}`)
-
-	req := httptest.NewRequest(http.MethodPost, "/mcp", body)
-	req.Header.Set("X-Pod-Key", "test-pod")
-	rec := httptest.NewRecorder()
-
-	server.handleMCP(rec, req)
-
-	var resp MCPResponse
-	json.NewDecoder(rec.Body).Decode(&resp)
-	// Tool should be found
-}
-
-func TestHTTPServerMCPToolsCallCreatePodWithBypassPermissions(t *testing.T) {
-	server := NewHTTPServer(nil, 9090)
-	server.RegisterPod("test-pod", "test-org", nil, nil, "claude")
-
-	body := bytes.NewBufferString(`{
-		"jsonrpc": "2.0",
-		"id": 1,
-		"method": "tools/call",
-		"params": {
-			"name": "create_pod",
-			"arguments": {
-				"agent_slug": "claude-code",
-				"permission_mode": "bypassPermissions"
-			}
-		}
-	}`)
-
-	req := httptest.NewRequest(http.MethodPost, "/mcp", body)
-	req.Header.Set("X-Pod-Key", "test-pod")
-	rec := httptest.NewRecorder()
-
-	server.handleMCP(rec, req)
-
-	var resp MCPResponse
-	json.NewDecoder(rec.Body).Decode(&resp)
-	// Tool should be found
-}
-
-func TestHTTPServerMCPToolsCallCreatePodWithEmptyConfigOverrides(t *testing.T) {
-	server := NewHTTPServer(nil, 9090)
-	server.RegisterPod("test-pod", "test-org", nil, nil, "claude")
-
-	body := bytes.NewBufferString(`{
-		"jsonrpc": "2.0",
-		"id": 1,
-		"method": "tools/call",
-		"params": {
-			"name": "create_pod",
-			"arguments": {
-				"agent_slug": "claude-code",
-				"config_overrides": {}
-			}
-		}
-	}`)
-
-	req := httptest.NewRequest(http.MethodPost, "/mcp", body)
-	req.Header.Set("X-Pod-Key", "test-pod")
-	rec := httptest.NewRecorder()
-
-	server.handleMCP(rec, req)
-
-	var resp MCPResponse
-	json.NewDecoder(rec.Body).Decode(&resp)
-	// Tool should be found
-}
-
-func TestBuildAgentfileLayerFromArgs(t *testing.T) {
-	t.Run("generates CONFIG declarations from args", func(t *testing.T) {
-		layer := buildAgentfileLayerFromArgs("opus", "bypassPermissions", "", map[string]interface{}{"timeout": float64(300)}, "", "")
-
-		if !strings.Contains(layer, `CONFIG model = "opus"`) {
-			t.Errorf("missing model CONFIG, got: %s", layer)
-		}
-		if !strings.Contains(layer, `CONFIG permission_mode = "bypassPermissions"`) {
-			t.Errorf("missing permission_mode CONFIG, got: %s", layer)
-		}
-		if !strings.Contains(layer, `CONFIG timeout = 300`) {
-			t.Errorf("missing timeout CONFIG, got: %s", layer)
-		}
-	})
-
-	t.Run("generates PROMPT declaration", func(t *testing.T) {
-		layer := buildAgentfileLayerFromArgs("", "", "fix the bug", nil, "", "")
-
-		if !strings.Contains(layer, `PROMPT "fix the bug"`) {
-			t.Errorf("missing PROMPT, got: %s", layer)
-		}
-	})
-
-	t.Run("skips empty args", func(t *testing.T) {
-		layer := buildAgentfileLayerFromArgs("", "", "", nil, "", "")
-		if layer != "" {
-			t.Errorf("expected empty layer, got: %s", layer)
-		}
-	})
-
-	t.Run("deduplicates model and permission_mode from config_overrides", func(t *testing.T) {
-		layer := buildAgentfileLayerFromArgs("opus", "plan", "", map[string]interface{}{
-			"model":           "haiku",
-			"permission_mode": "default",
-			"mcp_enabled":     true,
-		}, "", "")
-
-		modelCount := strings.Count(layer, "CONFIG model")
-		if modelCount != 1 {
-			t.Errorf("expected 1 CONFIG model, got %d in: %s", modelCount, layer)
-		}
-		if !strings.Contains(layer, `CONFIG mcp_enabled = true`) {
-			t.Errorf("missing mcp_enabled, got: %s", layer)
-		}
-	})
-
-	t.Run("escapes newlines and tabs in prompt", func(t *testing.T) {
-		layer := buildAgentfileLayerFromArgs("", "", "line1\nline2\ttab", nil, "", "")
-		if !strings.Contains(layer, `PROMPT "line1\nline2\ttab"`) {
-			t.Errorf("prompt escape failed, got: %s", layer)
-		}
-	})
-
-	t.Run("escapes newlines and tabs in config string values", func(t *testing.T) {
-		layer := buildAgentfileLayerFromArgs("", "", "", map[string]interface{}{
-			"custom": "val\nwith\tnewline",
-		}, "", "")
-		if !strings.Contains(layer, `CONFIG custom = "val\nwith\tnewline"`) {
-			t.Errorf("config escape failed, got: %s", layer)
-		}
-	})
-
-	t.Run("generates REPO and BRANCH declarations", func(t *testing.T) {
-		layer := buildAgentfileLayerFromArgs("", "", "", nil, "https://github.com/example/repo.git", "main")
-		if !strings.Contains(layer, `REPO "https://github.com/example/repo.git"`) {
-			t.Errorf("missing REPO, got: %s", layer)
-		}
-		if !strings.Contains(layer, `BRANCH "main"`) {
-			t.Errorf("missing BRANCH, got: %s", layer)
-		}
-	})
-}
-
-func TestHTTPServerMCPToolsCallCreatePodWithAlias(t *testing.T) {
-	server := NewHTTPServer(nil, 9090)
-	server.RegisterPod("test-pod", "test-org", nil, nil, "claude")
-
-	body := bytes.NewBufferString(`{
-		"jsonrpc": "2.0",
-		"id": 1,
-		"method": "tools/call",
-		"params": {
-			"name": "create_pod",
-			"arguments": {
-				"agent_slug": "claude-code",
-				"runner_id": 2,
-				"alias": "my-feature-pod",
-				"prompt": "Work on feature X"
-			}
-		}
-	}`)
-
-	req := httptest.NewRequest(http.MethodPost, "/mcp", body)
-	req.Header.Set("X-Pod-Key", "test-pod")
-	rec := httptest.NewRecorder()
-
-	server.handleMCP(rec, req)
-
-	var resp MCPResponse
-	json.NewDecoder(rec.Body).Decode(&resp)
-	// Tool should be found (may error on backend call, but alias param should be parsed)
-	if resp.Error != nil && resp.Error.Code == -32601 {
-		t.Error("tool create_pod should be found")
+func TestCreatePodToolRequiresOnlyResourceManifest(t *testing.T) {
+	tool := new(HTTPServer).createCreatePodTool()
+	properties := tool.InputSchema["properties"].(map[string]interface{})
+	if len(properties) != 1 || properties["resource"] == nil {
+		t.Fatalf("create_pod properties = %#v", properties)
+	}
+	required := tool.InputSchema["required"].([]string)
+	if len(required) != 1 || required[0] != "resource" {
+		t.Fatalf("create_pod required = %#v", required)
+	}
+	if tool.InputSchema["additionalProperties"] != false {
+		t.Fatal("create_pod must reject legacy fields")
 	}
 }
 
-func TestHTTPServerMCPToolsCallCreatePodMissingAgentSlug(t *testing.T) {
-	server := NewHTTPServer(nil, 9090)
-	server.RegisterPod("test-pod", "test-org", nil, nil, "claude")
+func TestCreateWorkflowToolRequiresResourceManifest(t *testing.T) {
+	tool := new(HTTPServer).createCreateWorkflowTool()
+	properties := tool.InputSchema["properties"].(map[string]interface{})
+	if len(properties) != 2 || properties["resource"] == nil ||
+		properties["enabled"] == nil {
+		t.Fatalf("create_workflow properties = %#v", properties)
+	}
+	required := tool.InputSchema["required"].([]string)
+	if len(required) != 1 || required[0] != "resource" {
+		t.Fatalf("create_workflow required = %#v", required)
+	}
+	if tool.InputSchema["additionalProperties"] != false {
+		t.Fatal("create_workflow must reject legacy fields")
+	}
+}
 
-	body := bytes.NewBufferString(`{
-		"jsonrpc": "2.0",
-		"id": 1,
-		"method": "tools/call",
-		"params": {
-			"name": "create_pod",
-			"arguments": {
-				"prompt": "Hello"
-			}
+func TestResourceManifestArgument(t *testing.T) {
+	resource, err := resourceManifestArgument(map[string]interface{}{
+		"resource": map[string]interface{}{
+			"apiVersion": "agentsmesh.io/v1alpha1",
+			"kind":       "Worker",
+		},
+	})
+	if err != nil {
+		t.Fatalf("resourceManifestArgument() error = %v", err)
+	}
+	var manifest map[string]interface{}
+	if err := json.Unmarshal(resource, &manifest); err != nil {
+		t.Fatalf("decode resource = %v", err)
+	}
+	if manifest["kind"] != "Worker" {
+		t.Fatalf("resource kind = %#v", manifest["kind"])
+	}
+}
+
+func TestResourceManifestArgumentRejectsNonObject(t *testing.T) {
+	for _, args := range []map[string]interface{}{
+		{},
+		{"resource": "kind: Worker"},
+		{"resource": []interface{}{}},
+	} {
+		if _, err := resourceManifestArgument(args); err == nil {
+			t.Fatalf("resourceManifestArgument(%#v) succeeded", args)
 		}
-	}`)
+	}
+}
 
-	req := httptest.NewRequest(http.MethodPost, "/mcp", body)
-	req.Header.Set("X-Pod-Key", "test-pod")
-	rec := httptest.NewRecorder()
+type createPodBindingFailureClient struct {
+	tools.CollaborationClient
+}
 
-	server.handleMCP(rec, req)
+func (*createPodBindingFailureClient) CreatePod(
+	context.Context,
+	*tools.PodCreateRequest,
+) (*tools.PodCreateResponse, error) {
+	return &tools.PodCreateResponse{
+		PodKey: "created-without-binding",
+		Status: string(tools.PodStatusInitializing),
+	}, nil
+}
 
-	var resp MCPResponse
-	json.NewDecoder(rec.Body).Decode(&resp)
-	// Tool should be found and validation error returned
-	if resp.Error != nil && resp.Error.Code == -32601 {
-		t.Error("tool create_pod should be found")
+func (*createPodBindingFailureClient) RequestBinding(
+	context.Context,
+	string,
+	[]tools.BindingScope,
+) (*tools.Binding, error) {
+	return nil, errors.New("binding denied")
+}
+
+func TestCreatePodToolReturnsBindingFailure(t *testing.T) {
+	tool := new(HTTPServer).createCreatePodTool()
+	result, err := tool.Handler(
+		context.Background(),
+		&createPodBindingFailureClient{},
+		map[string]interface{}{
+			"resource": map[string]interface{}{
+				"apiVersion": "agentsmesh.io/v1alpha1",
+				"kind":       "Worker",
+			},
+		},
+	)
+	if err == nil || err.Error() !=
+		"bind created pod created-without-binding: binding denied" {
+		t.Fatalf("Handler() error = %v", err)
+	}
+	if result != nil {
+		t.Fatalf("Handler() result = %#v, want nil", result)
 	}
 }

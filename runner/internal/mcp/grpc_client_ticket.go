@@ -147,12 +147,14 @@ func (c *GRPCCollaborationClient) CreatePod(ctx context.Context, req *tools.PodC
 			PodKey string `json:"pod_key"`
 			Status string `json:"status"`
 		} `json:"pod"`
+		Resource *tools.AppliedResourceSummary `json:"resource"`
 	}
 	if err := c.call(ctx, "create_pod", req, &result); err != nil {
 		return nil, err
 	}
 	return &tools.PodCreateResponse{
-		PodKey: result.Pod.PodKey,
-		Status: result.Pod.Status,
+		PodKey:   result.Pod.PodKey,
+		Status:   result.Pod.Status,
+		Resource: result.Resource,
 	}, nil
 }

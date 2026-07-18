@@ -27,7 +27,15 @@ rg -q 'but it is not' docs/integrations/do-agent.md
 rg -q 'currently selectable because no immutable runtime image digest has been' \
   docs/integrations/do-agent.md
 
-expected="$(jq -r '.worker_types[].slug' config/worker-types/catalog.json | sort)"
+expected="$(
+  jq -r '.worker_types[] | [.slug, .definition_path] | @tsv' \
+    config/worker-types/catalog.json |
+    while IFS=$'\t' read -r slug path; do
+      [[ "$(jq -r '.internal // false' "$path")" == "true" ]] ||
+        printf '%s\n' "$slug"
+    done |
+    sort
+)"
 actual="$(jq -r '.workers[].slug' clients/web/src/generated/worker-runtime-catalog.json | sort)"
 [[ "$actual" == "$expected" ]] || {
   echo "generated Worker documentation catalog does not match formal Definitions" >&2

@@ -60,7 +60,7 @@ func newProjectedAgent(definition Definition) *agentdomain.Agent {
 		AgentfileSource:   stringPointer(definition.AgentFile),
 		IsBuiltin:         true,
 		IsActive:          true,
-		IsInternal:        false,
+		IsInternal:        definition.Internal,
 		SupportedModes:    strings.Join(definition.Modes, ","),
 		UsesLegacyColumns: false,
 	}
@@ -74,7 +74,7 @@ func projectedAgentFields(definition Definition) map[string]any {
 		"agentfile_source":    definition.AgentFile,
 		"is_builtin":          true,
 		"is_active":           true,
-		"is_internal":         false,
+		"is_internal":         definition.Internal,
 		"supported_modes":     strings.Join(definition.Modes, ","),
 		"uses_legacy_columns": false,
 	}

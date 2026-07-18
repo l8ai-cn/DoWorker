@@ -77,6 +77,9 @@ type GRPCRunnerAdapter struct {
 	goalLoopService      *goalloopService.Service
 	blockstoreService    *blockstoreservice.Service
 	knowledgebaseService *knowledgebaseservice.Service
+	resourceControl      MCPResourceControl
+	workerPlanApply      MCPWorkerPlanApplier
+	workflowPlanApply    MCPWorkflowPlanApplier
 }
 
 type MCPDependencies struct {
@@ -96,6 +99,9 @@ type MCPDependencies struct {
 	GoalLoopService      *goalloopService.Service
 	BlockstoreService    *blockstoreservice.Service
 	KnowledgebaseService *knowledgebaseservice.Service
+	ResourceControl      MCPResourceControl
+	WorkerPlanApply      MCPWorkerPlanApplier
+	WorkflowPlanApply    MCPWorkflowPlanApplier
 }
 
 func NewGRPCRunnerAdapter(
@@ -137,6 +143,9 @@ func NewGRPCRunnerAdapter(
 		adapter.goalLoopService = mcpDeps.GoalLoopService
 		adapter.blockstoreService = mcpDeps.BlockstoreService
 		adapter.knowledgebaseService = mcpDeps.KnowledgebaseService
+		adapter.resourceControl = mcpDeps.ResourceControl
+		adapter.workerPlanApply = mcpDeps.WorkerPlanApply
+		adapter.workflowPlanApply = mcpDeps.WorkflowPlanApply
 	}
 
 	return adapter

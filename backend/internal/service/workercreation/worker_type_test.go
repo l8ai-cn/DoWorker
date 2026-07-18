@@ -156,6 +156,7 @@ func TestWorkerTypeResolverProjectsCredentialRequirementGroups(t *testing.T) {
 }
 
 func TestWorkerTypeResolverRejectsUnavailableDefinitions(t *testing.T) {
+	t.Setenv("AGENTSMESH_INCLUDE_INTERNAL_AGENTS", "false")
 	source := "AGENT codex\n"
 	tests := []struct {
 		name  string
@@ -218,6 +219,33 @@ func TestWorkerTypeResolverRejectsUnavailableDefinitions(t *testing.T) {
 			assert.ErrorContains(t, err, test.match)
 		})
 	}
+}
+
+func TestWorkerTypeResolverAllowsInternalDefinitionsInE2EEnvironment(t *testing.T) {
+	t.Setenv("AGENTSMESH_INCLUDE_INTERNAL_AGENTS", "true")
+	source := "AGENT echo\nEXECUTABLE e2e-mock-agent\nMODE pty\n"
+	agent := activeWorkerTypeAgentFor("e2e-echo", "e2e-mock-agent", source)
+	agent.IsInternal = true
+	agent.SupportedModes = "pty"
+	resolver := newWorkerTypeResolver(
+		&workerTypeAgentProvider{agent: agent},
+		staticWorkerDefinitions{
+			"e2e-echo": workerDefinition(
+				"e2e-echo",
+				"e2e-mock-agent",
+				source,
+				"pty",
+			),
+		},
+	)
+
+	_, err := resolver.ResolveWorkerType(
+		context.Background(),
+		specservice.Scope{OrgID: 77, UserID: 7},
+		slugkit.MustNewForTest("e2e-echo"),
+	)
+
+	require.NoError(t, err)
 }
 
 type workerTypeAgentProvider struct {

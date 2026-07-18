@@ -1,61 +1,16 @@
 package tools
 
 import (
+	"encoding/json"
 	"testing"
 )
 
-// Tests for Pod-related types and methods
-
 func TestPodCreateRequest(t *testing.T) {
-	ticketSlug := "AM-123"
-
 	req := PodCreateRequest{
-		RunnerID:   1,
-		TicketSlug: &ticketSlug,
+		Resource: json.RawMessage(`{"kind":"Worker"}`),
 	}
-
-	if req.RunnerID != 1 {
-		t.Errorf("RunnerID: got %v, want %v", req.RunnerID, 1)
-	}
-	if req.TicketSlug == nil || *req.TicketSlug != "AM-123" {
-		t.Errorf("TicketSlug: got %v, want AM-123", req.TicketSlug)
-	}
-}
-
-func TestPodCreateRequestWithAllFields(t *testing.T) {
-	ticketSlug := "AM-123"
-	repositoryID := int64(789)
-	repositoryURL := "https://github.com/example/repo.git"
-	branchName := "feature/new-feature"
-	modelResourceID := int64(111)
-
-	req := PodCreateRequest{
-		RunnerID:            1,
-		AgentSlug:           "claude-code",
-		TicketSlug:          &ticketSlug,
-		RepositoryID:        &repositoryID,
-		RepositoryURL:       &repositoryURL,
-		BranchName:          &branchName,
-		ModelResourceID:    &modelResourceID,
-	}
-
-	if req.RunnerID != 1 {
-		t.Errorf("RunnerID: got %v, want %v", req.RunnerID, 1)
-	}
-	if req.AgentSlug != "claude-code" {
-		t.Errorf("AgentSlug: got %v, want claude-code", req.AgentSlug)
-	}
-	if req.RepositoryID == nil || *req.RepositoryID != 789 {
-		t.Errorf("RepositoryID: got %v, want 789", req.RepositoryID)
-	}
-	if req.RepositoryURL == nil || *req.RepositoryURL != "https://github.com/example/repo.git" {
-		t.Errorf("RepositoryURL: got %v, want https://github.com/example/repo.git", req.RepositoryURL)
-	}
-	if req.BranchName == nil || *req.BranchName != "feature/new-feature" {
-		t.Errorf("BranchName: got %v, want feature/new-feature", req.BranchName)
-	}
-	if req.ModelResourceID == nil || *req.ModelResourceID != 111 {
-		t.Errorf("ModelResourceID: got %v, want 111", req.ModelResourceID)
+	if string(req.Resource) != `{"kind":"Worker"}` {
+		t.Fatalf("Resource = %s", req.Resource)
 	}
 }
 

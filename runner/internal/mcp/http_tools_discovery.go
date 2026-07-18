@@ -29,7 +29,7 @@ func (s *HTTPServer) createListAvailablePodsTool() *MCPTool {
 func (s *HTTPServer) createListRunnersTool() *MCPTool {
 	return &MCPTool{
 		Name:        "list_runners",
-		Description: "List available runners with their supported agents. Returns runner ID, status, capacity, and available_agents array containing full agent details (id, slug, name, description, config schema, user_config). Use the agent slug when creating pods with create_pod tool.",
+		Description: "List available runners with their supported agents, capacity, and projected Worker Definition details. Use the product resource editor or API to apply a WorkerTemplate before calling create_pod with a Worker resource manifest.",
 		InputSchema: map[string]interface{}{
 			"type":       "object",
 			"properties": map[string]interface{}{},

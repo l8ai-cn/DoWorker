@@ -67,12 +67,11 @@ func TestProtocol_UnknownPodKeyRejected(t *testing.T) {
 func TestProtocol_UnknownMethodReturns32601(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	rest := fixture.SharedREST(t, env)
-	runner := fixture.DiscoverRunner(t, env, rest)
-	pod := fixture.NewEchoPod(t, env, rest, runner.ID)
+	pod := fixture.NewEchoPod(t, env, rest)
 
 	body := []byte(`{"jsonrpc":"2.0","id":1,"method":"definitely/not/a/real/method"}`)
 	req, _ := http.NewRequestWithContext(context.Background(),
-		http.MethodPost, env.MCPBaseURL, bytes.NewReader(body))
+		http.MethodPost, pod.MCP.BaseURL(), bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-Pod-Key", pod.Pod.PodKey)
 	resp, err := http.DefaultClient.Do(req)
@@ -92,14 +91,13 @@ func TestProtocol_UnknownMethodReturns32601(t *testing.T) {
 func TestProtocol_NotificationGets202(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	rest := fixture.SharedREST(t, env)
-	runner := fixture.DiscoverRunner(t, env, rest)
-	pod := fixture.NewEchoPod(t, env, rest, runner.ID)
+	pod := fixture.NewEchoPod(t, env, rest)
 
 	// MCP "notifications/*" must return 202 with no body per the streamable
 	// HTTP spec. handleMCP short-circuits these before routing.
 	body := []byte(`{"jsonrpc":"2.0","method":"notifications/initialized"}`)
 	req, _ := http.NewRequestWithContext(context.Background(),
-		http.MethodPost, env.MCPBaseURL, bytes.NewReader(body))
+		http.MethodPost, pod.MCP.BaseURL(), bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-Pod-Key", pod.Pod.PodKey)
 	resp, err := http.DefaultClient.Do(req)
@@ -115,12 +113,11 @@ func TestProtocol_NotificationGets202(t *testing.T) {
 func TestProtocol_InitializeAdvertisesCapabilities(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	rest := fixture.SharedREST(t, env)
-	runner := fixture.DiscoverRunner(t, env, rest)
-	pod := fixture.NewEchoPod(t, env, rest, runner.ID)
+	pod := fixture.NewEchoPod(t, env, rest)
 
 	body := []byte(`{"jsonrpc":"2.0","id":1,"method":"initialize"}`)
 	req, _ := http.NewRequestWithContext(context.Background(),
-		http.MethodPost, env.MCPBaseURL, bytes.NewReader(body))
+		http.MethodPost, pod.MCP.BaseURL(), bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-Pod-Key", pod.Pod.PodKey)
 	resp, err := http.DefaultClient.Do(req)
@@ -152,12 +149,11 @@ func TestProtocol_InitializeAdvertisesCapabilities(t *testing.T) {
 func TestProtocol_ToolsListEnumeratesAllRegistered(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	rest := fixture.SharedREST(t, env)
-	runner := fixture.DiscoverRunner(t, env, rest)
-	pod := fixture.NewEchoPod(t, env, rest, runner.ID)
+	pod := fixture.NewEchoPod(t, env, rest)
 
 	body := []byte(`{"jsonrpc":"2.0","id":1,"method":"tools/list"}`)
 	req, _ := http.NewRequestWithContext(context.Background(),
-		http.MethodPost, env.MCPBaseURL, bytes.NewReader(body))
+		http.MethodPost, pod.MCP.BaseURL(), bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-Pod-Key", pod.Pod.PodKey)
 	resp, err := http.DefaultClient.Do(req)

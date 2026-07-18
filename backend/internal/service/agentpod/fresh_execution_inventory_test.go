@@ -54,10 +54,6 @@ func TestFreshExecutionInventory(t *testing.T) {
 			Mode:   "plan",
 			Fields: []string{"WorkerSpecDraft"},
 		},
-		"backend/internal/api/grpc/runner_adapter_mcp_pod.go:mcpCreatePod": {
-			Mode:   "legacy",
-			Fields: []string{"RunnerID", "AgentSlug", "RepositoryID", "AgentfileLayer", "SourcePodKey"},
-		},
 		"backend/internal/api/rest/v1/pod_create.go:CreatePod": {
 			Mode:   "legacy",
 			Fields: []string{"RunnerID", "AgentSlug", "RepositoryID", "AgentfileLayer", "SourcePodKey", "ModelResourceID", "AutomationLevel"},

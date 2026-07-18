@@ -27,6 +27,11 @@
       "definition_hash": "sha256:e79be1769fe5b2d4de307d3748b9edcfa8a31eafec0a5a51a4b2dfb36b0a8337"
     },
     {
+      "slug": "e2e-echo",
+      "definition_path": "config/worker-types/e2e-echo/definition.json",
+      "definition_hash": "sha256:5f7bcc931f925692e0a5b60a99002bd148070b37112d653dee851ce90587e945"
+    },
+    {
       "slug": "gemini-cli",
       "definition_path": "config/worker-types/gemini-cli/definition.json",
       "definition_hash": "sha256:deed6b7513abcc40aca9e7cc5f09ca90dd3bab5a54233efdd3422bee09f582e8"

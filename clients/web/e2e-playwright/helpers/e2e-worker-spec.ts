@@ -1,7 +1,6 @@
 import type { ConnectClient } from "./connect-client";
 import { E2E_ECHO_AGENT_SLUG } from "./e2e-echo-runner";
 import { TEST_ORG_SLUG } from "./env";
-
 type InteractionMode = "pty" | "acp";
 type AutomationLevel = "interactive" | "auto_edit" | "autonomous";
 interface WorkerTypeOption {
@@ -17,7 +16,6 @@ interface WorkerTypeOption {
 interface RuntimeImageOption {
   id: bigint; selectable: boolean; workerTypeSlugs: string[];
 }
-
 interface ComputeTargetOption {
   id: bigint;
   kind: string;
@@ -28,7 +26,6 @@ interface ComputeTargetOption {
 interface ResourceProfileOption {
   id: bigint; slug: string; selectable: boolean;
 }
-
 interface WorkerCreateOptions {
   revision: string;
   workerTypes: WorkerTypeOption[];
@@ -81,6 +78,10 @@ export async function buildE2EEchoWorkerSpec(
   client: ConnectClient,
   options: E2EWorkerSpecOptions = {},
 ): Promise<E2EWorkerSpecDraft> {
+  const branch = options.branch?.trim() ?? "";
+  if (options.repositoryId !== undefined && !branch) {
+    throw new Error("repository-backed WorkerSpec requires an explicit branch");
+  }
   const catalog = await client.pod.listWorkerCreateOptions({
     orgSlug: TEST_ORG_SLUG,
     workerTypeSlug: E2E_ECHO_AGENT_SLUG,
@@ -142,7 +143,7 @@ export async function buildE2EEchoWorkerSpec(
     interactionMode: mode,
     automationLevel: options.automationLevel ?? "interactive",
     repositoryId: options.repositoryId,
-    branch: options.branch ?? "",
+    branch,
     envBundleIds: options.envBundleIds ?? [],
     instructions: "",
     initialTask: options.prompt ?? "",

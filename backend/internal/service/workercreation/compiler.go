@@ -110,10 +110,10 @@ func compileDeclarations(
 	for _, name := range references.EnvBundleNames {
 		declarations = append(declarations, &parser.UseEnvBundleDecl{Name: name})
 	}
-	for _, documentID := range references.ConfigDocumentIDs {
+	for _, bundleName := range references.ConfigBundleNames {
 		declarations = append(
 			declarations,
-			&parser.UseConfigBundleDecl{Name: documentID},
+			&parser.UseConfigBundleDecl{Name: bundleName},
 		)
 	}
 	if prompt := compilePrompt(spec.Workspace); prompt != "" {

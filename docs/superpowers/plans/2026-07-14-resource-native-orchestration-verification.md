@@ -15,10 +15,11 @@ Audit date: 2026-07-18.
 - Quick Task consumes only a Worker Plan, reuses the durable Worker launch, and
   reports the applied Pod's current status; it no longer selects agent, Runner,
   repository, prompt, alias, AgentFile, or queue TTL at runtime.
-- Runner MCP `create_pod` exposes only `plan_id`, reauthorizes the caller before
-  Worker Apply, rejects extra fields in the Runner handler and Backend decoder,
-  keeps automatic Pod read/write binding after creation, and reports binding
-  failure as a redacted tool error.
+- Runner MCP `create_pod` accepts only a Worker `resource` manifest. The Backend
+  executes Validate, Plan, caller authorization, and typed Worker Apply, then
+  returns the applied resource revision and WorkerSpec snapshot. The Runner
+  keeps automatic Pod read/write binding after creation and reports validation,
+  apply, or binding failures as redacted tool errors.
 - Runner MCP full package and build-tag integration suites pass. An independent
   two-pass review found and then verified closure of one P1 and three P2
   contract/documentation issues; no P0/P1/P2 remain in that cutover.
@@ -177,38 +178,22 @@ Audit date: 2026-07-18.
   values for every Kind and uses exact Backend CPU wire names.
 - Final review found and verified closure of a custom `json.Unmarshaler` null
   bypass across runtime resources and nested references; no P0/P1/P2 remain.
-- Web passes `987` suites/`2342` tests; ESLint has zero errors and 181 existing
-  warnings. Typecheck, Worker docs/runtime checks, Rust workspace, WASM,
-  production Web build, full Backend, and scoped diff checks pass.
-- Production browser Plan `8c892373-3cc7-4bbb-be7d-dc7e433bd49d` produced root
-  `ADD` and immutable r1 refs to `qa-primary-pool`, `qa-primary-model`, and
-  `standard-profile`. Canonical adoption preserved `Browser Direct YAML Edited`
-  in the form, with no new console warning/error.
-- Production Playwright passes six resource-editor scenarios plus setup with
-  trace (`7 passed`). The route-network guard proves eight anonymous auth routes
-  load no WASM while the dashboard does (`10 passed`, including setup).
-- The earlier development-only reset was Next/Turbopack HMR and does not
-  reproduce in production, so no Draft storage fallback was added.
-- GoalLoop `description` is Web-required but optional in the frozen Backend.
-  Integer fields also need one policy for JavaScript-safe range versus `int64`;
-  neither mismatch is hidden by fallback during the GoalLoop release freeze.
-- Real PostgreSQL migration tests pass for `000226`, `000227`, and `000228`,
-  including fail-closed constraints and down migrations. A clean worktree
-  startup applied version `228` with `dirty=false`.
-- Backend, proxy, and Web health return 200; browser and E2E paths are
-  unblocked, while server-side authorization remains authoritative.
-- Chromium passes the six resource-editor scenarios plus setup (`7 passed`)
-  and the auth/dashboard WASM route guard plus setup (`10 passed`). Manual
-  Chrome DevTools verification completed Prompt Validate/Plan/Apply, observed
-  `ApplyPromptPlan` return 200, displayed revision 1, and found no console
-  warning or error.
-- The manual Prompt persisted as immutable active revision 1 with digest
-  `sha256:65d9873e92dc68b39d1299f19b08a229d688162da804ba6d82257824d0ca7375`.
-  Worker, WorkerTemplate, Expert, Workflow, GoalLoop, and all binding-resource
-  form entry points rendered in the authenticated browser.
-- The resource-orchestration documentation page loaded without a WASM request;
-  the authenticated dashboard loaded `wasm_pkg_bg` as required. Production
-  chunk scanning also confirms marketing and auth chunks contain no WASM
-  symbols.
+- Web passes 324 files and 2343 tests; lint, typecheck, Rust workspace, WASM,
+  production Web build, Worker docs/runtime checks, and full Go packages pass.
+- Production Playwright passes 16 resource-editor and WASM route scenarios.
+  Desktop/mobile visual QA found no overflow, framework overlay, console error,
+  failed response, or inaccessible action state.
+- A serial production-browser regression passes 121 tests covering Autopilot
+  realtime control, Runner capacity scheduling, Workflow reference protection,
+  GoalLoop Apply gating, Mesh, and Channel paths.
+- Runner MCP passes its complete live suite in 33 seconds, including automatic
+  Pod placement, immutable applied identity, cross-Runner routing, Workflow
+  resource Apply, authorization isolation, and redacted errors. Binding failure
+  returns a tool error, and Runner capacity uses an atomic database claim.
+- CI-equivalent `postgres:16` passes migration lineage, dirty-version rejection,
+  `000226` revision/snapshot consistency, `000227` execution manifests, and
+  `000228` optional model binding, including fail-closed and rollback cases.
+- Production chunk scanning confirms marketing and auth chunks contain no WASM
+  symbols while authenticated dashboard routes load the WASM runtime.
 - Production deployment remains governed by the release owner and GitOps
   rollout policy; no manual production mutation is claimed here.

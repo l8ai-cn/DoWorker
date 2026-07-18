@@ -52,6 +52,18 @@ func TestCursorDefinitionDoesNotRequirePlatformModelResource(t *testing.T) {
 	assert.Empty(t, cursor.ModelRequirement.ProtocolAdapters)
 }
 
+func TestE2EEchoDefinitionIsInternalAndCredentialFree(t *testing.T) {
+	catalog, err := Load(filepath.Join(repositoryRoot(t), "config", "worker-types"))
+
+	require.NoError(t, err)
+	echo, ok := catalog.Get("e2e-echo")
+	require.True(t, ok)
+	assert.True(t, echo.Internal)
+	assert.False(t, echo.ModelRequirement.Required)
+	assert.Empty(t, echo.CredentialBindings)
+	assert.Equal(t, "e2e-mock-agent", echo.Executable)
+}
+
 func TestGeminiDefinitionUsesGeminiAPIKey(t *testing.T) {
 	catalog, err := Load(filepath.Join(repositoryRoot(t), "config", "worker-types"))
 

@@ -39,7 +39,7 @@ func (s *Server) CreatePod(
 	if err != nil {
 		return nil, mapServiceError(err)
 	}
-	s.publishPodCreated(ctx, result.Pod)
+	s.publishPodCreated(ctx, result.Pod, orchReq.TicketSlug)
 	response := &podv1.CreatePodResponse{Pod: ToProtoPod(result.Pod)}
 	if result.Warning != "" {
 		response.Warning = &result.Warning
@@ -47,7 +47,11 @@ func (s *Server) CreatePod(
 	return connect.NewResponse(response), nil
 }
 
-func (s *Server) publishPodCreated(ctx context.Context, pod *podDomain.Pod) {
+func (s *Server) publishPodCreated(
+	ctx context.Context,
+	pod *podDomain.Pod,
+	ticketSlug *string,
+) {
 	if s.eventBus == nil || pod == nil {
 		return
 	}
@@ -60,6 +64,9 @@ func (s *Server) publishPodCreated(ctx context.Context, pod *podDomain.Pod) {
 	}
 	if pod.TicketID != nil {
 		data.TicketId = pod.TicketID
+	}
+	if ticketSlug != nil {
+		data.TicketSlug = *ticketSlug
 	}
 	event, err := eventbus.NewEntityEvent(eventbus.EventPodCreated, pod.OrganizationID, "pod", pod.PodKey, data)
 	if err != nil {

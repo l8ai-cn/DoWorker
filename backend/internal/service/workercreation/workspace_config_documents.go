@@ -11,7 +11,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 )
 
-func (resolver *workspaceResolver) resolveConfigDocumentIDs(
+func (resolver *workspaceResolver) resolveConfigBundleNames(
 	ctx context.Context,
 	scope specservice.Scope,
 	workerType slugkit.Slug,
@@ -33,7 +33,7 @@ func (resolver *workspaceResolver) resolveConfigDocumentIDs(
 		}
 		return []string{}, nil
 	}
-	documentIDs := make([]string, 0, len(bindings))
+	bundleNames := make([]string, 0, len(bindings))
 	seenDocuments := make(map[string]struct{}, len(bindings))
 	seenBundles := make(map[int64]struct{}, len(bindings))
 	for _, binding := range bindings {
@@ -78,7 +78,7 @@ func (resolver *workspaceResolver) resolveConfigDocumentIDs(
 		}
 		seenDocuments[documentID] = struct{}{}
 		seenBundles[binding.ConfigBundleID] = struct{}{}
-		documentIDs = append(documentIDs, documentID)
+		bundleNames = append(bundleNames, bundle.Name)
 	}
 	for documentID, document := range declared {
 		if !document.Required {
@@ -92,7 +92,7 @@ func (resolver *workspaceResolver) resolveConfigDocumentIDs(
 			)
 		}
 	}
-	return documentIDs, nil
+	return bundleNames, nil
 }
 
 func configDocumentsByID(

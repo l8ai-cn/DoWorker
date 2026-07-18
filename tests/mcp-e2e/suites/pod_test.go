@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/anthropics/agentsmesh/tests/mcp-e2e/fixture"
+	"github.com/stretchr/testify/require"
 )
 
 // create_pod returns text like "Pod: <key> ..." — extract the key with a
@@ -18,19 +19,33 @@ var nestedPodKeyRE = regexp.MustCompile(`(\d+-standalone-[a-f0-9]+)`)
 func TestCreatePod_NestedSpawn(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	rest := fixture.SharedREST(t, env)
-	runner := fixture.DiscoverRunner(t, env, rest)
-	pod := fixture.NewEchoPod(t, env, rest, runner.ID)
+	pod := fixture.NewEchoPod(t, env, rest)
+	templateName := fixture.NewEchoWorkerTemplateResource(
+		t,
+		env,
+		rest,
+		"nested-worker",
+	)
+	db := fixture.OpenDB(t, env)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	alias := fmt.Sprintf("e2e-nested-%d", time.Now().UnixMilli())
 	out, err := pod.MCP.CallToolText(ctx, "create_pod", map[string]any{
-		"agent_slug": "e2e-echo",
-		"runner_id":  runner.ID,
-		"alias":      alias,
-		"cols":       80,
-		"rows":       24,
+		"resource": map[string]any{
+			"apiVersion": "agentsmesh.io/v1alpha1",
+			"kind":       "Worker",
+			"metadata": map[string]any{
+				"name": alias, "namespace": env.DevOrgSlug,
+			},
+			"spec": map[string]any{
+				"workerTemplateRef": map[string]any{
+					"kind": "WorkerTemplate", "name": templateName,
+				},
+				"inputs": map[string]any{}, "alias": alias,
+			},
+		},
 	})
 	if err != nil {
 		t.Fatalf("create_pod: %v", err)
@@ -45,6 +60,13 @@ func TestCreatePod_NestedSpawn(t *testing.T) {
 	if !strings.Contains(out, spawnedKey) {
 		t.Errorf("expected pod key in output:\n%s", out)
 	}
+	require.Contains(t, out, "Resource: Worker/")
+	require.Contains(t, out, "Snapshot:")
+	binding, err := db.GetWorkerLaunchOrchestrationBinding(ctx, spawnedKey)
+	require.NoError(t, err)
+	require.Positive(t, binding.ResourceID)
+	require.Positive(t, binding.ResourceRevision)
+	require.Positive(t, binding.WorkerSpecSnapshotID)
 
 	t.Cleanup(func() {
 		ctx2, cancel2 := context.WithTimeout(context.Background(), 5*time.Second)

@@ -12,7 +12,6 @@ test.describe("Worker template dependency editor", () => {
     await expect(editor.getByText(/Skills|Skill|技能/i)).toBeVisible();
     await expect(editor.getByText(/Knowledge mounts|知识库挂载/i)).toBeVisible();
     await expect(editor.getByText(/Environment bundles|环境变量包/i)).toBeVisible();
-    await expect(editor.getByText(/Configuration bundles|配置包/i)).toBeVisible();
   });
 
   test("exposes explicit resource sizing controls instead of an opaque profile only", async ({

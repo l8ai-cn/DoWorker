@@ -150,10 +150,14 @@ test.describe("CRUD Supplements", () => {
     const cc = await api.connect();
     const { items: repos } = await cc.repository.listRepositories({
       orgSlug: TEST_ORG_SLUG,
-    }) as { items: { id: bigint }[] };
+    }) as { items: { id: bigint; defaultBranch: string }[] };
+    const repository = repos[0];
+    expect(repository, "seeded repository must exist").toBeTruthy();
+    expect(repository.defaultBranch, "seeded repository must declare a default branch").toBeTruthy();
 
     const created = await createE2EEchoPod(cc, {
-      repositoryId: repos[0]?.id,
+      repositoryId: repository.id,
+      branch: repository.defaultBranch,
     }) as { pod: { podKey: string } };
     const podKey = created.pod?.podKey;
     expect(podKey).toBeTruthy();

@@ -5,6 +5,7 @@ import {
   hasAvailableRuntime,
   mapRuntimeCatalogEvidence,
 } from "./worker-runtime-catalog-evidence.mjs";
+import { loadPublicWorkerDefinitions } from "./public-worker-definitions.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const outputPath = path.join(
@@ -60,12 +61,16 @@ function buildWorkers() {
     evidenceMatrix.workers.map((worker) => [worker.slug, worker]),
   );
   const lockedImages = runtimeCatalog.images;
-  const definitionSlugs = definitionCatalog.worker_types.map((worker) => worker.slug);
+  const publicDefinitions = loadPublicWorkerDefinitions({
+    definitionCatalog,
+    readJson,
+    root,
+  });
+  const definitionSlugs = publicDefinitions.map(({ entry }) => entry.slug);
 
   assertSameSlugs(definitionSlugs, [...evidenceBySlug.keys()], "evidence matrix");
 
-  return definitionCatalog.worker_types.map((entry) => {
-    const definition = readJson(path.join(root, entry.definition_path));
+  return publicDefinitions.map(({ entry, definition }) => {
     const evidence = evidenceBySlug.get(entry.slug);
     const runtimeImage = lockedImages.find((image) =>
       image.worker_type_slugs.includes(entry.slug),

@@ -17,6 +17,18 @@ require_nonempty() {
 require_nonempty "$CATALOG"
 require_nonempty "$SCHEMA"
 expected="$(jq -Rsc 'split("\n") | map(select(length > 0)) | sort' "$SLUGS")"
+actual_public="$(
+  jq -r '.worker_types[] | [.slug, .definition_path] | @tsv' "$CATALOG" |
+    while IFS=$'\t' read -r slug path; do
+      [[ "$(jq -r '.internal // false' "${REPO_ROOT}/${path}")" == "true" ]] ||
+        printf '%s\n' "$slug"
+    done |
+    jq -Rsc 'split("\n") | map(select(length > 0)) | sort'
+)"
+[[ "$actual_public" == "$expected" ]] || {
+  echo "public Worker definitions do not match formal Worker slugs" >&2
+  exit 1
+}
 
 definition_bundle_sha256() {
   local definition="$1"
@@ -27,10 +39,9 @@ definition_bundle_sha256() {
   )"
 }
 
-jq -e --argjson expected "$expected" '
+jq -e '
   .schema_version == 1 and
   (.worker_types | type == "array") and
-  ([.worker_types[].slug] | sort) == $expected and
   all(.worker_types[];
     (.slug | type == "string") and
     (.definition_path | type == "string") and
@@ -72,4 +83,4 @@ while IFS= read -r slug; do
     (.credential_bindings | type == "array") and
     (.config_documents | type == "array")
   ' "$definition" >/dev/null
-done <"$SLUGS"
+done < <(jq -r '.worker_types[].slug' "$CATALOG")

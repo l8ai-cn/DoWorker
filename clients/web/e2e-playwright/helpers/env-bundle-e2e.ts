@@ -26,7 +26,6 @@ function listRunnerContainers(): string[] {
     return [];
   }
 }
-/** Create an e2e-echo pod with runtime EnvBundles through WorkerSpecDraft. */
 export async function createPodAndWaitRunning(args: {
   api: ApiFixture;
   agentSlug: string;

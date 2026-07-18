@@ -57,75 +57,34 @@ func (s *HTTPServer) createListWorkflowsTool() *MCPTool {
 func (s *HTTPServer) createCreateWorkflowTool() *MCPTool {
 	return &MCPTool{
 		Name: "create_workflow",
-		Description: "Create a new automated workflow (repeatable AI agent task) after clarifying it with the user. " +
+		Description: "Validate, plan, and apply an agentsmesh.io/v1alpha1 Workflow resource after clarifying it with the user. " +
 			"Follow the looper methodology: (1) workflow-worthiness gate — only create a workflow when fresh observations can change the next action across runs; recommend a one-time task otherwise; " +
-			"(2) pick the smallest trigger — omit cron_expression for on-demand workflows, set it only when work truly arrives on a schedule; " +
+			"(2) pick the smallest trigger in the Workflow spec; " +
 			"(3) clarify goal, acceptance criteria and schedule with the user BEFORE calling this tool; " +
-			"(4) workflows are created disabled by default — pass enabled=true only after the user explicitly confirms. " +
-			"The prompt_template should state the goal, concrete acceptance criteria, and a clean idle exit (what to do when there is no work).",
+			"(4) workflows are created disabled by default — pass enabled=true only after the user explicitly confirms.",
 		InputSchema: map[string]interface{}{
 			"type": "object",
 			"properties": map[string]interface{}{
-				"name": map[string]interface{}{
-					"type":        "string",
-					"description": "Human-readable workflow name (slug is derived from it)",
-				},
-				"description": map[string]interface{}{
-					"type":        "string",
-					"description": "One-sentence purpose of the workflow",
-				},
-				"prompt_template": map[string]interface{}{
-					"type":        "string",
-					"description": "Instructions executed on every run: goal, acceptance criteria, verification steps, and idle exit behaviour",
-				},
-				"agent_slug": map[string]interface{}{
-					"type":        "string",
-					"description": "Agent image to run (defaults to the current pod's agent)",
-				},
-				"cron_expression": map[string]interface{}{
-					"type":        "string",
-					"description": "Standard 5-field cron (minute hour day month weekday). Omit for on-demand workflows",
-				},
-				"execution_mode": map[string]interface{}{
-					"type":        "string",
-					"enum":        []string{"autopilot", "direct"},
-					"description": "autopilot iterates until done (default); direct runs the prompt once per trigger",
-				},
-				"sandbox_strategy": map[string]interface{}{
-					"type":        "string",
-					"enum":        []string{"persistent", "fresh"},
-					"description": "persistent keeps the workspace between runs (default); fresh starts clean",
-				},
-				"timeout_minutes": map[string]interface{}{
-					"type":        "integer",
-					"description": "Per-run budget in minutes (default: 60)",
-				},
-				"session_persistence": map[string]interface{}{
-					"type":        "boolean",
-					"description": "Keep agent conversation history across runs",
+				"resource": map[string]interface{}{
+					"type":        "object",
+					"description": "Complete Workflow resource manifest with apiVersion, kind, metadata, and spec.",
 				},
 				"enabled": map[string]interface{}{
 					"type":        "boolean",
 					"description": "Enable immediately. Only set true after explicit user confirmation (default: false)",
 				},
 			},
-			"required": []string{"name", "prompt_template"},
+			"required":             []string{"resource"},
+			"additionalProperties": false,
 		},
 		Handler: func(ctx context.Context, client tools.CollaborationClient, args map[string]interface{}) (interface{}, error) {
-			req := &tools.WorkflowCreateRequest{
-				Name:               getStringArg(args, "name"),
-				Description:        getStringArg(args, "description"),
-				PromptTemplate:     getStringArg(args, "prompt_template"),
-				AgentSlug:          getStringArg(args, "agent_slug"),
-				CronExpression:     getStringArg(args, "cron_expression"),
-				ExecutionMode:      getStringArg(args, "execution_mode"),
-				SandboxStrategy:    getStringArg(args, "sandbox_strategy"),
-				TimeoutMinutes:     getIntArg(args, "timeout_minutes"),
-				SessionPersistence: getBoolArg(args, "session_persistence"),
-				Enabled:            getBoolArg(args, "enabled"),
+			resource, err := resourceManifestArgument(args)
+			if err != nil {
+				return nil, err
 			}
-			if req.Name == "" || req.PromptTemplate == "" {
-				return nil, fmt.Errorf("name and prompt_template are required")
+			req := &tools.WorkflowCreateRequest{
+				Resource: resource,
+				Enabled:  getBoolArg(args, "enabled"),
 			}
 			return client.CreateWorkflow(ctx, req)
 		},

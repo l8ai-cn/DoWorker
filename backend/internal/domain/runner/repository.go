@@ -7,7 +7,8 @@ import (
 )
 
 var (
-	ErrTokenExhausted = errors.New("registration token usage exhausted")
+	ErrTokenExhausted            = errors.New("registration token usage exhausted")
+	ErrRunnerCapacityUnavailable = errors.New("runner pod capacity is unavailable")
 )
 
 type HeartbeatUpdate struct {

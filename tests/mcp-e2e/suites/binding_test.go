@@ -27,9 +27,8 @@ var bindingIDRE = regexp.MustCompile(`Binding[^\d]*(\d+)`)
 func TestBinding_LifecycleHappyPath(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	rest := fixture.SharedREST(t, env)
-	runner := fixture.DiscoverRunner(t, env, rest)
-	podA := fixture.NewEchoPod(t, env, rest, runner.ID)
-	podB := fixture.NewEchoPod(t, env, rest, runner.ID)
+	podA := fixture.NewEchoPod(t, env, rest)
+	podB := fixture.NewEchoPod(t, env, rest)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -88,9 +87,8 @@ func TestBinding_LifecycleHappyPath(t *testing.T) {
 func TestBinding_AcceptRejectRequiresPending(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	rest := fixture.SharedREST(t, env)
-	runner := fixture.DiscoverRunner(t, env, rest)
-	podA := fixture.NewEchoPod(t, env, rest, runner.ID)
-	podB := fixture.NewEchoPod(t, env, rest, runner.ID)
+	podA := fixture.NewEchoPod(t, env, rest)
+	podB := fixture.NewEchoPod(t, env, rest)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()

@@ -27,9 +27,9 @@ test.describe("Workflow resource EnvBundle binding", () => {
       const fetched = await cc.workflow.getWorkflow({
         orgSlug: TEST_ORG_SLUG,
         workflowSlug: slug,
-      }) as { slug: string; workerSpecSnapshotId: bigint };
+      }) as { slug: string };
       expect(fetched.slug).toBe(slug);
-      expect(fetched.workerSpecSnapshotId).toBe(created.workerSpecSnapshotId);
+      expect(workflowSnapshotId(db, slug)).toBe(created.workerSpecSnapshotId);
       expect(snapshotEnvBundleIds(db, created.workerSpecSnapshotId)).toEqual([
         Number(bundleA.id),
         Number(bundleB.id),
@@ -41,7 +41,7 @@ test.describe("Workflow resource EnvBundle binding", () => {
     }
   });
 
-  test("legacy Workflow update cannot mutate the pinned snapshot", async ({
+  test("legacy Workflow update rejects resource-managed definitions", async ({
     api,
     db,
   }) => {
@@ -57,11 +57,11 @@ test.describe("Workflow resource EnvBundle binding", () => {
         environmentBundles: [bundle],
       });
       const before = snapshotEnvBundleIds(db, created.workerSpecSnapshotId);
-      await cc.workflow.updateWorkflow({
+      await expect(cc.workflow.updateWorkflow({
         orgSlug: TEST_ORG_SLUG,
         workflowSlug: slug,
         usedEnvBundles: { names: [] },
-      });
+      })).rejects.toThrow(/managed by orchestration validate-plan-apply/i);
       expect(snapshotEnvBundleIds(db, created.workerSpecSnapshotId)).toEqual(
         before,
       );
@@ -109,6 +109,19 @@ function snapshotEnvBundleIds(
   `);
   if (!raw) throw new Error(`WorkerSpec snapshot ${snapshotId} is missing`);
   return (JSON.parse(raw) as number[]).map(Number);
+}
+
+function workflowSnapshotId(
+  db: import("../../fixtures/db.fixture").DbFixture,
+  slug: string,
+): bigint {
+  const value = db.queryValue(`
+    SELECT worker_spec_snapshot_id
+    FROM workflows
+    WHERE slug = '${slug}'
+  `);
+  if (!value) throw new Error(`Workflow ${slug} has no WorkerSpec snapshot`);
+  return BigInt(value);
 }
 
 async function deleteWorkflow(

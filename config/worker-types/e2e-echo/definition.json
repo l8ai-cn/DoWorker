@@ -1,0 +1,1 @@
+{"schema_version":1,"slug":"e2e-echo","definition_version":"1","executable":"e2e-mock-agent","adapter_id":"acp","interaction_modes":["pty","acp"],"internal":true,"model_requirement":{"required":false,"protocol_adapters":[]},"credential_bindings":[],"config_documents":[],"image":{"runtime":"e2e-echo","version_probe":["e2e-mock-agent","--help"]}}

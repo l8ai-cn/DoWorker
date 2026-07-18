@@ -17,6 +17,7 @@ type Definition struct {
 	Version                     string
 	Executable                  string
 	AdapterID                   string
+	Internal                    bool
 	DefinitionHash              string
 	DefinitionSource            []byte
 	AgentFile                   string
@@ -95,6 +96,7 @@ type definitionFile struct {
 	Executable                  string            `json:"executable"`
 	AdapterID                   string            `json:"adapter_id"`
 	InteractionModes            []string          `json:"interaction_modes"`
+	Internal                    bool              `json:"internal"`
 	ModelRequirement            json.RawMessage   `json:"model_requirement"`
 	ToolModelRequirements       []json.RawMessage `json:"tool_model_requirements"`
 	CredentialBindings          []json.RawMessage `json:"credential_bindings"`
