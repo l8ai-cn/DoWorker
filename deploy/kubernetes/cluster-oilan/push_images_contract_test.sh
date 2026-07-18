@@ -74,3 +74,5 @@ bash harbor_upload_token_contract_test.sh
 bash configure_harbor_upload_token_contract_test.sh
 bash runner_build_base_contract_test.sh
 bash runner_build_base_passthrough_contract_test.sh
+bash oilan_staging_promotion_contract_test.sh
+bash harbor_credentials_contract_test.sh

@@ -1,20 +1,18 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC1091
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/harbor-manifest-digest.sh"
-
-harbor_creds() {
-  local store
-  store="$(python3 -c "import json,os;print(json.load(open(os.path.expanduser('~/.docker/config.json'))).get('credsStore',''))")"
-  echo "${REG}" | "docker-credential-${store}" get
-}
+# shellcheck disable=SC1091
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/harbor-docker-credentials.sh"
 
 ensure_project() {
   local cred u p status
-  cred="$(harbor_creds)"
+  cred="$(harbor_creds "${REG}")"
   u="$(echo "${cred}" | python3 -c "import sys,json;print(json.load(sys.stdin)['Username'])")"
   p="$(echo "${cred}" | python3 -c "import sys,json;print(json.load(sys.stdin)['Secret'])")"
   echo "==> ensuring Harbor project agentsmesh"
-  status="$(curl -sk -u "${u}:${p}" -o /dev/null -w "%{http_code}" \
+  status="$(harbor_curl --silent --show-error -u "${u}:${p}" \
+    -o /dev/null -w "%{http_code}" \
     -X POST "https://${REG}/api/v2.0/projects" \
     -H "Content-Type: application/json" \
     -d '{"project_name":"agentsmesh","public":true}')"
@@ -92,7 +90,7 @@ docker_push() {
 
 ensure_release_digest() {
   local variable_name="$1" image="$2" current release_file locked
-  current="${!variable_name}"
+  current="${!variable_name-}"
   [[ -z "${current}" ]] || return 0
 
   release_file="${REPO_ROOT}/deploy/kubernetes/cluster-oilan/release/kustomization.yaml"

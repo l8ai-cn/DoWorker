@@ -1,40 +1,18 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC1091
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/harbor-docker-credentials.sh"
+
 harbor_load_credentials() {
-  local registry="${1:?registry required}" config helper credentials auth
-  config="${DOCKER_CONFIG:-${HOME}/.docker}/config.json"
-  helper="$(python3 - "${config}" "${registry}" <<'PY'
-import json
-import pathlib
-import sys
-
-config = json.loads(pathlib.Path(sys.argv[1]).read_text())
-print(config.get("credHelpers", {}).get(sys.argv[2], config.get("credsStore", "")))
-PY
-)"
-  if [[ -n "${helper}" ]]; then
-    credentials="$(printf '%s' "${registry}" | "docker-credential-${helper}" get)"
-    HARBOR_USERNAME="$(printf '%s' "${credentials}" | python3 -c 'import json,sys; print(json.load(sys.stdin)["Username"])')"
-    HARBOR_PASSWORD="$(printf '%s' "${credentials}" | python3 -c 'import json,sys; print(json.load(sys.stdin)["Secret"])')"
-    return
-  fi
-  auth="$(python3 - "${config}" "${registry}" <<'PY'
-import base64
-import json
-import pathlib
-import sys
-
-config = json.loads(pathlib.Path(sys.argv[1]).read_text())
-print(base64.b64decode(config["auths"][sys.argv[2]]["auth"]).decode())
-PY
-)"
-  HARBOR_USERNAME="${auth%%:*}"
-  HARBOR_PASSWORD="${auth#*:}"
+  local registry="${1:?registry required}" credentials
+  credentials="$(harbor_creds "${registry}")" || return 1
+  HARBOR_USERNAME="$(jq -er '.Username' <<<"${credentials}")" || return 1
+  HARBOR_PASSWORD="$(jq -er '.Secret' <<<"${credentials}")" || return 1
 }
 
 harbor_immutable_rules() {
   local registry="${1:?registry required}" project="${2:?project required}"
-  curl -fsS \
+  harbor_curl -fsS \
     --connect-timeout 10 \
     --max-time 30 \
     --retry 3 \
@@ -45,7 +23,7 @@ harbor_immutable_rules() {
 
 harbor_registry_token() {
   local registry="${1:?registry required}"
-  curl -fsS \
+  harbor_curl -fsS \
     --connect-timeout 10 \
     --max-time 30 \
     --retry 3 \
@@ -127,7 +105,7 @@ harbor_ensure_immutable_tag() {
       }]
     }
   }')"
-  curl -fsS \
+  harbor_curl -fsS \
     --connect-timeout 10 \
     --max-time 30 \
     --retry 3 \
