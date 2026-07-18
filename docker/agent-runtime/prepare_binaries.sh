@@ -71,11 +71,7 @@ case "$AGENT_RUNTIME" in
     stage_loopal
     ;;
   do-agent)
-    if [[ ! -x "${DEPLOY_DEV}/do-agent-binary" ]]; then
-      source "${DEPLOY_DEV}/lib/build_do_agent_binary.sh"
-      build_do_agent_binary
-    fi
-    stage_sidecar "do-agent-binary" "${DEPLOY_DEV}/do-agent-binary"
+    bash "${REPO_ROOT}/docker/agent-runtime/stage_do_agent_binary.sh" "${STAGING}/binaries"
     ;;
 esac
 

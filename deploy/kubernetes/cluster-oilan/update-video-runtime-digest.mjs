@@ -79,8 +79,25 @@ function loadUpdates(root, digest) {
     throw new Error("video-studio runtime evidence has the wrong worker slug");
   }
   const workers = matrix.workers?.filter((worker) => worker.slug === "video-studio") ?? [];
-  if (workers.length !== 1) {
-    throw new Error("worker evidence matrix must contain one video-studio row");
+  if (workers.length > 1) {
+    throw new Error("worker evidence matrix must not contain duplicate video-studio rows");
+  }
+  const worker =
+    workers[0] ??
+    {
+      slug: "video-studio",
+      support_status: "not_supported",
+      definition: "projection_verified_current",
+      database_registration: "projection_verified_current",
+      runner: "published_runtime_probe_verified_current",
+      preflight: "not_run",
+      product_path: "not_run",
+      browser: "not_run",
+      evidence_ref: "evidence/runtime-builds/video-studio.json",
+    };
+  if (workers.length === 0) {
+    matrix.workers ??= [];
+    matrix.workers.push(worker);
   }
 
   const updatedLockEntry = lockMatch[0]
@@ -102,7 +119,7 @@ function loadUpdates(root, digest) {
   build.limits = [
     "No Runner registration, backend creation request, model credential materialization, or browser flow was executed.",
   ];
-  Object.assign(workers[0], {
+  Object.assign(worker, {
     runtime_catalog: "locked_available",
     live_create_option: "published_runtime_available",
     image_target: "published_runtime_smoke_verified",

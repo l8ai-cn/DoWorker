@@ -26,7 +26,7 @@ CONFIG_FILE="${CONFIG_DIR}/config.yaml"
 source /usr/local/lib/runner-ssh-bootstrap.sh
 
 case "${AGENT_RUNTIME}" in
-    claude-code|codex-cli|cursor-cli|gemini-cli|minimax-cli|e2e-echo|loopal|do-agent|aider|opencode|grok-build|openclaw|hermes) ;;
+    claude-code|codex-cli|video-studio|cursor-cli|gemini-cli|minimax-cli|e2e-echo|loopal|do-agent|aider|opencode|grok-build|openclaw|hermes) ;;
     *)
         echo "✗ Unsupported AGENT_RUNTIME=${AGENT_RUNTIME}" >&2
         exit 1

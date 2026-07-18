@@ -191,7 +191,7 @@ start_backend_host_lite() {
     export COORDINATOR_RUNNER_LAUNCHER=docker
     export COORDINATOR_RUNNER_DOCKER_COMPOSE_DIR="$SCRIPT_DIR"
     export COORDINATOR_RUNNER_DOCKER_COMPOSE_FILES=docker-compose.yml,docker-compose.runners.yml
-    export COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICES="claude-code=runner-claude-code,codex-cli=runner-codex-cli,cursor-cli=runner-cursor-cli,gemini-cli=runner-gemini-cli,e2e-echo=runner-e2e-echo,loopal=runner-loopal,do-agent=runner-do-agent,seedance-expert=runner-do-agent,grok-build=runner-grok-build,minimax-cli=runner-minimax-cli,openclaw=runner-openclaw,hermes=runner-hermes,aider=runner-aider,opencode=runner-opencode"
+    export COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICES="claude-code=runner-claude-code,codex-cli=runner-codex-cli,video-studio=runner-video-studio,cursor-cli=runner-cursor-cli,gemini-cli=runner-gemini-cli,e2e-echo=runner-e2e-echo,loopal=runner-loopal,do-agent=runner-do-agent,seedance-expert=runner-do-agent,grok-build=runner-grok-build,minimax-cli=runner-minimax-cli,openclaw=runner-openclaw,hermes=runner-hermes,aider=runner-aider,opencode=runner-opencode"
     if coordinator_runners_enabled; then
         export_coordinator_runner_env
     fi

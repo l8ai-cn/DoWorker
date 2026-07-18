@@ -53,7 +53,7 @@ grep -q "COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICES" lib/host_services.sh
 grep -A15 "start_marketplace_host_lite()" lib/host_services_lite.sh \
   | grep -q 'export INTERNAL_API_SECRET='
 grep -q "case \"\${AGENT_RUNTIME}\"" runner-entrypoint.sh
-grep -q "claude-code|codex-cli|cursor-cli|" runner-entrypoint.sh
+grep -q "claude-code|codex-cli|video-studio|cursor-cli|" runner-entrypoint.sh
 grep -q 'HTTP_PROXY: ${RUNNER_HTTP_PROXY:-}' docker-compose.runners.yml
 grep -q 'HTTPS_PROXY: ${RUNNER_HTTPS_PROXY:-}' docker-compose.runners.yml
 grep -q 'NO_PROXY: ${RUNNER_NO_PROXY:-traefik,host.lan,host.docker.internal,localhost,127.0.0.1,::1,postgres,redis,otel-collector}' docker-compose.runners.yml

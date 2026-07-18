@@ -60,7 +60,9 @@ ARG DO_AGENT_BINARY_SHA256=""
 ARG HERMES_AGENT_VERSION=0.18.2
 ARG MINIMAX_CLI_VERSION=1.0.16
 ARG OPENCLAW_VERSION=2026.6.11
-ENV AGENT_RUNTIME=${AGENT_RUNTIME}
+ARG REMOTION_VERSION=4.0.377
+ENV AGENT_RUNTIME=${AGENT_RUNTIME} \
+    CHROME_BIN=/usr/bin/chromium
 LABEL ai.agentsmesh.do-agent.source-revision="${DO_AGENT_SOURCE_COMMIT}" \
       ai.agentsmesh.do-agent.binary-sha256="${DO_AGENT_BINARY_SHA256}"
 
@@ -96,6 +98,17 @@ RUN install_apt() { \
     case "${AGENT_RUNTIME}" in \
       claude-code) npm install -g @anthropic-ai/claude-code ;; \
       codex-cli) npm install -g @openai/codex ;; \
+      video-studio) \
+        install_apt chromium ffmpeg fontconfig python3 \
+        && npm install -g @openai/codex \
+        && install -d -m 0755 /opt/video-studio \
+        && npm install --prefix /opt/video-studio \
+          "remotion@${REMOTION_VERSION}" \
+          "@remotion/cli@${REMOTION_VERSION}" \
+          "react@18.3.1" \
+          "react-dom@18.3.1" \
+        && ln -sf /usr/local/bin/codex /usr/local/bin/video-studio-codex \
+        && ln -sf /opt/video-studio/node_modules/.bin/remotion /usr/local/bin/remotion ;; \
       cursor-cli) \
         curl --fail --show-error --silent --location https://cursor.com/install -o /tmp/cursor-install.sh \
         && bash -c 'curl() { command curl --retry 5 --retry-delay 2 --retry-all-errors "$@"; }; export -f curl; bash /tmp/cursor-install.sh' \
@@ -115,7 +128,22 @@ RUN install_apt() { \
         npm install -g "hermes-agent@${HERMES_AGENT_VERSION}" ;; \
       aider) \
         pip3 install --no-cache-dir aider-chat ;; \
-      e2e-echo|loopal|do-agent) true ;; \
+      do-agent) \
+        ok=0; \
+        for attempt in 1 2 3 4 5 6 7 8; do \
+          if apt-get update -o Acquire::Retries=8 \
+            && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends --fix-missing python3 ffmpeg; then \
+            ok=1; \
+            break; \
+          fi; \
+          echo "do-agent media dependency install attempt ${attempt} failed, retrying..." >&2; \
+          sleep 20; \
+        done; \
+        test "$ok" = 1 \
+        && python3 --version \
+        && ffmpeg -version >/dev/null \
+        && ffprobe -version >/dev/null ;; \
+      e2e-echo|loopal) true ;; \
       *) echo "unsupported AGENT_RUNTIME=${AGENT_RUNTIME}" >&2; exit 1 ;; \
     esac \
     && npm cache clean --force
@@ -126,7 +154,7 @@ RUN groupmod -n runner node \
     && mkdir -p /workspace /app /home/runner/.do-worker \
     && case "${AGENT_RUNTIME}" in \
          claude-code) mkdir -p /home/runner/.claude ;; \
-         codex-cli) mkdir -p /home/runner/.codex ;; \
+         codex-cli|video-studio) mkdir -p /home/runner/.codex ;; \
          cursor-cli) mkdir -p /home/runner/.cursor ;; \
          gemini-cli) mkdir -p /home/runner/.gemini ;; \
          minimax-cli) mkdir -p /home/runner/.minimax ;; \

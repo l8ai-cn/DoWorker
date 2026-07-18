@@ -6,6 +6,7 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 AGENT_RUNTIMES=(
   claude-code
   codex-cli
+  video-studio
   cursor-cli
   gemini-cli
   minimax-cli
@@ -33,6 +34,7 @@ usage() {
 Agent runtimes:
   claude-code   Claude Code CLI (@anthropic-ai/claude-code)
   codex-cli     OpenAI Codex CLI (@openai/codex)
+  video-studio  Codex + Remotion/Chromium/FFmpeg video runtime
   cursor-cli    Cursor CLI (agent)
   gemini-cli    Google Gemini CLI (@google/gemini-cli)
   minimax-cli   MiniMax CLI (mmx-cli)
@@ -68,6 +70,8 @@ Agent runtimes:
                   OpenClaw CLI version (默认 2026.6.11)
   OPENCLAW_NODE_VERSION
                   OpenClaw extension Node version (默认 24.18.0)
+  REMOTION_VERSION
+                  Remotion version for video-studio (默认 4.0.377)
 EOF
 }
 
@@ -156,6 +160,7 @@ build_one() {
     --build-arg "MINIMAX_CLI_VERSION=${MINIMAX_CLI_VERSION:-1.0.16}"
     --build-arg "OPENCLAW_VERSION=${OPENCLAW_VERSION:-2026.6.11}"
     --build-arg "OPENCLAW_NODE_VERSION=${OPENCLAW_NODE_VERSION:-24.18.0}"
+    --build-arg "REMOTION_VERSION=${REMOTION_VERSION:-4.0.377}"
     -t "$tag"
     "$STAGING"
   )
