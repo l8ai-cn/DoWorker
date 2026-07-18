@@ -23,6 +23,8 @@ fi
 CERTS_DIR="${CONFIG_DIR}/certs"
 CONFIG_FILE="${CONFIG_DIR}/config.yaml"
 
+source /usr/local/lib/runner-ssh-bootstrap.sh
+
 case "${AGENT_RUNTIME}" in
     claude-code|codex-cli|cursor-cli|gemini-cli|minimax-cli|e2e-echo|loopal|do-agent|aider|opencode|grok-build|openclaw|hermes) ;;
     *)
@@ -200,20 +202,6 @@ EOF
     fi
 }
 
-init_runner_ssh() {
-    [[ -d "$RUNNER_SSH_SOURCE_DIR" ]] || return 0
-
-    local ssh_dir="${HOME}/.ssh"
-    sudo rm -rf "$ssh_dir"
-    sudo install -d -m 700 -o runner -g runner "$ssh_dir"
-    sudo install -m 600 -o runner -g runner "$RUNNER_SSH_SOURCE_DIR/id_ed25519" "$ssh_dir/id_ed25519"
-    sudo install -m 600 -o runner -g runner "$RUNNER_SSH_SOURCE_DIR/config" "$ssh_dir/config"
-
-    if [[ -f "$RUNNER_SSH_SOURCE_DIR/known_hosts" ]]; then
-        sudo install -m 644 -o runner -g runner "$RUNNER_SSH_SOURCE_DIR/known_hosts" "$ssh_dir/known_hosts"
-    fi
-}
-
 create_config() {
     mkdir -p "$CONFIG_DIR"
     cat > "$CONFIG_FILE" << EOF
@@ -238,8 +226,8 @@ EOF
 }
 main() {
     wait_for_backend
+    bootstrap_runner_ssh
     generate_runner_cert
-    init_runner_ssh
     init_ai_cli_configs
     create_config
     echo "启动 Runner..."

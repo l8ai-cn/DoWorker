@@ -142,6 +142,7 @@ COPY --chmod=0755 runner-binary /usr/local/bin/do-worker-runner
 RUN ln -sf do-worker-runner /usr/local/bin/agentsmesh-runner
 COPY --chmod=0755 binaries/ /usr/local/lib/do-worker/
 COPY --chmod=0755 runner-entrypoint.sh /usr/local/bin/runner-entrypoint.sh
+COPY --chmod=0755 runner-ssh-bootstrap.sh /usr/local/lib/runner-ssh-bootstrap.sh
 COPY --chmod=0755 minimax-cli-wrapper.sh /usr/local/bin/minimax-cli-wrapper.sh
 
 ARG AGENT_RUNTIME=e2e-echo

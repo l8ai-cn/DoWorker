@@ -81,6 +81,8 @@ esac
 
 cp "${DEPLOY_DEV}/runner-entrypoint.sh" "${STAGING}/runner-entrypoint.sh"
 chmod +x "${STAGING}/runner-entrypoint.sh"
+cp "${DEPLOY_DEV}/runner-ssh-bootstrap.sh" "${STAGING}/runner-ssh-bootstrap.sh"
+chmod +x "${STAGING}/runner-ssh-bootstrap.sh"
 cp "${REPO_ROOT}/docker/agent-runtime/minimax-cli-wrapper.sh" \
   "${STAGING}/minimax-cli-wrapper.sh"
 chmod +x "${STAGING}/minimax-cli-wrapper.sh"
