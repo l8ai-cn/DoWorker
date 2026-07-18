@@ -28,6 +28,11 @@ jobs:
         runtime: [minimax-cli, grok-build, openclaw, hermes]
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Install codegen tools
+        run: bash scripts/ci-install-codegen-tools.sh
       - uses: docker/setup-buildx-action@v3
       - name: Prepare runtime build context
         run: bash docker/agent-runtime/prepare_binaries.sh docker/agent-runtime/_context ${{ matrix.runtime }}

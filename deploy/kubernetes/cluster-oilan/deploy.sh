@@ -95,11 +95,6 @@ ensure_tls_secret() {
   done
 }
 
-sync_worker_definitions() {
-  dexec "image=\$(awk '\$1 == \"image:\" && \$2 ~ /agentsmesh\\/backend@sha256:/ { print \$2; exit } \$1 == \"-\" && \$2 == \"image:\" && \$3 ~ /agentsmesh\\/backend@sha256:/ { print \$3; exit }' /tmp/agentsmesh-release.yaml); test -n \"\${image}\"; sed \"s|__BACKEND_IMAGE__|\${image}|g\" 23-worker-definition-sync-job.yaml | kubectl apply -f -"
-  dexec "kubectl -n ${NS} wait --for=condition=complete job/worker-definition-sync --timeout=300s"
-}
-
 render_release() {
   dexec "kubectl kustomize . > /tmp/agentsmesh-release.yaml; image=\$(awk '\$1 == \"image:\" && \$2 ~ /agentsmesh\\/backend@sha256:/ { print \$2; exit } \$1 == \"-\" && \$2 == \"image:\" && \$3 ~ /agentsmesh\\/backend@sha256:/ { print \$3; exit }' /tmp/agentsmesh-release.yaml); test -n \"\${image}\"; digest=\${image##*@}; sed -i -e \"s|__BACKEND_DIGEST__|\${digest}|g\" -e \"s|__RELEASE_COMMIT__|${RELEASE_DEPLOY_COMMIT}|g\" /tmp/agentsmesh-release.yaml; bash verify_release_images.sh /tmp/agentsmesh-release.yaml"
 }
@@ -110,16 +105,6 @@ apply_pinned_manifest() {
   dexec "digest=\$(awk -v name='${repository}' '\$1 == \"-\" && \$2 == \"name:\" && \$3 == name { found=1; next } found && \$1 == \"digest:\" { print \$2; exit }' release/kustomization.yaml); test \"\${digest}\" != \"\"; sed -E \"s|image: ${repository}:[^[:space:]]+|image: ${repository}@\${digest}|g\" ${manifest} | kubectl apply -f -"
 }
 
-apply_backend_job() {
-  local manifest="$1"
-  dexec "image=\$(awk '\$1 == \"image:\" && \$2 ~ /agentsmesh\\/backend@sha256:/ { print \$2; exit } \$1 == \"-\" && \$2 == \"image:\" && \$3 ~ /agentsmesh\\/backend@sha256:/ { print \$3; exit }' /tmp/agentsmesh-release.yaml); test -n \"\${image}\"; digest=\${image##*@}; sed -e \"s|__BACKEND_IMAGE__|\${image}|g\" -e \"s|__BACKEND_DIGEST__|\${digest}|g\" -e \"s|__RELEASE_COMMIT__|${RELEASE_DEPLOY_COMMIT}|g\" ${manifest} | kubectl apply -f -"
-}
-
-sync_worker_definitions() {
-  dexec "image=\$(awk '\$1 == \"image:\" && \$2 ~ /agentsmesh\\/backend@sha256:/ { print \$2; exit }' /tmp/agentsmesh-release.yaml); test -n \"\${image}\"; sed \"s|__BACKEND_IMAGE__|\${image}|g\" 23-worker-definition-sync-job.yaml | kubectl apply -f -"
-  dexec "kubectl -n ${NS} wait --for=condition=complete job/worker-definition-sync --timeout=300s"
-}
-
 backend_image() {
   awk '$1 == "image:" && $2 ~ /agentsmesh\/backend@sha256:/ { print $2; exit }' \
     "${DIR}/30-backend.yaml"
@@ -127,9 +112,16 @@ backend_image() {
 
 apply_backend_job() {
   local manifest="$1"
-  local image="$2"
+  local image="${2:-}"
+  if [[ -z "${image}" ]]; then
+    image="$(backend_image)"
+  fi
+  [[ -n "${image}" ]] || {
+    echo "backend job requires an immutable agentsmesh/backend digest" >&2
+    return 1
+  }
   local digest="${image##*@}"
-  dexec "sed -E 's|repo.aiedulab.cn:8443/agentsmesh/backend@sha256:[a-f0-9]{64}|${image}|g; s|__BACKEND_IMAGE__|${image}|g; s|agentsmesh.ai/verified-image-digest: \"sha256:[a-f0-9]{64}\"|agentsmesh.ai/verified-image-digest: \"${digest}\"|g' ${manifest} | kubectl apply -f -"
+  dexec "sed -E 's|repo.aiedulab.cn:8443/agentsmesh/backend@sha256:[a-f0-9]{64}|${image}|g; s|__BACKEND_IMAGE__|${image}|g; s|__BACKEND_DIGEST__|${digest}|g; s|agentsmesh.ai/verified-image-digest: \"sha256:[a-f0-9]{64}\"|agentsmesh.ai/verified-image-digest: \"${digest}\"|g' ${manifest} | kubectl apply -f -"
 }
 
 sync_worker_definitions() {
@@ -162,7 +154,9 @@ apply_all() {
   mark_application_writes_restored
   echo "==> seed + minio bucket"
   dexec "kubectl -n ${NS} delete job seed minio-setup worker-definition-sync --ignore-not-found"
-  dexec "kubectl apply -f 21-seed-configmap.yaml -f 22-seed-job.yaml -f 13-minio-setup-job.yaml"
+  dexec "kubectl apply -f 21-seed-configmap.yaml"
+  apply_pinned_manifest "22-seed-job.yaml" pgvector
+  apply_pinned_manifest "13-minio-setup-job.yaml" mc
   dexec "kubectl -n ${NS} wait --for=condition=complete job/seed --timeout=300s"
   dexec "kubectl -n ${NS} wait --for=condition=complete job/minio-setup --timeout=300s"
   sync_worker_definitions

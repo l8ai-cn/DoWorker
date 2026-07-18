@@ -80,7 +80,12 @@ data:
         SELECT v_org_id, v_online_cluster_id,
                'coord-runner-amesh-runner-' || v_org_id || '-' || a.agent,
                'Coordinator dynamic runner (' || a.agent || ')', 'offline', 10
-        FROM (VALUES ('e2e-echo')) AS a(agent)
+        FROM (VALUES
+            ('e2e-echo'),
+            ('do-agent'),
+            ('seedance-expert'),
+            ('video-studio')
+        ) AS a(agent)
         WHERE NOT EXISTS (
             SELECT 1 FROM runners
             WHERE organization_id = v_org_id
