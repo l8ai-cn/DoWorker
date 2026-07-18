@@ -126,7 +126,7 @@ RUN install_apt() { \
       openclaw) npm install -g "openclaw@${OPENCLAW_VERSION}" ;; \
       hermes) \
         install_apt python3 python3-pip \
-        && npm install -g "hermes-agent@${HERMES_AGENT_VERSION}" ;; \
+        && PIP_BREAK_SYSTEM_PACKAGES=1 npm install -g "hermes-agent@${HERMES_AGENT_VERSION}" ;; \
       aider) \
         pip3 install --no-cache-dir aider-chat ;; \
       do-agent) \
