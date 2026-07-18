@@ -167,6 +167,7 @@ func TestSendPodCreated(t *testing.T) {
 func TestSendPodTerminated(t *testing.T) {
 	conn := newTestConnection()
 	setFakeStream(conn)
+	conn.initialized = true
 
 	err := conn.SendPodTerminated("pod-1", 0, "", "completed")
 	require.NoError(t, err)
@@ -175,6 +176,17 @@ func TestSendPodTerminated(t *testing.T) {
 	terminated, ok := msg.Payload.(*runnerv1.RunnerMessage_PodTerminated)
 	require.True(t, ok)
 	assert.Equal(t, "pod-1", terminated.PodTerminated.PodKey)
+}
+
+func TestSendPodTerminatedBeforeInitializationQueuesEvent(t *testing.T) {
+	conn := newTestConnection()
+	setFakeStream(conn)
+
+	err := conn.SendPodTerminated("pod-1", 0, "", "completed")
+	require.NoError(t, err)
+
+	require.Contains(t, conn.pendingPodTerminations, "pod-1")
+	assert.Empty(t, conn.controlCh)
 }
 
 func TestSendError(t *testing.T) {

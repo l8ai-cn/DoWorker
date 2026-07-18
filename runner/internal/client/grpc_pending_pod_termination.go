@@ -15,6 +15,9 @@ func (c *GRPCConnection) queuePodTerminationUntilInitialized(
 	if c.stream != nil && c.initialized {
 		return false
 	}
+	if c.pendingPodTerminations == nil {
+		c.pendingPodTerminations = make(map[string]*runnerv1.RunnerMessage)
+	}
 	c.pendingPodTerminations[podKey] = msg
 	logger.GRPC().Info("Queued pod termination until connection is initialized", "pod_key", podKey)
 	return true
@@ -25,6 +28,9 @@ func (c *GRPCConnection) retainPodTermination(
 	msg *runnerv1.RunnerMessage,
 ) {
 	c.mu.Lock()
+	if c.pendingPodTerminations == nil {
+		c.pendingPodTerminations = make(map[string]*runnerv1.RunnerMessage)
+	}
 	c.pendingPodTerminations[podKey] = msg
 	c.mu.Unlock()
 }
