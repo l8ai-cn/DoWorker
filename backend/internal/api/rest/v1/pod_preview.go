@@ -106,7 +106,7 @@ func (h *PodHandler) GetPodPreview(c *gin.Context) {
 		return
 	}
 
-	base := previewBaseURL(h.previewPublicOrigin, podKey)
+	base := previewBaseURL(previewOrigin, podKey)
 	c.JSON(http.StatusOK, gin.H{
 		"preview_base_url": base,
 		"session_url":      base + "__session?token=" + url.QueryEscape(previewToken),
@@ -116,6 +116,18 @@ func (h *PodHandler) GetPodPreview(c *gin.Context) {
 
 func previewBaseURL(publicOrigin, podKey string) string {
 	return fmt.Sprintf("%s/preview/%s/", strings.TrimRight(publicOrigin, "/"), url.PathEscape(podKey))
+}
+
+func previewOriginForPod(baseOrigin, podKey string) (string, error) {
+	u, err := url.Parse(baseOrigin)
+	if err != nil || u.Scheme == "" || u.Hostname() == "" || podKey == "" {
+		return "", fmt.Errorf("invalid preview origin")
+	}
+	host := podKey + "." + u.Hostname()
+	if port := u.Port(); port != "" {
+		host += ":" + port
+	}
+	return u.Scheme + "://" + host, nil
 }
 
 // tunnelURLFromRelay derives the runner tunnel WebSocket URL from a relay's

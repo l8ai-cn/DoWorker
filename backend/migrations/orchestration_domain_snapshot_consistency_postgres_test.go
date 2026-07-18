@@ -12,10 +12,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestMigration000219DomainSnapshotConsistencyPostgres(t *testing.T) {
+func TestMigration000226DomainSnapshotConsistencyPostgres(t *testing.T) {
 	ctx, conn := openSnapshotConsistencyPostgres(t)
 	requireSnapshotConsistencySchema(t, ctx, conn, false)
-	requireSnapshotMigration(t, ctx, conn, "000219_enforce_orchestration_domain_snapshot_consistency.up.sql")
+	requireSnapshotMigration(t, ctx, conn, "000226_enforce_orchestration_domain_snapshot_consistency.up.sql")
 
 	require.NoError(t, insertSnapshotOnlyExpert(ctx, conn, 1000, 101))
 	require.NoError(t, insertSnapshotOnlyGoalLoop(ctx, conn, 1001, 101))
@@ -65,15 +65,15 @@ VALUES (2004, 1, 101, 7, 1)`,
 		})
 	}
 
-	requireSnapshotMigration(t, ctx, conn, "000219_enforce_orchestration_domain_snapshot_consistency.down.sql")
+	requireSnapshotMigration(t, ctx, conn, "000226_enforce_orchestration_domain_snapshot_consistency.down.sql")
 	require.NoError(t, insertMismatchedExpert(ctx, conn, 3000))
 }
 
-func TestMigration000219ExistingMismatchFailsClosedPostgres(t *testing.T) {
+func TestMigration000226ExistingMismatchFailsClosedPostgres(t *testing.T) {
 	ctx, conn := openSnapshotConsistencyPostgres(t)
 	requireSnapshotConsistencySchema(t, ctx, conn, true)
 
-	up, err := FS.ReadFile("000219_enforce_orchestration_domain_snapshot_consistency.up.sql")
+	up, err := FS.ReadFile("000226_enforce_orchestration_domain_snapshot_consistency.up.sql")
 	require.NoError(t, err)
 	require.Error(t, execMigrationSQL(ctx, conn, string(up)))
 	require.NoError(t, execSQL(ctx, conn, `ROLLBACK`))

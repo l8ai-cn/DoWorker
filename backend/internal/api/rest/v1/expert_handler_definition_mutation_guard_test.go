@@ -65,13 +65,17 @@ func assertResourceManagedDefinitionConflict(t *testing.T, response *httptest.Re
 
 func newResourceManagedExpertHandler() (*ExpertHandler, *expertHandlerStore) {
 	snapshotID := int64(42)
+	resourceID := int64(90)
+	resourceRevision := int64(3)
 	store := &expertHandlerStore{row: &expertdom.Expert{
-		ID:                   8,
-		OrganizationID:       7,
-		Slug:                 "review",
-		Name:                 "Review",
-		AgentSlug:            "resource-native",
-		WorkerSpecSnapshotID: &snapshotID,
+		ID:                            8,
+		OrganizationID:                7,
+		Slug:                          "review",
+		Name:                          "Review",
+		AgentSlug:                     "resource-native",
+		WorkerSpecSnapshotID:          &snapshotID,
+		OrchestrationResourceID:       &resourceID,
+		OrchestrationResourceRevision: &resourceRevision,
 	}}
 	return NewExpertHandler(expertSvc.NewService(expertSvc.Deps{Store: store})), store
 }
@@ -109,6 +113,20 @@ func (s *expertHandlerStore) GetBySlug(_ context.Context, orgID int64, slug stri
 		return nil, expertdom.ErrNotFound
 	}
 	return cloneHandlerExpert(s.row), nil
+}
+
+func (s *expertHandlerStore) GetByMarketApplication(context.Context, int64, int64) (*expertdom.Expert, error) {
+	return nil, expertdom.ErrNotFound
+}
+
+func (s *expertHandlerStore) UpdateMarketRelease(
+	context.Context,
+	int64,
+	int64,
+	int64,
+	expertdom.MarketReleaseUpdate,
+) error {
+	return expertdom.ErrNotFound
 }
 
 func (s *expertHandlerStore) SlugExists(context.Context, int64, string, int64) (bool, error) {

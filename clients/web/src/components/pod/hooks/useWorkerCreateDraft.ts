@@ -14,8 +14,7 @@ import {
   workerCreateInitialDraft,
 } from "./workerCreateController";
 import { useWorkerCreateDependencies } from "./useWorkerCreateDependencies";
-import { defaultWorkerDraftPatch } from "./workerCreateDefaults";
-import { useWorkerCreateModelBindings } from "./useWorkerCreateModelBindings";
+import { defaultModelPatch, defaultWorkerDraftPatch } from "./workerCreateDefaults";
 import { useWorkerCreateOptions } from "./useWorkerCreateOptions";
 import { useWorkerCreateSubmission } from "./useWorkerCreateSubmission";
 import { workerCreateValidity } from "./workerCreateValidity";
@@ -69,14 +68,6 @@ export function useWorkerCreateDraft(
     selectedWorkerType,
     state.draft.repository_id,
   );
-  const modelBindings = useWorkerCreateModelBindings({
-    draft: state.draft,
-    generationModelResourceId: state.generationModelResourceId,
-    options,
-    modelResources: dependencies.modelResources,
-    modelProviders: dependencies.modelProviders,
-    dispatch,
-  });
   const validity = workerCreateValidity(
     state.draft,
     options,
@@ -86,7 +77,6 @@ export function useWorkerCreateDraft(
       dependencies.credentialBundles.status === "ready" &&
       dependencies.configBundles.status === "ready" &&
       dependencies.skills.status === "ready",
-    modelBindings.modelDependenciesReady,
   );
 
   useEffect(() => {
@@ -112,6 +102,17 @@ export function useWorkerCreateDraft(
       dispatch({ type: "patch_draft", patch });
     }
   }, [options, params.initialWorkerTypeSlug, state.draft]);
+
+  useEffect(() => {
+    if (dependencies.modelResources.status !== "ready") return;
+    const patch = defaultModelPatch(
+      state.draft,
+      dependencies.modelResources.data,
+    );
+    if (Object.keys(patch).length > 0) {
+      dispatch({ type: "patch_draft", patch });
+    }
+  }, [dependencies.modelResources, state.draft]);
 
   useEffect(() => {
     const repositoryId = state.draft.repository_id;
@@ -157,18 +158,14 @@ export function useWorkerCreateDraft(
     const requestId = crypto.randomUUID();
     dispatch({ type: "fill_loading", requestId });
     try {
-      const result = await podApi.fillWorkerDraft(
-        prompt,
-        state.generationModelResourceId,
-        state.draft,
-      );
+      const result = await podApi.fillWorkerDraft(prompt, state.draft);
       dispatch({ type: "fill_succeeded", requestId, result });
     } catch (error) {
       const resolved = workerCreateError(error);
       dispatch({ type: "fill_failed", requestId, error: resolved.message });
       params.onError?.(resolved);
     }
-  }, [params, state.draft, state.generationModelResourceId]);
+  }, [params, state.draft]);
 
   const createWorker = useWorkerCreateSubmission({
     dispatch,

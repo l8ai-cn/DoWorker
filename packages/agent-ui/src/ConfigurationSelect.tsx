@@ -12,6 +12,7 @@ import type { AgentConfigurationOption } from "./contracts";
 export function ConfigurationSelect({
   disabled,
   label,
+  loading = false,
   onChange,
   options,
   optionsLabel,
@@ -20,6 +21,7 @@ export function ConfigurationSelect({
 }: {
   disabled: boolean;
   label: string;
+  loading?: boolean;
   onChange: (value: string) => void;
   options: AgentConfigurationOption[];
   optionsLabel: string;
@@ -100,12 +102,13 @@ export function ConfigurationSelect({
       ref={rootRef}
     >
       <button
+        aria-busy={loading || undefined}
         aria-controls={listboxId}
         aria-expanded={open}
         aria-haspopup="listbox"
         aria-label={label}
         className="flex h-8 max-w-40 items-center gap-1.5 rounded-md px-2 text-xs text-foreground outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-default disabled:text-muted-foreground"
-        disabled={disabled || !hasChoice}
+        disabled={disabled || loading || !hasChoice}
         onClick={() => setOpen((current) => !current)}
         onKeyDown={(event) => {
           if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
@@ -118,7 +121,7 @@ export function ConfigurationSelect({
         type="button"
       >
         <span className="truncate">{selected?.label ?? placeholder}</span>
-        {disabled ? (
+        {loading ? (
           <LoaderCircle className="size-3.5 shrink-0 animate-spin" />
         ) : (
           <ChevronDown

@@ -2,7 +2,7 @@ import type { EffectiveResource, ProviderDefinition } from "@/lib/api/facade/aiR
 import type { WorkerToolModelRequirement } from "@/lib/api/facade/podConnect";
 
 const AGENT_PROTOCOLS: Record<string, string[]> = {
-  "do-agent": ["openai-compatible", "anthropic"],
+  "do-agent": ["openai-compatible", "anthropic", "minimax"],
   "seedance-expert": ["openai-compatible", "anthropic"],
   "codex-cli": ["openai-compatible"],
   "video-studio": ["openai-compatible"],
@@ -78,8 +78,12 @@ function matchesToolModelFamily(
   providerKey: string,
   modelId: string,
 ): boolean {
-  if (providerKey === "doubao" && requirement.capability === "video-generation") {
+  if (requirement.capability !== "video-generation") return true;
+  if (providerKey === "doubao") {
     return modelId.trim().startsWith("doubao-seedance-");
+  }
+  if (providerKey === "sub2api-seedance") {
+    return modelId.trim() === "doubao-seedance-2-0-260128";
   }
   return true;
 }

@@ -99,7 +99,11 @@ func (d *Deps) handleImportSession(c *gin.Context) {
 		Title:          title,
 		Status:         "idle",
 	}
-	command, err := pendingSessionCreateCommand(result, d.DispatchQueue.SendPromptTTL())
+	command, err := pendingSessionCreateCommand(
+		result,
+		d.DispatchQueue,
+		d.DispatchQueue.SendPromptTTL(),
+	)
 	if err != nil {
 		cleanupErr := d.terminateCreatedSessionPod(c.Request.Context(), result.Pod.PodKey)
 		writeSessionCreationFailure(c, "failed to prepare session dispatch", cleanupErr)

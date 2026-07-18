@@ -87,23 +87,12 @@ func TestGetPodPreview_ReturnsSessionURLWithoutRawToken(t *testing.T) {
 	var resp map[string]any
 	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 	assert.Equal(t, []string{"expires_at", "preview_base_url", "session_url"}, sortedKeys(resp))
-	assert.Equal(t, "https://preview.example.com/preview/pod1/", resp["preview_base_url"])
-	assert.Equal(t, "https://preview.example.com/preview/pod1/__session?token=JWT-preview", resp["session_url"])
+	assert.Equal(t, "https://pod1.preview.example.com/preview/pod1/", resp["preview_base_url"])
+	assert.Equal(t, "https://pod1.preview.example.com/preview/pod1/__session?token=JWT-preview-bootstrap", resp["session_url"])
 	assert.NotEmpty(t, resp["expires_at"])
 	assert.NotContains(t, resp, "token")
 	assert.Equal(t, "/files/%25", h.relayTokens.(*mockPreviewTokens).previewPath)
 	assert.Equal(t, "https://pod1.preview.example.com", h.relayTokens.(*mockPreviewTokens).previewOrigin)
-}
-
-func TestGetPodPreview_MissingPublicOriginReturns503(t *testing.T) {
-	pod := &agentpod.Pod{PodKey: "pod1", RunnerID: 7, PreviewPort: 3000, Status: agentpod.StatusRunning, OrganizationID: 1, CreatedByID: 10}
-	h := newPreviewHandler(pod)
-	h.previewPublicOrigin = ""
-
-	w := performPreviewGET(h)
-
-	assert.Equal(t, http.StatusServiceUnavailable, w.Code)
-	assert.JSONEq(t, `{"code":"preview_unavailable","error":"Preview is not available"}`, w.Body.String())
 }
 
 func TestGetPodPreview_MissingPublicOriginReturns503(t *testing.T) {

@@ -89,6 +89,7 @@ type ConfigBuildRequest struct {
 
 	RequiredEnvBundleIDs           []int64
 	RequiredSkillIDs               []int64
+	RequiredSkillPackages          []workerspec.SkillPackageBinding
 	RequiredConfigDocumentBindings []workerspec.ConfigDocumentBinding
 }
 

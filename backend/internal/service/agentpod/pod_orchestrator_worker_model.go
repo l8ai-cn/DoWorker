@@ -83,7 +83,7 @@ func (o *PodOrchestrator) applyWorkerModel(ctx context.Context, req *Orchestrate
 				req.ModelResourceArgs = []string{"--base-url", cliBaseURL}
 			}
 		}
-		if harness == "hermes" && modelID != "" {
+		if harness == "hermes" && agentDef != nil && modelID != "" {
 			provider, err := hermesModelProvider(resource.Provider.ProtocolAdapter)
 			if err != nil {
 				return err
@@ -147,20 +147,6 @@ func validatePreparedModelBinding(
 	return nil
 }
 
-func modelRequirementsForRequest(
-	req *OrchestrateCreatePodRequest,
-	agentDef *agentDomain.Agent,
-) (resourcesvc.ResolutionRequirements, bool) {
-	if req != nil && req.preparedWorkerSpec != nil {
-		binding := req.preparedWorkerSpec.Runtime.ModelBinding
-		if binding.IsEmpty() {
-			return resourcesvc.ResolutionRequirements{}, false
-		}
-		return chatRequirements(binding.ProtocolAdapter.String()), true
-	}
-	return modelResourceRequirements(req.AgentSlug, agentDef)
-}
-
 func modelResourceRequirements(agentSlug string, agentDef *agentDomain.Agent) (resourcesvc.ResolutionRequirements, bool) {
 	switch workerModelHarness(agentSlug, agentDef) {
 	case "do-agent":
@@ -171,6 +157,8 @@ func modelResourceRequirements(agentSlug string, agentDef *agentDomain.Agent) (r
 		return chatRequirements("anthropic"), true
 	case "gemini-cli":
 		return chatRequirements("gemini"), true
+	case "grok-build":
+		return chatRequirements("openai-compatible"), true
 	case "minimax-cli":
 		return chatRequirements("minimax"), true
 	case "openclaw", "hermes", "opencode":
@@ -192,6 +180,8 @@ func workerModelHarness(agentSlug string, agentDef *agentDomain.Agent) string {
 		return "claude-code"
 	case "gemini", "gemini-cli":
 		return "gemini-cli"
+	case "grok", "grok-build":
+		return "grok-build"
 	case "mmx", "minimax-cli":
 		return "minimax-cli"
 	case "do-agent":

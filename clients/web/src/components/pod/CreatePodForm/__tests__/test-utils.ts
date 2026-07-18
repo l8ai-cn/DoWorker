@@ -1,8 +1,5 @@
 import { vi } from "vitest";
-import type {
-  EffectiveResource,
-  ProviderDefinition,
-} from "@/lib/api/facade/aiResource";
+import type { EffectiveResource } from "@/lib/api/facade/aiResource";
 import type {
   WorkerCreateOptions,
   WorkerSpecDraft,
@@ -14,7 +11,6 @@ export const mockPatchDraft = vi.fn();
 export const mockChangeWorkerType = vi.fn();
 export const mockSetLifecycle = vi.fn();
 export const mockSetFillPrompt = vi.fn();
-export const mockSetGenerationModelResourceId = vi.fn();
 export const mockFillWithAI = vi.fn(async () => undefined);
 export const mockGoToStep = vi.fn(async () => undefined);
 export const mockRunPreflight = vi.fn(async () => null);
@@ -29,7 +25,6 @@ export function controllerFixture(overrides: {
     instanceId: "worker-create-test",
     step: 1,
     fillPrompt: "",
-    generationModelResourceId: 42,
     draft: completeDraft(),
     fill: { status: "idle" },
     fillRequestId: null,
@@ -58,7 +53,6 @@ export function controllerFixture(overrides: {
     changeWorkerType: mockChangeWorkerType,
     setLifecycle: mockSetLifecycle,
     setFillPrompt: mockSetFillPrompt,
-    setGenerationModelResourceId: mockSetGenerationModelResourceId,
     fillWithAI: mockFillWithAI,
     goToStep: mockGoToStep,
     runPreflight: mockRunPreflight,
@@ -115,9 +109,6 @@ export function createOptions(): WorkerCreateOptions {
       config_document_requirements: [],
       selectable: true,
       blocking_reason: "",
-      requires_model_resource: true,
-      model_protocol_adapters: ["openai-compatible"],
-      tool_model_requirements: [],
     }],
     runtime_images: [{
       id: 11,
@@ -208,18 +199,5 @@ export function modelResource(): EffectiveResource {
       isEnabled: true,
       validationError: "",
     },
-  };
-}
-
-export function modelProvider(): ProviderDefinition {
-  return {
-    key: "openai",
-    displayName: "OpenAI",
-    modalities: ["chat"],
-    credentialFields: [],
-    defaultBaseUrl: "https://api.openai.com/v1",
-    protocolAdapter: "openai-compatible",
-    supportsCustomEndpoint: true,
-    supportsModelDiscovery: true,
   };
 }

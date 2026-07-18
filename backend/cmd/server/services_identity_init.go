@@ -7,9 +7,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/config"
 	"github.com/anthropics/agentsmesh/backend/internal/infra"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agent"
-	agentsessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
 	"github.com/anthropics/agentsmesh/backend/internal/service/auth"
-	conversationitemsvc "github.com/anthropics/agentsmesh/backend/internal/service/conversationitem"
 	envbundleservice "github.com/anthropics/agentsmesh/backend/internal/service/envbundle"
 	ssoservice "github.com/anthropics/agentsmesh/backend/internal/service/sso"
 	"github.com/anthropics/agentsmesh/backend/internal/service/user"
@@ -51,9 +49,6 @@ func initializeIdentityServices(
 	agentSvc := agent.NewAgentService(infra.NewAgentRepository(db))
 	envBundleSvc := envbundleservice.NewService(infra.NewEnvBundleRepository(db), encryptor)
 	userConfigSvc := agent.NewUserConfigService(infra.NewUserConfigRepository(db), agentSvc)
-	agentSessionSvc := agentsessionsvc.NewService(db)
-	conversationItemSvc := conversationitemsvc.NewService(db)
-
 	return &serviceContainer{
 		auth:       authSvc,
 		user:       userSvc,

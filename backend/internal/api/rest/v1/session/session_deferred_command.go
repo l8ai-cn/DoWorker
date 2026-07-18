@@ -14,10 +14,12 @@ var errDeferredSessionCommandInvalid = errors.New("deferred session command is i
 
 func pendingSessionCreateCommand(
 	result *agentpod.OrchestrateCreatePodResult,
+	queue sessionDispatchQueue,
 	ttl time.Duration,
 ) (*podDomain.PendingCommand, error) {
 	if result == nil || result.Pod == nil ||
 		result.DeferredCreateCommand == nil ||
+		queue == nil ||
 		result.Pod.PodKey == "" ||
 		result.Pod.PodKey != result.DeferredCreateCommand.GetPodKey() ||
 		result.Pod.RunnerID <= 0 ||
@@ -29,6 +31,10 @@ func pendingSessionCreateCommand(
 			CreatePod: result.DeferredCreateCommand,
 		},
 	})
+	if err != nil {
+		return nil, err
+	}
+	payload, err = queue.SealPayload(payload)
 	if err != nil {
 		return nil, err
 	}

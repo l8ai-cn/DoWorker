@@ -1,16 +1,18 @@
+import { toBinary } from "@bufbuild/protobuf";
 import {
   artifactActionPayload,
   configurationPayload,
+  createAgentCommandEnvelope,
   interruptPayload,
   permissionPayload,
   sendPromptPayload,
-  type AgentAttachmentReference,
   type AgentArtifactActionCommand,
   type AgentConnectionStatus,
   type AgentPermissionResolution,
   type AgentSessionRuntime,
   type AgentSessionSnapshot,
 } from "@do-worker/agent-ui";
+import { CommandEnvelopeSchema } from "@proto/agent_workbench/v2/command_pb";
 import { defaultWebAgentWorkbenchRuntimeDeps } from "./webAgentWorkbenchRuntimeDefaults";
 import { WebAgentWorkbenchConnection } from "./WebAgentWorkbenchConnection";
 import {
@@ -21,8 +23,7 @@ import type {
   WebAgentWorkbenchRuntimeDeps,
   WebAgentWorkbenchRuntimeInput,
 } from "./webAgentWorkbenchRuntimeTypes";
-import { uploadAgentAttachment } from "./uploadAgentAttachment";
-import { executeWebAgentWorkbenchCommand } from "./executeWebAgentWorkbenchCommand";
+
 export class WebAgentWorkbenchRuntime implements AgentSessionRuntime {
   readonly sessionId: string;
   readonly loadArtifact?: AgentSessionRuntime["loadArtifact"];
@@ -32,6 +33,7 @@ export class WebAgentWorkbenchRuntime implements AgentSessionRuntime {
   private error: string | null = null;
   private snapshot: AgentSessionSnapshot;
   private readonly connectionRuntime: WebAgentWorkbenchConnection;
+
   constructor(private readonly input: WebAgentWorkbenchRuntimeInput) {
     if (!input.sessionId) throw new Error("agent_workbench_session_missing");
     this.sessionId = input.sessionId;
@@ -83,25 +85,9 @@ export class WebAgentWorkbenchRuntime implements AgentSessionRuntime {
   sendMessage(
     sessionId: string,
     commandId: string,
-    input: { text: string; attachments?: AgentAttachmentReference[] },
+    input: { text: string },
   ): Promise<void> {
-    return this.execute(
-      sessionId,
-      commandId,
-      sendPromptPayload(input.text, input.attachments),
-    );
-  }
-
-  uploadAttachment(
-    sessionId: string,
-    file: File,
-  ): Promise<AgentAttachmentReference> {
-    this.assertSession(sessionId);
-    return uploadAgentAttachment({
-      ...this.deps.getAccess(),
-      file,
-      sessionId,
-    });
+    return this.execute(sessionId, commandId, sendPromptPayload(input.text));
   }
 
   sendSlashCommand(
@@ -158,16 +144,28 @@ export class WebAgentWorkbenchRuntime implements AgentSessionRuntime {
   private async execute(
     sessionId: string,
     commandId: string,
-    command: Parameters<typeof executeWebAgentWorkbenchCommand>[0]["command"],
+    command: Parameters<typeof createAgentCommandEnvelope>[0]["command"],
   ): Promise<void> {
     this.assertSession(sessionId);
-    await executeWebAgentWorkbenchCommand({
+    if (this.deps.state.projectionStatus(sessionId) !== "ready") {
+      throw new Error("agent_workbench_session_not_ready");
+    }
+    const snapshot = this.rawSnapshot();
+    if (!snapshot) throw new Error("agent_workbench_snapshot_missing");
+    const envelope = await createAgentCommandEnvelope({
       command,
       commandId,
-      deps: this.deps,
+      expectedRevision: snapshot.revision,
+      issuedAt: new Date().toISOString(),
       sessionId,
-      snapshot: this.rawSnapshot(),
+      streamEpoch: snapshot.streamEpoch,
     });
+    const access = this.deps.getAccess();
+    await this.deps.service.executeCommandConnect(
+      access.orgSlug,
+      access.bearerToken,
+      toBinary(CommandEnvelopeSchema, envelope),
+    );
   }
 
   private rawSnapshot() {

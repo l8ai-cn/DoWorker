@@ -23,6 +23,7 @@ func TestMcpCreatePodRejectsInvalidPlanID(t *testing.T) {
 	if mcpErr == nil || mcpErr.code != 400 {
 		t.Fatalf("expected 400 for invalid plan_id, got %v", mcpErr)
 	}
+}
 
 func TestMcpCreatePodRejectsLegacyRuntimeFields(t *testing.T) {
 	a := &GRPCRunnerAdapter{}

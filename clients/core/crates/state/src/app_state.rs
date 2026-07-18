@@ -4,6 +4,7 @@ use agentsmesh_events::types::RealtimeEvent;
 use agentsmesh_persistence::StorageBackend;
 
 use crate::acp_session::AcpSessionManager;
+use crate::agent_workbench_state::AgentWorkbenchState;
 pub use crate::app_runtime::{AppRuntime, AppStateDispatchHook};
 use crate::autopilot_state::AutopilotState;
 use crate::channel_state::ChannelState;

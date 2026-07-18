@@ -200,6 +200,18 @@ func (ports *workerSpecResolutionPorts) ResolveWorkerType(
 				ports.spec.Runtime.ModelBinding.ProtocolAdapter,
 			},
 		},
+		ToolModelRequirements: []workerspec.ToolModelRequirement{{
+			Role: ports.spec.Runtime.ToolModelBindings[0].Role,
+			ProviderKeys: []slugkit.Slug{
+				ports.spec.Runtime.ToolModelBindings[0].ModelBinding.ProviderKey,
+			},
+			ProtocolAdapters: []slugkit.Slug{
+				ports.spec.Runtime.ToolModelBindings[0].ModelBinding.ProtocolAdapter,
+			},
+			Modality:    ports.spec.Runtime.ToolModelBindings[0].Modality,
+			Capability:  ports.spec.Runtime.ToolModelBindings[0].Capability,
+			Environment: ports.spec.Runtime.ToolModelBindings[0].Environment,
+		}},
 	}, nil
 }
 

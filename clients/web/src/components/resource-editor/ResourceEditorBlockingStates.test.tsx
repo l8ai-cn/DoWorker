@@ -2,12 +2,14 @@ import { create } from "@bufbuild/protobuf";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  PlanResourceResponseSchema,
+} from "@proto/orchestration_resource/v1/orchestration_resource_queries_pb";
+import {
   IssueSeverity,
   PlanStatus,
-  PlanResourceResponseSchema,
   ResourceOperation,
   ResourceSchema,
-} from "@proto/orchestration_resource/v1/orchestration_resource_pb";
+} from "@proto/orchestration_resource/v1/orchestration_resource_types_pb";
 import { render, screen, waitFor } from "@/test/test-utils";
 import { createResourceDraft } from "./resource-draft-factory";
 

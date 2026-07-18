@@ -85,7 +85,6 @@ export function WorkerTemplateConfigurationPanel(
   const catalog = useResourceReferenceOptions(
     orgSlug,
     props.draft.spec.workerType,
-    modelRequired ? selectedWorkerType?.model_protocol_adapters ?? [] : [],
     credentialBundleTargetNames(credentialRequirements),
   );
   const unresolvedReference = findUnresolvedWorkerTemplateReference(

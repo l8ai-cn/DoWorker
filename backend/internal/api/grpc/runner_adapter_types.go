@@ -35,6 +35,14 @@ type PodEventSink interface {
 	UpdateExternalSessionID(ctx context.Context, runnerID int64, podKey, externalID string)
 }
 
+type WorkbenchEventSink interface {
+	HandleWorkbenchEvents(
+		context.Context,
+		int64,
+		*agentworkbenchv2.RunnerWorkbenchEventBatch,
+	) error
+}
+
 type WorkerPlanAuthorizer interface {
 	AuthorizeApply(context.Context, control.Scope, string) error
 }

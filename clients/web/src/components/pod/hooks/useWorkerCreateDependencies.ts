@@ -4,7 +4,6 @@ import type { EnvBundleSummary } from "@/lib/api";
 import type { WorkerCreateOptions } from "@/lib/api/facade/podConnect";
 import { useWorkerModelResources } from "./useWorkerModelResources";
 import { useWorkerCreateEnvBundles } from "./useWorkerCreateEnvBundles";
-import { useWorkerCreateModelResources } from "./useWorkerCreateModelResources";
 import type { AsyncState } from "./workerCreateDraft";
 import { workerCreateLoadable } from "./workerCreateController";
 import { useWorkerSkills } from "./useWorkerSkills";

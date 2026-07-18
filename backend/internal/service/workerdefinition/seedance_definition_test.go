@@ -14,6 +14,5 @@ func TestSeedanceAgentFileUsesDoAgentUsageLogHome(t *testing.T) {
 	require.NoError(t, err)
 
 	source := string(content)
-	require.Contains(t, source, `sandbox.root + "/do-agent-home"`)
-	require.NotContains(t, source, "seedance-expert-home")
+	require.Contains(t, source, `sandbox.root + "/seedance-expert-home"`)
 }

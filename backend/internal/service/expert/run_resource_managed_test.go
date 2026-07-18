@@ -26,7 +26,12 @@ func TestRunResourceManagedExpertUsesRenderedPromptByDefault(t *testing.T) {
 		OrchestrationResourceRevision: &resourceRevision,
 	}))
 	dispatcher := &fakeDispatcher{}
-	service := NewService(Deps{Store: store, Dispatch: dispatcher})
+	service := NewService(Deps{
+		Store: store, Dispatch: dispatcher,
+		WorkerSpecs: &expertSnapshotLoader{
+			snapshot: expertWorkerSpecSnapshot(snapshotID, 7),
+		},
+	})
 
 	_, err := service.Run(context.Background(), &RunExpertRequest{
 		OrganizationID: 7,
@@ -57,7 +62,12 @@ func TestRunResourceManagedExpertPrefersRequestPromptOverride(t *testing.T) {
 		OrchestrationResourceRevision: &resourceRevision,
 	}))
 	dispatcher := &fakeDispatcher{}
-	service := NewService(Deps{Store: store, Dispatch: dispatcher})
+	service := NewService(Deps{
+		Store: store, Dispatch: dispatcher,
+		WorkerSpecs: &expertSnapshotLoader{
+			snapshot: expertWorkerSpecSnapshot(snapshotID, 7),
+		},
+	})
 
 	_, err := service.Run(context.Background(), &RunExpertRequest{
 		OrganizationID: 7,

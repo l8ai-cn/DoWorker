@@ -413,32 +413,3 @@ func secretField(value string) string {
 	}
 	return value
 }
-
-func (fixture *workspaceFixture) deps() workspaceResolverDeps {
-	return workspaceResolverDeps{
-		Repositories: fixture.repositories,
-		Skills:       fixture.skills,
-		Knowledge:    fixture.knowledge,
-		EnvBundles:   fixture.envBundles,
-		Definitions: staticWorkerDefinitions{
-			"codex-cli": workerDefinition(
-				"codex-cli",
-				"codex",
-				"AGENT codex\nEXECUTABLE codex\n",
-				"pty",
-			),
-		},
-	}
-}
-
-func validWorkspaceDraft() specdomain.Workspace {
-	repositoryID := int64(22)
-	return specdomain.Workspace{
-		RepositoryID: &repositoryID,
-		Branch:       "main",
-		SkillIDs:     []int64{3},
-		KnowledgeMounts: []specdomain.KnowledgeMount{
-			{KnowledgeBaseID: 4, Mode: specdomain.KnowledgeMountReadWrite},
-		},
-	}
-}

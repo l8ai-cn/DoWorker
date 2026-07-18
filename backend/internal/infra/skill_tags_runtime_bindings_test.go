@@ -200,6 +200,7 @@ func workerSpecSnapshotForSkill(
 		WorkerTypes: ports,
 		Runtime:     ports,
 		Models:      ports,
+		ToolModels:  ports,
 		Secrets:     ports,
 		Workspaces:  ports,
 	})
@@ -208,7 +209,10 @@ func workerSpecSnapshotForSkill(
 		workerspecservice.Scope{OrgID: organizationID, UserID: 7},
 		workerspecservice.Draft{
 			ModelResourceID: spec.Runtime.ModelBinding.ResourceID,
-			WorkerTypeSlug:  spec.Runtime.WorkerType.Slug,
+			ToolModelResourceIDs: map[string]int64{
+				"video-generator": 3001,
+			},
+			WorkerTypeSlug: spec.Runtime.WorkerType.Slug,
 			Runtime: workerspecservice.RuntimeSelection{
 				RuntimeImageID:    spec.Runtime.Image.ID,
 				PlacementPolicy:   spec.Placement.Policy,

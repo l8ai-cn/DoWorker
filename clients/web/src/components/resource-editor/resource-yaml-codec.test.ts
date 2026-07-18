@@ -180,7 +180,7 @@ describe("resource YAML codec", () => {
     )).toThrow("spec.workspace.knowledgeMounts[0] must be object");
   });
 
-  it("requires GoalLoop description in canonical drafts", () => {
+  it("rejects GoalLoop canonical drafts without a description", () => {
     const draft = createGoalLoopDraft("acme");
     draft.metadata.name = "release-loop";
     const spec: Record<string, unknown> = { ...draft.spec };

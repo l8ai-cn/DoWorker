@@ -31,6 +31,14 @@ func modelResourceEnvironment(agentSlug string, resource *resourcesvc.ResolvedRe
 			return nil, ErrMissingModelResource
 		}
 		return map[string]string{"GEMINI_API_KEY": apiKey}, nil
+	case "grok-build":
+		if resource.Connection.ProviderKey.String() != "xai" {
+			return nil, fmt.Errorf(
+				"%w: grok-build requires xai",
+				ErrModelResourceProviderUnsupported,
+			)
+		}
+		return map[string]string{"XAI_API_KEY": apiKey}, nil
 	case "minimax-cli":
 		if modelID == "" {
 			return nil, ErrMissingModelResource

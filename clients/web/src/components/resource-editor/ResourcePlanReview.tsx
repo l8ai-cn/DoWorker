@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import {
   IssueSeverity,
   ResourceOperation,
-} from "@proto/orchestration_resource/v1/orchestration_resource_pb";
+} from "@proto/orchestration_resource/v1/orchestration_resource_types_pb";
 import { AlertMessage } from "@/components/ui/alert-message";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";

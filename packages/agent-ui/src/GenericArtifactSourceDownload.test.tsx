@@ -26,7 +26,7 @@ it("downloads the original representation separately from its preview", async ()
     <GenericArtifactCard
       filename="report.docx"
       item={artifact()}
-      runtime={{ loadArtifact } as AgentSessionRuntime}
+      runtime={{ loadArtifact } as unknown as AgentSessionRuntime}
       sessionId="session-1"
     />,
   );

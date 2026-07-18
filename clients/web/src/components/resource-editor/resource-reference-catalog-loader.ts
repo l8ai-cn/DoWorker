@@ -1,4 +1,4 @@
-import { EnvironmentBundlePurpose } from "@proto/orchestration_resource/v1/orchestration_resource_pb";
+import { EnvironmentBundlePurpose } from "@proto/orchestration_resource/v1/orchestration_resource_queries_pb";
 import type {
   EnvironmentBundleReferencePurpose,
   ResourceReferenceCatalog,
@@ -31,12 +31,10 @@ const ENVIRONMENT_BUNDLE_PURPOSES = [
 export async function loadResourceReferenceCatalog(
   orgSlug: string,
   workerType: string,
-  modelProtocolAdapters: readonly string[],
   credentialTargetNames: readonly string[],
 ): Promise<ResourceReferenceCatalog> {
   const results = await Promise.all(referenceQueries(
     workerType,
-    [...new Set(modelProtocolAdapters)].sort(),
     [...new Set(credentialTargetNames)].sort(),
   ).map(async (query) => {
     try {
@@ -44,7 +42,7 @@ export async function loadResourceReferenceCatalog(
         orgSlug,
         query,
         toOption,
-        assertReferenceFiltersApplied,
+        assertEnvironmentBundleFilterApplied,
       );
       return { ok: true, key: query.key, options } as const;
     } catch (error) {
@@ -74,19 +72,11 @@ export async function loadResourceReferenceCatalog(
   };
 }
 
-function referenceQueries(
-  workerType: string,
-  modelProtocolAdapters: string[],
-  credentialTargets: string[],
-) {
+function referenceQueries(workerType: string, credentialTargets: string[]) {
   const common = REFERENCE_KINDS.map((kind) => ({
     key: kind,
     kind,
     environmentBundleFilter: undefined,
-    modelBindingFilter: kind === "ModelBinding" && workerType &&
-        modelProtocolAdapters.length > 0
-      ? { workerType, protocolAdapters: modelProtocolAdapters }
-      : undefined,
   }));
   if (!workerType) return common;
   return [
@@ -95,7 +85,6 @@ function referenceQueries(
       key: environmentBundleCatalogKey(purpose),
       kind: "EnvironmentBundle" as const,
       environmentBundleFilter: { purpose: wire, workerType },
-      modelBindingFilter: undefined,
     })),
     ...credentialTargets.map((targetName) => ({
       key: environmentBundleCatalogKey("credential", targetName),
@@ -105,56 +94,30 @@ function referenceQueries(
         workerType,
         targetName,
       },
-      modelBindingFilter: undefined,
     })),
   ];
 }
 
-function assertReferenceFiltersApplied(
+function assertEnvironmentBundleFilterApplied(
   requested: {
-    environmentBundleFilter?: {
-      purpose: EnvironmentBundlePurpose;
-      workerType: string;
-      targetName?: string;
-    };
-    modelBindingFilter?: {
-      workerType: string;
-      protocolAdapters: readonly string[];
-    };
-  },
+    purpose: EnvironmentBundlePurpose;
+    workerType: string;
+    targetName?: string;
+  } | undefined,
   applied: {
-    appliedEnvironmentBundleFilter?: {
     purpose: EnvironmentBundlePurpose;
     workerType: string;
     targetName: string;
-    };
-    appliedModelBindingFilter?: {
-      workerType: string;
-      protocolAdapters: readonly string[];
-    };
-  },
+  } | undefined,
 ) {
-  const environment = requested.environmentBundleFilter;
-  const appliedEnvironment = applied.appliedEnvironmentBundleFilter;
-  const model = requested.modelBindingFilter;
-  const appliedModel = applied.appliedModelBindingFilter;
-  if (environment && (
-    appliedEnvironment?.purpose !== environment.purpose ||
-    appliedEnvironment.workerType !== environment.workerType ||
-    appliedEnvironment.targetName !== (environment.targetName ?? "")
-  )) {
+  if (!requested) return;
+  if (
+    applied?.purpose !== requested.purpose ||
+    applied.workerType !== requested.workerType ||
+    applied.targetName !== (requested.targetName ?? "")
+  ) {
     throw new Error(
       "The control plane did not apply the EnvironmentBundle reference filter.",
-    );
-  }
-  if (model && (
-    !appliedModel ||
-    appliedModel.workerType !== model.workerType ||
-    JSON.stringify([...appliedModel.protocolAdapters].sort()) !==
-      JSON.stringify([...model.protocolAdapters].sort())
-  )) {
-    throw new Error(
-      "The control plane did not apply the ModelBinding protocol filter.",
     );
   }
 }

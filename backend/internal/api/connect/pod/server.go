@@ -19,12 +19,12 @@ import (
 	"context"
 	"time"
 
-	conversationitemdomain "github.com/anthropics/agentsmesh/backend/internal/domain/conversationitem"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/grant"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	itemservice "github.com/anthropics/agentsmesh/backend/internal/service/conversationitem"
 	"github.com/anthropics/agentsmesh/backend/internal/service/geo"
 	grantservice "github.com/anthropics/agentsmesh/backend/internal/service/grant"
 	"github.com/anthropics/agentsmesh/backend/internal/service/relay"
@@ -113,6 +113,7 @@ type Server struct {
 	workerCreation    WorkerCreationAPI
 	workerDraftFiller WorkerDraftFiller
 	workerSpecs       WorkerSpecSnapshotLoader
+	conversationItems itemservice.PositionedAppender
 	mobileBaseURL     string
 }
 
@@ -177,6 +178,10 @@ func WithWorkerDraftFiller(filler WorkerDraftFiller) Option {
 
 func WithWorkerSpecSnapshotLoader(loader WorkerSpecSnapshotLoader) Option {
 	return func(server *Server) { server.workerSpecs = loader }
+}
+
+func WithConversationItems(items itemservice.PositionedAppender) Option {
+	return func(server *Server) { server.conversationItems = items }
 }
 
 func WithMobileBaseURL(baseURL string) Option {

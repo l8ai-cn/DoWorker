@@ -139,6 +139,20 @@ func (store *runExpertStore) GetBySlug(context.Context, int64, string) (*expertd
 	return store.row, nil
 }
 
+func (*runExpertStore) GetByMarketApplication(context.Context, int64, int64) (*expertdom.Expert, error) {
+	return nil, expertdom.ErrNotFound
+}
+
+func (*runExpertStore) UpdateMarketRelease(
+	context.Context,
+	int64,
+	int64,
+	int64,
+	expertdom.MarketReleaseUpdate,
+) error {
+	return expertdom.ErrNotFound
+}
+
 func (*runExpertStore) SlugExists(context.Context, int64, string, int64) (bool, error) {
 	return false, nil
 }

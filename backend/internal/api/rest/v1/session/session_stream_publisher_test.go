@@ -10,6 +10,8 @@ import (
 	itemDomain "github.com/anthropics/agentsmesh/backend/internal/domain/conversationitem"
 	sessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
 	itemsvc "github.com/anthropics/agentsmesh/backend/internal/service/conversationitem"
+	sessionusagesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionusage"
+	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 	"github.com/stretchr/testify/require"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -63,6 +65,19 @@ func (f *runnerOwnedPodLookup) GetByKeyAndRunner(
 	}
 	if f.pod == nil || f.pod.PodKey != podKey || f.pod.RunnerID != runnerID {
 		return nil, errors.New("pod not owned by runner")
+	}
+	return f.pod, nil
+}
+
+func (f *runnerOwnedPodLookup) GetByKey(
+	_ context.Context,
+	podKey string,
+) (*podDomain.Pod, error) {
+	if f.err != nil {
+		return nil, f.err
+	}
+	if f.pod == nil || f.pod.PodKey != podKey {
+		return nil, errors.New("pod not found")
 	}
 	return f.pod, nil
 }
@@ -207,6 +222,7 @@ func TestHandleAcpSessionCreatesMissingSessionBeforePersistingResult(t *testing.
 	pod := &podDomain.Pod{
 		PodKey: "7-standalone-caa70224", OrganizationID: 3, CreatedByID: 7,
 		AgentSlug: "seedance-expert", InteractionMode: podDomain.InteractionModeACP,
+		RunnerID: 35,
 	}
 	publisher := NewSessionStreamPublisher(
 		NewSessionHub(),
@@ -218,12 +234,14 @@ func TestHandleAcpSessionCreatesMissingSessionBeforePersistingResult(t *testing.
 
 	publisher.HandleAcpSession(
 		context.Background(),
+		pod.RunnerID,
 		pod.PodKey,
 		"contentChunk",
 		`{"role":"assistant","text":"credentials verified"}`,
 	)
 	publisher.HandleAcpSession(
 		context.Background(),
+		pod.RunnerID,
 		pod.PodKey,
 		"sessionState",
 		`{"state":"idle"}`,
@@ -246,6 +264,17 @@ func (store streamPodStore) GetByKey(
 	_ context.Context,
 	_ string,
 ) (*podDomain.Pod, error) {
+	return store.pod, nil
+}
+
+func (store streamPodStore) GetByKeyAndRunner(
+	_ context.Context,
+	_ string,
+	runnerID int64,
+) (*podDomain.Pod, error) {
+	if store.pod == nil || store.pod.RunnerID != runnerID {
+		return nil, errors.New("pod not owned by runner")
+	}
 	return store.pod, nil
 }
 

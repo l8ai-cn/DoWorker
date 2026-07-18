@@ -80,7 +80,6 @@ func coreTableDDLs() []string {
 			id INTEGER PRIMARY KEY, slug TEXT, name TEXT, launch_command TEXT, description TEXT,
 			executable TEXT, adapter_id TEXT NOT NULL DEFAULT '', default_args TEXT,
 			config_schema TEXT DEFAULT '{}', agentfile_source TEXT,
-			adapter_id TEXT NOT NULL DEFAULT '',
 			is_builtin INTEGER NOT NULL DEFAULT 0, is_active INTEGER NOT NULL DEFAULT 1,
 			is_internal INTEGER NOT NULL DEFAULT 0,
 			supported_modes TEXT NOT NULL DEFAULT 'pty',

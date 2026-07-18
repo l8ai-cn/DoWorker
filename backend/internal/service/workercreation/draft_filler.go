@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strings"
 
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	resourceservice "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 )
@@ -72,8 +71,7 @@ func (filler *DraftFiller) Fill(
 	resource, err := filler.resolveModelResource(
 		ctx,
 		scope,
-		current,
-		workerType.ModelRequirement,
+		generationModelResourceID,
 	)
 	if err != nil {
 		return FillResult{}, err
@@ -115,26 +113,15 @@ func (filler *DraftFiller) Fill(
 func (filler *DraftFiller) resolveModelResource(
 	ctx context.Context,
 	scope specservice.Scope,
-	current *Draft,
-	requirement specdomain.ModelRequirement,
+	resourceID int64,
 ) (*resourceservice.ResolvedResource, error) {
-	if !requirement.Required {
-		return nil, invalidFillField(
-			"worker_spec.worker_type_slug",
-			"does not support AI draft filling without a separate assistant model",
-		)
-	}
-	resourceID := current.WorkerSpec.ModelResourceID
 	if resourceID <= 0 {
 		return nil, invalidFillField(
 			"generation_model_resource_id",
 			"must be positive",
 		)
 	}
-	requirements, err := modelRequirements(requirement)
-	if err != nil {
-		return nil, err
-	}
+	requirements := draftGenerationModelRequirements()
 	resolved, err := filler.resources.ResolveExact(
 		ctx,
 		resourceservice.Actor{UserID: scope.UserID},

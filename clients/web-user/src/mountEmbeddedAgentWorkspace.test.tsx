@@ -1,7 +1,7 @@
 import { act } from "react";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
-const renderedClients = vi.hoisted(() => [] as unknown[]);
+const renderedAccess = vi.hoisted(() => [] as unknown[]);
 const actEnvironment = globalThis as typeof globalThis & {
   IS_REACT_ACT_ENVIRONMENT?: boolean;
 };
@@ -16,51 +16,55 @@ afterAll(() => {
 });
 
 vi.mock("./embed-session/EmbeddedAgentWorkspace", () => ({
-  EmbeddedAgentWorkspace: ({
-    client,
-    sessionId,
-  }: {
-    client: unknown;
-    sessionId: string;
-  }) => {
-    renderedClients.push(client);
-    return <output data-session-id={sessionId}>{sessionId}</output>;
+  EmbeddedAgentWorkspace: ({ access }: { access: { sessionId: string } }) => {
+    renderedAccess.push(access);
+    return <output data-session-id={access.sessionId}>{access.sessionId}</output>;
   },
 }));
 
-import type { EmbedSessionClient } from "./embed-session-api";
 import { mountEmbeddedAgentWorkspace } from "./mountEmbeddedAgentWorkspace";
 
 describe("mountEmbeddedAgentWorkspace", () => {
-  it("mounts two isolated atomic workspaces on the same page", () => {
+  it("用显式 access 挂载两个隔离工作区", () => {
     const firstElement = document.createElement("div");
     const secondElement = document.createElement("div");
     document.body.append(firstElement, secondElement);
-    const firstClient = {} as EmbedSessionClient;
-    const secondClient = {} as EmbedSessionClient;
+    const firstAccess = {
+      baseUrl: "https://api.example.test",
+      getAccessToken: () => "token-1",
+      orgSlug: "acme",
+      sessionId: "session-1",
+    };
+    const secondAccess = {
+      baseUrl: "https://api.example.test",
+      getAccessToken: () => "token-2",
+      orgSlug: "acme",
+      sessionId: "session-2",
+    };
     let first: ReturnType<typeof mountEmbeddedAgentWorkspace>;
     let second: ReturnType<typeof mountEmbeddedAgentWorkspace>;
 
     act(() => {
       first = mountEmbeddedAgentWorkspace(firstElement, {
-        client: firstClient,
-        sessionId: "session-1",
+        access: firstAccess,
       });
       second = mountEmbeddedAgentWorkspace(secondElement, {
-        client: secondClient,
-        sessionId: "session-2",
+        access: secondAccess,
       });
     });
 
     expect(firstElement).toHaveTextContent("session-1");
     expect(secondElement).toHaveTextContent("session-2");
-    expect(renderedClients).toContain(firstClient);
-    expect(renderedClients).toContain(secondClient);
+    expect(firstElement).toHaveClass("do-worker-app");
+    expect(secondElement).toHaveClass("do-worker-app");
+    expect(renderedAccess).toEqual([firstAccess, secondAccess]);
 
     act(() => {
       first.unmount();
       second.unmount();
     });
+    expect(firstElement).not.toHaveClass("do-worker-app");
+    expect(secondElement).not.toHaveClass("do-worker-app");
     firstElement.remove();
     secondElement.remove();
   });

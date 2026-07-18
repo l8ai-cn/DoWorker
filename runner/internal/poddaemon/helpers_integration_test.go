@@ -50,74 +50,44 @@ func findModuleRoot(t *testing.T) string {
 	}
 }
 
-// buildTestRunner returns a usable path to the runner binary. Two execution
-// contexts are supported:
-//
-//  1. Bazel test sandbox: TEST_SRCDIR is set and the runner binary is wired
-//     in as a data dependency. Resolve via runfiles layout.
-//
-//  2. Plain `go test -tags=integration` from a developer shell: fall back to
-//     a previously-built bazel-bin artifact, then to `bazel build` as a
-//     last resort. We deliberately do not invoke `go build` because the
-//     monorepo's proto stubs live in bazel-bin/ and are unreachable from
-//     `go build` without manual generation.
+// buildTestRunner returns a usable path to the runner binary for
+// `go test -tags=integration`. Prefers RUNNER_BIN when set; otherwise
+// builds ./runner/cmd/runner into a temp dir (proto stubs via
+// scripts/proto-gen-go.sh when missing).
 func buildTestRunner(t *testing.T) string {
 	t.Helper()
 
-	if path := runnerFromRunfiles(); path != "" {
-		return path
+	if env := os.Getenv("RUNNER_BIN"); env != "" {
+		if _, err := os.Stat(env); err == nil {
+			return env
+		}
+		t.Fatalf("RUNNER_BIN=%s not found", env)
 	}
 
 	modRoot := findModuleRoot(t)
-	if path := runnerFromBazelBin(modRoot); path != "" {
-		return path
+	if _, err := os.Stat(filepath.Join(modRoot, "proto", "gen", "go", "runner", "v1", "runner.pb.go")); err != nil {
+		cmd := exec.Command("bash", "scripts/proto-gen-go.sh", "--force")
+		cmd.Dir = modRoot
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		if err := cmd.Run(); err != nil {
+			t.Fatalf("cannot generate proto stubs for runner build: %v", err)
+		}
 	}
 
-	cmd := exec.Command("bazel", "build", "//runner/cmd/runner:runner")
+	bin := "runner"
+	if runtime.GOOS == "windows" {
+		bin = "runner.exe"
+	}
+	out := filepath.Join(t.TempDir(), bin)
+	cmd := exec.Command("go", "build", "-o", out, "./runner/cmd/runner")
 	cmd.Dir = modRoot
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
-		t.Skipf("cannot locate runner binary: bazel build failed (%v) and no prebuilt artifact found", err)
+		t.Fatalf("cannot build runner binary: %v", err)
 	}
-	if path := runnerFromBazelBin(modRoot); path != "" {
-		return path
-	}
-	t.Skip("runner binary still not found after bazel build — environment is incompatible")
-	return ""
-}
-
-func runnerFromRunfiles() string {
-	srcdir := os.Getenv("TEST_SRCDIR")
-	if srcdir == "" {
-		return ""
-	}
-	// Bzlmod main repo name is "_main"; the binary is at
-	// _main/runner/cmd/runner/runner_/<name>.
-	bin := "runner"
-	if runtime.GOOS == "windows" {
-		bin = "runner.exe"
-	}
-	candidate := filepath.Join(srcdir, "_main", "runner", "cmd", "runner", "runner_", bin)
-	if _, err := os.Stat(candidate); err == nil {
-		return candidate
-	}
-	return ""
-}
-
-func runnerFromBazelBin(modRoot string) string {
-	// `bazel cquery --output=files` would be the canonical lookup but it is
-	// expensive to invoke for every test. The conventional layout is stable
-	// enough to glob.
-	bin := "runner"
-	if runtime.GOOS == "windows" {
-		bin = "runner.exe"
-	}
-	matches, _ := filepath.Glob(filepath.Join(modRoot, "bazel-out", "*", "bin", "runner", "cmd", "runner", "runner_", bin))
-	if len(matches) > 0 {
-		return matches[0]
-	}
-	return ""
+	return out
 }
 
 // shortWorkspace creates a short temp dir for integration tests.

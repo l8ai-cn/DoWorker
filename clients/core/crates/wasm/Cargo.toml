@@ -40,3 +40,11 @@ reqwest = { workspace = true }
 
 [dev-dependencies]
 tokio = { workspace = true }
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = [
+  "-O",
+  "--enable-bulk-memory",
+  "--enable-mutable-globals",
+  "--enable-nontrapping-float-to-int",
+]

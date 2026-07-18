@@ -49,11 +49,15 @@ describe("WorkerTemplateConfigDocumentBindingsField", () => {
       .toBeInTheDocument();
     expect(screen.getByText("toml · /workspace/auth.toml"))
       .toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: /settings/ }))
+      .toHaveAttribute("aria-required", "true");
+    expect(screen.getByRole("combobox", { name: /auth/ }))
+      .toHaveAttribute("aria-required", "false");
 
-    await user.selectOptions(
-      screen.getByRole("combobox", { name: /settings/ }),
-      "settings-bundle",
-    );
+    await user.click(screen.getByRole("combobox", { name: /settings/ }));
+    await user.click(screen.getByRole("option", {
+      name: /Settings bundle settings-bundle/,
+    }));
 
     expect(onChange).toHaveBeenLastCalledWith([
       {
@@ -69,6 +73,19 @@ describe("WorkerTemplateConfigDocumentBindingsField", () => {
           kind: "EnvironmentBundle",
           name: "auth-bundle",
           revision: 2,
+        },
+      },
+    ]);
+
+    await user.click(screen.getByRole("combobox", { name: /auth/ }));
+    await user.click(screen.getByRole("option", { name: "None configured." }));
+
+    expect(onChange).toHaveBeenLastCalledWith([
+      {
+        documentId: "settings",
+        configBundleRef: {
+          kind: "EnvironmentBundle",
+          name: "settings-bundle",
         },
       },
     ]);

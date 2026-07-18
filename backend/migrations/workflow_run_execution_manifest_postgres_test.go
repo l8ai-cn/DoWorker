@@ -9,14 +9,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestMigration000220WorkflowRunExecutionManifestPostgres(t *testing.T) {
+func TestMigration000227WorkflowRunExecutionManifestPostgres(t *testing.T) {
 	ctx, conn := openSnapshotConsistencyPostgres(t)
 	requireSnapshotConsistencySchema(t, ctx, conn, false)
 	requireSnapshotMigration(
 		t,
 		ctx,
 		conn,
-		"000219_enforce_orchestration_domain_snapshot_consistency.up.sql",
+		"000226_enforce_orchestration_domain_snapshot_consistency.up.sql",
 	)
 	requireWorkflowRunFinishedAtColumn(t, ctx, conn)
 	require.NoError(t, execMigrationSQL(
@@ -28,7 +28,7 @@ func TestMigration000220WorkflowRunExecutionManifestPostgres(t *testing.T) {
 		t,
 		ctx,
 		conn,
-		"000220_workflow_run_execution_manifest.up.sql",
+		"000227_workflow_run_execution_manifest.up.sql",
 	)
 
 	require.NoError(t, insertResourceWorkflowRun(
@@ -71,7 +71,7 @@ func TestMigration000220WorkflowRunExecutionManifestPostgres(t *testing.T) {
 		workflowRunManifestJSON,
 	))
 
-	down, err := FS.ReadFile("000220_workflow_run_execution_manifest.down.sql")
+	down, err := FS.ReadFile("000227_workflow_run_execution_manifest.down.sql")
 	require.NoError(t, err)
 	require.Error(t, execMigrationSQL(ctx, conn, string(down)))
 	require.NoError(t, execMigrationSQL(ctx, conn, "ROLLBACK"))
@@ -97,14 +97,14 @@ func TestMigration000220WorkflowRunExecutionManifestPostgres(t *testing.T) {
 	))
 }
 
-func TestMigration000220ActiveLegacyRunFailsClosedPostgres(t *testing.T) {
+func TestMigration000227ActiveLegacyRunFailsClosedPostgres(t *testing.T) {
 	ctx, conn := openSnapshotConsistencyPostgres(t)
 	requireSnapshotConsistencySchema(t, ctx, conn, false)
 	requireSnapshotMigration(
 		t,
 		ctx,
 		conn,
-		"000219_enforce_orchestration_domain_snapshot_consistency.up.sql",
+		"000226_enforce_orchestration_domain_snapshot_consistency.up.sql",
 	)
 	requireWorkflowRunFinishedAtColumn(t, ctx, conn)
 	require.NoError(t, execMigrationSQL(
@@ -114,7 +114,7 @@ func TestMigration000220ActiveLegacyRunFailsClosedPostgres(t *testing.T) {
 	))
 	require.NoError(t, insertLegacyWorkflowRun(ctx, conn, 60))
 
-	up, err := FS.ReadFile("000220_workflow_run_execution_manifest.up.sql")
+	up, err := FS.ReadFile("000227_workflow_run_execution_manifest.up.sql")
 	require.NoError(t, err)
 	require.Error(t, execMigrationSQL(ctx, conn, string(up)))
 	require.NoError(t, execMigrationSQL(ctx, conn, "ROLLBACK"))
@@ -164,18 +164,18 @@ VALUES ($1, 1, 100)`,
 	return err
 }
 
-func TestMigration000220ActiveRunFailsClosedPostgres(t *testing.T) {
+func TestMigration000227ActiveRunFailsClosedPostgres(t *testing.T) {
 	ctx, conn := openSnapshotConsistencyPostgres(t)
 	requireSnapshotConsistencySchema(t, ctx, conn, false)
 	requireSnapshotMigration(
 		t,
 		ctx,
 		conn,
-		"000219_enforce_orchestration_domain_snapshot_consistency.up.sql",
+		"000226_enforce_orchestration_domain_snapshot_consistency.up.sql",
 	)
 	requireWorkflowRunFinishedAtColumn(t, ctx, conn)
 
-	up, err := FS.ReadFile("000220_workflow_run_execution_manifest.up.sql")
+	up, err := FS.ReadFile("000227_workflow_run_execution_manifest.up.sql")
 	require.NoError(t, err)
 	require.Error(t, execMigrationSQL(ctx, conn, string(up)))
 	require.NoError(t, execMigrationSQL(ctx, conn, "ROLLBACK"))

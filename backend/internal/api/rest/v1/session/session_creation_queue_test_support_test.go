@@ -5,6 +5,7 @@ import (
 	"time"
 
 	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	"github.com/anthropics/agentsmesh/backend/pkg/crypto"
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
 )
@@ -39,6 +40,7 @@ type recordingSessionDispatchQueue struct {
 	maxPerRunner  int
 	triggers      []int64
 	beforeTrigger func(int64)
+	encryptor     *crypto.Encryptor
 }
 
 func (q *recordingSessionDispatchQueue) AllowsDurableCommand(_ int64) bool {
@@ -51,6 +53,17 @@ func (q *recordingSessionDispatchQueue) MaxPerRunner() int {
 
 func (q *recordingSessionDispatchQueue) SendPromptTTL() time.Duration {
 	return q.ttl
+}
+
+func (q *recordingSessionDispatchQueue) SealPayload(payload []byte) ([]byte, error) {
+	if q.encryptor == nil {
+		q.encryptor = crypto.NewEncryptor("session-dispatch-queue-test-key")
+	}
+	encrypted, err := q.encryptor.Encrypt(string(payload))
+	if err != nil {
+		return nil, err
+	}
+	return append([]byte(podDomain.PendingPayloadPrefix), encrypted...), nil
 }
 
 func (q *recordingSessionDispatchQueue) TriggerDrain(runnerID int64) {

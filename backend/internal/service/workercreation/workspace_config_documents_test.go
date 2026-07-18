@@ -16,7 +16,7 @@ import (
 func TestWorkspaceResolverAllowsOmittedOptionalConfigDocument(t *testing.T) {
 	resolver := configDocumentResolver(t)
 
-	bundleNames, err := resolver.resolveConfigBundleNames(
+	documentIDs, err := resolver.resolveConfigDocumentIDs(
 		context.Background(),
 		specservice.Scope{OrgID: 77, UserID: 7},
 		slugkit.MustNewForTest("codex-cli"),
@@ -27,13 +27,13 @@ func TestWorkspaceResolverAllowsOmittedOptionalConfigDocument(t *testing.T) {
 	)
 
 	require.NoError(t, err)
-	assert.Equal(t, []string{"settings-document"}, bundleNames)
+	assert.Equal(t, []string{"settings"}, documentIDs)
 }
 
 func TestWorkspaceResolverRejectsOmittedRequiredConfigDocument(t *testing.T) {
 	resolver := configDocumentResolver(t)
 
-	_, err := resolver.resolveConfigBundleNames(
+	_, err := resolver.resolveConfigDocumentIDs(
 		context.Background(),
 		specservice.Scope{OrgID: 77, UserID: 7},
 		slugkit.MustNewForTest("codex-cli"),
@@ -45,7 +45,7 @@ func TestWorkspaceResolverRejectsOmittedRequiredConfigDocument(t *testing.T) {
 	assert.ErrorContains(t, err, "settings")
 }
 
-func TestCompilerUsesResolvedConfigBundleName(t *testing.T) {
+func TestCompilerUsesConfigDocumentID(t *testing.T) {
 	spec := validCompiledWorkerSpec()
 	spec.Workspace.ConfigDocumentBindings = []specdomain.ConfigDocumentBinding{{
 		DocumentID:     "settings",
@@ -59,8 +59,7 @@ func TestCompilerUsesResolvedConfigBundleName(t *testing.T) {
 	)
 
 	require.NoError(t, err)
-	assert.Contains(t, layer, "USE_CONFIG_BUNDLE \"settings-document\"\n")
-	assert.NotContains(t, layer, "USE_CONFIG_BUNDLE \"settings\"\n")
+	assert.Contains(t, layer, "USE_CONFIG_BUNDLE settings\n")
 }
 
 func configDocumentResolver(t *testing.T) *workspaceResolver {

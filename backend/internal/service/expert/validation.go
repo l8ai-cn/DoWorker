@@ -6,9 +6,13 @@ import (
 )
 
 var (
-	ErrExpertNameRequired           = errors.New("expert name is required")
-	ErrExpertAgentRequired          = errors.New("agent_slug is required")
-	ErrExpertManagedByResourceApply = errors.New("expert definition changes must go through resource validate-plan-apply")
+	ErrExpertNameRequired              = errors.New("expert name is required")
+	ErrExpertAgentRequired             = errors.New("agent_slug is required")
+	ErrExpertManagedByResourceApply    = errors.New("expert definition changes must go through resource validate-plan-apply")
+	ErrExpertSnapshotUnavailable       = errors.New("expert workerspec snapshot is unavailable")
+	ErrExpertSnapshotUpdateUnsupported = errors.New(
+		"expert update changes fields that require republishing",
+	)
 )
 
 func validateExpertBasics(agentSlug, name string) error {

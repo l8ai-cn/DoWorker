@@ -22,6 +22,10 @@ import { MarkdownRichTextViewer } from "./MarkdownRichTextViewer";
 import { SourceCodeViewer } from "./SourceCodeViewer";
 import { TruncatedBanner } from "./TruncatedBanner";
 import { useCodeViewerSourceState } from "./useCodeViewerSourceState";
+import {
+  isWorkspaceVideoFile,
+  WorkspaceVideoViewer,
+} from "./WorkspaceVideoViewer";
 
 const MonacoCodeEditor = lazy(() =>
   import("./MonacoCodeEditor").then((module) => ({

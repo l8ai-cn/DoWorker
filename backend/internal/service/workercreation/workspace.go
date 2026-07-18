@@ -78,6 +78,9 @@ func (resolver *workspaceResolver) ResolveWorkspace(
 	if _, err := resolver.resolveWorkspaceReferences(ctx, scope, workerType, workspace); err != nil {
 		return specdomain.Workspace{}, err
 	}
+	if len(workspace.SkillPackages) == 0 && len(workspace.SkillIDs) > 0 {
+		workspace.SkillPackages = resolver.resolvedSkillPackages(workspace.SkillIDs)
+	}
 	return cloneResolvedWorkspace(workspace), nil
 }
 

@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"log/slog"
-	"strings"
 	"time"
 
 	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"

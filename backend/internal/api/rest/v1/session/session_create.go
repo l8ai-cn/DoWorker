@@ -1,7 +1,6 @@
 package sessionapi
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 	"strings"
@@ -102,9 +101,6 @@ func (d *Deps) handleCreateSession(c *gin.Context) {
 	}
 	result, err := d.PodOrchestrator.CreatePod(c.Request.Context(), orchReq)
 	if err != nil {
-		if startsAssistantTurn && d.Stream != nil && d.Stream.Hub != nil {
-			d.Stream.Hub.RemoveSession(sessionID)
-		}
 		writeOrchestratorError(c, err)
 		return
 	}
@@ -118,12 +114,6 @@ func (d *Deps) handleCreateSession(c *gin.Context) {
 		)
 		return
 	}
-	title := body.Title
-	if sessionTitleEmpty(title) {
-		if seeded := promptTextFromInitialItems(body.InitialItems); seeded != "" {
-			title = deriveSessionTitleFromPrompt(seeded)
-		}
-	}
 	row := &domain.Session{
 		ID:              sessionID,
 		OrganizationID:  tenant.OrganizationID,
@@ -134,7 +124,11 @@ func (d *Deps) handleCreateSession(c *gin.Context) {
 		ParentSessionID: body.ParentSessionID,
 		Status:          "idle",
 	}
-	command, err := pendingSessionCreateCommand(result, d.DispatchQueue.SendPromptTTL())
+	command, err := pendingSessionCreateCommand(
+		result,
+		d.DispatchQueue,
+		d.DispatchQueue.SendPromptTTL(),
+	)
 	if err != nil {
 		cleanupErr := d.terminateCreatedSessionPod(c.Request.Context(), result.Pod.PodKey)
 		writeSessionCreationFailure(c, "failed to prepare session dispatch", cleanupErr)

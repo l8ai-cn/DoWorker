@@ -44,6 +44,7 @@ func Load() (*Config, error) {
 	publicWebURL := getEnv("PUBLIC_WEB_URL", "")
 	mobilePublicURL := getEnv("MOBILE_PUBLIC_BASE_URL", "")
 	useHTTPS := getEnvBool("USE_HTTPS", false)
+	storageUseSSL := getEnvBool("STORAGE_USE_SSL", true)
 	previewPublicOrigin, err := loadPreviewPublicOrigin(primaryDomain, publicWebURL, mobilePublicURL, useHTTPS)
 	if err != nil {
 		return nil, err

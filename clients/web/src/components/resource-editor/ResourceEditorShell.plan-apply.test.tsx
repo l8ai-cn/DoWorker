@@ -6,12 +6,16 @@ import {
   ApplyWorkerTemplatePlanResponseSchema,
   ApplyWorkflowPlanResponseSchema,
   CreateWorkerFromPlanResponseSchema,
-  PlanStatus,
+} from "@proto/orchestration_resource/v1/orchestration_resource_apply_pb";
+import {
   PlanResourceResponseSchema,
+  ValidateResourceResponseSchema,
+} from "@proto/orchestration_resource/v1/orchestration_resource_queries_pb";
+import {
+  PlanStatus,
   ResourceOperation,
   ResourceSchema,
-  ValidateResourceResponseSchema,
-} from "@proto/orchestration_resource/v1/orchestration_resource_pb";
+} from "@proto/orchestration_resource/v1/orchestration_resource_types_pb";
 import { render, screen, waitFor } from "@/test/test-utils";
 import type { WorkerCreateOptions } from "@/lib/api/facade/podConnect";
 import { createResourceDraft } from "./resource-draft-factory";
@@ -222,9 +226,8 @@ describe("ResourceEditorShell", () => {
     expect(screen.getByLabelText(/Resource name/)).toHaveValue(
       "nightly-review",
     );
-    expect(screen.getByRole("combobox", { name: /^Prompt/ })).toHaveValue(
-      "delivery-review",
-    );
+    expect(screen.getByRole("combobox", { name: /^Prompt/ }))
+      .toHaveTextContent("delivery-review");
     await screen.findByText("No Prompt resources are available yet.");
   });
 

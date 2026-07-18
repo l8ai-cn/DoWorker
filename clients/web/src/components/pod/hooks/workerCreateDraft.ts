@@ -4,8 +4,6 @@ import type {
   WorkerPreflightResult,
   WorkerSpecDraft,
 } from "@/lib/api/facade/podConnect";
-import { createInitialWorkerDraftState } from "./workerCreateInitialState";
-export { createInitialWorkerDraftState } from "./workerCreateInitialState";
 export type WorkerCreateStepId = 1 | 2 | 3 | 4;
 export type AsyncState<T> =
   | { status: "idle" }
@@ -16,7 +14,6 @@ export interface WorkerCreateDraftState {
   instanceId: string;
   step: WorkerCreateStepId;
   fillPrompt: string;
-  generationModelResourceId: number;
   draft: WorkerSpecDraft;
   fill: AsyncState<WorkerDraftFillResult>;
   fillRequestId: string | null;
@@ -28,7 +25,6 @@ export interface WorkerCreateDraftState {
 export type WorkerCreateDraftAction =
   | { type: "reset"; draft?: Partial<WorkerSpecDraft> }
   | { type: "set_fill_prompt"; prompt: string }
-  | { type: "set_generation_model"; resourceId: number }
   | { type: "patch_draft"; patch: Partial<WorkerSpecDraft> }
   | {
       type: "change_worker_type";
@@ -109,8 +105,6 @@ export function workerCreateDraftReducer(
       return createInitialWorkerDraftState(action.draft);
     case "set_fill_prompt":
       return { ...state, fillPrompt: action.prompt };
-    case "set_generation_model":
-      return { ...state, generationModelResourceId: action.resourceId };
     case "patch_draft":
       return invalidatePreflight(state, { ...state.draft, ...action.patch });
     case "change_worker_type":

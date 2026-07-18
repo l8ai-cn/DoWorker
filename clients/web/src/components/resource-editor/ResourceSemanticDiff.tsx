@@ -1,7 +1,9 @@
 "use client";
 
-import { SemanticChangeOperation } from "@proto/orchestration_resource/v1/orchestration_resource_pb";
-import type { SemanticChange } from "@proto/orchestration_resource/v1/orchestration_resource_pb";
+import {
+  SemanticChangeOperation,
+  type SemanticChange,
+} from "@proto/orchestration_resource/v1/orchestration_resource_types_pb";
 import { Badge } from "@/components/ui/badge";
 
 interface ResourceSemanticDiffProps {

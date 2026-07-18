@@ -22,6 +22,10 @@ type PodHandler struct {
 	grantService            *grantservice.Service      // Resource grant/sharing service
 	pendingQueue            pendingQueueReader
 	sandboxFs               podWorkspaceSandbox
+	workspaceArtifacts      podWorkspaceArtifactTransfer
+	artifactTransfers       sync.Map
+	workerSpecs             workerspecservice.SnapshotRepository
+	experts                 *expertservice.Service
 	quickTaskPlanAuthorizer QuickTaskPlanAuthorizer
 	quickTaskPlanApplier    QuickTaskPlanApplier
 	quickTaskPodReader      quickTaskPodReader
@@ -84,6 +88,22 @@ func WithQuickTaskPlanAuthorizer(authorizer QuickTaskPlanAuthorizer) PodHandlerO
 func WithPodWorkspaceSandbox(sandbox podWorkspaceSandbox) PodHandlerOption {
 	return func(h *PodHandler) {
 		h.sandboxFs = sandbox
+	}
+}
+
+func WithPodWorkerContext(
+	workerSpecs workerspecservice.SnapshotRepository,
+	experts *expertservice.Service,
+) PodHandlerOption {
+	return func(h *PodHandler) {
+		h.workerSpecs = workerSpecs
+		h.experts = experts
+	}
+}
+
+func WithPodWorkspaceArtifactTransfer(transfer podWorkspaceArtifactTransfer) PodHandlerOption {
+	return func(h *PodHandler) {
+		h.workspaceArtifacts = transfer
 	}
 }
 

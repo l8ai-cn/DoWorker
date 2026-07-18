@@ -12,6 +12,7 @@ import { CenteredSpinner } from "@/components/ui/spinner";
 import { useExpertStore, useCurrentExpert } from "@/stores/expert";
 import { ExpertEditDrawer } from "./ExpertEditDrawer";
 import { ExpertConfigList } from "./ExpertConfigList";
+import { ExpertMarketOperations } from "./ExpertMarketOperations";
 import { ExpertRevisionDialog } from "./ExpertRevisionDialog";
 import { usePodStore } from "@/stores/pod";
 import { getShortPodKey } from "@/lib/pod-display-name";

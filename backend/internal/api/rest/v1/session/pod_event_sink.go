@@ -9,6 +9,11 @@ import (
 
 type PodUpdater interface {
 	GetByKey(ctx context.Context, podKey string) (*podDomain.Pod, error)
+	GetByKeyAndRunner(
+		ctx context.Context,
+		podKey string,
+		runnerID int64,
+	) (*podDomain.Pod, error)
 	UpdateExternalSessionID(ctx context.Context, podKey, externalID string) error
 }
 

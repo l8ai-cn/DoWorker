@@ -34,7 +34,7 @@ case "${AGENT_RUNTIME}" in
 esac
 
 echo "========================================"
-echo "  Do Worker Runner Entrypoint (Bazel)"
+echo "  Do Worker Runner Entrypoint"
 echo "========================================"
 echo "  Backend URL:    $BACKEND_URL"
 echo "  gRPC Endpoint:  $GRPC_ENDPOINT"
@@ -217,7 +217,7 @@ key_file: "${CERTS_DIR}/runner.key"
 ca_file: "${CERTS_DIR}/ca.crt"
 relay_base_url: "${RELAY_BASE_URL}"
 node_id: "${RUNNER_NODE_ID}"
-description: "Development Docker Runner (Bazel binary)"
+description: "Development Docker Runner"
 org_slug: "${RUNNER_ORG_SLUG}"
 max_concurrent_pods: ${MAX_CONCURRENT_PODS}
 workspace: "/workspace"

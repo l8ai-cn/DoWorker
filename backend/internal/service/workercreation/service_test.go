@@ -172,7 +172,6 @@ EXECUTABLE codex
 CONFIG approval_mode SELECT("untrusted", "on-request", "never") = "on-request"
 ENV SIGNING_KEY SECRET OPTIONAL
 `
-	agent := activeWorkerTypeAgent(source)
 	return &workerCreationServiceFixture{
 		agents: &workerTypeAgentProvider{agent: activeWorkerTypeAgent(source)},
 		definitions: staticWorkerDefinitions{

@@ -6,8 +6,6 @@ use agentsmesh_state::app_state::AppRuntime;
 use agentsmesh_transport::runtime::PlatformRuntime;
 use wasm_bindgen::prelude::*;
 
-mod service_factories;
-
 #[wasm_bindgen]
 pub struct WasmApiClient {
     pub(crate) client: Arc<ApiClient>,

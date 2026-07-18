@@ -3,6 +3,7 @@ package sessionmessage
 import (
 	"context"
 	"encoding/json"
+	"strings"
 	"testing"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 	domainitem "github.com/anthropics/agentsmesh/backend/internal/domain/conversationitem"
 	"github.com/anthropics/agentsmesh/backend/internal/infra"
 	runnerservice "github.com/anthropics/agentsmesh/backend/internal/service/runner"
+	"github.com/anthropics/agentsmesh/backend/pkg/crypto"
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
@@ -19,8 +21,10 @@ import (
 
 func TestPersistAndQueueWritesItemAndIdempotentCommand(t *testing.T) {
 	db := newPromptOutboxDB(t)
+	encryptor := crypto.NewEncryptor("prompt-outbox-test-key")
 	queue := runnerservice.NewPendingCommandQueue(
-		infra.NewPendingCommandRepository(db), nil, 10, 0, true, nil,
+		infra.NewPendingCommandRepository(db), nil, 10, 0, true,
+		encryptor, nil,
 	)
 	item, err := UserItem("item_1", "session_1", "response_1", []map[string]string{
 		{"type": "input_text", "text": "hello"},
@@ -36,8 +40,13 @@ func TestPersistAndQueueWritesItemAndIdempotentCommand(t *testing.T) {
 	require.Equal(t, int64(1), stored.Position)
 	var command agentpod.PendingCommand
 	require.NoError(t, db.First(&command, "command_id = ?", item.ID).Error)
+	require.True(t, strings.HasPrefix(string(command.Payload), agentpod.PendingPayloadPrefix))
+	plaintext, err := encryptor.Decrypt(
+		string(command.Payload[len(agentpod.PendingPayloadPrefix):]),
+	)
+	require.NoError(t, err)
 	var message runnerv1.ServerMessage
-	require.NoError(t, proto.Unmarshal(command.Payload, &message))
+	require.NoError(t, proto.Unmarshal([]byte(plaintext), &message))
 	require.Equal(t, item.ID, message.GetSendPrompt().GetCommandId())
 	require.Equal(t, "hello", message.GetSendPrompt().GetPrompt())
 }
@@ -45,12 +54,15 @@ func TestPersistAndQueueWritesItemAndIdempotentCommand(t *testing.T) {
 func TestPersistAndQueueRollsBackItemWhenCommandConflicts(t *testing.T) {
 	db := newPromptOutboxDB(t)
 	queue := runnerservice.NewPendingCommandQueue(
-		infra.NewPendingCommandRepository(db), nil, 10, 0, true, nil,
+		infra.NewPendingCommandRepository(db), nil, 10, 0, true,
+		crypto.NewEncryptor("prompt-outbox-test-key"), nil,
 	)
+	existingPayload, err := queue.SealPayload([]byte("existing"))
+	require.NoError(t, err)
 	require.NoError(t, db.Create(&agentpod.PendingCommand{
 		OrganizationID: 1, RunnerID: 2, PodKey: "pod_1",
 		CommandType: agentpod.CommandTypeSendPrompt, CommandID: "item_1",
-		Payload: []byte("existing"), ExpiresAt: time.Now().Add(time.Minute),
+		Payload: existingPayload, ExpiresAt: time.Now().Add(time.Minute),
 	}).Error)
 	item, err := UserItem("item_1", "session_1", "response_1", json.RawMessage(`[]`))
 	require.NoError(t, err)

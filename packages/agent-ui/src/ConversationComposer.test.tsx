@@ -28,6 +28,7 @@ describe("ConversationComposer", () => {
       <AgentWorkspaceLocaleProvider locale="zh-CN">
         <ConversationComposer
           onError={onError}
+          presentation="developer"
           runtime={agentRuntime}
           snapshot={snapshot}
         />

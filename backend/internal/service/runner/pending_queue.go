@@ -124,6 +124,10 @@ func (q *PendingCommandQueue) enqueue(
 	if ttl > maxQueueTTL {
 		ttl = maxQueueTTL
 	}
+	encryptedPayload, err := q.payloadCipher.encrypt(payload)
+	if err != nil {
+		return time.Time{}, err
+	}
 	expiresAt := time.Now().Add(ttl)
 	cmd := &agentpod.PendingCommand{
 		OrganizationID: orgID,

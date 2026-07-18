@@ -25,6 +25,21 @@ function makeFileQuery(content: string): ReturnType<typeof useFileContent> {
   } as unknown as ReturnType<typeof useFileContent>;
 }
 
+function makeVideoQuery(): ReturnType<typeof useFileContent> {
+  return {
+    data: {
+      content: "AAAA",
+      content_type: "video/mp4",
+      encoding: "base64",
+      truncated: false,
+    },
+    isLoading: false,
+    isError: false,
+    isSuccess: true,
+    error: null,
+  } as unknown as ReturnType<typeof useFileContent>;
+}
+
 const searchInputRef = { current: null };
 
 function renderSource(content: string, panelOpen = true, path = "notes.md") {
@@ -197,7 +212,7 @@ describe("CodeViewer video rendering", () => {
         panelOpen={true}
         searchOpen={false}
         setSearchOpen={() => {}}
-        searchInputRef={noopRef}
+        searchInputRef={searchInputRef}
         viewMode="source"
       />,
     );

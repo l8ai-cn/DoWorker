@@ -90,9 +90,6 @@ export interface WorkerTypeOption {
   config_document_requirements: WorkerConfigDocumentRequirement[];
   selectable: boolean;
   blocking_reason: string;
-  requires_model_resource: boolean;
-  model_protocol_adapters: string[];
-  tool_model_requirements: WorkerToolModelRequirement[];
 }
 
 export interface WorkerRuntimeImageOption {

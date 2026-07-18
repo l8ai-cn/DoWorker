@@ -61,18 +61,9 @@ type managedExpertBinding struct {
 }
 
 func managedExpertBindings() []managedExpertBinding {
-	snapshotID := int64(42)
 	resourceID := int64(90)
 	resourceRevision := int64(3)
 	return []managedExpertBinding{
-		{
-			name: "worker spec snapshot",
-			expert: func() *expertdom.Expert {
-				row := managedExpert()
-				row.WorkerSpecSnapshotID = &snapshotID
-				return row
-			},
-		},
 		{
 			name: "orchestration resource",
 			expert: func() *expertdom.Expert {

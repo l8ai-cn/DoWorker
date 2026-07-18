@@ -19,7 +19,6 @@ func TestDefaultCatalogExposesImmutableRuntimeSelections(t *testing.T) {
 	for _, image := range allImages {
 		assert.Regexp(t, regexp.MustCompile(`^sha256:[a-f0-9]{64}$`), image.Digest)
 		assert.True(t, strings.HasSuffix(image.Reference, "@"+image.Digest))
-		assert.False(t, image.Enabled)
 	}
 	assert.True(t, allImages[0].Enabled)
 	assert.False(t, allImages[1].Enabled)
@@ -92,13 +91,27 @@ func TestLoadCatalogReadsExplicitDevelopmentLock(t *testing.T) {
 	assert.True(t, images[0].Enabled)
 }
 
-func TestDefaultCatalogDoesNotInventUnavailableWorkerImages(t *testing.T) {
+func TestDefaultCatalogPublishesDoAgentForSeedance(t *testing.T) {
+	catalog := DefaultCatalog()
+
+	doAgentImages := catalog.ImagesFor("do-agent")
+	seedanceImages := catalog.ImagesFor("seedance-expert")
+	require.Len(t, doAgentImages, 1)
+	require.Len(t, seedanceImages, 1)
+	assert.True(t, doAgentImages[0].Enabled)
+	assert.Equal(t, doAgentImages[0], seedanceImages[0])
+	assert.Equal(t, []string{"do-agent", "seedance-expert"}, doAgentImages[0].WorkerTypeSlugs)
+	assert.Regexp(t, regexp.MustCompile(`^repo\.aiedulab\.cn:8443/agentsmesh/runner-do-agent@sha256:[a-f0-9]{64}$`), doAgentImages[0].Reference)
+}
+
+func TestDefaultCatalogDoesNotInventUnknownWorkerImages(t *testing.T) {
 	catalog := DefaultCatalog()
 
 	assert.Empty(t, catalog.ImagesFor("unknown-worker"))
 }
 
 func TestDefaultCatalogDoesNotUseMutableEnvironmentImageReferences(t *testing.T) {
+	expected := DefaultCatalog().ImagesFor("do-agent")
 	digest := "sha256:" + strings.Repeat("d", 64)
 	t.Setenv(
 		"WORKER_RUNTIME_IMAGE_REFERENCES",
@@ -107,7 +120,7 @@ func TestDefaultCatalogDoesNotUseMutableEnvironmentImageReferences(t *testing.T)
 
 	images := DefaultCatalog().ImagesFor("do-agent")
 
-	assert.Empty(t, images)
+	assert.Equal(t, expected, images)
 }
 
 func TestParseRuntimeCatalogLockRejectsMutableReference(t *testing.T) {

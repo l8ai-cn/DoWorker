@@ -12,11 +12,8 @@ export function workerCreateValidity(
   draft: WorkerSpecDraft,
   options: AsyncState<WorkerCreateOptions>,
   dependenciesReady: boolean,
-  modelDependenciesReady = true,
 ): WorkerCreateValidity {
-  const runtime = options.status === "ready" &&
-    modelDependenciesReady &&
-    runtimeSelectionsValid(draft, options.data);
+  const runtime = options.status === "ready" && runtimeSelectionsValid(draft, options.data);
   const typeConfig = runtime && draft.type_schema_version > 0;
   const workspace = typeConfig && dependenciesReady && workspaceValid(
     draft,

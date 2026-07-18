@@ -106,13 +106,15 @@ func TestCreateSessionRejectsFullRunnerQueueAtomically(t *testing.T) {
 	deps, db, lifecycle := setupSessionCreationCompensationTest(t)
 	queue := deps.DispatchQueue.(*recordingSessionDispatchQueue)
 	queue.maxPerRunner = 1
+	payload, err := queue.SealPayload([]byte{1})
+	require.NoError(t, err)
 	require.NoError(t, db.Create(&podDomain.PendingCommand{
 		OrganizationID: 21,
 		RunnerID:       3,
 		PodKey:         "existing-pod",
 		CommandType:    podDomain.CommandTypeCreatePod,
 		CommandID:      "existing-pod",
-		Payload:        []byte{1},
+		Payload:        payload,
 		ExpiresAt:      time.Now().Add(time.Hour),
 		CreatedAt:      time.Now(),
 	}).Error)

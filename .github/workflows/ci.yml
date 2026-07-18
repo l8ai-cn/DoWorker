@@ -1,6 +1,6 @@
 name: CI
 
-# Unified PR/main gate — Go / Cargo / pnpm / e2e. No Bazel.
+# Unified PR/main gate — Go / Cargo / pnpm / e2e.
 
 on:
   push:
@@ -39,6 +39,39 @@ jobs:
         run: bash docker/agent-runtime/contract_test.sh
       - name: Mobile release deployment contract
         run: bash deploy/kubernetes/cluster-oilan/deploy-mobile-access-contract_test.sh
+
+  proto-check:
+    name: Proto Codegen
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: smoke
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: clients/core
+      - name: Install codegen tools
+        run: |
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+          bash scripts/ci-install-codegen-tools.sh
+      - name: Install JS deps (buf / protoc-gen-es)
+        run: pnpm install --frozen-lockfile
+      - name: Seed Rust proto stubs
+        run: bash scripts/seed-rust-proto-stubs.sh
+      - name: Proto consistency check
+        run: pnpm run proto:check
 
   go:
     name: Go (tests)

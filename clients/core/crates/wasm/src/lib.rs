@@ -16,7 +16,6 @@ mod relay_manager;
 mod service_agent;
 mod service_agent_workbench;
 mod service_ai_resource;
-mod service_execution_cluster;
 mod service_apikey;
 mod service_auth_connect;
 mod service_autopilot;
@@ -71,6 +70,8 @@ mod state_workflow_proto;
 mod ws_transport;
 
 #[cfg(test)]
+mod agent_workbench_stream_status_tests;
+#[cfg(test)]
 mod service_orchestration_resource_tests;
 #[cfg(test)]
 mod service_pod_worker_creation_tests;
@@ -87,7 +88,6 @@ pub use relay_manager::*;
 pub use service_agent::*;
 pub use service_agent_workbench::*;
 pub use service_ai_resource::*;
-pub use service_execution_cluster::*;
 pub use service_apikey::*;
 pub use service_auth_connect::*;
 pub use service_autopilot::*;

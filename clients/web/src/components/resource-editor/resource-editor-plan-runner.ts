@@ -1,5 +1,5 @@
 import type { Dispatch } from "react";
-import { IssueSeverity } from "@proto/orchestration_resource/v1/orchestration_resource_pb";
+import { IssueSeverity } from "@proto/orchestration_resource/v1/orchestration_resource_types_pb";
 import {
   planResource,
 } from "@/lib/api/facade/orchestrationResource";

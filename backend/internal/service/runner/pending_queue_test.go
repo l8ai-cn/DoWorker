@@ -237,6 +237,7 @@ func TestAllowsDurableCommandHonorsOfflineQueueGate(t *testing.T) {
 		5,
 		time.Minute,
 		false,
+		testPendingEncryptor(),
 		newTestLogger(),
 	)
 	checker := &stubConnChecker{}

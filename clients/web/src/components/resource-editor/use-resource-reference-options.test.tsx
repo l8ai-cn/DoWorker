@@ -1,5 +1,5 @@
 import { renderHook, waitFor } from "@testing-library/react";
-import { EnvironmentBundlePurpose } from "@proto/orchestration_resource/v1/orchestration_resource_pb";
+import { EnvironmentBundlePurpose } from "@proto/orchestration_resource/v1/orchestration_resource_queries_pb";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const api = vi.hoisted(() => ({
@@ -109,14 +109,12 @@ describe("useResourceReferenceOptions", () => {
       limit: 100,
       offset: 0,
       environmentBundleFilter: undefined,
-      modelBindingFilter: undefined,
     });
     expect(api.listResources).toHaveBeenCalledWith("acme", {
       kind: "WorkerTemplate",
       limit: 100,
       offset: 100,
       environmentBundleFilter: undefined,
-      modelBindingFilter: undefined,
     });
   });
 
@@ -189,7 +187,6 @@ describe("useResourceReferenceOptions", () => {
       () => useResourceReferenceOptions(
         "acme",
         "cursor-cli",
-        [],
         ["CURSOR_REFRESH_TOKEN", "CURSOR_API_KEY"],
       ),
     );
@@ -232,7 +229,6 @@ describe("useResourceReferenceOptions", () => {
         workerType: "cursor-cli",
         targetName: "CURSOR_API_KEY",
       },
-      modelBindingFilter: undefined,
     });
     expect(api.listResources).toHaveBeenCalledWith("acme", {
       kind: "EnvironmentBundle",
@@ -243,7 +239,6 @@ describe("useResourceReferenceOptions", () => {
         workerType: "cursor-cli",
         targetName: "CURSOR_REFRESH_TOKEN",
       },
-      modelBindingFilter: undefined,
     });
   });
 
@@ -283,7 +278,6 @@ describe("useResourceReferenceOptions", () => {
       () => useResourceReferenceOptions(
         "acme",
         "do-agent",
-        [],
         ["WORKING_KEY", "BROKEN_KEY"],
       ),
     );

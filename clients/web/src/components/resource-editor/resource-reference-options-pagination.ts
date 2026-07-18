@@ -1,5 +1,5 @@
 import { listResources } from "@/lib/api/facade/orchestrationResource";
-import type { EnvironmentBundlePurpose } from "@proto/orchestration_resource/v1/orchestration_resource_pb";
+import type { EnvironmentBundlePurpose } from "@proto/orchestration_resource/v1/orchestration_resource_queries_pb";
 
 const REFERENCE_PAGE_SIZE = 100;
 
@@ -9,15 +9,9 @@ interface EnvironmentBundleFilter {
   targetName?: string;
 }
 
-interface ModelBindingFilter {
-  workerType: string;
-  protocolAdapters: readonly string[];
-}
-
 type ResourceFilterInput = {
   kind: string;
   environmentBundleFilter?: EnvironmentBundleFilter;
-  modelBindingFilter?: ModelBindingFilter;
 };
 
 type ListResourceResponse<T> = {
@@ -30,10 +24,6 @@ type ListResourceResponse<T> = {
     workerType: string;
     targetName: string;
   };
-  appliedModelBindingFilter?: {
-    workerType: string;
-    protocolAdapters: readonly string[];
-  };
 };
 
 export async function collectResourceReferenceOptions<T>(
@@ -45,9 +35,12 @@ export async function collectResourceReferenceOptions<T>(
     revision: bigint;
   }) => T,
   assertFilterApplied: (
-    requested: ResourceFilterInput,
-    applied: Pick<ListResourceResponse<unknown>,
-      "appliedEnvironmentBundleFilter" | "appliedModelBindingFilter">,
+    requested: EnvironmentBundleFilter | undefined,
+    applied: {
+      purpose: EnvironmentBundlePurpose;
+      workerType: string;
+      targetName: string;
+    } | undefined,
   ) => void,
 ): Promise<T[]> {
   let offset = 0;
@@ -56,23 +49,15 @@ export async function collectResourceReferenceOptions<T>(
   for (;;) {
     const response = await listResources(
       orgSlug,
-      {
-        kind: query.kind,
-        limit: REFERENCE_PAGE_SIZE,
-        offset,
-        environmentBundleFilter: query.environmentBundleFilter,
-        modelBindingFilter: query.modelBindingFilter && {
-          workerType: query.modelBindingFilter.workerType,
-        },
-      },
+      { kind: query.kind, limit: REFERENCE_PAGE_SIZE, offset, environmentBundleFilter: query.environmentBundleFilter },
     ) as ListResourceResponse<{
       identity?: { target?: { name?: string } };
       displayName: string;
       revision: bigint;
     }>;
     assertFilterApplied(
-      query,
-      response,
+      query.environmentBundleFilter,
+      response.appliedEnvironmentBundleFilter,
     );
     options.push(...response.items.map(toOption));
 

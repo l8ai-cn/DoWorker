@@ -35,7 +35,7 @@ OTel collector, Adminer). Wasm is built with `pnpm run build:wasm` when needed.
 
 ```bash
 cd deploy/dev && ./dev-lite.sh       # air backend/relay + coordinator runners + web only
-pnpm proto:gen-go-all                # first-time: proto + amesh codegen
+pnpm proto:gen-all                   # first-time: TS + Go + amesh + Rust
 ```
 
 Prerequisites (one-time):
@@ -176,11 +176,15 @@ filenames and runs `rcodesign` over darwin binaries before `gh release create`.
 ### Proto
 
 ```bash
-pnpm proto:gen-go        # regenerate proto/gen/go (requires protoc)
-pnpm proto:gen-go-all    # proto + amesh convert sync
+pnpm proto:gen-all       # TS + Go + amesh + Rust (preferred after any .proto change)
+pnpm proto:check         # CI gate: committed TS clean + Go/amesh/Rust regenerable
+pnpm proto:gen-ts        # TypeScript only → proto/gen/ts (commit this)
+pnpm proto:gen-go-all    # Go + amesh convert only
+pnpm proto:gen-rust      # Rust prost crates only
 ```
 
-Requires `protoc` plus `protoc-gen-go` / `protoc-gen-go-grpc` (auto-installed by the script if missing). No Bazel fallback.
+Requires `protoc` plus `protoc-gen-go` / `protoc-gen-go-grpc` (auto-installed by the script if missing).
+Rust stubs under `clients/core/crates/proto/*/src/` are gitignored — run gen after every `.proto` change.
 
 ### Rust Core (Cargo workspace)
 

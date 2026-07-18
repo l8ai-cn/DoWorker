@@ -73,9 +73,6 @@ func TestModelResolverUsesDefinitionProtocolAdapters(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			resources := validModelResourceService()
-			if test.workerType == "grok-build" {
-				resources.resolved.Connection.ProviderKey = slugkit.MustNewForTest("xai")
-			}
 
 			_, err := newModelResolver(resources).ResolveModel(
 				context.Background(),

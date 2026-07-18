@@ -48,10 +48,7 @@ export function CreatePodForm({
       <NlWorkerCreate
         prompt={controller.state.fillPrompt}
         filling={controller.state.fill.status === "loading"}
-        generationModelResourceId={controller.state.generationModelResourceId}
-        generationModels={controller.generationModelResources}
         onPromptChange={controller.setFillPrompt}
-        onGenerationModelChange={controller.setGenerationModelResourceId}
         onFill={(prompt) => void controller.fillWithAI(prompt)}
       />
       <CreatePodFormFields

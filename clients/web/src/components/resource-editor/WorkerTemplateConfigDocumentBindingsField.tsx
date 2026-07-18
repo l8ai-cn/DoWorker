@@ -7,7 +7,6 @@ import type { ResourceReferenceCatalog } from "./resource-reference-options";
 import { environmentBundleCatalogKey } from "./resource-reference-options";
 import { ResourceReferenceField } from "./ResourceReferenceField";
 import { WorkerTemplateReadOnlyReferenceField } from "./WorkerTemplateReadOnlyReferenceField";
-import { updateConfigDocumentBinding } from "./worker-template-definition-bindings";
 
 interface WorkerTemplateConfigDocumentBindingsFieldProps {
   requirements: WorkerConfigDocumentRequirement[];
@@ -56,12 +55,20 @@ export function WorkerTemplateConfigDocumentBindingsField({
               catalog={catalog}
               required={requirement.required}
               onChange={(configBundleRef) => {
-                onChange(updateConfigDocumentBinding(
-                  requirements,
-                  value,
-                  requirement.document_id,
-                  configBundleRef,
-                ));
+                const next = requirements.flatMap((item) => {
+                  const reference = item.document_id === requirement.document_id
+                    ? configBundleRef
+                    : value.find(
+                      (current) => current.documentId === item.document_id,
+                    )?.configBundleRef;
+                  return reference?.name.trim()
+                    ? [{
+                      documentId: item.document_id,
+                      configBundleRef: reference,
+                    }]
+                    : [];
+                });
+                onChange(next);
               }}
             />
             <p className="text-xs text-muted-foreground">

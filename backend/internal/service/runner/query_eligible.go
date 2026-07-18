@@ -98,6 +98,9 @@ func (s *Service) collectEligibleRunners(
 		result = append(result, active)
 		return true
 	})
+	if collectErr != nil {
+		return nil, collectErr
+	}
 	return result, nil
 }
 

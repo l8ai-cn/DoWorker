@@ -66,12 +66,18 @@ message EnvironmentBundleReferenceFilter {
   string target_name = 3;
 }
 
+message ModelBindingReferenceFilter {
+  string worker_type = 1;
+  repeated string protocol_adapters = 2;
+}
+
 message ListResourcesRequest {
   string org_slug = 1;
   optional string kind = 2;
   optional int32 offset = 3;
   optional int32 limit = 4;
   optional EnvironmentBundleReferenceFilter environment_bundle_filter = 5;
+  optional ModelBindingReferenceFilter model_binding_filter = 6;
 }
 
 message ListResourcesResponse {
@@ -80,6 +86,7 @@ message ListResourcesResponse {
   int32 limit = 3;
   int32 offset = 4;
   optional EnvironmentBundleReferenceFilter applied_environment_bundle_filter = 5;
+  optional ModelBindingReferenceFilter applied_model_binding_filter = 6;
 }
 
 message ExportResourceRequest {

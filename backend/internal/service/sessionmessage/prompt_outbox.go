@@ -43,6 +43,10 @@ func (s *PromptOutbox) PersistAndQueue(ctx context.Context, in PromptInput) erro
 	if err != nil {
 		return err
 	}
+	sealedPayload, err := s.queue.SealPayload(payload)
+	if err != nil {
+		return err
+	}
 	if err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := acquirePromptLocks(tx, in.RunnerID, in.Item.SessionID); err != nil {
 			return err
@@ -64,7 +68,7 @@ func (s *PromptOutbox) PersistAndQueue(ctx context.Context, in PromptInput) erro
 			PodKey:         in.PodKey,
 			CommandType:    agentpod.CommandTypeSendPrompt,
 			CommandID:      in.Item.ID,
-			Payload:        payload,
+			Payload:        sealedPayload,
 			ExpiresAt:      time.Now().Add(s.queue.SendPromptTTL()),
 		}).Error
 	}); err != nil {

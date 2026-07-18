@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   SemanticChangeOperation,
   SemanticChangeSchema,
-} from "@proto/orchestration_resource/v1/orchestration_resource_pb";
+} from "@proto/orchestration_resource/v1/orchestration_resource_types_pb";
 import { render, screen } from "@/test/test-utils";
 import { ResourceSemanticDiff } from "./ResourceSemanticDiff";
 

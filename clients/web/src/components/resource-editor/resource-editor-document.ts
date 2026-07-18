@@ -1,5 +1,5 @@
 import type { Dispatch, MutableRefObject } from "react";
-import { SourceFormat } from "@proto/orchestration_resource/v1/orchestration_resource_pb";
+import { SourceFormat } from "@proto/orchestration_resource/v1/orchestration_resource_types_pb";
 import type { ResourceDocument } from "@/lib/api/facade/orchestrationResource";
 import {
   resourceDraftCanSubmitDraft,

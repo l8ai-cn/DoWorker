@@ -55,7 +55,7 @@ start_all_frontends() {
         return 0
     fi
 
-    info "启动三个前端 (web-user 与 Bazel next_dev 并行)..."
+    info "启动三个前端 (web-user 与 next dev 并行)..."
     web_user_launch_background || warn "web-user 后台启动失败"
 
     start_frontend || warn "主前端未能启动"

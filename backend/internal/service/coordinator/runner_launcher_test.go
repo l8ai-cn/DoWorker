@@ -251,7 +251,11 @@ func TestSanitizeRunnerResourceName(t *testing.T) {
 
 func TestNewRunnerLauncherFromEnv(t *testing.T) {
 	t.Setenv("COORDINATOR_RUNNER_LAUNCHER", "docker")
-	t.Setenv("COORDINATOR_RUNNER_IMAGES", "claude-code=agentsmesh/runner-claude-code:dev,codex-cli=agentsmesh/runner-codex-cli:dev")
+	t.Setenv(
+		"COORDINATOR_RUNNER_IMAGES",
+		"claude-code="+testRunnerImage("claude-code")+
+			",codex-cli="+testRunnerImage("codex-cli"),
+	)
 	launcher, kind, err := NewRunnerLauncherFromEnv(
 		workerruntime.DefaultCatalog(),
 		nil,
@@ -318,7 +322,11 @@ func TestNewRunnerLauncherRejectsMutableImageReference(t *testing.T) {
 	t.Setenv("COORDINATOR_RUNNER_LAUNCHER", "k8s")
 	t.Setenv("COORDINATOR_RUNNER_IMAGES", "do-agent=repo.example/runner-do-agent:latest")
 
-	_, _, err := NewRunnerLauncherFromEnv(nil)
+	_, _, err := NewRunnerLauncherFromEnv(
+		workerruntime.DefaultCatalog(),
+		nil,
+		nil,
+	)
 
 	if err == nil || !strings.Contains(err.Error(), "immutable sha256") {
 		t.Fatalf("err = %v, want immutable image validation", err)

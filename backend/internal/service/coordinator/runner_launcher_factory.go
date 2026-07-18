@@ -30,7 +30,10 @@ func NewRunnerLauncherFromEnv(
 		}
 		return NewDockerLauncher(config, logger), "docker", nil
 	case "k8s", "kubernetes":
-		cfg := loadK8sLauncherConfig()
+		cfg, err := loadK8sLauncherConfig()
+		if err != nil {
+			return nil, "", err
+		}
 		if err := validateManagedRunnerImages(
 			catalog,
 			formalWorkerSlugs,

@@ -69,7 +69,6 @@ type OrchestrateCreatePodRequest struct {
 
 	preResolvedRepository     *gitprovider.Repository
 	preResolvedRepositorySlug string
-	clusterID                 int64
 	resolvedWorkerSpec        *specservice.ResolvedSnapshot
 	preparedWorkerSpec        *specdomain.Spec
 	workerSpecSnapshotID      *int64

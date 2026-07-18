@@ -8,6 +8,7 @@ import (
 
 	runnerDomain "github.com/anthropics/agentsmesh/backend/internal/domain/runner"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type failingGrantQuerier struct{}
@@ -17,50 +18,59 @@ func (failingGrantQuerier) GetGrantedResourceIDs(context.Context, string, int64,
 }
 
 func TestListAvailableAgentSlugsUsesActiveEligibleRunners(t *testing.T) {
-	service := newTestService(setupTestDB(t))
+	db := setupTestDB(t)
+	service := newTestService(db)
 	now := time.Now()
+	clusterSeven := createTestExecutionCluster(t, db, 7, "local")
+	clusterEight := createTestExecutionCluster(t, db, 8, "local")
 
-	service.activeRunners.Store(int64(1), &ActiveRunner{
-		Runner: &runnerDomain.Runner{
+	runners := []*runnerDomain.Runner{
+		{
 			ID: 1, OrganizationID: 7, Status: runnerDomain.RunnerStatusOnline,
-			IsEnabled: true, MaxConcurrentPods: 2, Visibility: runnerDomain.VisibilityOrganization,
+			ClusterID: clusterSeven, NodeID: "runner-1",
+			IsEnabled: true, MaxConcurrentPods: 2,
+			Visibility:      runnerDomain.VisibilityOrganization,
 			AvailableAgents: runnerDomain.StringSlice{"codex-cli", "claude-code"},
 		},
-		LastPing: now,
-	})
-	service.activeRunners.Store(int64(2), &ActiveRunner{
-		Runner: &runnerDomain.Runner{
+		{
 			ID: 2, OrganizationID: 7, Status: runnerDomain.RunnerStatusOnline,
-			IsEnabled: true, MaxConcurrentPods: 1, Visibility: runnerDomain.VisibilityOrganization,
+			ClusterID: clusterSeven, NodeID: "runner-2",
+			IsEnabled: true, MaxConcurrentPods: 1,
+			Visibility:      runnerDomain.VisibilityOrganization,
 			AvailableAgents: runnerDomain.StringSlice{"codex-cli"},
 		},
-		LastPing: now,
-	})
-	service.activeRunners.Store(int64(3), &ActiveRunner{
-		Runner: &runnerDomain.Runner{
+		{
 			ID: 3, OrganizationID: 7, Status: runnerDomain.RunnerStatusOnline,
-			IsEnabled: true, MaxConcurrentPods: 1, Visibility: runnerDomain.VisibilityOrganization,
+			ClusterID: clusterSeven, NodeID: "runner-3",
+			IsEnabled: true, MaxConcurrentPods: 1, CurrentPods: 1,
+			Visibility:      runnerDomain.VisibilityOrganization,
 			AvailableAgents: runnerDomain.StringSlice{"aider"},
 		},
-		LastPing: now,
-		PodCount: 1,
-	})
-	service.activeRunners.Store(int64(4), &ActiveRunner{
-		Runner: &runnerDomain.Runner{
+		{
 			ID: 4, OrganizationID: 7, Status: runnerDomain.RunnerStatusOnline,
-			IsEnabled: true, MaxConcurrentPods: 1, Visibility: runnerDomain.VisibilityOrganization,
+			ClusterID: clusterSeven, NodeID: "runner-4",
+			IsEnabled: true, MaxConcurrentPods: 1,
+			Visibility:      runnerDomain.VisibilityOrganization,
 			AvailableAgents: runnerDomain.StringSlice{"gemini-cli"},
 		},
-		LastPing: now.Add(-2 * time.Minute),
-	})
-	service.activeRunners.Store(int64(5), &ActiveRunner{
-		Runner: &runnerDomain.Runner{
+		{
 			ID: 5, OrganizationID: 8, Status: runnerDomain.RunnerStatusOnline,
-			IsEnabled: true, MaxConcurrentPods: 1, Visibility: runnerDomain.VisibilityOrganization,
+			ClusterID: clusterEight, NodeID: "runner-5",
+			IsEnabled: true, MaxConcurrentPods: 1,
+			Visibility:      runnerDomain.VisibilityOrganization,
 			AvailableAgents: runnerDomain.StringSlice{"aider"},
 		},
-		LastPing: now,
+	}
+	for _, runner := range runners {
+		require.NoError(t, service.repo.Create(context.Background(), runner))
+	}
+	service.activeRunners.Store(int64(1), &ActiveRunner{Runner: runners[0], LastPing: now})
+	service.activeRunners.Store(int64(2), &ActiveRunner{Runner: runners[1], LastPing: now})
+	service.activeRunners.Store(int64(3), &ActiveRunner{Runner: runners[2], LastPing: now})
+	service.activeRunners.Store(int64(4), &ActiveRunner{
+		Runner: runners[3], LastPing: now.Add(-2 * time.Minute),
 	})
+	service.activeRunners.Store(int64(5), &ActiveRunner{Runner: runners[4], LastPing: now})
 
 	got, err := service.ListAvailableAgentSlugs(context.Background(), 7, 11)
 

@@ -2,6 +2,7 @@ package workercreation
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	agentdomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
@@ -25,7 +26,7 @@ func validateWorkerTypeProjection(
 	if !agent.IsActive {
 		return invalidWorkerType("worker type is disabled")
 	}
-	if agent.IsInternal {
+	if agent.IsInternal && os.Getenv("AGENTSMESH_INCLUDE_INTERNAL_AGENTS") != "true" {
 		return invalidWorkerType("internal worker type is not selectable")
 	}
 	if agent.AgentfileSource == nil || *agent.AgentfileSource == "" {

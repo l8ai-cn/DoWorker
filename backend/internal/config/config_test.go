@@ -44,6 +44,7 @@ func TestDatabaseConfig_DSN(t *testing.T) {
 }
 
 func TestLoadWorkerDefinitionsDir(t *testing.T) {
+	setRequiredPreviewOrigin(t)
 	t.Setenv("WORKER_DEFINITIONS_DIR", "/tmp/worker-definitions")
 
 	cfg, err := Load()
@@ -119,16 +120,6 @@ func TestGetEnv(t *testing.T) {
 		result := getEnv("TEST_ENV_VAR_EMPTY", "default-value")
 		assert.Equal(t, "default-value", result)
 	})
-}
-
-func TestLoadWorkerDefinitionsDir(t *testing.T) {
-	setRequiredPreviewOrigin(t)
-	t.Setenv("WORKER_DEFINITIONS_DIR", "/tmp/worker-definitions")
-
-	cfg, err := Load()
-
-	require.NoError(t, err)
-	assert.Equal(t, "/tmp/worker-definitions", cfg.WorkerDefinitionsDir)
 }
 
 func TestGetEnvInt(t *testing.T) {

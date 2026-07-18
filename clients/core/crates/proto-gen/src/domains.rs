@@ -11,6 +11,18 @@ macro_rules! domain {
     ($name:literal, [$($source:literal),*], [$($dependency:literal),*]) => {
         Domain {
             name: $name,
+            version: "v1",
+            srcs: &[$($source),*],
+            deps: &[$($dependency),*],
+        }
+    };
+}
+
+macro_rules! versioned_domain {
+    ($name:literal, $version:literal, [$($source:literal),*], [$($dependency:literal),*]) => {
+        Domain {
+            name: $name,
+            version: $version,
             srcs: &[$($source),*],
             deps: &[$($dependency),*],
         }
@@ -18,6 +30,22 @@ macro_rules! domain {
 }
 
 pub const DOMAINS: &[Domain] = &[
+    versioned_domain!(
+        "agent_workbench",
+        "v2",
+        [
+            "content.proto",
+            "configuration.proto",
+            "session_state.proto",
+            "artifact.proto",
+            "tool.proto",
+            "command.proto",
+            "session.proto",
+            "runner_ingress.proto",
+            "service.proto"
+        ],
+        []
+    ),
     domain!("agent", ["agent.proto"], []),
     domain!("ai_resource", ["ai_resource.proto", "types.proto"], []),
     domain!("execution_cluster", ["execution_cluster.proto"], []),
@@ -71,7 +99,12 @@ pub const DOMAINS: &[Domain] = &[
     domain!("notification", ["notification.proto"], []),
     domain!(
         "orchestration_resource",
-        ["orchestration_resource.proto"],
+        [
+            "orchestration_resource_types.proto",
+            "orchestration_resource_queries.proto",
+            "orchestration_resource_apply.proto",
+            "orchestration_resource.proto"
+        ],
         []
     ),
     domain!("pod_state", ["pod_state.proto"], ["pod"]),

@@ -5,7 +5,6 @@ import (
 
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 	podv1 "github.com/anthropics/agentsmesh/proto/gen/go/pod/v1"
 )
 

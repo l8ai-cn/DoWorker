@@ -72,6 +72,8 @@ type Expert struct {
 
 	SourcePodKey                  *string `gorm:"size:100" json:"source_pod_key,omitempty"`
 	WorkerSpecSnapshotID          *int64  `json:"worker_spec_snapshot_id,omitempty"`
+	SourceMarketApplicationID     *int64  `json:"source_market_application_id,omitempty"`
+	SourceMarketReleaseID         *int64  `json:"source_market_release_id,omitempty"`
 	OrchestrationResourceID       *int64  `json:"orchestration_resource_id,omitempty"`
 	OrchestrationResourceRevision *int64  `json:"orchestration_resource_revision,omitempty"`
 
@@ -95,8 +97,7 @@ func (Expert) TableName() string { return "experts" }
 
 func (e Expert) IsResourceManaged() bool {
 	return e.OrchestrationResourceID != nil ||
-		e.OrchestrationResourceRevision != nil ||
-		e.WorkerSpecSnapshotID != nil
+		e.OrchestrationResourceRevision != nil
 }
 
 func (e *Expert) BeforeSave(_ *gorm.DB) error {

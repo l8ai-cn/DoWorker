@@ -229,12 +229,6 @@ func (ports *podServiceWorkerSpecPorts) ResolveWorkerType(
 		SupportedInteractionModes: []specdomain.InteractionMode{
 			ports.spec.TypeConfig.InteractionMode,
 		},
-		ModelRequirement: specdomain.ModelRequirement{
-			Required: true,
-			ProtocolAdapters: []slugkit.Slug{
-				slugkit.MustNewForTest("openai-compatible"),
-			},
-		},
 		TypeSchema: specdomain.TypeSchema{
 			Version: 1,
 			Fields:  map[string]specdomain.TypeFieldSchema{},
@@ -344,11 +338,11 @@ func podServiceWorkerSpec() specdomain.Spec {
 			AutomationLevel: specdomain.AutomationLevelAutonomous,
 		},
 		specdomain.Workspace{
-			SkillIDs:        []int64{},
-			KnowledgeMounts: []specdomain.KnowledgeMount{},
-			EnvBundleIDs:    []specdomain.RuntimeEnvBundleID{},
+			SkillIDs:               []int64{},
+			KnowledgeMounts:        []specdomain.KnowledgeMount{},
+			EnvBundleIDs:           []specdomain.RuntimeEnvBundleID{},
 			ConfigDocumentBindings: []specdomain.ConfigDocumentBinding{},
-			InitialTask:     "Run checks.",
+			InitialTask:            "Run checks.",
 		},
 		specdomain.Lifecycle{TerminationPolicy: specdomain.TerminationPolicyManual},
 		specdomain.Metadata{Alias: "worker"},

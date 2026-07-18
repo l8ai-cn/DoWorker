@@ -55,13 +55,3 @@ func TestWorkerSpecSummaryPreservesImmutableModelBinding(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, spec.Runtime.ModelBinding, summary.ModelBinding)
 }
-
-func TestWorkerSpecAllowsWorkerWithoutMainModelBinding(t *testing.T) {
-	spec := validWorkerSpec()
-	spec.Runtime.ModelBinding = ModelBinding{}
-
-	normalized, err := NormalizeAndValidate(spec)
-
-	require.NoError(t, err)
-	assert.True(t, normalized.Runtime.ModelBinding.IsEmpty())
-}

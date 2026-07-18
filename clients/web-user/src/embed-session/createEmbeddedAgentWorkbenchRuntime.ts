@@ -1,13 +1,16 @@
-import { AgentSessionConnection, AgentWorkbenchConnectTransport } from "@do-worker/agent-ui";
+import {
+  AgentSessionConnection,
+  AgentSessionRuntimeV2,
+  AgentWorkbenchConnectTransport,
+} from "@do-worker/agent-ui";
 
 import { createEmbedSessionClient } from "@/embed-session-api";
 import { EmbeddedTerminalRuntime } from "./EmbeddedTerminalRuntime";
 import type { EmbeddedAgentWorkbenchAccess } from "./embeddedAgentWorkbenchAccess";
 import { createEmbeddedArtifactLoader } from "./embeddedArtifactLoader";
-import { EmbeddedAgentSessionRuntime } from "./EmbeddedAgentSessionRuntime";
 
 export interface EmbeddedAgentWorkbenchRuntime {
-  runtime: EmbeddedAgentSessionRuntime;
+  runtime: AgentSessionRuntimeV2;
   terminalRuntime: EmbeddedTerminalRuntime;
 }
 
@@ -22,16 +25,12 @@ export async function createEmbeddedAgentWorkbenchRuntime(
     fetch: options.fetch,
   });
   const connection = new AgentSessionConnection(transport);
-  const runtime = new EmbeddedAgentSessionRuntime(
-    {
-      ...metadata,
-      connection,
-      sessionId: access.sessionId,
-      loadArtifact: createEmbeddedArtifactLoader(connection, resources),
-    },
-    (file) => resources.uploadAttachment(file),
-    access.sessionId,
-  );
+  const runtime = new AgentSessionRuntimeV2({
+    ...metadata,
+    connection,
+    sessionId: access.sessionId,
+    loadArtifact: createEmbeddedArtifactLoader(connection, resources),
+  });
   return {
     runtime,
     terminalRuntime: new EmbeddedTerminalRuntime(resources),

@@ -2,6 +2,8 @@ package v1
 
 import (
 	"context"
+	"errors"
+	"io"
 	"net/http"
 	"strings"
 
@@ -9,6 +11,7 @@ import (
 
 	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
+	fileservice "github.com/anthropics/agentsmesh/backend/internal/service/file"
 	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
 	"github.com/anthropics/agentsmesh/backend/pkg/policy"
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
@@ -21,6 +24,21 @@ type podWorkspaceSandbox interface {
 		runnerID int64,
 		command *runnerv1.SandboxFsCommand,
 	) (*runnerv1.SandboxFsResultEvent, error)
+}
+
+type podWorkspaceArtifactTransfer interface {
+	PrepareWorkspaceArtifactTransfer(
+		context.Context,
+		int64,
+		string,
+		string,
+		int64,
+	) (*fileservice.WorkspaceArtifactTransfer, error)
+	OpenWorkspaceArtifact(
+		context.Context,
+		*fileservice.WorkspaceArtifactTransfer,
+	) (io.ReadCloser, int64, error)
+	DeleteWorkspaceArtifact(context.Context, *fileservice.WorkspaceArtifactTransfer) error
 }
 
 func (h *PodHandler) ListWorkspaceArtifacts(c *gin.Context) {
@@ -90,15 +108,28 @@ func (h *PodHandler) execPodWorkspace(
 	pod *podDomain.Pod,
 	command *runnerv1.SandboxFsCommand,
 ) (*runnerv1.SandboxFsResultEvent, bool) {
+	return h.execPodWorkspaceContext(c, c.Request.Context(), pod, command)
+}
+
+func (h *PodHandler) execPodWorkspaceContext(
+	c *gin.Context,
+	ctx context.Context,
+	pod *podDomain.Pod,
+	command *runnerv1.SandboxFsCommand,
+) (*runnerv1.SandboxFsResultEvent, bool) {
 	if h.sandboxFs == nil || pod.RunnerID == 0 || !h.sandboxFs.IsConnected(pod.RunnerID) {
 		c.JSON(http.StatusServiceUnavailable, gin.H{
 			"error": gin.H{"code": "runner_unavailable", "message": "runner unavailable"},
 		})
 		return nil, false
 	}
-	result, err := h.sandboxFs.Exec(c.Request.Context(), pod.RunnerID, command)
+	result, err := h.sandboxFs.Exec(ctx, pod.RunnerID, command)
 	if err != nil {
-		c.JSON(http.StatusBadGateway, gin.H{"error": gin.H{"message": err.Error()}})
+		status := http.StatusBadGateway
+		if errors.Is(err, context.DeadlineExceeded) {
+			status = http.StatusGatewayTimeout
+		}
+		c.JSON(status, gin.H{"error": gin.H{"message": err.Error()}})
 		return nil, false
 	}
 	if result == nil || result.GetError() == "" {
@@ -106,7 +137,13 @@ func (h *PodHandler) execPodWorkspace(
 	}
 	message := result.GetError()
 	status := http.StatusBadRequest
-	if strings.Contains(message, "not found") ||
+	if strings.Contains(message, "query timeout") {
+		status = http.StatusGatewayTimeout
+	} else if strings.Contains(message, "upload failed") {
+		status = http.StatusBadGateway
+	} else if strings.Contains(message, "maximum file size") {
+		status = http.StatusRequestEntityTooLarge
+	} else if strings.Contains(message, "not found") ||
 		strings.Contains(message, "workspace not configured") ||
 		strings.Contains(message, "pod not found") {
 		status = http.StatusNotFound

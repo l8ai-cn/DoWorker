@@ -47,13 +47,9 @@ describe("WorkerTemplateTypeConfigPanel", () => {
     )).toBeInTheDocument();
     expect(screen.getByRole("combobox", {
       name: "CURSOR_API_KEY",
-    })).toHaveValue("production-secrets");
-    expect(screen.getByRole("combobox", {
-      name: "CURSOR_API_KEY",
-    })).not.toBeRequired();
+    })).toHaveTextContent("Production secrets · production-secrets");
     expect(screen.getByLabelText("CURSOR_API_KEY Revision")).toHaveValue(3);
-    expect(screen.queryByRole("button", {
-      name: /Add Secret references/,
-    })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Value$/)).not.toBeInTheDocument();
+    expect(screen.queryByDisplayValue(/secret-value/i)).not.toBeInTheDocument();
   });
 });

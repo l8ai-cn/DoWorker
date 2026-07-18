@@ -5,7 +5,6 @@ import type {
   RepositoryData,
 } from "@/lib/api";
 import type { EffectiveResource } from "@/lib/api/facade/aiResource";
-import type { ProviderDefinition } from "@/lib/api/facade/aiResource";
 import type {
   WorkerCreateOptions,
   WorkerPreflightResult,
@@ -35,7 +34,6 @@ export interface WorkerCreateController {
   changeWorkerType: (slug: string, schemaVersion: number) => void;
   setLifecycle: (policy: string, minutes: number) => void;
   setFillPrompt: (prompt: string) => void;
-  setGenerationModelResourceId: (resourceId: number) => void;
   fillWithAI: (prompt: string) => Promise<void>;
   goToStep: (step: WorkerCreateStepId) => Promise<void>;
   runPreflight: () => Promise<WorkerPreflightResult | null>;
@@ -89,10 +87,6 @@ export function assembleWorkerCreateController(
       idleTimeoutMinutes: minutes,
     }),
     setFillPrompt: (prompt) => dispatch({ type: "set_fill_prompt", prompt }),
-    setGenerationModelResourceId: (resourceId) => dispatch({
-      type: "set_generation_model",
-      resourceId,
-    }),
     fillWithAI: input.fillWithAI,
     goToStep: input.goToStep,
     runPreflight: input.runPreflight,

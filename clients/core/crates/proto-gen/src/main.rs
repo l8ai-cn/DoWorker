@@ -145,7 +145,7 @@ fn write_lib_rs(
     domain: &Domain,
     tmp: &Path,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let candidates = [format!("proto.{}.v1.rs", domain.name)];
+    let candidates = [format!("proto.{}.{}.rs", domain.name, domain.version)];
     let generated = candidates.iter().map(|n| tmp.join(n)).find(|p| p.is_file());
     let Some(generated) = generated else {
         let entries: Vec<_> = fs::read_dir(tmp)?
