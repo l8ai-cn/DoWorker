@@ -12,6 +12,8 @@ import { EmbeddedAgentWorkspace } from "./EmbeddedAgentWorkspace";
 import type { EmbeddedAgentWorkbenchAccess } from "./embeddedAgentWorkbenchAccess";
 import { EMBED_READY_MESSAGE, readAllowedEmbedOpenProof } from "./embedParentHandshake";
 
+const EMBED_OPEN_ERROR = "无法打开嵌入会话，请刷新或联系管理员。";
+
 export function EmbeddedSessionIframe() {
   const [access, setAccess] = useState<EmbedSessionAccess | null>(null);
   const [pendingContext, setPendingContext] = useState<{
@@ -32,9 +34,8 @@ export function EmbeddedSessionIframe() {
         if (!active) return;
         clearEmbedContextFromLocation();
         setPendingContext({ bootstrap, context });
-      } catch (cause) {
-        if (active)
-          setError(cause instanceof Error ? cause.message : "Unable to open embedded session");
+      } catch {
+        if (active) setError(EMBED_OPEN_ERROR);
       }
     };
     void open();
@@ -59,8 +60,8 @@ export function EmbeddedSessionIframe() {
           setAccess(nextAccess);
           setPendingContext(null);
         },
-        (cause) => {
-          setError(cause instanceof Error ? cause.message : "Unable to open embedded session");
+        () => {
+          setError(EMBED_OPEN_ERROR);
         },
       );
     };
@@ -89,7 +90,7 @@ export function EmbeddedSessionIframe() {
       <div className="flex min-h-screen flex-col items-center justify-center gap-2 px-6 text-center">
         <h1 className="font-medium">无法打开嵌入会话</h1>
         <p className="text-sm text-muted-foreground">
-          {error === "embed_context is required" ? "此嵌入工作区需要有效的会话上下文。" : error}
+          {error}
         </p>
       </div>
     );

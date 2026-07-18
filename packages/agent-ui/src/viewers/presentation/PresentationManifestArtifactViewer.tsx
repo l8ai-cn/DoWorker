@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import { artifactActionError } from "../../artifactActionError";
 import { artifactActionAllowed } from "../../artifactGrantActions";
+import { useAgentWorkspaceText } from "../../AgentWorkspaceLocaleContext";
 import type { AgentPresentationManifest } from "../../contracts";
 import type { AgentContentRendererProps } from "../../react/contentRendererTypes";
 import { useArtifactRepresentationUrls } from "../../useArtifactRepresentationUrls";
@@ -23,15 +24,21 @@ import {
 export function PresentationManifestArtifactViewer({
   filename,
   item,
+  presentation = "developer",
   runtime,
   sessionId,
 }: AgentContentRendererProps) {
+  const text = useAgentWorkspaceText();
   const manifest = item.manifest;
   if (manifest?.kind !== "presentation") {
     return (
       <ArtifactViewerError
         filename={filename}
-        message="presentation_manifest_missing"
+        message={
+          presentation === "user"
+            ? text.artifact.loadFailed
+            : "presentation_manifest_missing"
+        }
       />
     );
   }
@@ -40,6 +47,7 @@ export function PresentationManifestArtifactViewer({
       filename={filename}
       item={item}
       manifest={manifest}
+      presentation={presentation}
       runtime={runtime}
       sessionId={sessionId}
     />
@@ -50,9 +58,11 @@ function PresentationManifestArtifactContent({
   filename,
   item,
   manifest,
+  presentation = "developer",
   runtime,
   sessionId,
 }: AgentContentRendererProps & { manifest: AgentPresentationManifest }) {
+  const text = useAgentWorkspaceText();
   const renderableSlides = presentationManifestSlides(
     manifest,
     item.representations,
@@ -70,7 +80,14 @@ function PresentationManifestArtifactContent({
     .map((id) => resources[id])
     .find((state) => state?.status === "error");
   if (error?.status === "error") {
-    return <ArtifactViewerError filename={filename} message={error.message} />;
+    return (
+      <ArtifactViewerError
+        filename={filename}
+        message={
+          presentation === "user" ? text.artifact.loadFailed : error.message
+        }
+      />
+    );
   }
   if (representationIds.some((id) => resources[id]?.status !== "ready")) {
     return <ArtifactViewerLoading filename={filename} />;

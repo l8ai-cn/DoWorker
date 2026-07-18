@@ -2,6 +2,8 @@ package agentworkbench
 
 import (
 	"context"
+	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/anthropics/agentsmesh/backend/internal/config"
@@ -20,7 +22,9 @@ import (
 type artifactMaterializerSandbox struct {
 	commands []*runnerv1.SandboxFsCommand
 	digest   string
+	objects  *storage.MockStorage
 	size     int64
+	data     []byte
 }
 
 func (*artifactMaterializerSandbox) IsConnected(int64) bool {
@@ -33,6 +37,11 @@ func (sandbox *artifactMaterializerSandbox) Exec(
 	command *runnerv1.SandboxFsCommand,
 ) (*runnerv1.SandboxFsResultEvent, error) {
 	sandbox.commands = append(sandbox.commands, command)
+	if sandbox.objects != nil {
+		parsed, _ := url.Parse(command.GetPayload())
+		key := strings.TrimPrefix(parsed.Path, "/")
+		sandbox.objects.PutFileData(key, sandbox.data, "application/pdf")
+	}
 	return &runnerv1.SandboxFsResultEvent{
 		ContentDigest: sandbox.digest,
 		FileBytes:     sandbox.size,
@@ -42,16 +51,19 @@ func (sandbox *artifactMaterializerSandbox) Exec(
 func TestSessionFileArtifactMaterializerPersistsAndReusesArtifact(t *testing.T) {
 	db := testkit.SetupTestDB(t)
 	require.NoError(t, db.AutoMigrate(&sessionfiledomain.File{}))
+	objects := storage.NewMockStorage()
 	sessionFiles := sessionfilesvc.NewService(
 		db,
-		filesvc.NewService(storage.NewMockStorage(), config.StorageConfig{}),
+		filesvc.NewService(objects, config.StorageConfig{}),
 	)
 	sandbox := &artifactMaterializerSandbox{
-		digest: "sha256:artifact",
-		size:   8,
+		digest:  "sha256:c7c5c1d70c5dec4416ab6158afd0b223ef40c29b1dc1f97ed9428b94d4cadb1c",
+		objects: objects,
+		size:    8,
+		data:    []byte("artifact"),
 	}
 	materializer := NewSessionFileArtifactMaterializer(sessionFiles, sandbox)
-	batch := artifactMaterializerBatch("sha256:artifact", 8)
+	batch := artifactMaterializerBatch(sandbox.digest, 8)
 
 	first, err := materializer.Materialize(
 		context.Background(),
@@ -88,13 +100,19 @@ func TestSessionFileArtifactMaterializerPersistsAndReusesArtifact(t *testing.T) 
 func TestSessionFileArtifactMaterializerRejectsChangedUpload(t *testing.T) {
 	db := testkit.SetupTestDB(t)
 	require.NoError(t, db.AutoMigrate(&sessionfiledomain.File{}))
+	objects := storage.NewMockStorage()
 	sessionFiles := sessionfilesvc.NewService(
 		db,
-		filesvc.NewService(storage.NewMockStorage(), config.StorageConfig{}),
+		filesvc.NewService(objects, config.StorageConfig{}),
 	)
 	materializer := NewSessionFileArtifactMaterializer(
 		sessionFiles,
-		&artifactMaterializerSandbox{digest: "sha256:changed", size: 8},
+		&artifactMaterializerSandbox{
+			digest:  "sha256:changed",
+			objects: objects,
+			size:    8,
+			data:    []byte("artifact"),
+		},
 	)
 
 	_, err := materializer.Materialize(

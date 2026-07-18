@@ -55,6 +55,17 @@ func (d *Deps) handleGetSessionArtifactRepresentation(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "artifact content not found"})
 		return
 	}
+	contentDisposition := mime.FormatMediaType(
+		"inline",
+		map[string]string{"filename": fileRow.Filename},
+	)
+	c.Header("Accept-Ranges", "bytes")
+	c.Header("Cache-Control", "private, no-store")
+	c.Header("Content-Disposition", contentDisposition)
+	c.Header("X-Content-Type-Options", "nosniff")
+	if served := d.serveArtifactRange(c, fileRow); served {
+		return
+	}
 	reader, size, err := d.SessionFiles.Open(c.Request.Context(), fileRow)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "open failed"})
@@ -65,19 +76,12 @@ func (d *Deps) handleGetSessionArtifactRepresentation(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "artifact size mismatch"})
 		return
 	}
-	c.Header("Cache-Control", "private, no-store")
-	c.Header("X-Content-Type-Options", "nosniff")
 	c.DataFromReader(
 		http.StatusOK,
 		fileRow.Bytes,
 		fileRow.ContentType,
 		reader,
-		map[string]string{
-			"Content-Disposition": mime.FormatMediaType(
-				"inline",
-				map[string]string{"filename": fileRow.Filename},
-			),
-		},
+		nil,
 	)
 }
 

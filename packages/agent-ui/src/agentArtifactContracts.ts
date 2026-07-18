@@ -29,6 +29,7 @@ export interface AgentArtifactGrant {
 }
 
 export interface AgentArtifactProvenance {
+  commandId?: string;
   publicationToolExecutionId?: string;
   producerId?: string;
   producerNamespace?: string;

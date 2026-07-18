@@ -59,6 +59,7 @@ export function ArtifactCard({
     <GenericArtifactCard
       filename={filename}
       item={item}
+      presentation={presentation}
       runtime={runtime}
       sessionId={sessionId}
     />

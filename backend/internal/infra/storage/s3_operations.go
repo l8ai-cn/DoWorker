@@ -71,6 +71,25 @@ func (s *S3Storage) Download(ctx context.Context, key string) (io.ReadCloser, in
 	return out.Body, size, nil
 }
 
+func (s *S3Storage) DownloadRange(ctx context.Context, key string, start int64, end int64) (io.ReadCloser, int64, error) {
+	if start < 0 || end < start {
+		return nil, 0, fmt.Errorf("invalid object range")
+	}
+	out, err := s.client.GetObject(ctx, &s3.GetObjectInput{
+		Bucket: aws.String(s.bucket),
+		Key:    aws.String(key),
+		Range:  aws.String(fmt.Sprintf("bytes=%d-%d", start, end)),
+	})
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to get object range %s: %w", key, err)
+	}
+	size := int64(-1)
+	if out.ContentLength != nil {
+		size = *out.ContentLength
+	}
+	return out.Body, size, nil
+}
+
 func (s *S3Storage) GetURL(ctx context.Context, key string, expiry time.Duration) (string, error) {
 	presigner := s.presign
 	if s.publicPresign != nil {

@@ -175,6 +175,63 @@ describe("AgentWorkspace user presentation", () => {
     expect(screen.queryByText("视频成果校验未通过")).not.toBeInTheDocument();
   });
 
+  it("does not claim the current task succeeded from another command's video", async () => {
+    const snapshot = sessionSnapshot();
+    const previousVideo = verifiedVideoArtifact();
+    previousVideo.provenance = {
+      ...previousVideo.provenance,
+      commandId: "command-previous",
+    };
+    snapshot.latestUserCommandId = "command-current";
+    snapshot.status = "completed";
+    snapshot.items = [previousVideo];
+    snapshot.plan = [];
+    snapshot.permissions = [];
+    const { agentRuntime } = runtime(snapshot);
+
+    render(
+      <AgentWorkspace
+        locale="zh-CN"
+        presentation="user"
+        runtime={agentRuntime}
+        sessionId={snapshot.sessionId}
+      />,
+    );
+
+    expect(await screen.findByText("视频成果校验未通过")).toBeVisible();
+    expect(
+      screen.queryByText("视频文件已发布并通过完整性校验"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("accepts a verified video from the latest user command", async () => {
+    const snapshot = sessionSnapshot();
+    const currentVideo = verifiedVideoArtifact();
+    currentVideo.provenance = {
+      ...currentVideo.provenance,
+      commandId: "command-current",
+    };
+    snapshot.latestUserCommandId = "command-current";
+    snapshot.status = "completed";
+    snapshot.items = [currentVideo];
+    snapshot.plan = [];
+    snapshot.permissions = [];
+    const { agentRuntime } = runtime(snapshot);
+
+    render(
+      <AgentWorkspace
+        locale="zh-CN"
+        presentation="user"
+        runtime={agentRuntime}
+        sessionId={snapshot.sessionId}
+      />,
+    );
+
+    expect(
+      await screen.findByText("视频文件已发布并通过完整性校验"),
+    ).toBeVisible();
+  });
+
   it("does not leave a completed session labeled as still generating", async () => {
     const snapshot = sessionSnapshot();
     const processingVideo = verifiedVideoArtifact();

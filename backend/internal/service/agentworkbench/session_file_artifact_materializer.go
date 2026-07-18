@@ -22,15 +22,19 @@ type ArtifactSandbox interface {
 }
 
 type SessionFileArtifactMaterializer struct {
-	files   *sessionfilesvc.Service
-	sandbox ArtifactSandbox
+	files    *sessionfilesvc.Service
+	sandbox  ArtifactSandbox
+	verifier ArtifactVerifier
 }
 
 func NewSessionFileArtifactMaterializer(
 	files *sessionfilesvc.Service,
 	sandbox ArtifactSandbox,
 ) *SessionFileArtifactMaterializer {
-	return &SessionFileArtifactMaterializer{files: files, sandbox: sandbox}
+	return &SessionFileArtifactMaterializer{
+		files: files, sandbox: sandbox,
+		verifier: NewSessionFileArtifactVerifier(files),
+	}
 }
 
 func (m *SessionFileArtifactMaterializer) Materialize(
@@ -136,6 +140,9 @@ func (m *SessionFileArtifactMaterializer) materializeRepresentation(
 			result.GetContentDigest() != representation.GetDigest() {
 			return fmt.Errorf("artifact changed during upload")
 		}
+	}
+	if err := m.verifier.Verify(ctx, upload.File, representation); err != nil {
+		return err
 	}
 	if !upload.Stored {
 		for _, file := range result.Files {

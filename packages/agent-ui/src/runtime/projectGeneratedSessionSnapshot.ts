@@ -67,6 +67,9 @@ export function projectGeneratedSessionSnapshot(
     status: projectSessionStatus(snapshot.status),
     connection: options.connection,
     interactionMode: options.interactionMode,
+    ...(timeline.latestUserCommandId
+      ? { latestUserCommandId: timeline.latestUserCommandId }
+      : {}),
     capabilities: projectCapabilities(
       snapshot,
       options.connection,

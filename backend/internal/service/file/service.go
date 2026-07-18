@@ -133,6 +133,13 @@ func (s *Service) OpenObject(ctx context.Context, key string) (io.ReadCloser, in
 	return s.storage.Download(ctx, key)
 }
 
+func (s *Service) OpenObjectRange(ctx context.Context, key string, start int64, end int64) (io.ReadCloser, int64, error) {
+	if s == nil || s.storage == nil {
+		return nil, 0, ErrStorageError
+	}
+	return s.storage.DownloadRange(ctx, key, start, end)
+}
+
 func (s *Service) DeleteObject(ctx context.Context, key string) error {
 	if s == nil || s.storage == nil || key == "" {
 		return ErrStorageError

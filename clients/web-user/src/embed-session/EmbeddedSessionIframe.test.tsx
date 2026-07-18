@@ -25,7 +25,12 @@ describe("EmbeddedSessionIframe", () => {
     render(<EmbeddedSessionIframe />);
 
     expect(screen.getByText("无法打开嵌入会话")).toBeInTheDocument();
-    expect(screen.getByText("此嵌入工作区需要有效的会话上下文。")).toBeInTheDocument();
+    expect(
+      screen.getByText("无法打开嵌入会话，请刷新或联系管理员。"),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("此嵌入工作区需要有效的会话上下文。"),
+    ).not.toBeInTheDocument();
   });
 
   it("keeps a stable hook order while redeeming and opening the workspace", async () => {

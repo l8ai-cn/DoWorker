@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import { artifactActionError } from "../../artifactActionError";
 import { artifactActionAllowed } from "../../artifactGrantActions";
+import { useAgentWorkspaceText } from "../../AgentWorkspaceLocaleContext";
 import type { AgentImageEditManifest } from "../../contracts";
 import type { AgentContentRendererProps } from "../../react/contentRendererTypes";
 import { useArtifactRepresentationUrls } from "../../useArtifactRepresentationUrls";
@@ -15,58 +16,57 @@ import { ImageEditComposer } from "./ImageEditComposer";
 export function ImageEditArtifactViewer({
   filename,
   item,
+  presentation = "developer",
   runtime,
   sessionId,
 }: AgentContentRendererProps) {
+  const text = useAgentWorkspaceText();
   const manifest = item.manifest;
   if (manifest?.kind !== "image_edit") {
-    return (
-      <ArtifactViewerError
-        filename={filename}
-        message="image_edit_manifest_missing"
-      />
-    );
+    return imageEditError(filename, presentation, text, "image_edit_manifest_missing");
   }
   return (
     <ImageEditArtifactContent
       filename={filename}
       item={item}
       manifest={manifest}
+      presentation={presentation}
       runtime={runtime}
       sessionId={sessionId}
     />
   );
 }
-
 function ImageEditArtifactContent({
   filename,
   item,
   manifest,
+  presentation = "developer",
   runtime,
   sessionId,
 }: AgentContentRendererProps & { manifest: AgentImageEditManifest }) {
+  const text = useAgentWorkspaceText();
   const resultRepresentationId =
     selectResultRepresentationId(item, manifest);
   const representationIds = new Set(
     item.representations.map((representation) => representation.representationId),
   );
   if (!representationIds.has(manifest.sourceRepresentationId)) {
-    return (
-      <ArtifactViewerError
-        filename={filename}
-        message="image_edit_source_representation_missing"
-      />
+    return imageEditError(
+      filename,
+      presentation,
+      text,
+      "image_edit_source_representation_missing",
     );
   }
   if (
     manifest.resultRepresentationId &&
     !representationIds.has(manifest.resultRepresentationId)
   ) {
-    return (
-      <ArtifactViewerError
-        filename={filename}
-        message="image_edit_result_representation_missing"
-      />
+    return imageEditError(
+      filename,
+      presentation,
+      text,
+      "image_edit_result_representation_missing",
     );
   }
   const requestedRepresentationIds = [
@@ -93,12 +93,11 @@ function ImageEditArtifactContent({
     (id) => resources[id]?.status !== "ready",
   );
   if (error?.status === "error") {
-    return <ArtifactViewerError filename={filename} message={error.message} />;
+    return imageEditError(filename, presentation, text, error.message);
   }
   if (loading || source?.status !== "ready") {
     return <ArtifactViewerLoading filename={filename} />;
   }
-
   const canEdit =
     artifactActionAllowed(
       item,
@@ -131,9 +130,7 @@ function ImageEditArtifactContent({
             value={regionIndex}
           >
             {manifest.regions.map((_region, index) => (
-              <option key={index} value={index}>
-                区域 {index + 1}
-              </option>
+              <option key={index} value={index}>区域 {index + 1}</option>
             ))}
           </select>
         </label>
@@ -173,7 +170,6 @@ function ImageEditArtifactContent({
     </section>
   );
 }
-
 function selectResultRepresentationId(
   item: AgentContentRendererProps["item"],
   manifest: AgentImageEditManifest,
@@ -184,5 +180,20 @@ function selectResultRepresentationId(
   );
   return manifest.candidateRepresentationIds.find((id) =>
     representationIds.has(id),
+  );
+}
+function imageEditError(
+  filename: string,
+  presentation: AgentContentRendererProps["presentation"],
+  text: ReturnType<typeof useAgentWorkspaceText>,
+  developerMessage: string,
+) {
+  return (
+    <ArtifactViewerError
+      filename={filename}
+      message={
+        presentation === "user" ? text.artifact.loadFailed : developerMessage
+      }
+    />
   );
 }

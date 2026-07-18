@@ -57,6 +57,9 @@ func validateArtifactDeclarationHeader(declaration artifactDeclaration) error {
 	if declaration.Producer.ToolExecutionID != "" {
 		return fmt.Errorf("producer.tool_execution_id is assigned by Runner")
 	}
+	if declaration.Producer.CommandID != "" {
+		return fmt.Errorf("producer.command_id is assigned by Runner")
+	}
 	if len(declaration.Representations) == 0 ||
 		len(declaration.Representations) > 64 {
 		return fmt.Errorf("representations must contain 1-64 entries")

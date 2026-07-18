@@ -140,6 +140,27 @@ func TestPublishArtifactDeclarationRejectsAgentSuppliedToolExecutionID(t *testin
 	require.ErrorContains(t, err, "producer.tool_execution_id")
 }
 
+func TestPublishArtifactDeclarationRejectsAgentSuppliedCommandID(t *testing.T) {
+	root := t.TempDir()
+	require.NoError(t, os.MkdirAll(filepath.Join(root, "output"), 0o755))
+	require.NoError(t, os.WriteFile(
+		filepath.Join(root, "output", "demo.mp4"),
+		[]byte(validMP4Fixture("video")),
+		0o644,
+	))
+	declaration := validPublishedVideoDeclaration(1)
+	declaration = strings.Replace(
+		declaration,
+		`"type":"artifact.publish"`,
+		`"type":"artifact.publish","command_id":"agent-chosen"`,
+		1,
+	)
+
+	_, err := PublishArtifactDeclaration(root, json.RawMessage(declaration))
+
+	require.ErrorContains(t, err, "producer.command_id")
+}
+
 func TestPublishArtifactDeclarationRejectsNonFinalVideoStage(t *testing.T) {
 	root := t.TempDir()
 	require.NoError(t, os.MkdirAll(filepath.Join(root, "output"), 0o755))

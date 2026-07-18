@@ -1,8 +1,11 @@
 package workbench
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"testing"
 
@@ -336,7 +339,7 @@ func TestArtifactObserverRejectsTextDisguisedAsMP4(t *testing.T) {
 
 	_, err = observer.Scan()
 
-	require.ErrorContains(t, err, `workspace path "output/video.mp4" is not a valid MP4 file`)
+	require.ErrorContains(t, err, `workspace path "output/video.mp4" is not a decodable MP4 file`)
 }
 
 func TestArtifactObserverRejectsMP4WithoutVideoTrack(t *testing.T) {
@@ -369,7 +372,7 @@ func TestArtifactObserverRejectsMP4WithoutVideoTrack(t *testing.T) {
 
 	_, err = observer.Scan()
 
-	require.ErrorContains(t, err, `workspace path "output/video.mp4" is not a valid MP4 file`)
+	require.ErrorContains(t, err, `workspace path "output/video.mp4" is not a decodable MP4 file`)
 }
 
 func TestArtifactObserverRequiresDeclaredRevisionIncrement(t *testing.T) {
@@ -424,13 +427,36 @@ func writeArtifactFile(t *testing.T, root, relative, content string) {
 }
 
 func validMP4Fixture(payload string) string {
-	mediaSize := string([]byte{0, 0, 0, byte(8 + len(payload))})
-	return "\x00\x00\x00\x18ftypisom\x00\x00\x02\x00isomiso2" +
-		"\x00\x00\x00\x2cmoov" +
-		"\x00\x00\x00\x24trak" +
-		"\x00\x00\x00\x1cmdia" +
-		"\x00\x00\x00\x14hdlr\x00\x00\x00\x00\x00\x00\x00\x00vide" +
-		mediaSize + "mdat" + payload
+	file, err := os.CreateTemp("", "agentsmesh-test-*.mp4")
+	if err != nil {
+		panic(err)
+	}
+	path := file.Name()
+	file.Close()
+	defer os.Remove(path)
+	color := testVideoColor(payload)
+	output, err := exec.Command(
+		"ffmpeg",
+		"-y",
+		"-f", "lavfi",
+		"-i", "color=c="+color+":s=16x16:d=0.2:r=5",
+		"-pix_fmt", "yuv420p",
+		"-movflags", "+faststart",
+		path,
+	).CombinedOutput()
+	if err != nil {
+		panic(fmt.Sprintf("generate MP4 fixture: %s", string(output)))
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		panic(err)
+	}
+	return string(data)
+}
+
+func testVideoColor(seed string) string {
+	sum := sha1.Sum([]byte(seed))
+	return "0x" + hex.EncodeToString(sum[:3])
 }
 
 func writeArtifactDeclaration(t *testing.T, root, name, content string) {

@@ -57,6 +57,17 @@ describe("video artifact trust", () => {
 
     expect(isUserVisibleArtifact(artifact)).toBe(false);
   });
+
+  it("hides non-video artifacts in user presentation", () => {
+    const artifact = {
+      ...videoArtifact(),
+      manifest: null,
+      mimeType: "text/csv",
+      role: "data",
+    };
+
+    expect(isUserVisibleArtifact(artifact)).toBe(false);
+  });
 });
 
 function videoArtifact(): AgentArtifactItem {

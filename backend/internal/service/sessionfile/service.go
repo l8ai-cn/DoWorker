@@ -90,6 +90,13 @@ func (s *Service) Open(ctx context.Context, row *domain.File) (io.ReadCloser, in
 	return s.files.OpenObject(ctx, row.MinioKey)
 }
 
+func (s *Service) OpenRange(ctx context.Context, row *domain.File, start int64, end int64) (io.ReadCloser, int64, error) {
+	if s == nil || s.files == nil || row == nil {
+		return nil, 0, fmt.Errorf("session file service unavailable")
+	}
+	return s.files.OpenObjectRange(ctx, row.MinioKey, start, end)
+}
+
 func (s *Service) RunnerDownloadURL(ctx context.Context, row *domain.File) (string, error) {
 	if s == nil || s.files == nil || row == nil || row.MinioKey == "" {
 		return "", fmt.Errorf("session file service unavailable")

@@ -39,8 +39,20 @@ export function userVideoTaskState(
   snapshot: AgentSessionSnapshot,
   artifacts: readonly AgentArtifactItem[],
 ): UserVideoTaskState | null {
-  const videos = artifacts.filter(isVideoArtifact);
+  const allVideos = artifacts.filter(isVideoArtifact);
+  const videos = allVideos.filter(
+    (artifact) =>
+      (!snapshot.latestUserCommandId ||
+        artifact.provenance?.commandId === snapshot.latestUserCommandId),
+  );
   if (videos.length === 0) {
+    if (
+      snapshot.status === "completed" &&
+      snapshot.latestUserCommandId &&
+      allVideos.length > 0
+    ) {
+      return "verification_failed";
+    }
     return snapshot.status === "failed" ? "task_failed" : null;
   }
   const verified = videos.some(isVerifiedReadyVideoArtifact);

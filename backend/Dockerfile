@@ -20,7 +20,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" \
   -o /out/worker-definition-sync ./backend/cmd/worker-definition-sync
 
 FROM alpine:3.19
-RUN apk add --no-cache ca-certificates wget \
+RUN apk add --no-cache ca-certificates wget ffmpeg \
   && adduser -D -u 1000 -g 1000 app \
   && mkdir -p /app /data/acme \
   && chown -R 1000:1000 /app /data

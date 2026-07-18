@@ -10,6 +10,7 @@ import (
 func (o *ArtifactObserver) PublishedArtifact(
 	artifactID string,
 	executionID string,
+	commandID string,
 ) (*ArtifactDescriptor, error) {
 	declared, reservedPaths, err := scanArtifactDeclarations(o.root)
 	if err != nil {
@@ -42,7 +43,7 @@ func (o *ArtifactObserver) PublishedArtifact(
 		)
 	}
 	descriptor := readyDeclaredArtifactDescriptor(artifact)
-	setRevisionExecutionProvenance(descriptor, executionID)
+	setRevisionExecutionProvenance(descriptor, executionID, commandID)
 	o.declaredEmitted[artifactID] = emittedDeclaredArtifact{
 		artifact: artifact,
 		revision: artifact.revision,
@@ -54,6 +55,7 @@ func (o *ArtifactObserver) PublishedArtifact(
 func setRevisionExecutionProvenance(
 	artifact *ArtifactDescriptor,
 	executionID string,
+	commandID string,
 ) {
 	for _, revision := range artifact.GetRevisions() {
 		if revision.GetRevision() != artifact.GetRevision() {
@@ -63,6 +65,9 @@ func setRevisionExecutionProvenance(
 			artifact.GetProvenance(),
 		).(*agentworkbenchv2.ArtifactProvenance)
 		provenance.ToolExecutionId = &executionID
+		if commandID != "" {
+			provenance.CommandId = &commandID
+		}
 		revision.Provenance = provenance
 		return
 	}

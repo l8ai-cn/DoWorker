@@ -2,8 +2,11 @@ package runner
 
 import (
 	"context"
+	"crypto/sha1"
+	"encoding/hex"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"testing"
 	"time"
@@ -134,6 +137,7 @@ func TestRunnerPublishWorkbenchArtifactEmitsExactToolAndRevisionProvenance(
 		workbenchForwarder: forwarder,
 	})
 	runner := &Runner{podStore: store}
+	forwarder.setActiveCommandID("command-1")
 	writeVideoRepresentation(t, root, "video-one")
 
 	_, err = runner.PublishWorkbenchArtifact(
@@ -158,6 +162,10 @@ func TestRunnerPublishWorkbenchArtifactEmitsExactToolAndRevisionProvenance(
 		"publish-execution-1",
 		artifact.GetRevisions()[0].GetProvenance().GetToolExecutionId(),
 	)
+	require.Equal(t,
+		"command-1",
+		artifact.GetRevisions()[0].GetProvenance().GetCommandId(),
+	)
 	tool := artifactBatch.GetMutations()[1].GetTimeline().GetContent().GetToolExecution()
 	require.Equal(t, "publish-execution-1", tool.GetExecutionId())
 	require.Equal(t, "demo-video", tool.GetResults()[0].GetArtifacts()[0].GetArtifactId())
@@ -180,6 +188,7 @@ func TestRunnerPublishWorkbenchArtifactUsesNewToolForNextRevision(t *testing.T) 
 		workbenchForwarder: forwarder,
 	})
 	runner := &Runner{podStore: store}
+	forwarder.setActiveCommandID("command-1")
 	writeVideoRepresentation(t, root, "video-one")
 	_, err = runner.PublishWorkbenchArtifact(
 		context.Background(),
@@ -189,6 +198,7 @@ func TestRunnerPublishWorkbenchArtifactUsesNewToolForNextRevision(t *testing.T) 
 	)
 	require.NoError(t, err)
 	connection.Reset()
+	forwarder.setActiveCommandID("command-2")
 	writeVideoRepresentation(t, root, "video-two")
 
 	_, err = runner.PublishWorkbenchArtifact(
@@ -208,6 +218,10 @@ func TestRunnerPublishWorkbenchArtifactUsesNewToolForNextRevision(t *testing.T) 
 	require.Equal(t,
 		"publish-execution-2",
 		artifact.GetRevisions()[0].GetProvenance().GetToolExecutionId(),
+	)
+	require.Equal(t,
+		"command-2",
+		artifact.GetRevisions()[0].GetProvenance().GetCommandId(),
 	)
 	tool := artifactBatch.GetMutations()[1].GetTimeline().GetContent().GetToolExecution()
 	require.Equal(t, "publish-execution-2", tool.GetExecutionId())
@@ -240,15 +254,19 @@ func writePublishedVideoArtifactRevision(
 
 func writeVideoRepresentation(t *testing.T, root string, content string) {
 	t.Helper()
-	mediaSize := string([]byte{0, 0, 0, byte(8 + len(content))})
-	video := "\x00\x00\x00\x18ftypisom\x00\x00\x02\x00isomiso2" +
-		"\x00\x00\x00\x08moov" + mediaSize + "mdat" + content
 	require.NoError(t, os.MkdirAll(filepath.Join(root, "output"), 0o755))
-	require.NoError(t, os.WriteFile(
+	sum := sha1.Sum([]byte(content))
+	color := "0x" + hex.EncodeToString(sum[:3])
+	output, err := exec.Command(
+		"ffmpeg",
+		"-y",
+		"-f", "lavfi",
+		"-i", "color=c="+color+":s=16x16:d=0.2:r=5",
+		"-pix_fmt", "yuv420p",
+		"-movflags", "+faststart",
 		filepath.Join(root, "output", "demo.mp4"),
-		[]byte(video),
-		0o644,
-	))
+	).CombinedOutput()
+	require.NoError(t, err, string(output))
 }
 
 func publishedVideoDeclaration(revision uint64) string {

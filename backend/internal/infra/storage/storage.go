@@ -21,6 +21,8 @@ type Storage interface {
 	// Returned size is the storage-reported Content-Length (-1 if unknown).
 	Download(ctx context.Context, key string) (io.ReadCloser, int64, error)
 
+	DownloadRange(ctx context.Context, key string, start int64, end int64) (io.ReadCloser, int64, error)
+
 	Delete(ctx context.Context, key string) error
 
 	GetURL(ctx context.Context, key string, expiry time.Duration) (string, error)

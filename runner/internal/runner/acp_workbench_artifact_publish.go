@@ -39,6 +39,7 @@ func (f *acpWorkbenchForwarder) artifactPublished(
 	artifact, err := f.observer.PublishedArtifact(
 		published.ArtifactID,
 		executionID,
+		f.currentCommandID(),
 	)
 	if err != nil {
 		return err

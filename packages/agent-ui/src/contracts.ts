@@ -140,6 +140,7 @@ export interface AgentSessionSnapshot {
   status: AgentSessionStatus;
   connection: AgentConnectionStatus;
   interactionMode: "acp" | "pty";
+  latestUserCommandId?: string;
   capabilities: AgentWorkspaceCapabilities;
   commands?: AgentCommand[];
   configuration?: AgentConfigurationControl[];

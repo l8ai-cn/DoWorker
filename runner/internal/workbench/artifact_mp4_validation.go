@@ -1,14 +1,16 @@
 package workbench
 
 import (
-	"encoding/binary"
+	"context"
 	"fmt"
-	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strings"
+	"time"
 )
 
-const maximumMP4BoxCount = 1024
+const mp4ValidationTimeout = 30 * time.Second
 
 func validateDeclaredFileContent(
 	root *os.Root,
@@ -18,134 +20,70 @@ func validateDeclaredFileContent(
 	if mediaType != "video/mp4" {
 		return nil
 	}
-	file, err := root.Open(filepath.FromSlash(display))
-	if err != nil {
+	if _, err := root.Stat(filepath.FromSlash(display)); err != nil {
 		return err
 	}
-	defer file.Close()
-	info, err := file.Stat()
-	if err != nil {
+	ctx, cancel := context.WithTimeout(context.Background(), mp4ValidationTimeout)
+	defer cancel()
+	hostPath := filepath.Join(root.Name(), filepath.FromSlash(display))
+	if err := requireMediaTool("ffprobe"); err != nil {
 		return err
 	}
-	if info.Size() < 24 || !isMP4Container(file, info.Size()) {
-		return invalidMP4Error(display)
+	if err := requireMediaTool("ffmpeg"); err != nil {
+		return err
+	}
+	if err := verifyMP4Probe(ctx, hostPath); err != nil {
+		return invalidMP4Error(display, err)
+	}
+	if err := verifyMP4Decode(ctx, hostPath); err != nil {
+		return invalidMP4Error(display, err)
 	}
 	return nil
 }
 
-func isMP4Container(file *os.File, fileSize int64) bool {
-	var foundFileType, foundMediaData, foundVideoTrack bool
-	for offset, boxes := int64(0), 0; offset+8 <= fileSize &&
-		boxes < maximumMP4BoxCount; boxes++ {
-		boxType, payloadStart, end, ok := readMP4Box(file, offset, fileSize)
-		if !ok {
-			return false
-		}
-		switch boxType {
-		case "ftyp":
-			foundFileType = end-payloadStart >= 8
-		case "mdat":
-			foundMediaData = end > payloadStart
-		case "moov":
-			foundVideoTrack = hasMP4VideoTrack(file, payloadStart, end)
-		}
-		offset = end
-		if foundFileType && foundMediaData && foundVideoTrack {
-			return true
-		}
+func requireMediaTool(name string) error {
+	if _, err := exec.LookPath(name); err != nil {
+		return fmt.Errorf("%s is required to verify MP4 artifacts", name)
 	}
-	return false
+	return nil
 }
 
-func readMP4Box(
-	file *os.File,
-	offset int64,
-	limit int64,
-) (string, int64, int64, bool) {
-	if offset < 0 || offset+8 > limit {
-		return "", 0, 0, false
+func verifyMP4Probe(ctx context.Context, path string) error {
+	output, err := exec.CommandContext(
+		ctx,
+		"ffprobe",
+		"-v", "error",
+		"-select_streams", "v:0",
+		"-show_entries", "stream=codec_name,width,height",
+		"-of", "default=noprint_wrappers=1:nokey=1",
+		path,
+	).CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("ffprobe failed: %s", strings.TrimSpace(string(output)))
 	}
-	header := make([]byte, 16)
-	if _, err := file.Seek(offset, io.SeekStart); err != nil {
-		return "", 0, 0, false
+	if strings.TrimSpace(string(output)) == "" {
+		return fmt.Errorf("ffprobe found no video stream")
 	}
-	if _, err := io.ReadFull(file, header[:8]); err != nil {
-		return "", 0, 0, false
-	}
-	size := uint64(binary.BigEndian.Uint32(header[:4]))
-	headerSize := uint64(8)
-	if size == 1 {
-		if offset+16 > limit {
-			return "", 0, 0, false
-		}
-		if _, err := io.ReadFull(file, header[8:16]); err != nil {
-			return "", 0, 0, false
-		}
-		size = binary.BigEndian.Uint64(header[8:16])
-		headerSize = 16
-	}
-	if size == 0 {
-		size = uint64(limit - offset)
-	}
-	if size < headerSize || size > uint64(limit-offset) {
-		return "", 0, 0, false
-	}
-	return string(header[4:8]), offset + int64(headerSize),
-		offset + int64(size), true
+	return nil
 }
 
-func hasMP4VideoTrack(file *os.File, start int64, end int64) bool {
-	for offset, boxes := start, 0; offset+8 <= end &&
-		boxes < maximumMP4BoxCount; boxes++ {
-		boxType, payloadStart, boxEnd, ok := readMP4Box(file, offset, end)
-		if !ok {
-			return false
-		}
-		if boxType == "trak" && mp4TrackIsVideo(file, payloadStart, boxEnd) {
-			return true
-		}
-		offset = boxEnd
+func verifyMP4Decode(ctx context.Context, path string) error {
+	output, err := exec.CommandContext(
+		ctx,
+		"ffmpeg",
+		"-v", "error",
+		"-i", path,
+		"-map", "0:v:0",
+		"-frames:v", "1",
+		"-f", "null",
+		os.DevNull,
+	).CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("ffmpeg decode failed: %s", strings.TrimSpace(string(output)))
 	}
-	return false
+	return nil
 }
 
-func mp4TrackIsVideo(file *os.File, start int64, end int64) bool {
-	for offset, boxes := start, 0; offset+8 <= end &&
-		boxes < maximumMP4BoxCount; boxes++ {
-		boxType, payloadStart, boxEnd, ok := readMP4Box(file, offset, end)
-		if !ok {
-			return false
-		}
-		if boxType == "mdia" {
-			return mp4MediaHandlerIsVideo(file, payloadStart, boxEnd)
-		}
-		offset = boxEnd
-	}
-	return false
-}
-
-func mp4MediaHandlerIsVideo(file *os.File, start int64, end int64) bool {
-	for offset, boxes := start, 0; offset+8 <= end &&
-		boxes < maximumMP4BoxCount; boxes++ {
-		boxType, payloadStart, boxEnd, ok := readMP4Box(file, offset, end)
-		if !ok {
-			return false
-		}
-		if boxType == "hdlr" {
-			if boxEnd-payloadStart < 12 {
-				return false
-			}
-			handler := make([]byte, 4)
-			if _, err := file.ReadAt(handler, payloadStart+8); err != nil {
-				return false
-			}
-			return string(handler) == "vide"
-		}
-		offset = boxEnd
-	}
-	return false
-}
-
-func invalidMP4Error(display string) error {
-	return fmt.Errorf("workspace path %q is not a valid MP4 file", display)
+func invalidMP4Error(display string, cause error) error {
+	return fmt.Errorf("workspace path %q is not a decodable MP4 file: %w", display, cause)
 }

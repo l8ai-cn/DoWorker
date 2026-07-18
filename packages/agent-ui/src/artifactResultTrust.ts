@@ -4,7 +4,7 @@ import { artifactPresentation } from "./artifactPresentation";
 const SHA256_DIGEST = /^sha256:[a-f0-9]{64}$/;
 
 export function isUserVisibleArtifact(item: AgentArtifactItem): boolean {
-  if (!isVideoArtifact(item)) return true;
+  if (!isVideoArtifact(item)) return false;
   if (item.status === "completed") return isVerifiedReadyVideoArtifact(item);
   if (item.manifest?.kind !== "video") return false;
   if (item.status === "failed") return item.manifest.stage === "failed";

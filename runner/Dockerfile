@@ -12,7 +12,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" \
   -o /out/runner ./runner/cmd/runner
 
 FROM alpine:3.19
-RUN apk add --no-cache ca-certificates wget libreoffice font-noto font-noto-cjk \
+RUN apk add --no-cache ca-certificates wget ffmpeg libreoffice font-noto font-noto-cjk \
   && adduser -D -u 1000 -g 1000 app \
   && mkdir -p /app /data/acme \
   && chown -R 1000:1000 /app /data

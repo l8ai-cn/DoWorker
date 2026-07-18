@@ -87,6 +87,23 @@ func (m *MockStorage) Download(ctx context.Context, key string) (io.ReadCloser, 
 	return io.NopCloser(bytes.NewReader(f.data)), f.size, nil
 }
 
+func (m *MockStorage) DownloadRange(ctx context.Context, key string, start int64, end int64) (io.ReadCloser, int64, error) {
+	if m.DownloadErr != nil {
+		return nil, 0, m.DownloadErr
+	}
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	f, exists := m.files[key]
+	if !exists {
+		return nil, 0, fmt.Errorf("mock storage: %s not found", key)
+	}
+	if start < 0 || end < start || end >= int64(len(f.data)) {
+		return nil, 0, fmt.Errorf("mock storage: invalid range")
+	}
+	data := f.data[start : end+1]
+	return io.NopCloser(bytes.NewReader(data)), int64(len(data)), nil
+}
+
 func (m *MockStorage) GetURL(ctx context.Context, key string, expiry time.Duration) (string, error) {
 	if m.GetURLErr != nil {
 		return "", m.GetURLErr
@@ -138,6 +155,15 @@ func (m *MockStorage) PutFile(key string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.files[key] = &mockFile{key: key}
+}
+
+func (m *MockStorage) PutFileData(key string, data []byte, contentType string) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.files[key] = &mockFile{
+		key: key, data: append([]byte(nil), data...),
+		contentType: contentType, size: int64(len(data)),
+	}
 }
 
 func (m *MockStorage) FileCount() int {

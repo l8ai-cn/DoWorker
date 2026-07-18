@@ -12,16 +12,17 @@ import (
 )
 
 type acpWorkbenchForwarder struct {
-	podKey         string
-	workDir        string
-	mapper         *workbench.Mapper
-	observer       *workbench.ArtifactObserver
-	sender         client.ConnectionSender
-	convertOffice  officePreviewConverter
-	artifactMu     sync.Mutex
-	previewMu      sync.Mutex
-	converting     map[string]struct{}
-	latestRevision map[string]uint64
+	podKey          string
+	workDir         string
+	mapper          *workbench.Mapper
+	observer        *workbench.ArtifactObserver
+	sender          client.ConnectionSender
+	convertOffice   officePreviewConverter
+	artifactMu      sync.Mutex
+	previewMu       sync.Mutex
+	converting      map[string]struct{}
+	latestRevision  map[string]uint64
+	activeCommandID string
 }
 
 func newACPWorkbenchForwarder(
@@ -116,6 +117,18 @@ func (f *acpWorkbenchForwarder) log(level, message string) {
 
 func (f *acpWorkbenchForwarder) sessionID(sessionID string) {
 	f.mapper.SetExternalSessionID(sessionID)
+}
+
+func (f *acpWorkbenchForwarder) setActiveCommandID(commandID string) {
+	f.previewMu.Lock()
+	f.activeCommandID = commandID
+	f.previewMu.Unlock()
+}
+
+func (f *acpWorkbenchForwarder) currentCommandID() string {
+	f.previewMu.Lock()
+	defer f.previewMu.Unlock()
+	return f.activeCommandID
 }
 
 func (f *acpWorkbenchForwarder) send(

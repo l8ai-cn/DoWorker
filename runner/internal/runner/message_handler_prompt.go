@@ -45,6 +45,9 @@ func (h *RunnerMessageHandler) OnSendPrompt(cmd *runnerv1.SendPromptCommand) err
 		)
 	}
 	if pod.IsACPMode() {
+		if pod.workbenchForwarder != nil {
+			pod.workbenchForwarder.setActiveCommandID(cmd.CommandId)
+		}
 		sendAcpViaRelay(pod, "contentChunk", "", map[string]string{
 			"text": cmd.Prompt, "role": "user",
 		})

@@ -23,23 +23,21 @@ import { useArtifactBlobUrl } from "./useArtifactBlobUrl";
 export function GenericArtifactCard({
   filename,
   item,
+  presentation = "developer",
   runtime,
   sessionId,
 }: {
   filename: string;
   item: AgentArtifactItem;
+  presentation?: "developer" | "user";
   runtime: AgentSessionRuntime;
   sessionId: string;
 }) {
   const text = useAgentWorkspaceText();
   const declaredType = artifactPresentation(item.mimeType, filename);
-  const [requestedArtifactId, setRequestedArtifactId] = useState<string | null>(
-    null,
-  );
+  const [requestedArtifactId, setRequestedArtifactId] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
-  const [sourceDownloadError, setSourceDownloadError] = useState<string | null>(
-    null,
-  );
+  const [sourceDownloadError, setSourceDownloadError] = useState<string | null>(null);
   const [sourceDownloading, setSourceDownloading] = useState(false);
   const enabled =
     !["audio", "video"].includes(declaredType.kind) ||
@@ -91,7 +89,11 @@ export function GenericArtifactCard({
     } catch (cause) {
       console.error("Artifact source download failed", cause);
       setSourceDownloadError(
-        cause instanceof Error ? cause.message : String(cause),
+        presentation === "user"
+          ? text.artifact.loadFailed
+          : cause instanceof Error
+            ? cause.message
+            : String(cause),
       );
     } finally {
       setSourceDownloading(false);
@@ -161,7 +163,6 @@ export function GenericArtifactCard({
     </article>
   );
 }
-
 export function ArtifactError({
   filename,
   message,

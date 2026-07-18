@@ -124,7 +124,11 @@ function VideoManifestArtifactContent({
     return (
       <ArtifactViewerError
         filename={filename}
-        message="video_playable_representation_missing"
+        message={
+          presentation === "user"
+            ? text.loadFailed
+            : "video_playable_representation_missing"
+        }
       />
     );
   }
