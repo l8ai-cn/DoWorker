@@ -18,6 +18,9 @@ func declaredVideoManifest(
 	if err != nil {
 		return nil, err
 	}
+	if stage != agentworkbenchv2.VideoStage_VIDEO_STAGE_READY {
+		return nil, fmt.Errorf("published video manifest stage must be ready")
+	}
 	if declaration.ProgressFraction != nil &&
 		(*declaration.ProgressFraction < 0 || *declaration.ProgressFraction > 1) {
 		return nil, fmt.Errorf("progress_fraction must be between 0 and 1")
@@ -50,8 +53,7 @@ func declaredVideoManifest(
 	); err != nil {
 		return nil, err
 	}
-	if stage == agentworkbenchv2.VideoStage_VIDEO_STAGE_READY &&
-		declaration.PlayableRepresentationID == nil {
+	if declaration.PlayableRepresentationID == nil {
 		return nil, fmt.Errorf("ready video requires playable_representation_id")
 	}
 	if err := validateRepresentationIDs(

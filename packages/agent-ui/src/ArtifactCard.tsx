@@ -14,6 +14,7 @@ import { ArtifactError, GenericArtifactCard } from "./GenericArtifactCard";
 export interface ArtifactCardProps {
   contentRenderers?: ContentRendererRegistry<AgentContentRendererRegistration>;
   item: AgentArtifactItem;
+  presentation?: "developer" | "user";
   runtime: AgentSessionRuntime;
   sessionId: string;
 }
@@ -21,6 +22,7 @@ export interface ArtifactCardProps {
 export function ArtifactCard({
   contentRenderers,
   item,
+  presentation = "developer",
   runtime,
   sessionId,
 }: ArtifactCardProps) {
@@ -28,7 +30,16 @@ export function ArtifactCard({
   const filename = item.filename.trim() || text.artifact.generatedArtifact;
   const unsupportedReason = artifactUnsupportedReason(item);
   if (unsupportedReason) {
-    return <ArtifactError filename={filename} message={unsupportedReason} />;
+    return (
+      <ArtifactError
+        filename={filename}
+        message={
+          presentation === "user"
+            ? text.artifact.loadFailed
+            : unsupportedReason
+        }
+      />
+    );
   }
 
   const key = artifactRendererKey(item);
@@ -38,6 +49,7 @@ export function ArtifactCard({
       <RegisteredViewer
         filename={filename}
         item={item}
+        presentation={presentation}
         runtime={runtime}
         sessionId={sessionId}
       />

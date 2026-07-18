@@ -15,11 +15,13 @@ import type { ContentRendererRegistry } from "./registry/ContentRendererRegistry
 import type { ToolRendererRegistry } from "./registry/ToolRendererRegistry";
 import type { AgentContentRendererRegistration } from "./react/contentRendererTypes";
 import type { AgentToolRendererRegistration } from "./react/rendererTypes";
+import type { AgentWorkspacePresentation } from "./userWorkspacePresentation";
 
 export interface AgentConversationSurfaceProps {
   contentRenderers?: ContentRendererRegistry<AgentContentRendererRegistration>;
   items: AgentTimelineItem[];
   onError: (cause: unknown) => void;
+  presentation: AgentWorkspacePresentation;
   runtime: AgentSessionRuntime;
   snapshot: AgentSessionSnapshot;
   toolRenderers?: ToolRendererRegistry<AgentToolRendererRegistration>;
@@ -29,6 +31,7 @@ export function AgentConversationSurface({
   contentRenderers,
   items,
   onError,
+  presentation,
   runtime,
   snapshot,
   toolRenderers,
@@ -43,6 +46,7 @@ export function AgentConversationSurface({
         <ConversationEmptyState agentLabel={snapshot.agentLabel} />
         <ConversationComposer
           onError={onError}
+          presentation={presentation}
           runtime={runtime}
           snapshot={snapshot}
         />
@@ -93,6 +97,7 @@ export function AgentConversationSurface({
       />
       <ConversationComposer
         onError={onError}
+        presentation={presentation}
         runtime={runtime}
         snapshot={snapshot}
       />

@@ -190,10 +190,13 @@ func writePublishedVideoArtifactRevision(
 
 func writeVideoRepresentation(t *testing.T, root string, content string) {
 	t.Helper()
+	mediaSize := string([]byte{0, 0, 0, byte(8 + len(content))})
+	video := "\x00\x00\x00\x18ftypisom\x00\x00\x02\x00isomiso2" +
+		"\x00\x00\x00\x08moov" + mediaSize + "mdat" + content
 	require.NoError(t, os.MkdirAll(filepath.Join(root, "output"), 0o755))
 	require.NoError(t, os.WriteFile(
 		filepath.Join(root, "output", "demo.mp4"),
-		[]byte(content),
+		[]byte(video),
 		0o644,
 	))
 }

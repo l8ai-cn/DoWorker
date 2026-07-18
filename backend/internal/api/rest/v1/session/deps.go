@@ -72,6 +72,7 @@ type Deps struct {
 	Policies           *permissionpolicysvc.Service
 	ReadState          *ReadStateStore
 	SandboxFs          sandboxFilesystem
+	ArtifactSnapshots  artifactSnapshotRepository
 	SessionFiles       *sessionfilesvc.Service
 	MessageOutbox      sessionPromptOutbox
 	SessionComments    *commentsvc.Service

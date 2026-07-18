@@ -70,14 +70,21 @@ describe("embedded session API", () => {
     const client = createEmbedSessionClient(access, fetcher);
 
     await expect(client.loadResource("file-1")).resolves.toEqual(expect.any(Blob));
-    const workspace = await client.loadResource("workspace:deliverables/preview.png");
+    const workspace = await client.loadResource(
+      "workspace:deliverables/preview.png",
+      {
+        artifactId: "preview-1",
+        representationId: "original",
+        revision: 2n,
+      },
+    );
 
     await expect(workspace.text()).resolves.toBe("workspace-bytes");
     expect(String(fetcher.mock.calls[0]?.[0])).toBe(
       "https://api.example.test/v1/embed/sessions/conv_embed/resources/files/file-1/content",
     );
     expect(String(fetcher.mock.calls[1]?.[0])).toBe(
-      "https://api.example.test/v1/embed/sessions/conv_embed/resources/environments/workspace/artifacts/content/deliverables/preview.png",
+      "https://api.example.test/v1/embed/sessions/conv_embed/resources/environments/workspace/artifacts/content/deliverables/preview.png?artifact_id=preview-1&representation_id=original&revision=2",
     );
   });
 

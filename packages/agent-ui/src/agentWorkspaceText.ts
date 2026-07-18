@@ -25,6 +25,11 @@ import {
   artifactWorkspaceText,
   type ArtifactWorkspaceText,
 } from "./artifactWorkspaceText";
+import {
+  chineseVideoTaskStatus,
+  englishVideoTaskStatus,
+  type VideoTaskStatusText,
+} from "./videoTaskStatusText";
 
 export type AgentWorkspaceLocale = "en-US" | "zh-CN";
 export interface AgentWorkspaceText {
@@ -55,6 +60,8 @@ export interface AgentWorkspaceText {
   details: string;
   takeControl: string;
   releaseControl: string;
+  taskFailed: string;
+  videoTaskStatus: VideoTaskStatusText;
   artifact: ArtifactWorkspaceText;
   emptyHeading(agentLabel: string): string;
   composerPlaceholder(agentLabel: string): string;
@@ -110,6 +117,8 @@ const enUS: AgentWorkspaceText = {
   details: "Details",
   takeControl: "Take control",
   releaseControl: "Release control",
+  taskFailed: "The task failed. No verified result is available.",
+  videoTaskStatus: englishVideoTaskStatus,
   artifact: artifactWorkspaceText("en-US"),
   emptyHeading: (agentLabel) => `${agentLabel}, what should we work on?`,
   composerPlaceholder: (agentLabel) => `Ask ${agentLabel} to work on a task…`,
@@ -154,6 +163,8 @@ const zhCN: AgentWorkspaceText = {
   details: "详细信息",
   takeControl: "接管终端",
   releaseControl: "释放控制",
+  taskFailed: "任务执行失败，当前没有可验证的成果。",
+  videoTaskStatus: chineseVideoTaskStatus,
   artifact: artifactWorkspaceText("zh-CN"),
   emptyHeading: (agentLabel) => `${agentLabel}，我能为你做什么？`,
   composerPlaceholder: (agentLabel) => `让 ${agentLabel} 帮你完成任务…`,

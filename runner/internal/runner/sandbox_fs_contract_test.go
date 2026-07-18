@@ -1,10 +1,14 @@
 package runner
 
 import (
+	"crypto/sha256"
+	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
 
+	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 	"github.com/anthropics/agentsmesh/runner/internal/config"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -133,6 +137,43 @@ func TestSandboxFsReadBytesRejectsInvalidLength(t *testing.T) {
 	assert.NotEmpty(t, large.GetError())
 }
 
+func TestSandboxFsVerifiedReadReturnsPublishedBytes(t *testing.T) {
+	root := t.TempDir()
+	data := []byte("published-video")
+	require.NoError(t, os.WriteFile(filepath.Join(root, "result.mp4"), data, 0o644))
+
+	result, err := (&RunnerMessageHandler{}).dispatchSandboxFsOp(
+		root,
+		verifiedArtifactCommand(t, data, 2, 5),
+	)
+
+	require.NoError(t, err)
+	require.Empty(t, result.GetError())
+	assert.Equal(t, []byte("blish"), result.GetContentBytes())
+	assert.Equal(t, int64(len(data)), result.GetFileBytes())
+}
+
+func TestSandboxFsVerifiedReadRejectsSameSizeReplacement(t *testing.T) {
+	root := t.TempDir()
+	original := []byte("original-video")
+	replacement := []byte("replaced-video")
+	require.Equal(t, len(original), len(replacement))
+	require.NoError(t, os.WriteFile(
+		filepath.Join(root, "result.mp4"),
+		replacement,
+		0o644,
+	))
+
+	result, err := (&RunnerMessageHandler{}).dispatchSandboxFsOp(
+		root,
+		verifiedArtifactCommand(t, original, 0, int64(len(original))),
+	)
+
+	require.NoError(t, err)
+	assert.Equal(t, "artifact integrity mismatch", result.GetError())
+	assert.Empty(t, result.GetContentBytes())
+}
+
 func TestSandboxFsStatReturnsArtifactMetadataWithoutContent(t *testing.T) {
 	root := t.TempDir()
 	require.NoError(t, os.WriteFile(
@@ -250,4 +291,24 @@ func TestDetachedPodWorkspaceRootRejectsSymlinkOutsideRunnerWorkspace(t *testing
 	)
 
 	require.Error(t, err)
+}
+
+func verifiedArtifactCommand(
+	t *testing.T,
+	data []byte,
+	offset int64,
+	length int64,
+) *runnerv1.SandboxFsCommand {
+	t.Helper()
+	request := verifiedArtifactRead{
+		ArtifactID: "video-1", RepresentationID: "playable", Revision: 1,
+		FileBytes: uint64(len(data)),
+		Digest:    fmt.Sprintf("sha256:%x", sha256.Sum256(data)),
+	}
+	payload, err := json.Marshal(request)
+	require.NoError(t, err)
+	return &runnerv1.SandboxFsCommand{
+		Op: "read_verified_bytes", Path: "result.mp4",
+		Offset: offset, Length: length, Payload: string(payload),
+	}
 }

@@ -49,6 +49,11 @@ func validateArtifactDeclarationHeader(declaration artifactDeclaration) error {
 		!validDeclarationLabel(declaration.Producer.Type, 100) {
 		return fmt.Errorf("producer namespace and type are required")
 	}
+	if declaration.Producer.Namespace == "seedance" &&
+		declaration.Producer.Type == "video.generate" &&
+		!validDeclarationLabel(declaration.Producer.ID, 200) {
+		return fmt.Errorf("seedance video.generate requires producer.id")
+	}
 	if declaration.Producer.ToolExecutionID != "" {
 		return fmt.Errorf("producer.tool_execution_id is assigned by Runner")
 	}

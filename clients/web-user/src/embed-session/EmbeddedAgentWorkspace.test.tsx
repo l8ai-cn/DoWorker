@@ -1,5 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const close = vi.hoisted(() => vi.fn());
 const factory = vi.hoisted(() => vi.fn());
@@ -20,6 +20,12 @@ vi.mock("./createEmbeddedAgentWorkbenchRuntime", () => ({
 import { EmbeddedAgentWorkspace } from "./EmbeddedAgentWorkspace";
 
 describe("EmbeddedAgentWorkspace", () => {
+  beforeEach(() => {
+    close.mockClear();
+    factory.mockReset();
+    rendered.length = 0;
+  });
+
   it("通过共享 factory 创建 V2 runtime，不接收 legacy client", async () => {
     const runtime = { close };
     const terminalRuntime = {};
@@ -39,6 +45,7 @@ describe("EmbeddedAgentWorkspace", () => {
     expect(rendered.at(-1)).toMatchObject({
       contentRenderers: "builtin-renderers",
       locale: "zh-CN",
+      presentation: "user",
       runtime,
       sessionId: "session-1",
       terminalRuntime,
@@ -46,5 +53,27 @@ describe("EmbeddedAgentWorkspace", () => {
 
     view.unmount();
     await waitFor(() => expect(close).toHaveBeenCalledWith("session-1"));
+  });
+
+  it("不向用户显示连接异常的技术细节", async () => {
+    factory.mockRejectedValue(
+      new Error("server 503: credential=/internal/secret"),
+    );
+
+    render(
+      <EmbeddedAgentWorkspace
+        access={{
+          baseUrl: "https://api.example.test",
+          getAccessToken: () => "token",
+          orgSlug: "acme",
+          sessionId: "session-1",
+        }}
+      />,
+    );
+
+    expect(
+      await screen.findByRole("alert"),
+    ).toHaveTextContent("Worker 会话连接失败，请稍后重试");
+    expect(screen.queryByText(/credential/)).not.toBeInTheDocument();
   });
 });

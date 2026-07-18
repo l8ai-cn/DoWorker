@@ -28,6 +28,13 @@ export interface AgentArtifactGrant {
   subject?: string;
 }
 
+export interface AgentArtifactProvenance {
+  publicationToolExecutionId?: string;
+  producerId?: string;
+  producerNamespace?: string;
+  producerType?: string;
+}
+
 export interface AgentNormalizedRegion {
   height: number;
   width: number;
@@ -136,6 +143,7 @@ export interface AgentArtifactItem {
   kind: "artifact";
   manifest: AgentArtifactManifest | null;
   mimeType: string | null;
+  provenance?: AgentArtifactProvenance;
   representations: AgentArtifactRepresentation[];
   revision: bigint;
   role: string;

@@ -114,6 +114,48 @@ func (h *RunnerMessageHandler) sandboxFsReadBytesWorkspace(
 	}, nil
 }
 
+func (h *RunnerMessageHandler) sandboxFsReadVerifiedArtifactWorkspace(
+	workspace *sandboxWorkspace,
+	rel string,
+	offset int64,
+	length int64,
+	request verifiedArtifactRead,
+) (*runnerv1.SandboxFsResultEvent, error) {
+	if offset < 0 {
+		return fsErrResult("offset must not be negative"), nil
+	}
+	if length <= 0 || length > maxSandboxFsReadChunkBytes {
+		return fsErrResult(fmt.Sprintf(
+			"length must be between 1 and %d bytes",
+			maxSandboxFsReadChunkBytes,
+		)), nil
+	}
+	relative, _, err := resolveSandboxWorkspaceRelativePath(rel)
+	if err != nil {
+		return fsErrResult(err.Error()), nil
+	}
+	file, _, err := openSandboxRegularFile(workspace.root, relative)
+	if err != nil {
+		return fsErrResult(err.Error()), nil
+	}
+	defer file.Close()
+	data, fileBytes, err := readVerifiedArtifactRange(
+		file,
+		offset,
+		length,
+		request,
+	)
+	if err != nil {
+		return fsErrResult(err.Error()), nil
+	}
+	return &runnerv1.SandboxFsResultEvent{
+		ContentBytes: data, ContentOffset: offset,
+		ContentType: sandboxFsContentType(relative), FileBytes: fileBytes,
+		Eof:           offset+int64(len(data)) >= fileBytes,
+		WorkspaceRoot: workspace.displayPath(),
+	}, nil
+}
+
 func sandboxFsContentType(path string) string {
 	if strings.EqualFold(filepath.Ext(path), ".pptx") {
 		return "application/vnd.openxmlformats-officedocument.presentationml.presentation"

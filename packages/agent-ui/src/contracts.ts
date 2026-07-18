@@ -10,6 +10,7 @@ export type {
   AgentArtifactGrant,
   AgentArtifactItem,
   AgentArtifactManifest,
+  AgentArtifactProvenance,
   AgentArtifactRepresentation,
   AgentImageEditManifest,
   AgentNormalizedRegion,

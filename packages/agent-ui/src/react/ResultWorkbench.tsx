@@ -21,10 +21,12 @@ export interface ResultWorkbenchProps {
   contentRenderers?: ContentRendererRegistry<AgentContentRendererRegistration>;
   conversation: ReactNode;
   mode: WorkbenchContainerMode;
+  presentation?: "developer" | "user";
   runtime: AgentSessionRuntime;
   sessionId: string;
   toolRenderers?: ToolRendererRegistry<AgentToolRendererRegistration>;
   tools?: AgentToolActivityItem[];
+  verifiedArtifactsOnly?: boolean;
 }
 
 export function ResultWorkbench({
@@ -32,10 +34,12 @@ export function ResultWorkbench({
   contentRenderers,
   conversation,
   mode,
+  presentation = "developer",
   runtime,
   sessionId,
   toolRenderers,
   tools = [],
+  verifiedArtifactsOnly = false,
 }: ResultWorkbenchProps) {
   const text = useAgentWorkspaceText();
   const [narrowPane, setNarrowPane] =
@@ -51,6 +55,7 @@ export function ResultWorkbench({
     artifacts,
     tools,
     toolRenderers,
+    verifiedArtifactsOnly,
   );
   const selected = selectedResult(workbenchResults, selectedId);
 
@@ -59,6 +64,7 @@ export function ResultWorkbench({
     <WorkbenchResultsPane
       contentRenderers={contentRenderers}
       onSelect={setSelectedId}
+      presentation={presentation}
       results={workbenchResults}
       runtime={runtime}
       selected={selected}
@@ -118,7 +124,6 @@ export function ResultWorkbench({
         aria-hidden={narrowPane !== "conversation"}
         className={`min-h-0 flex-1 ${narrowPane === "conversation" ? "" : "hidden"}`}
         id={conversationPanelId}
-        inert={narrowPane !== "conversation"}
         role="tabpanel"
       >
         {conversation}
@@ -128,7 +133,6 @@ export function ResultWorkbench({
         aria-hidden={narrowPane !== "results"}
         className={`min-h-0 flex-1 ${narrowPane === "results" ? "" : "hidden"}`}
         id={resultsPanelId}
-        inert={narrowPane !== "results"}
         role="tabpanel"
       >
         {resultsActivated ? results : null}

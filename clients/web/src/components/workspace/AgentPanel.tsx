@@ -129,7 +129,14 @@ export function AgentPanel({
 
       {!shouldSubscribe ? (
         podError ? (
-          <PaneErrorState error={podError} onClose={onClose} />
+          <PaneErrorState
+            error={
+              locale === "zh"
+                ? "Worker 启动失败，请稍后重试"
+                : "The Worker failed to start. Please try again."
+            }
+            onClose={onClose}
+          />
         ) : podStatus === "orphaned" ? (
           <PaneReconnectingState onClose={onClose} />
         ) : (
@@ -145,8 +152,8 @@ export function AgentPanel({
         <PaneErrorState
           error={
             locale === "zh"
-              ? `Agent 会话连接失败：${sessionLinkError}`
-              : `Failed to connect to the Agent session: ${sessionLinkError}`
+              ? "Worker 会话连接失败，请稍后重试"
+              : "Failed to connect to the Worker session. Please try again."
           }
           onClose={onClose}
         />
@@ -165,6 +172,7 @@ export function AgentPanel({
           clientLabel={controlClientLabel}
           contentRenderers={AGENT_CONTENT_RENDERERS}
           locale={locale === "zh" ? "zh-CN" : "en-US"}
+          presentation="user"
           readOnly={controlLease.status !== "granted"}
           runtime={runtime}
           sessionId={sessionId}

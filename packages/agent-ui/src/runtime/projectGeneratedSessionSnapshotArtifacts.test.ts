@@ -19,6 +19,17 @@ describe("generated artifact projection", () => {
       mediaType: "image/png",
       role: "image_edit",
       status: ArtifactStatus.READY,
+      provenance: {
+        producerId: "image-task-1",
+        producerNamespace: "openai",
+        producerType: "image.edit",
+      },
+      revisions: [
+        {
+          revision: 9_007_199_254_740_993n,
+          provenance: { toolExecutionId: "workbench-publish:1" },
+        },
+      ],
       representations: [
         {
           representationId: "source",
@@ -88,6 +99,12 @@ describe("generated artifact projection", () => {
       filename: "result.webp",
       mimeType: "image/webp",
       role: "image_edit",
+      provenance: {
+        publicationToolExecutionId: "workbench-publish:1",
+        producerId: "image-task-1",
+        producerNamespace: "openai",
+        producerType: "image.edit",
+      },
       actions: ["image.edit", "artifact.download"],
       representations: [
         {

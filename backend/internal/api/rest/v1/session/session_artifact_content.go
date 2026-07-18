@@ -15,7 +15,8 @@ import (
 const maxSessionArtifactChunkBytes int64 = 4 << 20
 
 func (d *Deps) handleSessionArtifactContent(c *gin.Context) {
-	_, pod, ok := d.authorizeSession(c, c.Param("id"))
+	sessionID := c.Param("id")
+	_, pod, ok := d.authorizeSession(c, sessionID)
 	if !ok {
 		return
 	}
@@ -29,6 +30,10 @@ func (d *Deps) handleSessionArtifactContent(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": gin.H{"message": "artifact path is required"}})
 		return
 	}
+	verifiedRead, ok := d.resolveVerifiedArtifactRead(c, sessionID, path)
+	if !ok {
+		return
+	}
 	stat, ok := d.execSandboxFs(c, pod, &runnerv1.SandboxFsCommand{
 		Op: "stat", Path: path, PodKey: podKeyOf(pod),
 	})
@@ -38,6 +43,10 @@ func (d *Deps) handleSessionArtifactContent(c *gin.Context) {
 	fileBytes := stat.GetFileBytes()
 	if fileBytes < 0 {
 		c.JSON(http.StatusBadGateway, gin.H{"error": gin.H{"message": "invalid artifact metadata"}})
+		return
+	}
+	if uint64(fileBytes) != verifiedRead.FileBytes {
+		writeSessionArtifactIntegrityError(c)
 		return
 	}
 	start, end, status, ok := resolveArtifactResponseRange(c, requestedRange, fileBytes)
@@ -57,6 +66,7 @@ func (d *Deps) handleSessionArtifactContent(c *gin.Context) {
 			start,
 			min(contentLength, maxSessionArtifactChunkBytes),
 			fileBytes,
+			verifiedRead,
 		)
 		if err != nil {
 			writeSessionArtifactReadError(c, err)
@@ -78,6 +88,7 @@ func (d *Deps) handleSessionArtifactContent(c *gin.Context) {
 			offset,
 			min(end-offset+1, maxSessionArtifactChunkBytes),
 			fileBytes,
+			verifiedRead,
 		)
 		if err != nil {
 			_ = c.Error(err)
@@ -117,12 +128,14 @@ func (d *Deps) readSessionArtifactChunk(
 	offset int64,
 	length int64,
 	fileBytes int64,
+	verifiedRead verifiedArtifactRead,
 ) ([]byte, error) {
 	if d.SandboxFs == nil || pod == nil || !d.SandboxFs.IsConnected(pod.RunnerID) {
 		return nil, fmt.Errorf("runner unavailable")
 	}
 	result, err := d.SandboxFs.Exec(ctx, pod.RunnerID, &runnerv1.SandboxFsCommand{
-		Op: "read_bytes", Path: path, PodKey: pod.PodKey, Offset: offset, Length: length,
+		Op: "read_verified_bytes", Path: path, PodKey: pod.PodKey,
+		Offset: offset, Length: length, Payload: verifiedRead.payload(),
 	})
 	if err != nil {
 		return nil, err
@@ -131,6 +144,9 @@ func (d *Deps) readSessionArtifactChunk(
 		return nil, fmt.Errorf("artifact read returned no result")
 	}
 	if result.GetError() != "" {
+		if result.GetError() == "artifact integrity mismatch" {
+			return nil, errArtifactIntegrityMismatch
+		}
 		return nil, fmt.Errorf("artifact read failed: %s", result.GetError())
 	}
 	data := result.GetContentBytes()
@@ -165,9 +181,19 @@ func writeSessionArtifactHeaders(
 }
 
 func writeSessionArtifactReadError(c *gin.Context, err error) {
+	if err == errArtifactIntegrityMismatch {
+		writeSessionArtifactIntegrityError(c)
+		return
+	}
 	status := http.StatusBadGateway
 	if strings.Contains(err.Error(), "runner unavailable") {
 		status = http.StatusServiceUnavailable
 	}
 	c.JSON(status, gin.H{"error": gin.H{"message": err.Error()}})
+}
+
+func writeSessionArtifactIntegrityError(c *gin.Context) {
+	c.JSON(http.StatusConflict, gin.H{"error": gin.H{
+		"message": "artifact content no longer matches the published result",
+	}})
 }

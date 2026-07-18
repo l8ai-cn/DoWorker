@@ -114,7 +114,14 @@ describe("createEmbeddedArtifactLoader", () => {
         sessionId: "session-1",
       }),
     ).resolves.toBe(downloadBlob);
-    expect(resources.loadResource).toHaveBeenCalledWith("workspace:deliverables/a.png");
+    expect(resources.loadResource).toHaveBeenCalledWith(
+      "workspace:deliverables/a.png",
+      {
+        artifactId: "artifact-1",
+        representationId: "source",
+        revision: 1n,
+      },
+    );
     expect(resources.loadDownload).toHaveBeenCalledWith("/downloads/a.png");
   });
 

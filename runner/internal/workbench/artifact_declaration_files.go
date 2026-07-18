@@ -116,6 +116,9 @@ func declaredArtifactFile(
 	if !info.Mode().IsRegular() {
 		return artifactFile{}, fmt.Errorf("workspace path %q is not a regular file", display)
 	}
+	if info.Size() == 0 {
+		return artifactFile{}, fmt.Errorf("workspace path %q is empty", display)
+	}
 	actualMediaType := artifactMediaType(display)
 	if actualMediaType == "" || actualMediaType != declaredMediaType {
 		return artifactFile{}, fmt.Errorf(
@@ -123,6 +126,9 @@ func declaredArtifactFile(
 			declaredMediaType,
 			actualMediaType,
 		)
+	}
+	if err := validateDeclaredFileContent(root, display, actualMediaType); err != nil {
+		return artifactFile{}, err
 	}
 	digest, err := artifactDigestFromRoot(root, display)
 	if err != nil {

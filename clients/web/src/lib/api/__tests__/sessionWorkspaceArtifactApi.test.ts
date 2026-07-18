@@ -36,12 +36,17 @@ describe("sessionWorkspaceArtifactApi", () => {
     const blob = await loadSessionWorkspaceArtifactById(
       "session-1",
       "output/demo clip.mp4",
+      {
+        artifactId: "video-1",
+        representationId: "playable",
+        revision: 3n,
+      },
     );
 
     expect(blob.type).toBe("video/mp4");
     expect(blob.size).toBe(4);
     expect(globalThis.fetch).toHaveBeenCalledWith(
-      "https://api.example.test/v1/sessions/session-1/resources/environments/workspace/artifacts/content/output/demo%20clip.mp4",
+      "https://api.example.test/v1/sessions/session-1/resources/environments/workspace/artifacts/content/output/demo%20clip.mp4?artifact_id=video-1&representation_id=playable&revision=3",
       {
         headers: {
           Authorization: "Bearer test-token",
@@ -57,7 +62,15 @@ describe("sessionWorkspaceArtifactApi", () => {
     );
 
     await expect(
-      loadSessionWorkspaceArtifactById("session-1", "output/demo.mp4"),
+      loadSessionWorkspaceArtifactById(
+        "session-1",
+        "output/demo.mp4",
+        {
+          artifactId: "video-1",
+          representationId: "playable",
+          revision: 1n,
+        },
+      ),
     ).rejects.toThrow("Workspace artifact request failed (503)");
   });
 });

@@ -6,7 +6,10 @@ import {
   parseEmbeddedTerminals,
   readEmbeddedJson,
 } from "./embed-session-response-parsers";
-import { loadEmbeddedWorkspaceArtifact } from "./embed-workspace-artifact-api";
+import {
+  loadEmbeddedWorkspaceArtifact,
+  type EmbeddedArtifactIdentity,
+} from "./embed-workspace-artifact-api";
 
 export interface EmbeddedSession {
   agentLabel: string;
@@ -23,7 +26,10 @@ export interface EmbedRelayConnection {
 export interface EmbedSessionClient {
   getSession(): Promise<EmbeddedSession>;
   loadDownload(downloadUrl: string): Promise<Blob>;
-  loadResource(resourceId: string): Promise<Blob>;
+  loadResource(
+    resourceId: string,
+    identity?: EmbeddedArtifactIdentity,
+  ): Promise<Blob>;
   getTerminals(): Promise<TerminalResource[]>;
   getRelayConnection(): Promise<EmbedRelayConnection>;
 }
@@ -49,12 +55,14 @@ export function createEmbedSessionClient(
       const response = await request(sessionPath);
       return parseEmbeddedSession(await readEmbeddedJson(response));
     },
-    async loadResource(resourceId) {
+    async loadResource(resourceId, identity) {
       if (resourceId.startsWith("workspace:")) {
+        if (!identity) throw new Error("artifact_identity_missing");
         return loadEmbeddedWorkspaceArtifact(
           request,
           sessionPath,
           resourceId.slice("workspace:".length),
+          identity,
         );
       }
       const response = await request(

@@ -38,6 +38,11 @@ export function createWebAgentWorkbenchArtifactLoader(
       return loadSessionWorkspaceArtifactById(
         context.sessionId,
         resourceId.slice("workspace:".length),
+        {
+          artifactId: context.artifactId,
+          representationId: context.representationId!,
+          revision: context.representation.revision,
+        },
       );
     },
   });

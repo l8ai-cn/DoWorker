@@ -29,6 +29,11 @@ export function createEmbeddedArtifactLoader(
       return state.snapshot.artifacts;
     },
     loadDownload: (url) => resources.loadDownload(url),
-    loadResource: (resourceId) => resources.loadResource(resourceId),
+    loadResource: (resourceId, context) =>
+      resources.loadResource(resourceId, {
+        artifactId: context.artifactId,
+        representationId: context.representationId!,
+        revision: context.representation.revision,
+      }),
   });
 }

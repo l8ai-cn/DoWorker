@@ -3,12 +3,16 @@ package sessionapi
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	workbenchdomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentworkbench"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
+	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -19,6 +23,17 @@ import (
 type artifactContentSandbox struct {
 	commands []*runnerv1.SandboxFsCommand
 	data     []byte
+}
+
+type artifactContentSnapshots struct {
+	state *workbenchdomain.SessionState
+}
+
+func (s artifactContentSnapshots) GetSnapshot(
+	context.Context,
+	string,
+) (*workbenchdomain.SessionState, error) {
+	return s.state, nil
 }
 
 func (s *artifactContentSandbox) IsConnected(int64) bool {
@@ -40,7 +55,17 @@ func (s *artifactContentSandbox) Exec(
 			FileBytes:   int64(len(s.data)),
 			ContentType: "video/mp4",
 		}, nil
-	case "read_bytes":
+	case "read_verified_bytes":
+		var request verifiedArtifactRead
+		if err := json.Unmarshal([]byte(command.GetPayload()), &request); err != nil {
+			return nil, err
+		}
+		digest := fmt.Sprintf("sha256:%x", sha256.Sum256(s.data))
+		if request.Digest != digest || request.FileBytes != uint64(len(s.data)) {
+			return &runnerv1.SandboxFsResultEvent{
+				Error: "artifact integrity mismatch",
+			}, nil
+		}
 		start := command.GetOffset()
 		if start < 0 || start > int64(len(s.data)) {
 			return nil, fmt.Errorf("invalid offset")
@@ -73,7 +98,7 @@ func TestSessionArtifactContentServesExactByteRange(t *testing.T) {
 	assert.Equal(t, "4", response.Header().Get("Content-Length"))
 	require.Len(t, sandbox.commands, 2)
 	assert.Equal(t, "stat", sandbox.commands[0].GetOp())
-	assert.Equal(t, "read_bytes", sandbox.commands[1].GetOp())
+	assert.Equal(t, "read_verified_bytes", sandbox.commands[1].GetOp())
 	assert.Equal(t, int64(2), sandbox.commands[1].GetOffset())
 	assert.Equal(t, int64(4), sandbox.commands[1].GetLength())
 }
@@ -148,17 +173,40 @@ func TestSessionArtifactContentServesEmptyFile(t *testing.T) {
 	assert.Len(t, sandbox.commands, 1)
 }
 
+func TestSessionArtifactContentRejectsSameSizeReplacement(t *testing.T) {
+	deps, _ := relayConnectionTestDeps(t, nil)
+	original := []byte("original-video")
+	sandbox := &artifactContentSandbox{data: []byte("replaced-video")}
+	deps.SandboxFs = sandbox
+	deps.ArtifactSnapshots = artifactContentSnapshots{
+		state: artifactContentSnapshot(t, original),
+	}
+
+	response := sessionArtifactContentRequest(t, deps, "")
+
+	assert.Equal(t, http.StatusConflict, response.Code)
+	assert.NotContains(t, response.Body.String(), "replaced-video")
+	require.Len(t, sandbox.commands, 2)
+	assert.Equal(t, "read_verified_bytes", sandbox.commands[1].GetOp())
+}
+
 func sessionArtifactContentRequest(
 	t *testing.T,
 	deps *Deps,
 	rangeHeader string,
 ) *httptest.ResponseRecorder {
 	t.Helper()
+	if deps.ArtifactSnapshots == nil {
+		sandbox := deps.SandboxFs.(*artifactContentSandbox)
+		deps.ArtifactSnapshots = artifactContentSnapshots{
+			state: artifactContentSnapshot(t, sandbox.data),
+		}
+	}
 	response := httptest.NewRecorder()
 	ctx, _ := gin.CreateTestContext(response)
 	ctx.Request = httptest.NewRequest(
 		http.MethodGet,
-		"/v1/sessions/session-mobile/resources/environments/workspace/artifacts/content/output/demo.mp4",
+		"/v1/sessions/session-mobile/resources/environments/workspace/artifacts/content/output/demo.mp4?artifact_id=video-1&representation_id=playable&revision=1",
 		nil,
 	)
 	if rangeHeader != "" {
@@ -178,4 +226,36 @@ func sessionArtifactContentRequest(
 	deps.handleSessionArtifactContent(ctx)
 	ctx.Writer.WriteHeaderNow()
 	return response
+}
+
+func artifactContentSnapshot(
+	t *testing.T,
+	data []byte,
+) *workbenchdomain.SessionState {
+	t.Helper()
+	digest := fmt.Sprintf("sha256:%x", sha256.Sum256(data))
+	byteSize := uint64(len(data))
+	resourceID := "workspace:output/demo.mp4"
+	snapshot := &agentworkbenchv2.SessionSnapshot{
+		SessionId: "session-mobile",
+		Artifacts: []*agentworkbenchv2.ArtifactDescriptor{{
+			ArtifactId: "video-1", Revision: 1,
+			Representations: []*agentworkbenchv2.ArtifactRepresentation{{
+				RepresentationId: "playable", Revision: 1,
+				Status:   agentworkbenchv2.ArtifactStatus_ARTIFACT_STATUS_READY,
+				ByteSize: &byteSize, Digest: &digest,
+				Transport: &agentworkbenchv2.ArtifactTransport{
+					Transport: &agentworkbenchv2.ArtifactTransport_ResourceId{
+						ResourceId: resourceID,
+					},
+				},
+			}},
+		}},
+	}
+	projection, err := proto.Marshal(snapshot)
+	require.NoError(t, err)
+	return &workbenchdomain.SessionState{
+		SessionID:  "session-mobile",
+		Projection: projection,
+	}
 }

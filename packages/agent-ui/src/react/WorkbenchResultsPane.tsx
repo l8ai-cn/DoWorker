@@ -19,6 +19,7 @@ import type { WorkbenchResult } from "./workbenchResults";
 export interface WorkbenchResultsPaneProps {
   contentRenderers?: ContentRendererRegistry<AgentContentRendererRegistration>;
   onSelect: (id: string) => void;
+  presentation: "developer" | "user";
   results: readonly WorkbenchResult[];
   runtime: AgentSessionRuntime;
   selected: WorkbenchResult | undefined;
@@ -28,6 +29,7 @@ export interface WorkbenchResultsPaneProps {
 export function WorkbenchResultsPane({
   contentRenderers,
   onSelect,
+  presentation,
   results,
   runtime,
   selected,
@@ -59,6 +61,7 @@ export function WorkbenchResultsPane({
             <ArtifactCard
               contentRenderers={contentRenderers}
               item={selected.item}
+              presentation={presentation}
               runtime={runtime}
               sessionId={sessionId}
             />

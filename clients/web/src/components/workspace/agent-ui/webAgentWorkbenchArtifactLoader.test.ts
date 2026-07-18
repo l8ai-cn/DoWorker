@@ -25,6 +25,7 @@ describe("createWebAgentWorkbenchArtifactLoader", () => {
           representations: [
             create(ArtifactRepresentationSchema, {
               representationId: "playable",
+              revision: 7n,
               mediaType: "video/mp4",
               transport: {
                 transport: {
@@ -56,6 +57,11 @@ describe("createWebAgentWorkbenchArtifactLoader", () => {
     expect(loadSessionWorkspaceArtifactById).toHaveBeenCalledWith(
       "session-real-1",
       "deliverables/demo.mp4",
+      {
+        artifactId: "video-1",
+        representationId: "playable",
+        revision: 7n,
+      },
     );
   });
 });

@@ -57,6 +57,23 @@ export function projectArtifactDescriptor(
     grants,
     manifest: projectManifest(descriptor.manifest),
     mimeType: representation?.mediaType || descriptor.mediaType || null,
+    provenance: {
+      ...(currentRevisionToolExecutionId(descriptor)
+        ? {
+            publicationToolExecutionId:
+              currentRevisionToolExecutionId(descriptor),
+          }
+        : {}),
+      ...(descriptor.provenance?.producerId
+        ? { producerId: descriptor.provenance.producerId }
+        : {}),
+      ...(descriptor.provenance?.producerNamespace
+        ? { producerNamespace: descriptor.provenance.producerNamespace }
+        : {}),
+      ...(descriptor.provenance?.producerType
+        ? { producerType: descriptor.provenance.producerType }
+        : {}),
+    },
     representations,
     revision: descriptor.revision,
     role: options.role || descriptor.role || representation?.role || "artifact",
@@ -67,6 +84,14 @@ export function projectArtifactDescriptor(
       representation?.status ?? descriptor.status,
     ),
   };
+}
+
+function currentRevisionToolExecutionId(
+  descriptor: ArtifactDescriptor,
+): string | undefined {
+  return descriptor.revisions.find(
+    (revision) => revision.revision === descriptor.revision,
+  )?.provenance?.toolExecutionId;
 }
 
 export function projectArtifactReference(

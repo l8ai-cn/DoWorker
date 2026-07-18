@@ -1,5 +1,5 @@
 import { Maximize2, Minimize2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAgentWorkspaceText } from "../../AgentWorkspaceLocaleContext";
 
 interface VideoPlaybackSurfaceProps {
@@ -14,29 +14,38 @@ export function VideoPlaybackSurface({
   src,
 }: VideoPlaybackSurfaceProps) {
   const text = useAgentWorkspaceText().artifact;
+  const surfaceRef = useRef<HTMLDivElement>(null);
   const [fullscreen, setFullscreen] = useState(false);
+  const [fullscreenError, setFullscreenError] = useState(false);
+  const fullscreenSupported =
+    typeof HTMLElement !== "undefined" &&
+    typeof HTMLElement.prototype.requestFullscreen === "function";
 
   useEffect(() => {
-    if (!fullscreen) return;
-    const exitOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setFullscreen(false);
+    const syncFullscreen = () => {
+      setFullscreen(document.fullscreenElement === surfaceRef.current);
     };
-    document.addEventListener("keydown", exitOnEscape);
-    return () => document.removeEventListener("keydown", exitOnEscape);
-  }, [fullscreen]);
+    document.addEventListener("fullscreenchange", syncFullscreen);
+    return () => document.removeEventListener("fullscreenchange", syncFullscreen);
+  }, []);
+
+  const toggleFullscreen = async () => {
+    setFullscreenError(false);
+    try {
+      if (document.fullscreenElement === surfaceRef.current) {
+        await document.exitFullscreen();
+      } else {
+        await surfaceRef.current?.requestFullscreen();
+      }
+    } catch {
+      setFullscreenError(true);
+    }
+  };
 
   return (
     <div
-      className={`relative bg-black ${fullscreen ? "flex items-center justify-center" : ""}`}
-      style={
-        fullscreen
-          ? {
-              inset: 0,
-              position: "fixed",
-              zIndex: 100,
-            }
-          : undefined
-      }
+      className={`relative bg-black ${fullscreen ? "flex h-full items-center justify-center" : ""}`}
+      ref={surfaceRef}
     >
       <video
         aria-label={`视频预览：${filename}`}
@@ -51,19 +60,29 @@ export function VideoPlaybackSurface({
       >
         {text.videoUnsupported}
       </video>
-      <button
-        aria-label={fullscreen ? text.exitFullscreen : text.fullscreenVideo}
-        className="absolute right-3 top-3 inline-flex size-11 items-center justify-center rounded-md bg-black/70 text-white outline-none hover:bg-black/85 focus-visible:ring-2 focus-visible:ring-white"
-        onClick={() => setFullscreen((current) => !current)}
-        title={fullscreen ? text.exitFullscreen : text.fullscreenVideo}
-        type="button"
-      >
-        {fullscreen ? (
-          <Minimize2 aria-hidden="true" className="size-4" />
-        ) : (
-          <Maximize2 aria-hidden="true" className="size-4" />
-        )}
-      </button>
+      {fullscreenSupported && (
+        <button
+          aria-label={fullscreen ? text.exitFullscreen : text.fullscreenVideo}
+          className="absolute right-3 top-3 inline-flex size-11 items-center justify-center rounded-md bg-black/70 text-white outline-none hover:bg-black/85 focus-visible:ring-2 focus-visible:ring-white"
+          onClick={() => void toggleFullscreen()}
+          title={fullscreen ? text.exitFullscreen : text.fullscreenVideo}
+          type="button"
+        >
+          {fullscreen ? (
+            <Minimize2 aria-hidden="true" className="size-4" />
+          ) : (
+            <Maximize2 aria-hidden="true" className="size-4" />
+          )}
+        </button>
+      )}
+      {fullscreenError && (
+        <div
+          className="absolute inset-x-3 bottom-3 rounded-md bg-black/80 px-3 py-2 text-sm text-white"
+          role="alert"
+        >
+          {text.fullscreenUnavailable}
+        </div>
+      )}
     </div>
   );
 }

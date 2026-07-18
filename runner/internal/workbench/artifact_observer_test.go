@@ -134,7 +134,7 @@ func TestArtifactObserverProjectsDeclaredPresentationAndVideo(t *testing.T) {
 		"output/slide-1.png":       "page",
 		"output/slide-1-thumb.png": "thumb",
 		"output/original.mov":      "original",
-		"output/playable.mp4":      "playable",
+		"output/playable.mp4":      validMP4Fixture("playable"),
 		"output/poster.png":        "poster",
 	} {
 		writeArtifactFile(t, root, path, content)
@@ -165,7 +165,7 @@ func TestArtifactObserverProjectsDeclaredPresentationAndVideo(t *testing.T) {
 		"revision":1,
 		"role":"video",
 		"primary_representation_id":"playable",
-		"producer":{"namespace":"seedance","type":"video.generate"},
+		"producer":{"namespace":"seedance","type":"video.generate","id":"task-1"},
 		"representations":[
 			{"representation_id":"original","path":"output/original.mov","media_type":"video/quicktime","role":"original"},
 			{"representation_id":"playable","path":"output/playable.mp4","media_type":"video/mp4","role":"playable","duration_millis":2000},
@@ -210,6 +210,110 @@ func TestArtifactObserverRejectsInvalidDeclaration(t *testing.T) {
 	_, err = observer.Scan()
 
 	require.ErrorContains(t, err, "schema_version")
+}
+
+func TestArtifactObserverRejectsEmptyDeclaredFile(t *testing.T) {
+	root := t.TempDir()
+	observer, err := NewArtifactObserver(root)
+	require.NoError(t, err)
+	writeArtifactFile(t, root, "output/empty.mp4", "")
+	writeArtifactDeclaration(t, root, "video.json", `{
+		"schema_version":"agentsmesh.agent-workbench.artifact/v1",
+		"artifact_id":"empty-video",
+		"revision":1,
+		"role":"video",
+		"primary_representation_id":"playable",
+		"producer":{"namespace":"seedance","type":"video.generate","id":"task-1"},
+		"representations":[
+			{"representation_id":"playable","path":"output/empty.mp4","media_type":"video/mp4","role":"playable"}
+		],
+		"manifest":{
+			"kind":"video",
+			"stage":"ready",
+			"playable_representation_id":"playable"
+		}
+	}`)
+
+	_, err = observer.Scan()
+
+	require.ErrorContains(t, err, `workspace path "output/empty.mp4" is empty`)
+}
+
+func TestArtifactObserverRejectsSeedanceVideoWithoutProducerID(t *testing.T) {
+	root := t.TempDir()
+	observer, err := NewArtifactObserver(root)
+	require.NoError(t, err)
+	writeArtifactFile(t, root, "output/video.mp4", validMP4Fixture("video"))
+	writeArtifactDeclaration(t, root, "video.json", `{
+		"schema_version":"agentsmesh.agent-workbench.artifact/v1",
+		"artifact_id":"video",
+		"revision":1,
+		"role":"video",
+		"primary_representation_id":"playable",
+		"producer":{"namespace":"seedance","type":"video.generate"},
+		"representations":[
+			{"representation_id":"playable","path":"output/video.mp4","media_type":"video/mp4"}
+		]
+	}`)
+
+	_, err = observer.Scan()
+
+	require.ErrorContains(t, err, "seedance video.generate requires producer.id")
+}
+
+func TestArtifactObserverRejectsTextDisguisedAsMP4(t *testing.T) {
+	root := t.TempDir()
+	observer, err := NewArtifactObserver(root)
+	require.NoError(t, err)
+	writeArtifactFile(t, root, "output/video.mp4", "not a video file")
+	writeArtifactDeclaration(t, root, "video.json", `{
+		"schema_version":"agentsmesh.agent-workbench.artifact/v1",
+		"artifact_id":"video",
+		"revision":1,
+		"role":"video",
+		"primary_representation_id":"playable",
+		"producer":{"namespace":"seedance","type":"video.generate","id":"task-1"},
+		"representations":[
+			{"representation_id":"playable","path":"output/video.mp4","media_type":"video/mp4"}
+		]
+	}`)
+
+	_, err = observer.Scan()
+
+	require.ErrorContains(t, err, `workspace path "output/video.mp4" is not a valid MP4 file`)
+}
+
+func TestArtifactObserverRejectsMP4WithoutVideoTrack(t *testing.T) {
+	root := t.TempDir()
+	observer, err := NewArtifactObserver(root)
+	require.NoError(t, err)
+	writeArtifactFile(
+		t,
+		root,
+		"output/video.mp4",
+		"\x00\x00\x00\x18ftypisom\x00\x00\x02\x00isomiso2"+
+			"\x00\x00\x00\x08moov\x00\x00\x00\x0cmdatdata",
+	)
+	writeArtifactDeclaration(t, root, "video.json", `{
+		"schema_version":"agentsmesh.agent-workbench.artifact/v1",
+		"artifact_id":"video",
+		"revision":1,
+		"role":"video",
+		"primary_representation_id":"playable",
+		"producer":{"namespace":"seedance","type":"video.generate","id":"task-1"},
+		"representations":[
+			{"representation_id":"playable","path":"output/video.mp4","media_type":"video/mp4"}
+		],
+		"manifest":{
+			"kind":"video",
+			"stage":"ready",
+			"playable_representation_id":"playable"
+		}
+	}`)
+
+	_, err = observer.Scan()
+
+	require.ErrorContains(t, err, `workspace path "output/video.mp4" is not a valid MP4 file`)
 }
 
 func TestArtifactObserverRequiresDeclaredRevisionIncrement(t *testing.T) {
@@ -261,6 +365,16 @@ func writeArtifactFile(t *testing.T, root, relative, content string) {
 	path := filepath.Join(root, filepath.FromSlash(relative))
 	require.NoError(t, os.MkdirAll(filepath.Dir(path), 0o755))
 	require.NoError(t, os.WriteFile(path, []byte(content), 0o644))
+}
+
+func validMP4Fixture(payload string) string {
+	mediaSize := string([]byte{0, 0, 0, byte(8 + len(payload))})
+	return "\x00\x00\x00\x18ftypisom\x00\x00\x02\x00isomiso2" +
+		"\x00\x00\x00\x2cmoov" +
+		"\x00\x00\x00\x24trak" +
+		"\x00\x00\x00\x1cmdia" +
+		"\x00\x00\x00\x14hdlr\x00\x00\x00\x00\x00\x00\x00\x00vide" +
+		mediaSize + "mdat" + payload
 }
 
 func writeArtifactDeclaration(t *testing.T, root, name, content string) {

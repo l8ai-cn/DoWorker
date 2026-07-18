@@ -78,7 +78,7 @@ func (s *SandboxFsService) Exec(ctx context.Context, runnerID int64, cmd *runner
 }
 
 func sandboxFsCommandTimeout(op string) time.Duration {
-	if op == "upload" {
+	if op == "upload" || op == "read_verified_bytes" {
 		return SandboxFsUploadTimeout
 	}
 	return SandboxFsTimeout

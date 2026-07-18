@@ -16,13 +16,16 @@ import type {
   AgentSessionRuntime,
   AgentSessionSnapshot,
 } from "./contracts";
+import type { AgentWorkspacePresentation } from "./userWorkspacePresentation";
 
 export function ConversationComposer({
   onError,
+  presentation,
   runtime,
   snapshot,
 }: {
   onError: (error: unknown) => void;
+  presentation: AgentWorkspacePresentation;
   runtime: AgentSessionRuntime;
   snapshot: AgentSessionSnapshot;
 }) {
@@ -89,13 +92,15 @@ export function ConversationComposer({
   return (
     <form className="shrink-0 px-3 pb-3 pt-2" onSubmit={submit}>
       <div className="relative mx-auto w-full max-w-4xl rounded-lg border border-border bg-card shadow-sm transition-colors focus-within:border-ring">
-        <ComposerCommandMenu
-          commands={snapshot.commands ?? []}
-          onSelect={(command) =>
-            setValue(`${command.label}${command.requiresArgument ? " " : ""}`)
-          }
-          query={commandQuery(value)}
-        />
+        {presentation === "developer" && (
+          <ComposerCommandMenu
+            commands={snapshot.commands ?? []}
+            onSelect={(command) =>
+              setValue(`${command.label}${command.requiresArgument ? " " : ""}`)
+            }
+            query={commandQuery(value)}
+          />
+        )}
         <textarea
           aria-label={text.messageAgent}
           className="min-h-24 max-h-56 w-full resize-none bg-transparent px-4 pb-2 pt-3 text-sm leading-6 outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-60"
@@ -111,11 +116,15 @@ export function ConversationComposer({
           value={value}
         />
         <div className="flex min-h-11 items-end justify-between gap-2 px-2 pb-2">
-          <ComposerCapabilityBar
-            onError={onError}
-            runtime={runtime}
-            snapshot={snapshot}
-          />
+          {presentation === "developer" ? (
+            <ComposerCapabilityBar
+              onError={onError}
+              runtime={runtime}
+              snapshot={snapshot}
+            />
+          ) : (
+            <span />
+          )}
           {showInterrupt ? (
             <button
               aria-label={text.stopAgent}

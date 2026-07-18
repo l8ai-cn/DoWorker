@@ -89,9 +89,13 @@ function EmbeddedAgentWorkspaceContent({
         if (active) setWorkbench(result);
         else result.runtime.close(sessionId);
       },
-      (cause) => {
+      () => {
         if (active) {
-          setError(cause instanceof Error ? cause.message : String(cause));
+          setError(
+            locale === "zh-CN"
+              ? "Worker 会话连接失败，请稍后重试"
+              : "Failed to connect to the Worker session. Please try again.",
+          );
         }
       },
     );
@@ -99,7 +103,7 @@ function EmbeddedAgentWorkspaceContent({
       active = false;
       opened?.runtime.close(sessionId);
     };
-  }, [baseUrl, fetch, getAccessToken, orgSlug, sessionId]);
+  }, [baseUrl, fetch, getAccessToken, locale, orgSlug, sessionId]);
 
   if (error) {
     return <WorkspaceState message={error} role="alert" />;
@@ -113,6 +117,7 @@ function EmbeddedAgentWorkspaceContent({
         clientLabel="agent-workspace-iframe"
         contentRenderers={contentRenderers ?? builtinContentRenderers}
         locale={locale}
+        presentation="user"
         runtime={workbench.runtime}
         sessionId={sessionId}
         terminalRuntime={workbench.terminalRuntime}
