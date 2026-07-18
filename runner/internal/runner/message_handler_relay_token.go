@@ -2,12 +2,7 @@ package runner
 
 import "fmt"
 
-func (h *RunnerMessageHandler) refreshRelayToken(podKey, relayURL, token string) error {
-	pod, ok := h.podStore.Get(podKey)
-	if !ok {
-		return fmt.Errorf("pod not found: %s", podKey)
-	}
-
+func refreshRelayToken(pod *Pod, relayURL, token string) error {
 	pod.LockRelay()
 	defer pod.UnlockRelay()
 	relayClient := pod.RelayClient

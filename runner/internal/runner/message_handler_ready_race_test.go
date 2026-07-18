@@ -52,6 +52,7 @@ func TestRelayReadySerializesDifferentRelayChanges(t *testing.T) {
 		started:    started,
 		release:    release,
 	}
+	second := relay.NewMockClient("wss://relay-two.example")
 	h.relayClientFactory = func(
 		url, _, _ string,
 		_ *slog.Logger,
@@ -59,7 +60,7 @@ func TestRelayReadySerializesDifferentRelayChanges(t *testing.T) {
 		if url == "wss://relay-one.example" {
 			return first
 		}
-		return relay.NewMockClient(url)
+		return second
 	}
 
 	firstResult := make(chan error, 1)
@@ -93,8 +94,14 @@ func TestRelayReadySerializesDifferentRelayChanges(t *testing.T) {
 	if err := <-secondResult; err != nil {
 		t.Fatalf("second subscription failed: %v", err)
 	}
-	if got := pod.GetRelayClient().GetRelayURL(); got != "wss://relay-two.example" {
-		t.Fatalf("active relay = %q, want relay two", got)
+	if got := first.GetToken(); got != "first-token" {
+		t.Fatalf("first relay token = %q, want first-token", got)
+	}
+	if got := pod.GetRelayClient(); got != second {
+		t.Fatalf("active relay = %T %p, want relay two %p", got, got, second)
+	}
+	if got := second.GetToken(); got != "second-token" {
+		t.Fatalf("second relay token = %q, want second-token", got)
 	}
 }
 

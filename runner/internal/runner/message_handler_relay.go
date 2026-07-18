@@ -21,27 +21,29 @@ func (h *RunnerMessageHandler) OnSubscribePod(req client.SubscribePodRequest) er
 	relayURL := h.runner.GetConfig().RewriteRelayURL(req.RelayURL)
 	req.RelayURL = relayURL
 
+	pod, ok := h.podStore.Get(req.PodKey)
+	if !ok {
+		return fmt.Errorf("pod not found: %s", req.PodKey)
+	}
+	pod.LockRelaySubscription()
+	defer pod.UnlockRelaySubscription()
+
 	_, err, _ := h.relaySubscriptions.Do(req.PodKey+"\x00"+relayURL, func() (any, error) {
-		return nil, h.subscribePod(req)
+		return nil, h.subscribePod(pod, req)
 	})
 	if err != nil {
 		return err
 	}
-	return h.refreshRelayToken(req.PodKey, relayURL, req.RunnerToken)
+	return refreshRelayToken(pod, relayURL, req.RunnerToken)
 }
 
-func (h *RunnerMessageHandler) subscribePod(req client.SubscribePodRequest) error {
+func (h *RunnerMessageHandler) subscribePod(pod *Pod, req client.SubscribePodRequest) error {
 	log := logger.Pod()
 	relayURL := req.RelayURL
 
 	log.Info("Subscribing to pod via Relay",
 		"pod_key", req.PodKey,
 		"relay_url", relayURL)
-
-	pod, ok := h.podStore.Get(req.PodKey)
-	if !ok {
-		return fmt.Errorf("pod not found: %s", req.PodKey)
-	}
 
 	// Reject subscribe for pods in terminal states. Initializing pods are
 	// allowed — backend may send subscribe_pod before the process starts.
@@ -50,9 +52,6 @@ func (h *RunnerMessageHandler) subscribePod(req client.SubscribePodRequest) erro
 			"pod_key", req.PodKey, "status", status)
 		return fmt.Errorf("pod is not active: %s", status)
 	}
-
-	pod.LockRelaySubscription()
-	defer pod.UnlockRelaySubscription()
 
 	log.Debug("Pod interaction mode", "pod_key", req.PodKey, "mode", pod.InteractionMode)
 
