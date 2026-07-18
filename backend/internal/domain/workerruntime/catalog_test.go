@@ -20,14 +20,16 @@ func TestDefaultCatalogExposesImmutableRuntimeSelections(t *testing.T) {
 		assert.Regexp(t, regexp.MustCompile(`^sha256:[a-f0-9]{64}$`), image.Digest)
 		assert.True(t, strings.HasSuffix(image.Reference, "@"+image.Digest))
 	}
-	assert.False(t, allImages[0].Enabled)
+	assert.True(t, allImages[0].Enabled)
 	assert.False(t, allImages[1].Enabled)
 	assert.False(t, allImages[2].Enabled)
 	assert.True(t, allImages[3].Enabled)
 	assert.True(t, allImages[4].Enabled)
 
 	images := catalog.ImagesFor("codex-cli")
-	require.NotEmpty(t, images)
+	require.Len(t, images, 1)
+	assert.Equal(t, "codex-cli-stable", images[0].Slug)
+	assert.True(t, images[0].Enabled)
 	videoImages := catalog.ImagesFor("video-studio")
 	require.Len(t, videoImages, 1)
 	assert.Equal(t, int64(4), videoImages[0].ID)

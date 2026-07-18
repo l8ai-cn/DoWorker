@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "runtimeCatalogRevision": "runtime-catalog-2026-07-16-61b505bd1dcd",
+  "runtimeCatalogRevision": "runtime-catalog-2026-07-18-854952254d5f",
   "workers": [
     {
       "slug": "aider",
@@ -145,10 +145,10 @@
       "configDocuments": [],
       "runtimeImage": {
         "name": "Codex CLI",
-        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1",
-        "availability": "invalid_published_digest"
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:854952254d5f7ce25db3258034bc71a07169a5730dfe0670243fc10ea437bacd",
+        "availability": "locked_available"
       },
-      "validationStatus": "local_evidence_release_blocked"
+      "validationStatus": "runtime_ready_unverified"
     },
     {
       "slug": "cursor-cli",
