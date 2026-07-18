@@ -1,14 +1,14 @@
 {
   "branch": "main",
-  "commit": "61b505bd1dcd4fb02c1d4c8bff603b59bcd36a6d",
+  "commit": "4d360b8329b92b0acbad2794f499c891abdecc07",
   "images": {
-    "backend": "61b505bd1dcd4fb02c1d4c8bff603b59bcd36a6d",
-    "marketplace": "61b505bd1dcd4fb02c1d4c8bff603b59bcd36a6d",
-    "marketplace-web": "61b505bd1dcd4fb02c1d4c8bff603b59bcd36a6d",
-    "relay": "61b505bd1dcd4fb02c1d4c8bff603b59bcd36a6d",
-    "web": "61b505bd1dcd4fb02c1d4c8bff603b59bcd36a6d",
-    "web-admin": "61b505bd1dcd4fb02c1d4c8bff603b59bcd36a6d",
-    "mobile": "61b505bd1dcd4fb02c1d4c8bff603b59bcd36a6d",
+    "backend": "4d360b8329b92b0acbad2794f499c891abdecc07",
+    "marketplace": "4d360b8329b92b0acbad2794f499c891abdecc07",
+    "marketplace-web": "4d360b8329b92b0acbad2794f499c891abdecc07",
+    "relay": "4d360b8329b92b0acbad2794f499c891abdecc07",
+    "web": "4d360b8329b92b0acbad2794f499c891abdecc07",
+    "web-admin": "4d360b8329b92b0acbad2794f499c891abdecc07",
+    "mobile": "4d360b8329b92b0acbad2794f499c891abdecc07",
     "runner-do-agent": "61b505bd1dcd4fb02c1d4c8bff603b59bcd36a6d",
     "runner-video-studio": "61b505bd1dcd4fb02c1d4c8bff603b59bcd36a6d"
   }
