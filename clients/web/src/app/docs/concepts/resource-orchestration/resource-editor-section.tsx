@@ -21,7 +21,7 @@ export function ResourceEditorSection() {
 
   return (
     <>
-      <section className="mb-12">
+      <section id="yaml" className="mb-12 scroll-mt-24">
         <h2 className="text-2xl font-semibold text-foreground">
           {t("editorTitle")}
         </h2>
@@ -39,6 +39,9 @@ export function ResourceEditorSection() {
         <h3 className="mt-8 text-lg font-semibold text-foreground">
           {t("yamlTitle")}
         </h3>
+        <p className="mt-3 max-w-3xl leading-relaxed text-muted-foreground">
+          {t("yamlLimits")}
+        </p>
         <pre className="mt-4 overflow-x-auto rounded-lg bg-surface-muted p-4 text-sm text-foreground">
           <code>{yamlExample}</code>
         </pre>

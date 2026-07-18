@@ -7,6 +7,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 )
 
@@ -44,6 +45,7 @@ func validateWorkerTemplate(metadata Metadata, spec *WorkerTemplateSpec) error {
 		"tool role",
 		KindToolBinding,
 		spec.ToolRefs,
+		slugkit.Validate,
 	); err != nil {
 		return err
 	}
@@ -124,6 +126,7 @@ func validateWorkerTypeConfig(
 		"secret config field",
 		KindEnvironmentBundle,
 		config.SecretRefs,
+		workerspec.ValidateConfigField,
 	)
 }
 
@@ -134,8 +137,8 @@ func validateWorkerConfigKeys(field string, values map[string]any) error {
 	}
 	sort.Strings(keys)
 	for _, key := range keys {
-		if err := slugkit.Validate(key); err != nil {
-			return fmt.Errorf("%s %q: %w", field, key, err)
+		if err := workerspec.ValidateConfigField(key); err != nil {
+			return fmt.Errorf("%s is invalid", field)
 		}
 	}
 	return nil
@@ -147,6 +150,7 @@ func validateWorkerReferenceMap(
 	keyField string,
 	expectedKind string,
 	references map[string]Reference,
+	validateKey func(string) error,
 ) error {
 	keys := make([]string, 0, len(references))
 	for key := range references {
@@ -155,11 +159,11 @@ func validateWorkerReferenceMap(
 	sort.Strings(keys)
 	fields := make([]workerReferenceField, 0, len(keys))
 	for _, key := range keys {
-		if err := slugkit.Validate(key); err != nil {
-			return fmt.Errorf("%s %q: %w", keyField, key, err)
+		if err := validateKey(key); err != nil {
+			return fmt.Errorf("%s is invalid", keyField)
 		}
 		fields = append(fields, workerReferenceField{
-			path: fmt.Sprintf("%s[%q]", field, key),
+			path: field + "[map value]",
 			ref:  references[key],
 		})
 	}

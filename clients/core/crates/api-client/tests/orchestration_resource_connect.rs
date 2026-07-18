@@ -81,17 +81,40 @@ async fn orchestration_resource_methods_use_expected_connect_procedures() {
     )
     .await;
 
+    let capabilities_request = resource::GetResourceCapabilitiesRequest {
+        org_slug: "acme".into(),
+        target: Some(sample_target("Widget")),
+    };
+    let capabilities_response = resource::GetResourceCapabilitiesResponse {
+        target: Some(sample_target("Widget")),
+        capabilities: Some(resource::ResourceCapabilities {
+            exists: true,
+            can_view_source: true,
+            can_reference: true,
+            can_plan: false,
+        }),
+    };
+    mount(
+        &server,
+        "/proto.orchestration_resource.v1.OrchestrationResourceService/GetResourceCapabilities",
+        capabilities_request.encode_to_vec(),
+        capabilities_response.encode_to_vec(),
+    )
+    .await;
+
     let list_request = resource::ListResourcesRequest {
         org_slug: "acme".into(),
-        kind: Some("Widget".into()),
+        kind: Some("EnvironmentBundle".into()),
         offset: Some(0),
         limit: Some(10),
+        environment_bundle_filter: Some(environment_bundle_filter()),
     };
     let list_response = resource::ListResourcesResponse {
         items: vec![sample_resource()],
         total: 1,
         limit: 10,
         offset: 0,
+        applied_environment_bundle_filter: Some(environment_bundle_filter()),
     };
     mount(
         &server,
@@ -195,14 +218,30 @@ async fn orchestration_resource_methods_use_expected_connect_procedures() {
         client.get_resource_connect(&get_request).await.unwrap().id,
         42
     );
-    assert_eq!(
+    assert!(
         client
-            .list_resources_connect(&list_request)
+            .get_resource_capabilities_connect(&capabilities_request)
             .await
             .unwrap()
-            .items[0]
-            .display_name,
-        "Widget One"
+            .capabilities
+            .unwrap()
+            .can_view_source
+    );
+    let list_response = client.list_resources_connect(&list_request).await.unwrap();
+    assert_eq!(list_response.items[0].display_name, "Widget One");
+    assert_eq!(
+        list_response
+            .applied_environment_bundle_filter
+            .as_ref()
+            .map(|filter| filter.worker_type.as_str()),
+        Some("do-agent")
+    );
+    assert_eq!(
+        list_response
+            .applied_environment_bundle_filter
+            .as_ref()
+            .map(|filter| filter.target_name.as_str()),
+        Some("DO_API_KEY")
     );
     assert_eq!(
         client
@@ -253,6 +292,14 @@ async fn mount(server: &MockServer, procedure: &'static str, request: Vec<u8>, r
         .respond_with(ResponseTemplate::new(200).set_body_bytes(response))
         .mount(server)
         .await;
+}
+
+fn environment_bundle_filter() -> resource::EnvironmentBundleReferenceFilter {
+    resource::EnvironmentBundleReferenceFilter {
+        purpose: resource::EnvironmentBundlePurpose::Credential as i32,
+        worker_type: "do-agent".into(),
+        target_name: "DO_API_KEY".into(),
+    }
 }
 
 fn sample_source() -> resource::ResourceSource {

@@ -7,6 +7,7 @@ import type {
   ResourceDraft,
   ResourceEditorKind,
 } from "./resource-editor-types";
+import { assertCanonicalResourceDraft } from "./canonical-resource-draft-validation";
 
 const MAX_DOCUMENT_BYTES = 256 * 1024;
 const MAX_LINE_BYTES = 64 * 1024;
@@ -56,7 +57,7 @@ export function parseCanonicalResourceJson(
   expectedKind: ResourceEditorKind,
 ): ResourceDraft {
   const value = JSON.parse(new TextDecoder().decode(content)) as unknown;
-  return assertResourceDraft(value, expectedKind);
+  return assertCanonicalResourceDraft(value, expectedKind);
 }
 
 function enforceSourceLimits(source: string): void {

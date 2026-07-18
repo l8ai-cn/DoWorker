@@ -8,6 +8,23 @@ import (
 )
 
 func (s *Service) ResolveExact(ctx context.Context, actor Actor, orgID, resourceID int64, required ResolutionRequirements) (*ResolvedResource, error) {
+	resolved, err := s.resolveMetadata(ctx, actor, orgID, resourceID, required)
+	if err != nil {
+		return nil, err
+	}
+	credentials, err := s.decryptCredentials(&resolved.Connection)
+	if err != nil {
+		return nil, err
+	}
+	resolved.Credentials = credentials
+	return resolved, nil
+}
+
+func (s *Service) ResolveMetadata(ctx context.Context, actor Actor, orgID, resourceID int64, required ResolutionRequirements) (*ResolvedResource, error) {
+	return s.resolveMetadata(ctx, actor, orgID, resourceID, required)
+}
+
+func (s *Service) resolveMetadata(ctx context.Context, actor Actor, orgID, resourceID int64, required ResolutionRequirements) (*ResolvedResource, error) {
 	if err := validateResolutionRequirements(required); err != nil {
 		return nil, err
 	}
@@ -54,11 +71,7 @@ func (s *Service) ResolveExact(ctx context.Context, actor Actor, orgID, resource
 	if err := s.endpoints.Validate(ctx, connection.BaseURL); err != nil {
 		return nil, ErrInvalidEndpoint
 	}
-	credentials, err := s.decryptCredentials(connection)
-	if err != nil {
-		return nil, err
-	}
-	return &ResolvedResource{Provider: provider, Connection: *connection, Resource: *resource, Credentials: credentials}, nil
+	return &ResolvedResource{Provider: provider, Connection: *connection, Resource: *resource}, nil
 }
 
 func (s *Service) EnsureSelectable(ctx context.Context, actor Actor, orgID, resourceID int64) error {

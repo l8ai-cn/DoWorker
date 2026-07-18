@@ -49,6 +49,11 @@ func TestServiceListOptionsReturnsSelectableRuntimeAndBlockingReasons(t *testing
 	assert.Equal(t, runtimedomain.DefaultCatalogRevision(), options.Revision)
 	require.Len(t, options.WorkerTypes, 2)
 	assert.True(t, options.WorkerTypes[0].Selectable)
+	assert.Equal(
+		t,
+		[]string{"openai-compatible"},
+		options.WorkerTypes[0].ModelProtocolAdapters,
+	)
 	assert.False(t, options.WorkerTypes[1].Selectable)
 	assert.Contains(t, options.WorkerTypes[1].BlockingReason, "runtime image")
 	require.Len(t, options.RuntimeImages, 1)

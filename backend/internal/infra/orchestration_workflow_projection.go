@@ -141,6 +141,8 @@ func workflowProjectionUpdates(record orchestrationWorkflowRecord) map[string]an
 		"callback_url":        record.CallbackURL, "next_run_at": record.NextRunAt,
 		"worker_spec_snapshot_id":         record.WorkerSpecSnapshotID,
 		"orchestration_resource_revision": record.OrchestrationResourceRevision,
+		"last_pod_key":                    nil,
+		"sandbox_path":                    nil,
 		"updated_at":                      record.UpdatedAt,
 	}
 }

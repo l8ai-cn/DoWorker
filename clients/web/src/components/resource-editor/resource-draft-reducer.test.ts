@@ -2,8 +2,11 @@ import { create } from "@bufbuild/protobuf";
 import { describe, expect, it } from "vitest";
 import {
   PlanResourceResponseSchema,
+} from "@proto/orchestration_resource/v1/orchestration_resource_queries_pb";
+import {
+  PlanStatus,
   ResourceOperation,
-} from "@proto/orchestration_resource/v1/orchestration_resource_pb";
+} from "@proto/orchestration_resource/v1/orchestration_resource_types_pb";
 import {
   createResourceDraftState,
   resourceDraftCanApply,
@@ -25,8 +28,14 @@ describe("resource draft reducer", () => {
       version: 0,
       response: create(PlanResourceResponseSchema, {
         operation: ResourceOperation.CREATE,
-        plan: { planId: "plan-1", expiresAt: "2099-01-01T00:00:00Z" },
+        plan: {
+          planId: "plan-1",
+          expiresAt: "2099-01-01T00:00:00Z",
+          status: PlanStatus.PENDING,
+        },
       }),
+      draft: initial.draft,
+      sourceText: "kind: WorkerTemplate\n",
     });
 
     expect(resourceDraftCanApply(ready)).toBe(true);
@@ -54,12 +63,20 @@ describe("resource draft reducer", () => {
       requestId: "plan-request",
       version: 0,
       response: create(PlanResourceResponseSchema, {
-        plan: { planId: "plan-1", expiresAt: "2099-01-01T00:00:00Z" },
+        plan: {
+          planId: "plan-1",
+          expiresAt: "2099-01-01T00:00:00Z",
+          status: PlanStatus.PENDING,
+        },
       }),
+      draft: initial.draft,
+      sourceText: "kind: WorkerTemplate\n",
     });
 
     const expired = resourceDraftReducer(ready, { type: "plan_expired" });
     expect(expired.plan.status).toBe("expired");
+    if (expired.plan.status !== "expired") throw new Error("Plan did not expire");
+    expect(expired.plan.response.plan?.planId).toBe("plan-1");
     expect(resourceDraftCanApply(expired)).toBe(false);
   });
 
@@ -84,6 +101,8 @@ describe("resource draft reducer", () => {
       response: create(PlanResourceResponseSchema, {
         plan: { planId: "stale-plan" },
       }),
+      draft: initial.draft,
+      sourceText: "kind: WorkerTemplate\n",
     });
 
     expect(stale).toBe(changed);
@@ -127,5 +146,75 @@ describe("resource draft reducer", () => {
     expect(parsed.draft.metadata.name).toBe("yaml-reviewer");
     expect(parsed.source.error).toBeNull();
     expect(parsed.source.dirty).toBe(false);
+  });
+
+  it("atomically adopts the canonical draft and source with the plan", () => {
+    const initial = createResourceDraftState(createWorkerTemplateDraft("acme"));
+    const planning = resourceDraftReducer(initial, {
+      type: "plan_loading",
+      requestId: "plan-request",
+      version: 0,
+    });
+    const canonicalDraft = {
+      ...initial.draft,
+      metadata: {
+        ...initial.draft.metadata,
+        name: "canonical-reviewer",
+        displayName: "Canonical reviewer",
+      },
+    };
+    const ready = resourceDraftReducer(planning, {
+      type: "plan_succeeded",
+      requestId: "plan-request",
+      version: 0,
+      response: create(PlanResourceResponseSchema, {
+        plan: {
+          planId: "canonical-plan",
+          expiresAt: "2099-01-01T00:00:00Z",
+          status: PlanStatus.PENDING,
+        },
+      }),
+      draft: canonicalDraft,
+      sourceText: "metadata:\n  name: canonical-reviewer\n",
+    });
+
+    expect(ready.draft).toBe(canonicalDraft);
+    expect(ready.source).toEqual({
+      text: "metadata:\n  name: canonical-reviewer\n",
+      dirty: false,
+      error: null,
+    });
+    expect(ready.mode).toBe("plan");
+    expect(resourceDraftCanApply(ready)).toBe(true);
+  });
+
+  it.each([
+    PlanStatus.UNSPECIFIED,
+    PlanStatus.APPLIED,
+    PlanStatus.CANCELLED,
+    PlanStatus.EXPIRED,
+  ])("does not apply terminal or unavailable protocol status %s", (status) => {
+    const initial = createResourceDraftState(createWorkerTemplateDraft("acme"));
+    const planning = resourceDraftReducer(initial, {
+      type: "plan_loading",
+      requestId: "plan-request",
+      version: 0,
+    });
+    const ready = resourceDraftReducer(planning, {
+      type: "plan_succeeded",
+      requestId: "plan-request",
+      version: 0,
+      response: create(PlanResourceResponseSchema, {
+        plan: {
+          planId: "terminal-plan",
+          expiresAt: "2099-01-01T00:00:00Z",
+          status,
+        },
+      }),
+      draft: initial.draft,
+      sourceText: "kind: WorkerTemplate\n",
+    });
+
+    expect(resourceDraftCanApply(ready)).toBe(false);
   });
 });

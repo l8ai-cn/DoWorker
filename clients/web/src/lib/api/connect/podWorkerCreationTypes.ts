@@ -9,6 +9,26 @@ export interface WorkerKnowledgeMount {
   mode: string;
 }
 
+export interface WorkerConfigDocumentBinding {
+  document_id: string;
+  config_bundle_id: number;
+}
+
+export interface WorkerCredentialRequirement {
+  id: string;
+  source_kind: string;
+  source_ref: string;
+  target_kind: string;
+  target_name: string;
+}
+
+export interface WorkerConfigDocumentRequirement {
+  document_id: string;
+  format: string;
+  target_path: string;
+  required: boolean;
+}
+
 export interface WorkerResourceRequest {
   cpu_request_millicpu: number;
   cpu_limit_millicpu: number;
@@ -38,7 +58,7 @@ export interface WorkerSpecDraft {
   skill_ids: number[];
   knowledge_mounts: WorkerKnowledgeMount[];
   env_bundle_ids: number[];
-  config_bundle_ids: number[];
+  config_document_bindings: WorkerConfigDocumentBinding[];
   instructions: string;
   initial_task: string;
   termination_policy: string;
@@ -64,7 +84,10 @@ export interface WorkerTypeOption {
   config_schema: Record<string, unknown>;
   supported_interaction_modes: string[];
   requires_model_resource: boolean;
+  model_protocol_adapters: string[];
   tool_model_requirements: WorkerToolModelRequirement[];
+  credential_requirements: WorkerCredentialRequirement[];
+  config_document_requirements: WorkerConfigDocumentRequirement[];
   selectable: boolean;
   blocking_reason: string;
 }

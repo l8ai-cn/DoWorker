@@ -9,6 +9,7 @@ import { readCurrentOrg } from "@/stores/auth";
 import {
   agentRequiresModelResource,
   compatibleModelResources,
+  type WorkerModelResourceRequirement,
 } from "../CreatePodForm/workerModelResources";
 
 export function requiresModelResource(agentSlug: string | null | undefined): boolean {
@@ -19,6 +20,7 @@ export function useWorkerModelResources(
   agentSlug: string | null | undefined,
   initialModelResourceId: number | null = null,
   includeToolModels = false,
+  requirement?: WorkerModelResourceRequirement,
 ) {
   const [resources, setResources] = useState<EffectiveResource[]>([]);
   const [toolResources, setToolResources] = useState<EffectiveResource[]>([]);
@@ -27,10 +29,13 @@ export function useWorkerModelResources(
   const [loadedAgentSlug, setLoadedAgentSlug] = useState("");
   const [selectedModelResourceId, setSelectedModelResourceId] = useState<number | null>(null);
   const requestAgentSlug = agentSlug ?? "";
+  const usesDefinitionRequirement = requirement !== undefined;
+  const modelRequired = requirement?.required ?? requiresModelResource(agentSlug);
+  const protocolAdapterKey = requirement?.protocolAdapters.join(",") ?? "";
 
   useEffect(() => {
     setSelectedModelResourceId(initialModelResourceId);
-    if (!requiresModelResource(agentSlug)) {
+    if (!modelRequired) {
       setResources([]);
       setToolResources([]);
       setError(null);
@@ -58,7 +63,22 @@ export function useWorkerModelResources(
         ]);
         if (cancelled) return;
         const deduped = dedupeResources(effective);
-        setResources(compatibleModelResources(agentSlug ?? null, deduped, catalog));
+        const definitionRequirement = usesDefinitionRequirement
+          ? {
+            required: modelRequired,
+            protocolAdapters: protocolAdapterKey
+              ? protocolAdapterKey.split(",")
+              : [],
+          }
+          : undefined;
+        setResources(
+          compatibleModelResources(
+            agentSlug ?? null,
+            deduped,
+            catalog,
+            definitionRequirement,
+          ),
+        );
         setToolResources(includeToolModels ? deduped : []);
       } catch (err) {
         if (cancelled) return;
@@ -77,7 +97,15 @@ export function useWorkerModelResources(
     return () => {
       cancelled = true;
     };
-  }, [agentSlug, includeToolModels, initialModelResourceId, requestAgentSlug]);
+  }, [
+    agentSlug,
+    includeToolModels,
+    initialModelResourceId,
+    modelRequired,
+    protocolAdapterKey,
+    requestAgentSlug,
+    usesDefinitionRequirement,
+  ]);
 
   const current = loadedAgentSlug === requestAgentSlug;
   const visibleResources = current ? resources : [];
@@ -89,7 +117,7 @@ export function useWorkerModelResources(
     modelResources: visibleResources,
     toolModelResources: current ? toolResources : [],
     loadingModelResources:
-      requiresModelResource(agentSlug) && (!current || loading),
+      modelRequired && (!current || loading),
     modelResourceError: current ? error : null,
     selectedModelResource,
     selectedModelResourceId,

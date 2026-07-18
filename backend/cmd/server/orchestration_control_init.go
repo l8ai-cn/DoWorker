@@ -89,7 +89,8 @@ func initializeOrchestrationControl(
 	control, err := controlservice.NewService(controlservice.ServiceDeps{
 		Registry: registry, Repository: repository,
 		Authorizer: authorizer, References: references,
-		Planners: planners, RequiredTypes: required,
+		WorkerDefinitions: workerCreation,
+		Planners:          planners, RequiredTypes: required,
 		Clock: time.Now, IDGenerator: uuid.NewString,
 		PlanTTL: orchestrationPlanTTL,
 	})

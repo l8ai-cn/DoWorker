@@ -14,6 +14,7 @@ import {
 import type { WorkerTemplateKnowledgeMount } from "./resource-editor-types";
 import type { ResourceReferenceCatalog } from "./resource-reference-options";
 import { ResourceReferenceField } from "./ResourceReferenceField";
+import { useResourceEditorRowKeys } from "./use-resource-editor-row-keys";
 
 interface WorkerTemplateKnowledgeMountsFieldProps {
   value: WorkerTemplateKnowledgeMount[];
@@ -27,6 +28,7 @@ export function WorkerTemplateKnowledgeMountsField({
   onChange,
 }: WorkerTemplateKnowledgeMountsFieldProps) {
   const t = useTranslations("resourceEditor");
+  const rows = useResourceEditorRowKeys(value.length);
   const replace = (
     index: number,
     next: WorkerTemplateKnowledgeMount,
@@ -43,10 +45,13 @@ export function WorkerTemplateKnowledgeMountsField({
           size="icon"
           title={t("collections.add")}
           aria-label={`${t("collections.add")} ${t("fields.knowledgeMounts")}`}
-          onClick={() => onChange([
-            ...value,
-            { ref: { kind: "KnowledgeBase", name: "" }, mode: "ro" },
-          ])}
+          onClick={() => {
+            rows.appendKey();
+            onChange([
+              ...value,
+              { ref: { kind: "KnowledgeBase", name: "" }, mode: "ro" },
+            ]);
+          }}
         >
           <Plus className="h-4 w-4" />
         </Button>
@@ -56,7 +61,7 @@ export function WorkerTemplateKnowledgeMountsField({
       )}
       {value.map((mount, index) => (
         <div
-          key={`${mount.ref.name}-${index}`}
+          key={rows.keys[index]}
           className="grid gap-3 border-l-2 border-border pl-3 md:grid-cols-[minmax(0,1fr)_8rem_2.5rem]"
         >
           <ResourceReferenceField
@@ -90,9 +95,10 @@ export function WorkerTemplateKnowledgeMountsField({
             className="self-start md:mt-7"
             title={t("collections.remove")}
             aria-label={`${t("collections.remove")} ${index + 1}`}
-            onClick={() => onChange(
-              value.filter((_, item) => item !== index),
-            )}
+            onClick={() => {
+              rows.removeKey(index);
+              onChange(value.filter((_, item) => item !== index));
+            }}
           >
             <Trash2 className="h-4 w-4" />
           </Button>

@@ -8,9 +8,10 @@ import (
 )
 
 type ResourceListFilter struct {
-	Kind   string
-	Limit  int
-	Offset int
+	Kind              string
+	Limit             int
+	Offset            int
+	EnvironmentBundle *EnvironmentBundleReferenceFilter
 }
 
 type ResourceListPage struct {

@@ -39,20 +39,3 @@ func TestWorkflowServicePersistsModelResourceID(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, &replacementID, updated.ModelResourceID)
 }
-
-func TestBuildLoopCreatePodRequestCarriesModelResourceID(t *testing.T) {
-	resourceID := int64(42)
-	workflow := &workflowDomain.Workflow{
-		OrganizationID:     1,
-		AgentSlug:          "claude-code",
-		ModelResourceID:    &resourceID,
-		PromptTemplate:     "run tests",
-		PermissionMode:     "bypassPermissions",
-		SessionPersistence: true,
-	}
-
-	req := buildWorkflowCreatePodRequest(workflow, 9, "PROMPT \"run tests\"", "", true)
-
-	require.Equal(t, &resourceID, req.ModelResourceID)
-	require.NotContains(t, *req.AgentfileLayer, "credential")
-}

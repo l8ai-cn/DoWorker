@@ -73,6 +73,7 @@
       }
     },
     "yamlTitle": "Exemple YAML",
+    "yamlLimits": "La source YAML et le YAML exporté sont limités à 256 Kio par document et 64 Kio par ligne physique. L'analyseur rejette également les documents multiples, alias, ancres, balises personnalisées, entiers non sûrs et structures dépassant les limites de profondeur ou de nœuds prises en charge.",
     "securityTitle": "Limites des Secrets et permissions",
     "securityDescription": "Le YAML décrit des références, jamais des identifiants en clair. namespace identifie la ressource et ne remplace pas l'autorisation.",
     "security": {

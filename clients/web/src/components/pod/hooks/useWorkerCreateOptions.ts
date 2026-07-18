@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { podApi } from "@/lib/api";
 import type {
   WorkerCreateOptions,
   WorkerCreateOptionsFilter,
 } from "@/lib/api/facade/podConnect";
+import { listWorkerCreateOptions } from "@/lib/api/facade/podConnect";
+import { safeServiceErrorMessage } from "@/lib/errors/safeServiceErrorMessage";
 import type { AsyncState } from "./workerCreateDraft";
 
 interface WorkerCreateOptionsSelection {
@@ -19,11 +20,12 @@ interface LoadedWorkerCreateOptions {
 
 export function useWorkerCreateOptions(
   enabled: boolean,
+  orgSlug: string,
   selection: WorkerCreateOptionsSelection,
 ): AsyncState<WorkerCreateOptions> {
   const { workerTypeSlug, computeTargetId, deploymentMode } = selection;
   const requestKey = enabled
-    ? `${workerTypeSlug}:${computeTargetId}:${deploymentMode}`
+    ? `${orgSlug}:${workerTypeSlug}:${computeTargetId}:${deploymentMode}`
     : "disabled";
   const [loaded, setLoaded] = useState<LoadedWorkerCreateOptions>({
     requestKey: "",
@@ -38,7 +40,7 @@ export function useWorkerCreateOptions(
       computeTargetId,
       deploymentMode,
     };
-    void loadOptions(currentSelection)
+    void loadWorkerCreateOptions(orgSlug, currentSelection)
       .then((data) => {
         if (!cancelled) {
           setLoaded({
@@ -51,7 +53,13 @@ export function useWorkerCreateOptions(
         if (!cancelled) {
           setLoaded({
             requestKey,
-            state: { status: "error", error: errorMessage(error) },
+            state: {
+              status: "error",
+              error: safeServiceErrorMessage(
+                error,
+                "Failed to load Worker options",
+              ),
+            },
           });
         }
       });
@@ -62,6 +70,7 @@ export function useWorkerCreateOptions(
     computeTargetId,
     deploymentMode,
     enabled,
+    orgSlug,
     requestKey,
     workerTypeSlug,
   ]);
@@ -72,12 +81,16 @@ export function useWorkerCreateOptions(
     : { status: "loading" };
 }
 
-async function loadOptions(
+export async function loadWorkerCreateOptions(
+  orgSlug: string,
   selection: WorkerCreateOptionsSelection,
 ): Promise<WorkerCreateOptions> {
-  const base = await podApi.listWorkerCreateOptions();
+  const base = await listWorkerCreateOptions(orgSlug);
   if (!hasFilter(selection)) return base;
-  const filtered = await podApi.listWorkerCreateOptions(optionFilter(selection));
+  const filtered = await listWorkerCreateOptions(
+    orgSlug,
+    optionFilter(selection),
+  );
   return mergeOptions(base, filtered);
 }
 
@@ -112,10 +125,4 @@ function mergeOptions(
     deployment_modes: filtered.deployment_modes,
     resource_profiles: base.resource_profiles,
   };
-}
-
-function errorMessage(error: unknown): string {
-  return error instanceof Error
-    ? error.message
-    : "Failed to load Worker options";
 }

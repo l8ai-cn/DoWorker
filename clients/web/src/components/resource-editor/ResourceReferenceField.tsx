@@ -10,7 +10,10 @@ import {
   SelectTrigger,
 } from "@/components/ui/select";
 import type { ResourceReference } from "./resource-editor-types";
-import type { ResourceReferenceCatalog } from "./resource-reference-options";
+import {
+  isResourceReferenceCatalogReadOnly,
+  type ResourceReferenceCatalog,
+} from "./resource-reference-options";
 
 const EMPTY_REFERENCE = "__none__";
 
@@ -18,6 +21,7 @@ interface ResourceReferenceFieldProps {
   id: string;
   label: string;
   kind: string;
+  catalogKey?: string;
   value?: ResourceReference;
   catalog: ResourceReferenceCatalog;
   required?: boolean;
@@ -28,18 +32,26 @@ export function ResourceReferenceField({
   id,
   label,
   kind,
+  catalogKey,
   value,
   catalog,
   required,
   onChange,
 }: ResourceReferenceFieldProps) {
   const t = useTranslations("resourceEditor");
-  const options = (catalog.byKind[kind] ?? []).filter((option) => option.name);
+  const key = catalogKey ?? kind;
+  const options = (catalog.byKind[key] ?? []).filter((option) => option.name);
+  const error = catalog.errorsByKind[key] ?? catalog.error;
   const selected = options.find((option) => option.name === value?.name);
+  const readOnly = isResourceReferenceCatalogReadOnly(
+    catalog,
+    key,
+    value?.name ? [value.name] : [],
+  );
   const hint = catalog.loading
     ? t("references.loading")
-    : catalog.error
-      ? catalog.error
+    : error
+      ? error
       : options.length === 0
         ? t("references.empty", { kind })
         : t("references.available", { count: options.length });
@@ -49,12 +61,12 @@ export function ResourceReferenceField({
       htmlFor={id}
       required={required}
       hint={hint}
-      error={catalog.error ?? undefined}
-  >
+      error={error ?? undefined}
+    >
       <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_7rem]">
         <Select
           value={value?.name ?? ""}
-          disabled={catalog.loading || Boolean(catalog.error) || options.length === 0}
+          disabled={readOnly}
           onValueChange={(name) => {
             if (name === EMPTY_REFERENCE) {
               onChange(undefined);
@@ -67,7 +79,12 @@ export function ResourceReferenceField({
             });
           }}
         >
-          <SelectTrigger id={id} role="combobox" aria-label={label}>
+          <SelectTrigger
+            id={id}
+            role="combobox"
+            aria-label={label}
+            aria-required={required}
+          >
             <span className={value?.name ? "truncate" : "truncate text-muted-foreground"}>
               {selected
                 ? `${selected.displayName || selected.name} · ${selected.name}`
@@ -99,14 +116,17 @@ export function ResourceReferenceField({
           </SelectContent>
         </Select>
         <Input
+          id={`${id}-revision`}
           type="number"
           min={1}
           aria-label={`${label} ${t("fields.revision")}`}
           placeholder={t("fields.revision")}
           value={value?.revision ?? ""}
           disabled={!value?.name}
+          readOnly={readOnly}
+          aria-readonly={readOnly}
           onChange={(event) => {
-            if (!value) return;
+            if (readOnly || !value) return;
             const revision = Number(event.target.value);
             onChange({
               ...value,

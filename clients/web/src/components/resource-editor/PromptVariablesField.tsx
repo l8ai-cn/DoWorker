@@ -7,6 +7,7 @@ import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import type { PromptVariableDraft } from "./resource-editor-types";
+import { useResourceEditorRowKeys } from "./use-resource-editor-row-keys";
 
 interface PromptVariablesFieldProps {
   value: Record<string, PromptVariableDraft>;
@@ -19,6 +20,7 @@ export function PromptVariablesField({
 }: PromptVariablesFieldProps) {
   const t = useTranslations("resourceEditor");
   const entries = Object.entries(value);
+  const rows = useResourceEditorRowKeys(entries.length);
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-3">
@@ -29,10 +31,13 @@ export function PromptVariablesField({
           size="icon"
           title={t("collections.add")}
           aria-label={`${t("collections.add")} ${t("fields.variables")}`}
-          onClick={() => onChange({
-            ...value,
-            [nextVariableName(value)]: { required: false },
-          })}
+          onClick={() => {
+            rows.appendKey();
+            onChange({
+              ...value,
+              [nextVariableName(value)]: { required: false },
+            });
+          }}
         >
           <Plus className="h-4 w-4" />
         </Button>
@@ -42,7 +47,7 @@ export function PromptVariablesField({
       )}
       {entries.map(([name, variable], index) => (
         <div
-          key={`${name}-${index}`}
+          key={rows.keys[index]}
           className="grid gap-3 border-l-2 border-border pl-3 lg:grid-cols-[minmax(0,12rem)_7rem_8rem_minmax(0,1fr)_2.5rem]"
         >
           <FormField label={t("fields.variableName")} required>
@@ -100,9 +105,12 @@ export function PromptVariablesField({
             className="self-start lg:mt-7"
             title={t("collections.remove")}
             aria-label={`${t("collections.remove")} ${name}`}
-            onClick={() => onChange(Object.fromEntries(
-              entries.filter((_, item) => item !== index),
-            ))}
+            onClick={() => {
+              rows.removeKey(index);
+              onChange(Object.fromEntries(
+                entries.filter((_, item) => item !== index),
+              ));
+            }}
           >
             <Trash2 className="h-4 w-4" />
           </Button>

@@ -71,6 +71,63 @@ func TestWorkerCreationCompilerRedactsPreflightMessages(t *testing.T) {
 	assert.Empty(t, result.ArtifactJSON)
 }
 
+func TestWorkerCreationCompilerPreservesHyphenatedToolModelRolePath(t *testing.T) {
+	service := &workerPreflightStub{
+		revision: "runtime-catalog-7",
+		result: workercreation.PreflightResult{
+			BlockingErrors: []workercreation.Issue{{
+				Code: "invalid-draft", Field: "worker_spec.tool_model_resource_ids.seedance-video",
+				Message: "must-not-appear", Severity: "blocking",
+			}},
+			OptionsRevision: "runtime-catalog-7",
+		},
+	}
+	compiler := newWorkerCreationCompiler(service, nil)
+
+	result, err := compiler.Compile(
+		context.Background(),
+		workerTemplateScope(),
+		workercreation.Draft{OptionsRevision: "runtime-catalog-7"},
+	)
+
+	require.NoError(t, err)
+	require.Len(t, result.Issues, 1)
+	assert.Equal(
+		t,
+		"/spec/toolModelResourceIds/seedance-video",
+		result.Issues[0].Path,
+	)
+	assert.NotContains(t, result.Issues[0].Message, "must-not-appear")
+}
+
+func TestWorkerCreationCompilerExplainsIncompatibleModelSelection(t *testing.T) {
+	service := &workerPreflightStub{
+		revision: "runtime-catalog-7",
+		result: workercreation.PreflightResult{
+			BlockingErrors: []workercreation.Issue{{
+				Code: "invalid-draft", Field: "worker_spec.model_resource_id",
+				Message: "provider credential must-not-appear", Severity: "blocking",
+			}},
+			OptionsRevision: "runtime-catalog-7",
+		},
+	}
+	compiler := newWorkerCreationCompiler(service, nil)
+
+	result, err := compiler.Compile(
+		context.Background(),
+		workerTemplateScope(),
+		workercreation.Draft{OptionsRevision: "runtime-catalog-7"},
+	)
+
+	require.NoError(t, err)
+	require.Len(t, result.Issues, 1)
+	assert.Equal(t, "/spec/modelResourceId", result.Issues[0].Path)
+	assert.Equal(t,
+		"The selected model is incompatible with this Worker type.",
+		result.Issues[0].Message,
+	)
+}
+
 func TestWorkerCreationCompilerPropagatesInfrastructureFailure(t *testing.T) {
 	service := &workerPreflightStub{
 		revision: "runtime-catalog-7",

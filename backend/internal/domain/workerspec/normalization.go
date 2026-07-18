@@ -76,7 +76,16 @@ func Normalize(spec Spec) (Spec, error) {
 		spec.Workspace.ConfigBundleIDs...,
 	)
 	sort.Slice(normalized.Workspace.ConfigBundleIDs, func(i, j int) bool {
-		return normalized.Workspace.ConfigBundleIDs[i] < normalized.Workspace.ConfigBundleIDs[j]
+		return normalized.Workspace.ConfigBundleIDs[i] <
+			normalized.Workspace.ConfigBundleIDs[j]
+	})
+	normalized.Workspace.ConfigDocumentBindings = append(
+		[]ConfigDocumentBinding{},
+		spec.Workspace.ConfigDocumentBindings...,
+	)
+	sort.Slice(normalized.Workspace.ConfigDocumentBindings, func(i, j int) bool {
+		return normalized.Workspace.ConfigDocumentBindings[i].DocumentID <
+			normalized.Workspace.ConfigDocumentBindings[j].DocumentID
 	})
 	normalized.Workspace.Instructions = strings.TrimSpace(spec.Workspace.Instructions)
 	normalized.Workspace.InitialTask = strings.TrimSpace(spec.Workspace.InitialTask)

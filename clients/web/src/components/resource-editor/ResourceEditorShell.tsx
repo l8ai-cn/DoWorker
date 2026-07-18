@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback, useState } from "react";
 import dynamic from "next/dynamic";
 import { FileCode2, ListChecks, SlidersHorizontal } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -12,13 +13,16 @@ import {
 } from "@/components/ui/tabs";
 import {
   isResourceBindingKind,
+  type ResourceDraft,
   type ResourceEditorKind,
 } from "./resource-editor-types";
 import type { ResourceApplyResult } from "./resource-apply-result";
+import type { ResourceIdentity } from "./resource-draft-identity";
 import { ResourceConfigurationPanel } from "./ResourceConfigurationPanel";
 import { ResourceEditorActions } from "./ResourceEditorActions";
 import { ResourceEditorFeedback } from "./ResourceEditorFeedback";
 import { ResourcePlanReview } from "./ResourcePlanReview";
+import { resourceEditorStatus } from "./resource-editor-status";
 import { useResourceEditorController } from "./use-resource-editor-controller";
 
 const ResourceYamlPanel = dynamic(
@@ -29,6 +33,9 @@ const ResourceYamlPanel = dynamic(
 interface ResourceEditorShellProps {
   orgSlug: string;
   kind?: ResourceEditorKind;
+  initialDraft?: ResourceDraft;
+  lockedIdentity?: ResourceIdentity;
+  sessionKey?: string;
   onApplied?: (result: ResourceApplyResult) => void;
   onWorkerCreated?: (podKey: string) => void;
 }
@@ -36,18 +43,33 @@ interface ResourceEditorShellProps {
 export function ResourceEditorShell({
   orgSlug,
   kind = "WorkerTemplate",
+  initialDraft,
+  lockedIdentity,
+  sessionKey,
   onApplied,
   onWorkerCreated,
 }: ResourceEditorShellProps) {
   const t = useTranslations("resourceEditor");
-  const controller = useResourceEditorController(orgSlug, kind);
+  const controller = useResourceEditorController(
+    orgSlug,
+    kind,
+    initialDraft,
+    lockedIdentity,
+    sessionKey,
+  );
   const { state } = controller;
+  const [planBlock, setPlanBlock] = useState<{
+    kind: ResourceEditorKind;
+    reason: string | null;
+  }>({ kind, reason: null });
   const isApplying = state.apply.status === "loading";
-  const status = state.apply.status === "ready"
-    ? "applied"
-    : state.plan.status === "ready" && state.plan.response.plan
-      ? "planReady"
-      : "draft";
+  const status = resourceEditorStatus(state);
+  const planBlockReason = planBlock.kind === kind ? planBlock.reason : null;
+  const canPlan = controller.canSubmit &&
+    (state.mode === "yaml" || !planBlockReason);
+  const setPlanBlockReason = useCallback((reason: string | null) => {
+    setPlanBlock({ kind, reason });
+  }, [kind]);
 
   return (
     <section
@@ -64,14 +86,7 @@ export function ResourceEditorShell({
             {resourceHeading(t, kind).subtitle}
           </p>
         </div>
-        <Badge variant={status === "applied"
-          ? "success"
-          : status === "planReady"
-            ? "info"
-            : "secondary"}
-        >
-          {t(`status.${status}`)}
-        </Badge>
+        <Badge variant={status.variant}>{t(status.key)}</Badge>
       </header>
 
       <fieldset
@@ -102,7 +117,9 @@ export function ResourceEditorShell({
           <ResourceConfigurationPanel
             orgSlug={orgSlug}
             draft={state.draft}
+            identityLocked={Boolean(lockedIdentity)}
             onChange={controller.replaceDraft}
+            onPlanBlockChange={setPlanBlockReason}
           />
         </TabsContent>
         <TabsContent value="yaml" className="pt-4">
@@ -123,9 +140,12 @@ export function ResourceEditorShell({
           state={state}
           kind={kind}
           canSubmit={controller.canSubmit}
+          canPlan={canPlan}
           canApply={controller.canApply}
           onValidate={() => void controller.runValidation()}
-          onPlan={() => void controller.runPlan()}
+          onPlan={() => {
+            if (canPlan) void controller.runPlan();
+          }}
           onApply={() => {
             void controller.apply().then((result) => {
               if (result) onApplied?.(result);

@@ -11,22 +11,31 @@ import {
   CreateGoalLoopFromPlanResponseSchema,
   CreateWorkerFromPlanRequestSchema,
   CreateWorkerFromPlanResponseSchema,
+} from "@proto/orchestration_resource/v1/orchestration_resource_apply_pb";
+import {
+  EnvironmentBundlePurpose,
   ExportResourceResponseSchema,
+  GetResourceCapabilitiesRequestSchema,
+  GetResourceCapabilitiesResponseSchema,
   GetResourcePlanRequestSchema,
+  ListResourcesRequestSchema,
   ListResourcesResponseSchema,
   PlanResourceResponseSchema,
+  ValidateResourceRequestSchema,
+  ValidateResourceResponseSchema,
+} from "@proto/orchestration_resource/v1/orchestration_resource_queries_pb";
+import {
   ResourceOperation,
   ResourcePlanSchema,
   ResourceSchema,
   SourceFormat,
-  ValidateResourceRequestSchema,
-  ValidateResourceResponseSchema,
-} from "@proto/orchestration_resource/v1/orchestration_resource_pb";
+} from "@proto/orchestration_resource/v1/orchestration_resource_types_pb";
 
 const methods = {
   validateResourceConnect: vi.fn(),
   planResourceConnect: vi.fn(),
   getResourceConnect: vi.fn(),
+  getResourceCapabilitiesConnect: vi.fn(),
   listResourcesConnect: vi.fn(),
   exportResourceConnect: vi.fn(),
   getResourcePlanConnect: vi.fn(),
@@ -53,6 +62,7 @@ import {
   createWorkerFromPlan,
   exportResource,
   getResource,
+  getResourceCapabilities,
   getResourcePlan,
   listResources,
   planResource,
@@ -110,9 +120,29 @@ describe("orchestration resource Connect adapter", () => {
     const resource = create(ResourceSchema, { id: 42n, revision: 7n });
     const plan = create(ResourcePlanSchema, { planId: "plan-1" });
     methods.getResourceConnect.mockResolvedValue(toBinary(ResourceSchema, resource));
+    methods.getResourceCapabilitiesConnect.mockResolvedValue(toBinary(
+      GetResourceCapabilitiesResponseSchema,
+      create(GetResourceCapabilitiesResponseSchema, {
+        target,
+        capabilities: {
+          exists: true,
+          canViewSource: true,
+          canReference: true,
+          canPlan: false,
+        },
+      }),
+    ));
     methods.listResourcesConnect.mockResolvedValue(toBinary(
       ListResourcesResponseSchema,
-      create(ListResourcesResponseSchema, { items: [resource], total: 1n }),
+      create(ListResourcesResponseSchema, {
+        items: [resource],
+        total: 1n,
+        appliedEnvironmentBundleFilter: {
+          purpose: EnvironmentBundlePurpose.CREDENTIAL,
+          workerType: "do-agent",
+          targetName: "DO_API_KEY",
+        },
+      }),
     ));
     methods.exportResourceConnect.mockResolvedValue(toBinary(
       ExportResourceResponseSchema,
@@ -125,11 +155,33 @@ describe("orchestration resource Connect adapter", () => {
     );
 
     await expect(getResource("acme", target)).resolves.toMatchObject({ id: 42n });
+    await expect(getResourceCapabilities("acme", target)).resolves.toMatchObject({
+      capabilities: {
+        exists: true,
+        canViewSource: true,
+        canReference: true,
+        canPlan: false,
+      },
+    });
     await expect(listResources("acme", {
-      kind: "WorkerTemplate",
+      kind: "EnvironmentBundle",
       offset: 20,
       limit: 10,
-    })).resolves.toMatchObject({ total: 1n, offset: 0, limit: 0 });
+      environmentBundleFilter: {
+        purpose: EnvironmentBundlePurpose.CREDENTIAL,
+        workerType: "do-agent",
+        targetName: "DO_API_KEY",
+      },
+    })).resolves.toMatchObject({
+      total: 1n,
+      offset: 0,
+      limit: 0,
+      appliedEnvironmentBundleFilter: {
+        purpose: EnvironmentBundlePurpose.CREDENTIAL,
+        workerType: "do-agent",
+        targetName: "DO_API_KEY",
+      },
+    });
     const exported = await exportResource(
       "acme",
       target,
@@ -146,6 +198,36 @@ describe("orchestration resource Connect adapter", () => {
       methods.getResourcePlanConnect.mock.calls[0][0],
     );
     expect(planRequest).toMatchObject({ orgSlug: "acme", planId: "plan-1" });
+    const capabilitiesRequest = fromBinary(
+      GetResourceCapabilitiesRequestSchema,
+      methods.getResourceCapabilitiesConnect.mock.calls[0][0],
+    );
+    expect(capabilitiesRequest).toMatchObject({
+      orgSlug: "acme",
+      target: {
+        typeMeta: {
+          apiVersion: target.apiVersion,
+          kind: target.kind,
+        },
+        namespace: target.namespace,
+        name: target.name,
+      },
+    });
+    const listRequest = fromBinary(
+      ListResourcesRequestSchema,
+      methods.listResourcesConnect.mock.calls[0][0],
+    );
+    expect(listRequest).toMatchObject({
+      orgSlug: "acme",
+      kind: "EnvironmentBundle",
+      offset: 20,
+      limit: 10,
+      environmentBundleFilter: {
+        purpose: EnvironmentBundlePurpose.CREDENTIAL,
+        workerType: "do-agent",
+        targetName: "DO_API_KEY",
+      },
+    });
   });
 
   it("keeps typed apply paths explicit", async () => {

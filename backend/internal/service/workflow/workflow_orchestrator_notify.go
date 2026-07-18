@@ -40,11 +40,16 @@ func (o *WorkflowOrchestrator) publishRunEvent(orgID int64, eventType eventbus.E
 	})
 }
 
-func (o *WorkflowOrchestrator) sendWebhookCallback(callbackURL string, workflow *workflowDomain.Workflow, run *workflowDomain.WorkflowRun, status string) {
+func (o *WorkflowOrchestrator) sendWebhookCallback(
+	callbackURL string,
+	manifest workflowDomain.WorkflowRunExecutionManifest,
+	run *workflowDomain.WorkflowRun,
+	status string,
+) {
 	payload, _ := json.Marshal(map[string]interface{}{
-		"workflow_id":   workflow.ID,
-		"workflow_slug": workflow.Slug,
-		"loop_name":     workflow.Name,
+		"workflow_id":   run.WorkflowID,
+		"workflow_slug": manifest.WorkflowSlug,
+		"loop_name":     manifest.WorkflowName,
 		"run_id":        run.ID,
 		"run_number":    run.RunNumber,
 		"status":        status,
@@ -67,18 +72,25 @@ func (o *WorkflowOrchestrator) sendWebhookCallback(callbackURL string, workflow 
 	resp, err := o.httpClient.Post(callbackURL, "application/json", strings.NewReader(string(payload)))
 	if err != nil {
 		o.logger.Warn("webhook callback failed",
-			"workflow_id", workflow.ID, "run_id", run.ID, "url", callbackURL, "error", err)
+			"workflow_id", run.WorkflowID, "run_id", run.ID, "url", callbackURL, "error", err)
 		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= 400 {
 		o.logger.Warn("webhook callback returned error",
-			"workflow_id", workflow.ID, "run_id", run.ID, "url", callbackURL, "status", resp.StatusCode)
+			"workflow_id", run.WorkflowID, "run_id", run.ID, "url", callbackURL, "status", resp.StatusCode)
 	}
 }
 
-func (o *WorkflowOrchestrator) postTicketComment(ctx context.Context, ticketID int64, userID int64, workflow *workflowDomain.Workflow, run *workflowDomain.WorkflowRun, status string) {
+func (o *WorkflowOrchestrator) postTicketComment(
+	ctx context.Context,
+	ticketID int64,
+	userID int64,
+	manifest workflowDomain.WorkflowRunExecutionManifest,
+	run *workflowDomain.WorkflowRun,
+	status string,
+) {
 	statusEmoji := "✅"
 	switch status {
 	case workflowDomain.RunStatusFailed:
@@ -96,33 +108,11 @@ func (o *WorkflowOrchestrator) postTicketComment(ctx context.Context, ticketID i
 
 	content := fmt.Sprintf(
 		"%s **Workflow Run #%d** — %s\n\nLoop: **%s** (`%s`)\nDuration: %s\nTrigger: %s",
-		statusEmoji, run.RunNumber, status, workflow.Name, workflow.Slug, durationStr, run.TriggerType,
+		statusEmoji, run.RunNumber, status, manifest.WorkflowName, manifest.WorkflowSlug, durationStr, run.TriggerType,
 	)
 
 	if _, err := o.ticketService.CreateComment(ctx, ticketID, userID, content, nil, nil); err != nil {
 		o.logger.Warn("failed to create ticket comment for workflow run",
-			"workflow_id", workflow.ID, "run_id", run.ID, "ticket_id", ticketID, "error", err)
+			"workflow_id", run.WorkflowID, "run_id", run.ID, "ticket_id", ticketID, "error", err)
 	}
-}
-
-func resolvePrompt(template string, defaults json.RawMessage, overrides json.RawMessage) string {
-	vars := make(map[string]interface{})
-	if len(defaults) > 0 {
-		_ = json.Unmarshal(defaults, &vars)
-	}
-	if len(overrides) > 0 {
-		var ov map[string]interface{}
-		if err := json.Unmarshal(overrides, &ov); err == nil {
-			for k, v := range ov {
-				vars[k] = v
-			}
-		}
-	}
-
-	result := template
-	for k, v := range vars {
-		placeholder := "{{" + k + "}}"
-		result = strings.ReplaceAll(result, placeholder, fmt.Sprintf("%v", v))
-	}
-	return result
 }

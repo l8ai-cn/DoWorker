@@ -38,6 +38,8 @@ func (s *Server) UpdateWorkflow(
 			return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("invalid cron expression"))
 		case errors.Is(err, workflowsvc.ErrInvalidCallbackURL), errors.Is(err, workflowsvc.ErrInvalidEnumValue):
 			return nil, connect.NewError(connect.CodeInvalidArgument, err)
+		case errors.Is(err, workflowsvc.ErrWorkflowManagedByResourceApply):
+			return nil, connect.NewError(connect.CodeFailedPrecondition, err)
 		default:
 			return nil, connect.NewError(connect.CodeInternal, err)
 		}

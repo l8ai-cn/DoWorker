@@ -73,6 +73,7 @@
       }
     },
     "yamlTitle": "YAML 示例",
+    "yamlLimits": "YAML 源文件与导出内容每份最大 256 KiB，每个物理行最大 64 KiB。解析器还会拒绝多文档、别名、锚点、自定义标签、不安全整数，以及超出深度或节点数量限制的结构。",
     "securityTitle": "Secret 与权限边界",
     "securityDescription": "资源 YAML 只声明引用，不保存明文凭据。namespace 是身份字段，不能替代权限校验。",
     "security": {

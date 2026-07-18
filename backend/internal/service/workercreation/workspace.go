@@ -56,7 +56,7 @@ type compilationReferences struct {
 	SkillSlugs        []string
 	Knowledge         []knowledgeReference
 	EnvBundleNames    []string
-	ConfigBundleNames []string
+	ConfigDocumentIDs []string
 }
 
 func newWorkspaceResolver(deps workspaceResolverDeps) *workspaceResolver {
@@ -162,21 +162,16 @@ func (resolver *workspaceResolver) resolveWorkspaceReferences(
 			return compilationReferences{}, err
 		}
 	}
-	for _, id := range workspace.ConfigBundleIDs {
-		bundle, err := resolver.resolveEnvBundle(ctx, scope, workerType, id)
-		if err != nil {
-			return compilationReferences{}, err
-		}
-		if bundle.Kind != envbundle.KindConfig {
-			return compilationReferences{}, invalidWorkspaceReference(
-				"Worker 配置文件",
-				bundle.ID,
-				"bundle kind is not config",
-				nil,
-			)
-		}
-		references.ConfigBundleNames = append(references.ConfigBundleNames, bundle.Name)
+	configDocumentIDs, err := resolver.resolveConfigDocumentIDs(
+		ctx,
+		scope,
+		workerType,
+		workspace.ConfigDocumentBindings,
+	)
+	if err != nil {
+		return compilationReferences{}, err
 	}
+	references.ConfigDocumentIDs = configDocumentIDs
 	return references, nil
 }
 

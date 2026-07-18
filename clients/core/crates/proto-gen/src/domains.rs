@@ -99,7 +99,12 @@ pub const DOMAINS: &[Domain] = &[
     domain!("notification", ["notification.proto"], []),
     domain!(
         "orchestration_resource",
-        ["orchestration_resource.proto"],
+        [
+            "orchestration_resource_types.proto",
+            "orchestration_resource_queries.proto",
+            "orchestration_resource_apply.proto",
+            "orchestration_resource.proto"
+        ],
         []
     ),
     domain!("pod_state", ["pod_state.proto"], ["pod"]),

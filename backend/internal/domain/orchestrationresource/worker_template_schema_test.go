@@ -60,6 +60,93 @@ func TestWorkerTemplateCustomResourcesUseCamelCaseFields(t *testing.T) {
 	require.Equal(t, &spec, decoded)
 }
 
+func TestWorkerTemplateRuntimeRejectsExplicitNulls(t *testing.T) {
+	tests := []struct {
+		path   string
+		mutate func(map[string]any)
+	}{
+		{
+			path: "spec.runtime.runtimeImageId",
+			mutate: func(runtime map[string]any) {
+				runtime["runtimeImageId"] = nil
+			},
+		},
+		{
+			path: "spec.runtime.resourceProfileRef",
+			mutate: func(runtime map[string]any) {
+				runtime["resourceProfileRef"] = nil
+			},
+		},
+		{
+			path: "spec.runtime.computeTargetRef.apiVersion",
+			mutate: func(runtime map[string]any) {
+				reference := runtime["computeTargetRef"].(map[string]any)
+				reference["apiVersion"] = nil
+			},
+		},
+		{
+			path: "spec.runtime.computeTargetRef.revision",
+			mutate: func(runtime map[string]any) {
+				reference := runtime["computeTargetRef"].(map[string]any)
+				reference["revision"] = nil
+			},
+		},
+		{
+			path: "spec.runtime.resourceProfileRef.kind",
+			mutate: func(runtime map[string]any) {
+				runtime["resourceProfileRef"] = map[string]any{
+					"kind": nil,
+					"name": "standard-profile",
+				}
+			},
+		},
+		{
+			path: "spec.runtime.customResources",
+			mutate: func(runtime map[string]any) {
+				runtime["customResources"] = nil
+			},
+		},
+		{
+			path: "spec.runtime.customResources.cpuRequestMilliCPU",
+			mutate: func(runtime map[string]any) {
+				resources := runtime["customResources"].(map[string]any)
+				resources["cpuRequestMilliCPU"] = nil
+			},
+		},
+		{
+			path: "spec.runtime.customResources.gpuRequest",
+			mutate: func(runtime map[string]any) {
+				resources := runtime["customResources"].(map[string]any)
+				resources["gpuRequest"] = nil
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.path, func(t *testing.T) {
+			spec := validWorkerTemplateSpec()
+			spec.Runtime.ResourceProfileRef = nil
+			spec.Runtime.CustomResources = &workerspec.ResourceRequestsLimits{
+				CPURequestMilliCPU: 500,
+				CPULimitMilliCPU:   1_000,
+				MemoryRequestBytes: 1 << 30,
+				MemoryLimitBytes:   2 << 30,
+			}
+			manifest := workerSchemaManifest(t, KindWorkerTemplate, spec)
+			var object map[string]any
+			require.NoError(t, json.Unmarshal(manifest.Spec, &object))
+			test.mutate(object["runtime"].(map[string]any))
+			manifest.Spec, _ = json.Marshal(object)
+
+			registry := NewRegistry()
+			require.NoError(t, RegisterWorkerSchemas(registry))
+			_, err := registry.DecodeAndValidate(manifest)
+			require.ErrorIs(t, err, ErrTypedJSONType)
+			require.Contains(t, err.Error(), "at path "+test.path)
+		})
+	}
+}
+
 func TestWorkerTemplateSchemaRoundTripsCamelCaseYAML(t *testing.T) {
 	registry := NewRegistry()
 	require.NoError(t, RegisterWorkerSchemas(registry))

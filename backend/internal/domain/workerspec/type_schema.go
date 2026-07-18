@@ -24,9 +24,15 @@ type TypeFieldSchema struct {
 	Description string
 }
 
+type SecretRequirementGroup struct {
+	ID    string
+	AnyOf []string
+}
+
 type TypeSchema struct {
-	Version uint32
-	Fields  map[string]TypeFieldSchema
+	Version                 uint32
+	Fields                  map[string]TypeFieldSchema
+	SecretRequirementGroups []SecretRequirementGroup
 }
 
 func ValidateTypeConfigAgainstSchema(config TypeConfig, schema TypeSchema) error {
@@ -65,6 +71,29 @@ func ValidateTypeConfigAgainstSchema(config TypeConfig, schema TypeSchema) error
 			return fmt.Errorf("type config field %q does not accept secret_refs", field)
 		}
 	}
+	for field, definition := range schema.Fields {
+		if definition.Kind != TypeFieldSecret || !definition.Required {
+			continue
+		}
+		if _, exists := config.SecretRefs[field]; !exists {
+			return fmt.Errorf("type config secret ref %q is required", field)
+		}
+	}
+	for _, group := range schema.SecretRequirementGroups {
+		hasReference := false
+		for _, field := range group.AnyOf {
+			if _, exists := config.SecretRefs[field]; exists {
+				hasReference = true
+				break
+			}
+		}
+		if !hasReference {
+			return fmt.Errorf(
+				"at least one secret ref is required for credential group %q",
+				group.ID,
+			)
+		}
+	}
 	return nil
 }
 
@@ -76,7 +105,7 @@ func validateTypeSchema(schema TypeSchema) error {
 		return fmt.Errorf("worker type schema fields must be an object")
 	}
 	for field, definition := range schema.Fields {
-		if err := validateConfigField(field); err != nil {
+		if err := ValidateConfigField(field); err != nil {
 			return fmt.Errorf("worker type schema: %w", err)
 		}
 		switch definition.Kind {
@@ -93,6 +122,27 @@ func validateTypeSchema(schema TypeSchema) error {
 			}
 		default:
 			return fmt.Errorf("worker type schema field %q has invalid kind %q", field, definition.Kind)
+		}
+	}
+	groupIDs := make(map[string]struct{}, len(schema.SecretRequirementGroups))
+	groupTargets := make(map[string]struct{})
+	for _, group := range schema.SecretRequirementGroups {
+		if group.ID == "" || len(group.AnyOf) < 2 {
+			return fmt.Errorf("worker type schema has invalid credential requirement group")
+		}
+		if _, exists := groupIDs[group.ID]; exists {
+			return fmt.Errorf("worker type schema has duplicate credential requirement group %q", group.ID)
+		}
+		groupIDs[group.ID] = struct{}{}
+		for _, field := range group.AnyOf {
+			definition, exists := schema.Fields[field]
+			if !exists || definition.Kind != TypeFieldSecret {
+				return fmt.Errorf("credential requirement group %q references invalid secret field %q", group.ID, field)
+			}
+			if _, exists := groupTargets[field]; exists {
+				return fmt.Errorf("credential requirement groups reuse secret field %q", field)
+			}
+			groupTargets[field] = struct{}{}
 		}
 	}
 	return nil

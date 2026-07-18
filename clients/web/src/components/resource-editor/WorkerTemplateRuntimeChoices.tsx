@@ -13,7 +13,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
-import { useWorkerCreateOptions } from "@/components/pod/hooks/useWorkerCreateOptions";
+import type { AsyncState } from "@/components/pod/hooks/workerCreateDraft";
+import type { WorkerCreateOptions } from "@/lib/api/facade/podConnect";
 import type { WorkerTemplatePanelProps } from "./worker-template-panel-props";
 import { WorkerTemplateOptionSelectField } from "./WorkerTemplateOptionSelectField";
 import {
@@ -25,15 +26,13 @@ import {
 
 export function WorkerTemplateRuntimeChoices({
   draft,
+  workerOptions: options,
   onChange,
-}: Pick<WorkerTemplatePanelProps, "draft" | "onChange">) {
+}: Pick<WorkerTemplatePanelProps, "draft" | "onChange"> & {
+  workerOptions: AsyncState<WorkerCreateOptions>;
+}) {
   const t = useTranslations("resourceEditor");
   const runtimeT = useTranslations("workerCreate");
-  const options = useWorkerCreateOptions(true, {
-    workerTypeSlug: "",
-    computeTargetId: 0,
-    deploymentMode: "",
-  });
 
   useEffect(() => {
     if (options.status !== "ready") return;

@@ -10,9 +10,12 @@ import (
 )
 
 var (
-	ErrNotFound         = errors.New("not found")
-	ErrWorkflowDisabled = errors.New("workflow is disabled")
-	ErrHasActiveRuns    = errors.New("workflow has active runs")
+	ErrNotFound                 = errors.New("not found")
+	ErrWorkflowDisabled         = errors.New("workflow is disabled")
+	ErrWorkflowResourceRequired = errors.New(
+		"workflow execution requires a complete orchestration resource binding",
+	)
+	ErrHasActiveRuns = errors.New("workflow has active runs")
 )
 
 const (
@@ -131,6 +134,12 @@ type WorkflowRepository interface {
 	GetBySlug(ctx context.Context, orgID int64, slug string) (*Workflow, error)
 	List(ctx context.Context, filter *ListWorkflowsFilter) ([]*Workflow, int64, error)
 	Update(ctx context.Context, id int64, updates map[string]interface{}) error
+	UpdateForResourceRevision(
+		ctx context.Context,
+		id int64,
+		resourceRevision int64,
+		updates map[string]interface{},
+	) (bool, error)
 	Delete(ctx context.Context, orgID int64, slug string) (int64, error)
 	// GetDueCronWorkflows returns enabled cron workflows that are due for execution.
 	// orgIDs filters to specific organizations; nil means all orgs (single-instance mode).
@@ -173,6 +182,15 @@ func (l *Workflow) IsResourceManaged() bool {
 	return l.OrchestrationResourceID != nil ||
 		l.OrchestrationResourceRevision != nil ||
 		l.WorkerSpecSnapshotID != nil
+}
+
+func (l *Workflow) HasCompleteResourceBinding() bool {
+	return l.OrchestrationResourceID != nil &&
+		*l.OrchestrationResourceID > 0 &&
+		l.OrchestrationResourceRevision != nil &&
+		*l.OrchestrationResourceRevision > 0 &&
+		l.WorkerSpecSnapshotID != nil &&
+		*l.WorkerSpecSnapshotID > 0
 }
 
 // SuccessRate returns the success rate as a percentage (0-100)

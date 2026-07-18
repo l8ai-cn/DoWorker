@@ -50,4 +50,31 @@ func TestWorkerCreateOptionsExposeToolModelRequirements(t *testing.T) {
 	assert.Equal(t, []string{"doubao"}, response.WorkerTypes[0].ToolModelRequirements[0].ProviderKeys)
 }
 
+func TestWorkerCreateOptionsExposeDefinitionRequirements(t *testing.T) {
+	options := workercreation.CreateOptions{
+		WorkerTypes: []workercreation.WorkerTypeOption{{
+			Slug: "do-agent",
+			CredentialRequirements: []workercreation.WorkerCredentialRequirement{{
+				ID: "openai", SourceKind: "model_resource",
+				SourceRef: "openai-compatible", TargetKind: "env",
+				TargetName: "OPENAI_API_KEY",
+			}},
+			ConfigDocumentRequirements: []workercreation.WorkerConfigDocumentRequirement{{
+				DocumentID: "settings", Format: "json",
+				TargetPath: "DO_AGENT_SETTINGS", Required: true,
+			}},
+		}},
+	}
+
+	response, err := workerCreateOptionsToProto(options)
+
+	require.NoError(t, err)
+	require.Len(t, response.WorkerTypes, 1)
+	require.Len(t, response.WorkerTypes[0].CredentialRequirements, 1)
+	require.Len(t, response.WorkerTypes[0].ConfigDocumentRequirements, 1)
+	assert.Equal(t, "OPENAI_API_KEY", response.WorkerTypes[0].CredentialRequirements[0].TargetName)
+	assert.Equal(t, "DO_AGENT_SETTINGS", response.WorkerTypes[0].ConfigDocumentRequirements[0].TargetPath)
+	assert.True(t, response.WorkerTypes[0].ConfigDocumentRequirements[0].Required)
+}
+
 var _ = podv1.WorkerSpecDraft{}

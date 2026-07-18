@@ -3,11 +3,17 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   CreateGoalLoopFromPlanResponseSchema,
+} from "@proto/orchestration_resource/v1/orchestration_resource_apply_pb";
+import {
   PlanResourceResponseSchema,
-  ResourceOperation,
   ValidateResourceResponseSchema,
-} from "@proto/orchestration_resource/v1/orchestration_resource_pb";
+} from "@proto/orchestration_resource/v1/orchestration_resource_queries_pb";
+import {
+  PlanStatus,
+  ResourceOperation,
+} from "@proto/orchestration_resource/v1/orchestration_resource_types_pb";
 import { act, fireEvent, render, screen, waitFor } from "@/test/test-utils";
+import { createResourceDraft } from "./resource-draft-factory";
 
 const api = vi.hoisted(() => ({
   validateResource: vi.fn(),
@@ -36,14 +42,18 @@ describe("ResourceEditorShell concurrency", () => {
     const user = userEvent.setup();
     const pending = deferred<ReturnType<typeof readyPlan>>();
     api.planResource.mockReturnValue(pending.promise);
-    render(<ResourceEditorShell orgSlug="acme" />);
+    render(<ResourceEditorShell orgSlug="acme" kind="Prompt" />);
 
     const name = screen.getByLabelText(/Resource name/);
     await user.type(name, "old-name");
     await user.click(screen.getByRole("button", { name: "Generate plan" }));
     await user.clear(name);
     await user.type(name, "new-name");
-    pending.resolve(readyPlan("stale-plan"));
+    pending.resolve(readyPlan(
+      "stale-plan",
+      "2099-07-14T16:00:00Z",
+      "Prompt",
+    ));
 
     await waitFor(() => expect(api.planResource).toHaveBeenCalledOnce());
     expect(screen.getByLabelText(/Resource name/)).toHaveValue("new-name");
@@ -73,7 +83,11 @@ describe("ResourceEditorShell concurrency", () => {
     const user = userEvent.setup();
     const pending = deferred<ReturnType<typeof goalLoopResult>>();
     const onApplied = vi.fn();
-    api.planResource.mockResolvedValue(readyPlan("goal-loop-plan"));
+    api.planResource.mockResolvedValue(readyPlan(
+      "goal-loop-plan",
+      "2099-07-14T16:00:00Z",
+      "GoalLoop",
+    ));
     api.createGoalLoopFromPlan.mockReturnValue(pending.promise);
     render(
       <ResourceEditorShell
@@ -106,6 +120,7 @@ describe("ResourceEditorShell concurrency", () => {
     api.planResource.mockResolvedValue(readyPlan(
       "expiring-goal-loop-plan",
       expiresAt,
+      "GoalLoop",
     ));
     api.createGoalLoopFromPlan.mockReturnValue(pending.promise);
     render(
@@ -133,26 +148,28 @@ describe("ResourceEditorShell concurrency", () => {
 function readyPlan(
   planId: string,
   expiresAt = "2099-07-14T16:00:00Z",
+  kind: Parameters<typeof createResourceDraft>[0] = "WorkerTemplate",
 ) {
+  const draft = createResourceDraft(kind, "acme");
+  draft.metadata.name = "planned-resource";
   return create(PlanResourceResponseSchema, {
     operation: ResourceOperation.CREATE,
+    canonicalJson: new TextEncoder().encode(JSON.stringify(draft)),
     plan: {
       planId,
       operation: ResourceOperation.CREATE,
       expiresAt,
+      status: PlanStatus.PENDING,
     },
   });
 }
 
 function validResponse(name: string) {
+  const draft = createResourceDraft("WorkerTemplate", "acme");
+  draft.metadata.name = name;
   return create(ValidateResourceResponseSchema, {
     operation: ResourceOperation.CREATE,
-    canonicalJson: new TextEncoder().encode(JSON.stringify({
-      apiVersion: "agentsmesh.io/v1alpha1",
-      kind: "WorkerTemplate",
-      metadata: { name, namespace: "acme" },
-      spec: {},
-    })),
+    canonicalJson: new TextEncoder().encode(JSON.stringify(draft)),
   });
 }
 

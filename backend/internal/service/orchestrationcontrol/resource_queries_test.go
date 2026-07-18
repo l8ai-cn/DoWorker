@@ -33,7 +33,10 @@ func TestServiceListResourcesAuthorizesEmptyTenantList(t *testing.T) {
 		total: 17,
 	}
 	authorizer := &orchestrationAuthorizerStub{}
-	service := &Service{repository: repository, authorizer: authorizer}
+	service := &Service{
+		repository: repository, authorizer: authorizer,
+		workerDefinitions: workerDefinitionPolicyStub{},
+	}
 
 	result, err := service.ListResources(
 		context.Background(),
@@ -145,6 +148,7 @@ type resourceQueryRepositoryStub struct {
 	plan              control.Plan
 	requestedRevision int64
 	planScope         control.Scope
+	listFilter        ResourceListFilter
 }
 
 func (stub *resourceQueryRepositoryStub) GetResource(
@@ -156,10 +160,11 @@ func (stub *resourceQueryRepositoryStub) GetResource(
 }
 
 func (stub *resourceQueryRepositoryStub) ListResources(
-	context.Context,
-	control.Scope,
-	ResourceListFilter,
+	_ context.Context,
+	_ control.Scope,
+	filter ResourceListFilter,
 ) (ResourceListPage, error) {
+	stub.listFilter = filter
 	return ResourceListPage{
 		Items: append([]control.ResourceHead{}, stub.heads...),
 		Total: stub.total,

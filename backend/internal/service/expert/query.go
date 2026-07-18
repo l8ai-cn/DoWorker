@@ -13,6 +13,9 @@ func (s *Service) Delete(ctx context.Context, orgID, id int64) error {
 	if err != nil {
 		return err
 	}
+	if row.IsResourceManaged() {
+		return ErrExpertManagedByResourceApply
+	}
 	if err := s.store.Delete(ctx, orgID, id); err != nil {
 		return err
 	}

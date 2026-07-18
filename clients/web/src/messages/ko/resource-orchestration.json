@@ -73,6 +73,7 @@
       }
     },
     "yamlTitle": "YAML 예제",
+    "yamlLimits": "YAML 소스와 내보낸 YAML은 문서당 256 KiB, 물리적 한 줄당 64 KiB로 제한됩니다. 파서는 여러 문서, 별칭, 앵커, 사용자 정의 태그, 안전하지 않은 정수와 지원 깊이 또는 노드 수를 넘는 구조도 거부합니다.",
     "securityTitle": "Secret 및 권한 경계",
     "securityDescription": "YAML은 평문 자격 증명이 아니라 참조를 기술합니다. namespace는 식별자이며 인가를 대체하지 않습니다.",
     "security": {

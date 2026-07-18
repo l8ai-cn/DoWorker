@@ -122,6 +122,39 @@ func TestWorkerTypeResolverExcludesModelResourceManagedFields(t *testing.T) {
 	)
 }
 
+func TestWorkerTypeResolverProjectsCredentialRequirementGroups(t *testing.T) {
+	source := "AGENT aider\nEXECUTABLE aider\n" +
+		"ENV OPENAI_API_KEY SECRET OPTIONAL\n" +
+		"ENV ANTHROPIC_API_KEY SECRET OPTIONAL\n"
+	definition := workerDefinition("aider", "aider", source, "pty")
+	definition.ModelRequirement = workerdefinition.ModelRequirement{}
+	definition.CredentialBindings = []workerdefinition.CredentialBinding{
+		credentialBinding("openai", "aider", "OPENAI_API_KEY"),
+		credentialBinding("anthropic", "aider", "ANTHROPIC_API_KEY"),
+	}
+	definition.CredentialRequirementGroups = []workerdefinition.CredentialRequirementGroup{{
+		ID: "provider-api-key", AnyOf: []string{"OPENAI_API_KEY", "ANTHROPIC_API_KEY"},
+	}}
+	provider := &workerTypeAgentProvider{
+		agent: activeWorkerTypeAgentFor("aider", "aider", source),
+	}
+	provider.agent.SupportedModes = "pty"
+	resolver := newWorkerTypeResolver(
+		provider,
+		staticWorkerDefinitions{"aider": definition},
+	)
+
+	resolved, err := resolver.ResolveWorkerType(
+		context.Background(),
+		specservice.Scope{OrgID: 77, UserID: 7},
+		slugkit.MustNewForTest("aider"),
+	)
+
+	require.NoError(t, err)
+	assert.Equal(t, definition.CredentialRequirementGroups[0].AnyOf,
+		resolved.TypeSchema.SecretRequirementGroups[0].AnyOf)
+}
+
 func TestWorkerTypeResolverRejectsUnavailableDefinitions(t *testing.T) {
 	source := "AGENT codex\n"
 	tests := []struct {
@@ -267,5 +300,17 @@ func workerDefinition(
 				},
 			},
 		},
+	}
+}
+
+func credentialBinding(
+	id, ref, target string,
+) workerdefinition.CredentialBinding {
+	return workerdefinition.CredentialBinding{
+		ID: id,
+		Source: workerdefinition.CredentialSource{
+			Kind: "credential_bundle", Ref: ref,
+		},
+		Target: workerdefinition.CredentialTarget{Kind: "env", Name: target},
 	}
 }

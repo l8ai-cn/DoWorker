@@ -73,6 +73,7 @@
       }
     },
     "yamlTitle": "YAML 例",
+    "yamlLimits": "YAML ソースとエクスポート YAML は、1 ドキュメントあたり 256 KiB、1 物理行あたり 64 KiB に制限されます。複数ドキュメント、エイリアス、アンカー、カスタムタグ、安全でない整数、対応する深さまたはノード数を超える構造も拒否されます。",
     "securityTitle": "Secret と権限の境界",
     "securityDescription": "YAML は平文認証情報ではなく参照を記述します。namespace は識別子であり、認可の代替ではありません。",
     "security": {

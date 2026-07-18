@@ -1,7 +1,7 @@
 import type {
   PlanResourceResponse,
   ValidateResourceResponse,
-} from "@proto/orchestration_resource/v1/orchestration_resource_pb";
+} from "@proto/orchestration_resource/v1/orchestration_resource_queries_pb";
 import type { ResourceApplyResult } from "./resource-apply-result";
 import type { ResourceDraft } from "./resource-editor-types";
 
@@ -27,7 +27,11 @@ export interface ResourceDraftState {
     | Idle
     | Loading
     | Failed
-    | { status: "expired" }
+    | {
+      status: "expired";
+      response: PlanResourceResponse;
+      version: number;
+    }
     | { status: "ready"; response: PlanResourceResponse; version: number };
   apply:
     | Idle
@@ -64,6 +68,8 @@ export type ResourceDraftAction =
     requestId: string;
     version: number;
     response: PlanResourceResponse;
+    draft: ResourceDraft;
+    sourceText: string;
   }
   | { type: "plan_failed"; requestId: string; error: string }
   | { type: "plan_expired" }

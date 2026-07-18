@@ -40,6 +40,21 @@ func TestCreateWorkflow_NoOrgSlug(t *testing.T) {
 	assert.Equal(t, connect.CodeInvalidArgument, connectCodeOf(t, err))
 }
 
+func TestCreateWorkflowRequiresResourceApply(t *testing.T) {
+	srv := NewServer(nil, nil, nil, loopOrgService{}, nil)
+	_, err := srv.CreateWorkflow(
+		loopContext(),
+		connect.NewRequest(&workflowv1.CreateWorkflowRequest{
+			OrgSlug: "acme",
+			Name:    "legacy",
+		}),
+	)
+
+	require.Error(t, err)
+	assert.Equal(t, connect.CodeFailedPrecondition, connectCodeOf(t, err))
+	assert.Contains(t, err.Error(), "validate-plan-apply")
+}
+
 func TestUpdateWorkflow_NoOrgSlug(t *testing.T) {
 	srv := NewServer(nil, nil, nil, nil, nil)
 	_, err := srv.UpdateWorkflow(context.Background(), connect.NewRequest(&workflowv1.UpdateWorkflowRequest{WorkflowSlug: "s"}))

@@ -44,6 +44,11 @@ impl OrchestrationResourceService {
         get_resource_connect
     );
     wire_rpc!(
+        get_resource_capabilities_connect,
+        resource::GetResourceCapabilitiesRequest,
+        get_resource_capabilities_connect
+    );
+    wire_rpc!(
         list_resources_connect,
         resource::ListResourcesRequest,
         list_resources_connect

@@ -64,7 +64,13 @@ export function workerDraftToProto(draft: WorkerSpecDraft): WorkerSpecDraftMessa
       mode: mount.mode,
     })),
     envBundleIds: draft.env_bundle_ids.map((id) => workerBigInt(id, "env_bundle_ids")),
-    configBundleIds: draft.config_bundle_ids.map((id) => workerBigInt(id, "config_bundle_ids")),
+    configDocumentBindings: draft.config_document_bindings.map((binding) => ({
+      documentId: binding.document_id,
+      configBundleId: workerBigInt(
+        binding.config_bundle_id,
+        `config_document_bindings.${binding.document_id}.config_bundle_id`,
+      ),
+    })),
     instructions: draft.instructions,
     initialTask: draft.initial_task,
     terminationPolicy: draft.termination_policy,
@@ -138,7 +144,13 @@ export function workerDraftFromProto(draft: WorkerSpecDraftMessage): WorkerSpecD
       mode: mount.mode,
     })),
     env_bundle_ids: draft.envBundleIds.map((id) => workerNumber(id, "env_bundle_ids")),
-    config_bundle_ids: draft.configBundleIds.map((id) => workerNumber(id, "config_bundle_ids")),
+    config_document_bindings: draft.configDocumentBindings.map((binding) => ({
+      document_id: binding.documentId,
+      config_bundle_id: workerNumber(
+        binding.configBundleId,
+        `config_document_bindings.${binding.documentId}.config_bundle_id`,
+      ),
+    })),
     instructions: draft.instructions,
     initial_task: draft.initialTask,
     termination_policy: draft.terminationPolicy,

@@ -4,8 +4,8 @@ import type {
 } from "./resource-manifest-types";
 
 export interface WorkerTemplateResources {
-  cpuRequestMillicpu: number;
-  cpuLimitMillicpu: number;
+  cpuRequestMilliCPU: number;
+  cpuLimitMilliCPU: number;
   memoryRequestBytes: number;
   memoryLimitBytes: number;
   storageRequestBytes: number;
@@ -36,13 +36,18 @@ export interface WorkerTemplateKnowledgeMount {
   mode: string;
 }
 
+export interface WorkerTemplateConfigDocumentBinding {
+  documentId: string;
+  configBundleRef: ResourceReference;
+}
+
 export interface WorkerTemplateWorkspace {
   repositoryRef?: ResourceReference;
   branch: string;
   skillRefs: ResourceReference[];
   knowledgeMounts: WorkerTemplateKnowledgeMount[];
   environmentBundleRefs: ResourceReference[];
-  configBundleRefs: ResourceReference[];
+  configDocumentBindings: WorkerTemplateConfigDocumentBinding[];
   instructions: string;
 }
 

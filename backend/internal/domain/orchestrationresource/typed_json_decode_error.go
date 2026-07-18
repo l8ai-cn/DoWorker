@@ -34,6 +34,10 @@ func (err *safeTypedJSONError) Unwrap() error {
 }
 
 func sanitizeTypedJSONDecodeError(err error) error {
+	var safeError *safeTypedJSONError
+	if errors.As(err, &safeError) {
+		return safeError
+	}
 	var syntaxError *json.SyntaxError
 	if errors.As(err, &syntaxError) {
 		return boundedTypedJSONError(ErrTypedJSONSyntax, fmt.Sprintf(

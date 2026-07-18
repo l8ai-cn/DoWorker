@@ -21,16 +21,24 @@ describe("WorkerConfigFileSelect", () => {
     } as never);
   });
 
-  it("keeps only one config file selected", () => {
+  it("binds the selected config bundle to the declared document", () => {
     const onChange = vi.fn();
     render(
       <WorkerConfigFileSelect
         agentSlug="openclaw"
+        requirements={[{
+          document_id: "openclaw-json",
+          format: "json",
+          target_path: "openclaw-home/.openclaw/openclaw.json",
+        }]}
         bundles={[
           bundle(1, "base.json"),
           bundle(2, "overlay.json"),
         ]}
-        selectedIds={[1]}
+        bindings={[{
+          document_id: "openclaw-json",
+          config_bundle_id: 1,
+        }]}
         onChange={onChange}
         t={(key) => key}
       />,
@@ -38,7 +46,10 @@ describe("WorkerConfigFileSelect", () => {
 
     fireEvent.click(screen.getByRole("checkbox", { name: /overlay\.json/ }));
 
-    expect(onChange).toHaveBeenCalledWith([2]);
+    expect(onChange).toHaveBeenCalledWith([{
+      document_id: "openclaw-json",
+      config_bundle_id: 2,
+    }]);
   });
 
   it("validates and stores an uploaded JSON object", async () => {
@@ -46,8 +57,13 @@ describe("WorkerConfigFileSelect", () => {
     render(
       <WorkerConfigFileSelect
         agentSlug="openclaw"
+        requirements={[{
+          document_id: "openclaw-json",
+          format: "json",
+          target_path: "openclaw-home/.openclaw/openclaw.json",
+        }]}
         bundles={[]}
-        selectedIds={[]}
+        bindings={[]}
         onChange={onChange}
         t={(key) => key}
       />,
@@ -72,7 +88,10 @@ describe("WorkerConfigFileSelect", () => {
       kind: "config",
       data: { __json: '{"gateway":{"enabled":true}}' },
     }));
-    expect(onChange).toHaveBeenCalledWith([9]);
+    expect(onChange).toHaveBeenCalledWith([{
+      document_id: "openclaw-json",
+      config_bundle_id: 9,
+    }]);
   });
 });
 

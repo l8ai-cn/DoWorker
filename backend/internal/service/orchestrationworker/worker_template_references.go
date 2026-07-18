@@ -48,11 +48,11 @@ func workerTemplateReferences(
 			index,
 		), reference)
 	}
-	for index, reference := range spec.Workspace.ConfigBundleRefs {
+	for index, binding := range spec.Workspace.ConfigDocumentBindings {
 		appendReference(fmt.Sprintf(
-			"/spec/workspace/configBundleRefs/%d",
+			"/spec/workspace/configDocumentBindings/%d/configBundleRef",
 			index,
-		), reference)
+		), binding.ConfigBundleRef)
 	}
 	sort.Slice(references, func(left, right int) bool {
 		return references[left].Path < references[right].Path

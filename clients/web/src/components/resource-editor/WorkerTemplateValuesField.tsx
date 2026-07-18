@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useResourceEditorRowKeys } from "./use-resource-editor-row-keys";
 
 interface WorkerTemplateValuesFieldProps {
   value: Record<string, unknown>;
@@ -24,6 +25,7 @@ export function WorkerTemplateValuesField({
 }: WorkerTemplateValuesFieldProps) {
   const t = useTranslations("resourceEditor");
   const entries = Object.entries(value);
+  const rows = useResourceEditorRowKeys(entries.length);
   const replace = (index: number, key: string, next: unknown) => {
     onChange(Object.fromEntries(entries.map(([entryKey, entryValue], item) =>
       item === index ? [key, next] : [entryKey, entryValue])));
@@ -38,7 +40,10 @@ export function WorkerTemplateValuesField({
           size="icon"
           title={t("collections.add")}
           aria-label={`${t("collections.add")} ${t("fields.configValues")}`}
-          onClick={() => onChange({ ...value, [nextKey(value)]: "" })}
+          onClick={() => {
+            rows.appendKey();
+            onChange({ ...value, [nextKey(value)]: "" });
+          }}
         >
           <Plus className="h-4 w-4" />
         </Button>
@@ -50,7 +55,7 @@ export function WorkerTemplateValuesField({
         const type = valueType(entryValue);
         return (
           <div
-            key={`${key}-${index}`}
+            key={rows.keys[index]}
             className="grid gap-3 border-l-2 border-border pl-3 md:grid-cols-[12rem_8rem_minmax(0,1fr)_2.5rem]"
           >
             <FormField label={t("fields.configKey")} required>
@@ -92,9 +97,12 @@ export function WorkerTemplateValuesField({
               className="self-start md:mt-7"
               title={t("collections.remove")}
               aria-label={`${t("collections.remove")} ${key}`}
-              onClick={() => onChange(Object.fromEntries(
-                entries.filter((_, item) => item !== index),
-              ))}
+              onClick={() => {
+                rows.removeKey(index);
+                onChange(Object.fromEntries(
+                  entries.filter((_, item) => item !== index),
+                ));
+              }}
             >
               <Trash2 className="h-4 w-4" />
             </Button>

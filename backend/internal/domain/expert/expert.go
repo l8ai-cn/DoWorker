@@ -95,6 +95,11 @@ type Expert struct {
 
 func (Expert) TableName() string { return "experts" }
 
+func (e Expert) IsResourceManaged() bool {
+	return e.OrchestrationResourceID != nil ||
+		e.OrchestrationResourceRevision != nil
+}
+
 func (e *Expert) BeforeSave(_ *gorm.DB) error {
 	return slugkit.ValidateIdentifier("experts.slug", e.Slug)
 }

@@ -158,6 +158,25 @@ typeConfig:
 AI 模型 API 先在“设置 -> 组织 -> AI 资源”中创建，凭据加密保存；YAML 中的
 `ModelBinding` 只声明对应模型资源 ID，不包含凭据。
 
+## Worker 配置文档
+
+Worker Definition 会声明配置文档 ID、格式、目标路径和是否必需。YAML 只引用
+config 类型的 EnvironmentBundle：
+
+```yaml
+workspace:
+  configDocumentBindings:
+    - documentId: settings
+      configBundleRef:
+        kind: EnvironmentBundle
+        name: do-agent-settings
+        revision: 2
+```
+
+`required: true` 的文档必须绑定。可选文档未使用时应省略整条 binding，不能提交
+空名称、未知 `documentId`，也不能用 credential 或 runtime 环境包代替 config
+环境包。
+
 ## Plan 审查
 
 Apply 前至少检查：
@@ -182,6 +201,7 @@ Apply 前至少检查：
 | `forbidden reference` | 选择当前组织有权读取的资源 |
 | `reference not found` | 先 Apply 被引用资源或修正名称 |
 | `options revision is stale` | 使用当前 Worker 创建选项返回的版本 |
+| `configuration document ... requires` | 为必需文档选择 config EnvironmentBundle |
 | `worker-is-create-only` | 使用新名称创建新的 Worker |
 | `goal-loop-is-create-only` | 使用新名称创建新的 GoalLoop |
 | `goal-loop-name-already-exists` | 选择未被资源或历史 Loop 占用的名称 |

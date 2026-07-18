@@ -52,6 +52,36 @@ describe("useWorkerModelResources", () => {
         .toEqual([2]),
     );
   });
+
+  it("loads only the protocols supplied by the Worker Definition", async () => {
+    mockGetCatalog.mockResolvedValue([
+      provider("openai", "openai-compatible"),
+      provider("anthropic", "anthropic"),
+    ]);
+    mockListOrganizationResources.mockResolvedValue([
+      resource(1, "openai"),
+      resource(2, "anthropic"),
+    ]);
+    const useDefinitionRequirement = useWorkerModelResources as unknown as (
+      workerType: string,
+      initialModelResourceId: number | null,
+      includeToolModels: boolean,
+      requirement: { required: boolean; protocolAdapters: string[] },
+    ) => ReturnType<typeof useWorkerModelResources>;
+    const { result } = renderHook(() =>
+      useDefinitionRequirement(
+        "new-definition-worker",
+        null,
+        false,
+        { required: true, protocolAdapters: ["anthropic"] },
+      ),
+    );
+
+    await waitFor(() =>
+      expect(result.current.modelResources.map((item) => item.resource?.id))
+        .toEqual([2]),
+    );
+  });
 });
 
 function provider(key: string, protocolAdapter: string): ProviderDefinition {

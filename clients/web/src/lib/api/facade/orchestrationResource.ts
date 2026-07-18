@@ -8,6 +8,7 @@ export {
   createWorkerFromPlan,
   exportResource,
   getResource,
+  getResourceCapabilities,
   getResourcePlan,
   listResources,
   planResource,

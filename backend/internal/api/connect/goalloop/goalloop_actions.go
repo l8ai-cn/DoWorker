@@ -2,13 +2,13 @@ package goalloopconnect
 
 import (
 	"context"
+	"errors"
 
 	"connectrpc.com/connect"
 
 	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
 	domain "github.com/anthropics/agentsmesh/backend/internal/domain/goalloop"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	goalloopsvc "github.com/anthropics/agentsmesh/backend/internal/service/goalloop"
 	goalloopv1 "github.com/anthropics/agentsmesh/proto/gen/go/goalloop/v1"
 )
 
@@ -19,35 +19,10 @@ func (s *Server) CreateGoalLoop(
 	if err != nil {
 		return nil, err
 	}
-	if s.service == nil {
-		return nil, unavailable()
-	}
-	tenant := middleware.GetTenant(ctx)
-	loop, err := s.service.Create(ctx, goalloopsvc.CreateRequest{
-		OrganizationID:       tenant.OrganizationID,
-		CreatedByID:          tenant.UserID,
-		Name:                 req.Msg.GetName(),
-		Slug:                 req.Msg.GetSlug(),
-		Description:          optionalString(req.Msg.GetDescription()),
-		WorkerSpecSnapshotID: req.Msg.GetWorkerSpecSnapshotId(),
-		Objective:            req.Msg.GetObjective(),
-		AcceptanceCriteria:   req.Msg.GetAcceptanceCriteria(),
-		VerificationCommand:  req.Msg.GetVerificationCommand(),
-		MaxIterations:        optionalInt(req.Msg.MaxIterations),
-		TokenBudget:          req.Msg.TokenBudget,
-		TimeoutMinutes:       optionalInt(req.Msg.TimeoutMinutes),
-		NoProgressLimit:      optionalInt(req.Msg.NoProgressLimit),
-		SameErrorLimit:       optionalInt(req.Msg.SameErrorLimit),
-		EscalationPolicy:     req.Msg.GetEscalationPolicy(),
-	})
-	if err != nil {
-		return nil, mapServiceError(err)
-	}
-	item, err := toProto(loop)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, err)
-	}
-	return connect.NewResponse(item), nil
+	return nil, connect.NewError(
+		connect.CodeFailedPrecondition,
+		errors.New("goal loop definitions must be created through orchestration validate-plan-apply"),
+	)
 }
 
 func (s *Server) StartGoalLoop(

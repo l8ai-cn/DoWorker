@@ -11,7 +11,6 @@ import (
 	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	eventsv1 "github.com/anthropics/agentsmesh/proto/gen/go/events/v1"
 	podv1 "github.com/anthropics/agentsmesh/proto/gen/go/pod/v1"
 )
@@ -32,31 +31,9 @@ func (s *Server) CreatePod(
 	if err := validateAlias(alias); err != nil {
 		return nil, err
 	}
-	orchReq := &agentpod.OrchestrateCreatePodRequest{
-		OrganizationID:     tenant.OrganizationID,
-		UserID:             tenant.UserID,
-		RunnerID:           req.Msg.GetRunnerId(),
-		AgentSlug:          req.Msg.GetAgentSlug(),
-		RepositoryID:       optionalInt64(req.Msg.RepositoryId),
-		TicketSlug:         optionalString(req.Msg.TicketSlug),
-		Alias:              alias,
-		AgentfileLayer:     optionalString(req.Msg.AgentfileLayer),
-		AutomationLevel:    req.Msg.GetAutomationLevel(),
-		Cols:               req.Msg.GetCols(),
-		Rows:               req.Msg.GetRows(),
-		SourcePodKey:       req.Msg.GetSourcePodKey(),
-		ResumeAgentSession: optionalBool(req.Msg.ResumeAgentSession),
-		Perpetual:          req.Msg.GetPerpetual(),
-		KnowledgeMounts:    knowledgeMountsFromProto(req.Msg.GetKnowledgeMounts()),
-		ModelResourceID:    optionalInt64(req.Msg.ModelResourceId),
-		TokenBudget:        optionalInt64(req.Msg.TokenBudget),
-	}
-	if req.Msg.WorkerSpec != nil {
-		draft, err := workerDraftFromProto(req.Msg.WorkerSpec)
-		if err != nil {
-			return nil, connect.NewError(connect.CodeInvalidArgument, err)
-		}
-		orchReq.WorkerSpecDraft = &draft
+	orchReq, err := buildCreatePodRequest(req.Msg, tenant)
+	if err != nil {
+		return nil, err
 	}
 	result, err := s.orchestrator.CreatePod(ctx, orchReq)
 	if err != nil {

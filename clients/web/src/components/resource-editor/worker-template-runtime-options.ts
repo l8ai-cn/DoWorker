@@ -1,5 +1,11 @@
 import type { WorkerCreateOptions } from "@/lib/api/facade/podConnect";
 import type { WorkerTemplateDraft } from "./resource-editor-types";
+import {
+  sameConfigDocumentBindings,
+  sameCredentialReferences,
+  synchronizeConfigDocumentBindings,
+  synchronizeCredentialReferences,
+} from "./worker-template-definition-bindings";
 
 interface RuntimeOption {
   value: string;
@@ -30,14 +36,34 @@ export function synchronizeWorkerTemplateRuntime(
     type.supported_interaction_modes,
     draft.spec.typeConfig.interactionMode,
   );
+  const configDocumentBindings = synchronizeConfigDocumentBindings(
+    type.config_document_requirements,
+    draft.spec.workspace.configDocumentBindings,
+  );
+  const secretRefs = synchronizeCredentialReferences(
+    type.credential_requirements,
+    draft.spec.typeConfig.secretRefs,
+  );
   if (
     draft.spec.workerType === type.slug &&
     draft.spec.optionsRevision === options.revision &&
     draft.spec.runtime.runtimeImageId === (image?.id ?? 0) &&
     draft.spec.typeConfig.schemaVersion === type.schema_version &&
-    draft.spec.typeConfig.interactionMode === interactionMode
+    draft.spec.typeConfig.interactionMode === interactionMode &&
+    sameConfigDocumentBindings(
+      draft.spec.workspace.configDocumentBindings,
+      configDocumentBindings,
+    ) &&
+    sameCredentialReferences(draft.spec.typeConfig.secretRefs, secretRefs)
   ) return undefined;
-  return withRuntimeChoice(draft, options.revision, type, image?.id ?? 0);
+  return withRuntimeChoice(
+    draft,
+    options.revision,
+    type,
+    image?.id ?? 0,
+    configDocumentBindings,
+    secretRefs,
+  );
 }
 
 export function selectWorkerTemplateType(
@@ -50,7 +76,20 @@ export function selectWorkerTemplateType(
   );
   if (!type) return undefined;
   const image = firstCompatibleImage(options, slug);
-  return withRuntimeChoice(draft, options.revision, type, image?.id ?? 0);
+  return withRuntimeChoice(
+    draft,
+    options.revision,
+    type,
+    image?.id ?? 0,
+    synchronizeConfigDocumentBindings(
+      type.config_document_requirements,
+      draft.spec.workspace.configDocumentBindings,
+    ),
+    synchronizeCredentialReferences(
+      type.credential_requirements,
+      draft.spec.typeConfig.secretRefs,
+    ),
+  );
 }
 
 export function workerTemplateTypeOptions(
@@ -62,6 +101,15 @@ export function workerTemplateTypeOptions(
     selectable: option.selectable,
     blockingReason: option.blocking_reason,
   }));
+}
+
+export function workerTemplateRequiresModelBinding(
+  options: WorkerCreateOptions,
+  workerType: string,
+): boolean {
+  return options.worker_types.find(
+    (option) => option.slug === workerType,
+  )?.requires_model_resource ?? false;
 }
 
 export function workerTemplateRuntimeImageOptions(
@@ -83,6 +131,8 @@ function withRuntimeChoice(
   optionsRevision: string,
   type: WorkerCreateOptions["worker_types"][number],
   runtimeImageId: number,
+  configDocumentBindings: WorkerTemplateDraft["spec"]["workspace"]["configDocumentBindings"],
+  secretRefs: WorkerTemplateDraft["spec"]["typeConfig"]["secretRefs"],
 ): WorkerTemplateDraft {
   return {
     ...draft,
@@ -91,8 +141,10 @@ function withRuntimeChoice(
       optionsRevision,
       workerType: type.slug,
       runtime: { ...draft.spec.runtime, runtimeImageId },
+      workspace: { ...draft.spec.workspace, configDocumentBindings },
       typeConfig: {
         ...draft.spec.typeConfig,
+        secretRefs,
         schemaVersion: type.schema_version,
         interactionMode: supportedInteractionMode(
           type.supported_interaction_modes,

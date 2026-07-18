@@ -86,8 +86,8 @@ spec:
       name: primary-pool
     deploymentMode: pooled
     customResources:
-      cpuRequestMillicpu: 500
-      cpuLimitMillicpu: 1000
+    cpuRequestMilliCPU: 500
+    cpuLimitMilliCPU: 1000
       memoryRequestBytes: 536870912
       memoryLimitBytes: 1073741824
       storageRequestBytes: 1073741824
@@ -103,7 +103,11 @@ spec:
     skillRefs: []
     knowledgeMounts: []
     environmentBundleRefs: []
-    configBundleRefs: []
+    configDocumentBindings:
+      - documentId: settings
+        configBundleRef:
+          kind: EnvironmentBundle
+          name: codex-settings
     instructions: Review before editing.
   lifecycle:
     terminationPolicy: manual
@@ -115,3 +119,8 @@ spec:
 `runtime.resourceProfileRef` 与 `customResources` 互斥。仓库、Skill、知识库和
 环境包分别通过 `repositoryRef`、`skillRefs`、`knowledgeMounts` 和
 `environmentBundleRefs` 引用。
+
+Worker Definition 是配置文档契约的唯一来源。每个
+`configDocumentBindings[].documentId` 必须由当前 Worker 类型声明，绑定值必须
+是 `EnvironmentBundle` 的 config 资源。`required: true` 的配置文档必须绑定；
+`required: false` 的配置文档可以完全省略，不能用空 ResourceRef 占位。

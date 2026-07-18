@@ -4,13 +4,18 @@ import { Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import type { ResourceReference } from "./resource-editor-types";
-import type { ResourceReferenceCatalog } from "./resource-reference-options";
+import {
+  isResourceReferenceCatalogReadOnly,
+  type ResourceReferenceCatalog,
+} from "./resource-reference-options";
 import { ResourceReferenceField } from "./ResourceReferenceField";
+import { useResourceEditorRowKeys } from "./use-resource-editor-row-keys";
 
 interface ResourceReferenceListFieldProps {
   id: string;
   label: string;
   kind: string;
+  catalogKey?: string;
   value: ResourceReference[];
   catalog: ResourceReferenceCatalog;
   onChange: (value: ResourceReference[]) => void;
@@ -20,11 +25,18 @@ export function ResourceReferenceListField({
   id,
   label,
   kind,
+  catalogKey,
   value,
   catalog,
   onChange,
 }: ResourceReferenceListFieldProps) {
   const t = useTranslations("resourceEditor");
+  const rows = useResourceEditorRowKeys(value.length);
+  const readOnly = isResourceReferenceCatalogReadOnly(
+    catalog,
+    catalogKey ?? kind,
+    value.map((reference) => reference.name),
+  );
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-3">
@@ -35,7 +47,12 @@ export function ResourceReferenceListField({
           size="icon"
           title={t("collections.add")}
           aria-label={`${t("collections.add")} ${label}`}
-          onClick={() => onChange([...value, { kind, name: "" }])}
+          disabled={readOnly}
+          onClick={() => {
+            if (readOnly) return;
+            rows.appendKey();
+            onChange([...value, { kind, name: "" }]);
+          }}
         >
           <Plus className="h-4 w-4" />
         </Button>
@@ -47,13 +64,14 @@ export function ResourceReferenceListField({
       )}
       {value.map((reference, index) => (
         <div
-          key={`${reference.name}-${index}`}
+          key={rows.keys[index]}
           className="grid gap-2 border-l-2 border-border pl-3 sm:grid-cols-[minmax(0,1fr)_2.5rem]"
         >
           <ResourceReferenceField
             id={`${id}-${index}`}
             label={`${label} ${index + 1}`}
             kind={kind}
+            catalogKey={catalogKey}
             value={reference}
             catalog={catalog}
             required
@@ -70,7 +88,12 @@ export function ResourceReferenceListField({
             className="self-start sm:mt-7"
             title={t("collections.remove")}
             aria-label={`${t("collections.remove")} ${label} ${index + 1}`}
-            onClick={() => onChange(value.filter((_, item) => item !== index))}
+            disabled={readOnly}
+            onClick={() => {
+              if (readOnly) return;
+              rows.removeKey(index);
+              onChange(value.filter((_, item) => item !== index));
+            }}
           >
             <Trash2 className="h-4 w-4" />
           </Button>

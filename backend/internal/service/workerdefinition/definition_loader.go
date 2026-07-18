@@ -2,14 +2,11 @@ package workerdefinition
 
 import (
 	"bytes"
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 
-	agentfileschema "github.com/anthropics/agentsmesh/agentfile/schema"
 	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 )
 
@@ -19,76 +16,21 @@ func loadDefinition(repoRoot string, entry catalogWorker) (Definition, error) {
 	if err != nil {
 		return Definition{}, fmt.Errorf("read Worker definition %q: %w", entry.Slug, err)
 	}
-	var document definitionFile
-	if err := json.Unmarshal(raw, &document); err != nil {
-		return Definition{}, fmt.Errorf("decode Worker definition %q: %w", entry.Slug, err)
-	}
-	if err := validateDefinition(entry.Slug, document); err != nil {
-		return Definition{}, err
-	}
 	agentFile, err := os.ReadFile(filepath.Join(filepath.Dir(path), "AgentFile"))
 	if err != nil {
 		return Definition{}, fmt.Errorf("read Worker AgentFile %q: %w", entry.Slug, err)
 	}
-	hash := definitionBundleHash(raw, agentFile)
-	if entry.DefinitionHash != "sha256:"+hash {
+	definition, err := ParseSnapshot(raw, string(agentFile))
+	if err != nil {
+		return Definition{}, fmt.Errorf("decode Worker definition %q: %w", entry.Slug, err)
+	}
+	if definition.Slug != entry.Slug {
+		return Definition{}, fmt.Errorf("worker definition %q slug does not match catalog", entry.Slug)
+	}
+	if entry.DefinitionHash != "sha256:"+definition.DefinitionHash {
 		return Definition{}, fmt.Errorf("worker definition %q hash does not match catalog", entry.Slug)
 	}
-	agentSchema, err := agentfileschema.FromSource(string(agentFile))
-	if err != nil {
-		return Definition{}, fmt.Errorf("parse Worker AgentFile %q: %w", entry.Slug, err)
-	}
-	bindings, err := decodeCredentialBindings(document.CredentialBindings)
-	if err != nil {
-		return Definition{}, fmt.Errorf("decode Worker credentials %q: %w", entry.Slug, err)
-	}
-	modelRequirement, err := decodeModelRequirement(document.ModelRequirement)
-	if err != nil {
-		return Definition{}, fmt.Errorf(
-			"decode Worker model requirement %q: %w",
-			entry.Slug,
-			err,
-		)
-	}
-	toolModelRequirements, err := decodeToolModelRequirements(document.ToolModelRequirements)
-	if err != nil {
-		return Definition{}, fmt.Errorf(
-			"decode Worker tool model requirements %q: %w",
-			entry.Slug,
-			err,
-		)
-	}
-	if err := validateCredentialBindingSchema(
-		modelRequirement,
-		agentSchema,
-		bindings,
-		toolModelRequirements,
-	); err != nil {
-		return Definition{}, fmt.Errorf(
-			"validate Worker credential bindings %q: %w",
-			entry.Slug,
-			err,
-		)
-	}
-	configDocuments, err := decodeConfigDocuments(document.ConfigDocuments)
-	if err != nil {
-		return Definition{}, fmt.Errorf("decode Worker config documents %q: %w", entry.Slug, err)
-	}
-	image, err := decodeImage(document.Image)
-	if err != nil {
-		return Definition{}, fmt.Errorf("decode Worker image %q: %w", entry.Slug, err)
-	}
-	return Definition{
-		Slug: entry.Slug, Version: document.DefinitionVersion,
-		Executable: document.Executable, AdapterID: document.AdapterID,
-		DefinitionHash: hash, AgentFile: string(agentFile),
-		Modes:                 append([]string{}, document.InteractionModes...),
-		ModelRequirement:      modelRequirement,
-		ToolModelRequirements: toolModelRequirements,
-		CredentialBindings:    bindings,
-		ConfigDocuments:       configDocuments,
-		Image:                 image,
-	}, nil
+	return definition, nil
 }
 
 func validateDefinition(slug string, document definitionFile) error {
@@ -111,6 +53,15 @@ func validateDefinition(slug string, document definitionFile) error {
 	if err := validateCredentialBindings(document.CredentialBindings); err != nil {
 		return fmt.Errorf("worker definition %q has invalid credential binding: %w", slug, err)
 	}
+	if err := validateCredentialRequirementGroups(
+		document.CredentialRequirementGroups,
+	); err != nil {
+		return fmt.Errorf(
+			"worker definition %q has invalid credential requirement group: %w",
+			slug,
+			err,
+		)
+	}
 	if _, err := decodeModelRequirement(document.ModelRequirement); err != nil {
 		return fmt.Errorf("worker definition %q has invalid model requirement: %w", slug, err)
 	}
@@ -127,6 +78,7 @@ type configDocumentDocument struct {
 	ID         string `json:"id"`
 	Format     string `json:"format"`
 	TargetPath string `json:"target_path"`
+	Required   *bool  `json:"required"`
 }
 
 func validateConfigDocuments(documents []json.RawMessage) error {
@@ -141,10 +93,18 @@ func decodeConfigDocuments(rawDocuments []json.RawMessage) ([]ConfigDocument, er
 		if err := decodeStrict(raw, &document); err != nil {
 			return nil, err
 		}
-		if document.ID == "" || document.Format == "" || document.TargetPath == "" {
-			return nil, fmt.Errorf("config document must declare id, format, and target_path")
+		if document.ID == "" || document.Format != "json" ||
+			document.TargetPath == "" || document.Required == nil {
+			return nil, fmt.Errorf(
+				"config document must declare id, format, target_path, and required",
+			)
 		}
-		documents = append(documents, ConfigDocument(document))
+		documents = append(documents, ConfigDocument{
+			ID:         document.ID,
+			Format:     document.Format,
+			TargetPath: document.TargetPath,
+			Required:   *document.Required,
+		})
 	}
 	return documents, nil
 }
@@ -174,12 +134,4 @@ func decodeStrict(raw json.RawMessage, target any) error {
 	decoder := json.NewDecoder(bytes.NewReader(raw))
 	decoder.DisallowUnknownFields()
 	return decoder.Decode(target)
-}
-
-func definitionBundleHash(definition, agentFile []byte) string {
-	hash := sha256.New()
-	_, _ = hash.Write(definition)
-	_, _ = hash.Write([]byte{0})
-	_, _ = hash.Write(agentFile)
-	return hex.EncodeToString(hash.Sum(nil))
 }

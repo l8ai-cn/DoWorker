@@ -78,3 +78,10 @@ func (l *GoalLoop) BeforeSave() error {
 func (l *GoalLoop) IsTerminal() bool {
 	return l.Status == StatusCompleted || l.Status == StatusFailed || l.Status == StatusCancelled
 }
+
+func (l *GoalLoop) HasCompleteResourceBinding() bool {
+	return l.OrchestrationResourceID != nil &&
+		*l.OrchestrationResourceID > 0 &&
+		l.OrchestrationResourceRevision != nil &&
+		*l.OrchestrationResourceRevision > 0
+}
