@@ -71,26 +71,31 @@ type workerCreateOptionsWire struct {
 		SchemaVersion    uint32   `json:"schemaVersion"`
 		ConfigSchemaJSON string   `json:"configSchemaJson"`
 		Selectable       bool     `json:"selectable"`
+		BlockingReason   string   `json:"blockingReason"`
 		RequiresModel    bool     `json:"requiresModelResource"`
 		InteractionModes []string `json:"supportedInteractionModes"`
 	} `json:"workerTypes"`
 	RuntimeImages []struct {
-		ID          string   `json:"id"`
-		WorkerTypes []string `json:"workerTypeSlugs"`
-		Selectable  bool     `json:"selectable"`
+		ID             string   `json:"id"`
+		WorkerTypes    []string `json:"workerTypeSlugs"`
+		Selectable     bool     `json:"selectable"`
+		BlockingReason string   `json:"blockingReason"`
 	} `json:"runtimeImages"`
 	ComputeTargets []struct {
 		ID             string `json:"id"`
 		SupportsPooled bool   `json:"supportsPooled"`
 		Selectable     bool   `json:"selectable"`
+		BlockingReason string `json:"blockingReason"`
 	} `json:"computeTargets"`
 	DeploymentModes []struct {
-		Value      string `json:"value"`
-		Selectable bool   `json:"selectable"`
+		Value          string `json:"value"`
+		Selectable     bool   `json:"selectable"`
+		BlockingReason string `json:"blockingReason"`
 	} `json:"deploymentModes"`
 	ResourceProfiles []struct {
-		ID         string `json:"id"`
-		Selectable bool   `json:"selectable"`
+		ID             string `json:"id"`
+		Selectable     bool   `json:"selectable"`
+		BlockingReason string `json:"blockingReason"`
 	} `json:"resourceProfiles"`
 }
 

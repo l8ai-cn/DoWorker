@@ -9,8 +9,9 @@ import (
 
 var formalWorkerSlugs = []string{
 	"aider", "claude-code", "codex-cli", "cursor-cli", "do-agent",
-	"gemini-cli", "grok-build", "hermes", "loopal", "minimax-cli",
-	"openclaw", "opencode", "pattern-designer", "seedance-expert",
+	"e2e-echo", "gemini-cli", "grok-build", "hermes", "loopal",
+	"minimax-cli", "openclaw", "opencode", "pattern-designer",
+	"seedance-expert",
 }
 
 type Catalog struct {
@@ -21,6 +22,7 @@ type Catalog struct {
 type Definition struct {
 	Slug                        string
 	Version                     string
+	Internal                    bool
 	Executable                  string
 	AdapterID                   string
 	DefinitionHash              string
@@ -98,6 +100,7 @@ type definitionFile struct {
 	SchemaVersion               int               `json:"schema_version"`
 	Slug                        string            `json:"slug"`
 	DefinitionVersion           string            `json:"definition_version"`
+	Internal                    bool              `json:"internal"`
 	Executable                  string            `json:"executable"`
 	AdapterID                   string            `json:"adapter_id"`
 	InteractionModes            []string          `json:"interaction_modes"`

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"slices"
 	"strconv"
+	"strings"
 )
 
 func selectEchoWorkerSpec(
@@ -59,7 +60,8 @@ func selectEchoRuntime(
 		}, nil
 	}
 	return WorkerSpecDraft{}, fmt.Errorf(
-		"selectable e2e-echo worker type is unavailable",
+		"selectable e2e-echo worker type is unavailable: %s",
+		workerOptionsSummary(options),
 	)
 }
 
@@ -71,7 +73,8 @@ func selectableEchoImage(options workerCreateOptionsWire) (int64, error) {
 		}
 	}
 	return 0, fmt.Errorf(
-		"selectable e2e-echo runtime image is unavailable",
+		"selectable e2e-echo runtime image is unavailable: %s",
+		workerOptionsSummary(options),
 	)
 }
 
@@ -91,7 +94,8 @@ func selectablePlacement(
 	}
 	if targetID == 0 {
 		return 0, 0, fmt.Errorf(
-			"selectable pooled compute target is unavailable",
+			"selectable pooled compute target is unavailable: %s",
+			workerOptionsSummary(options),
 		)
 	}
 	for _, profile := range options.ResourceProfiles {
@@ -103,7 +107,39 @@ func selectablePlacement(
 			return targetID, profileID, err
 		}
 	}
-	return 0, 0, fmt.Errorf("selectable resource profile is unavailable")
+	return 0, 0, fmt.Errorf(
+		"selectable resource profile is unavailable: %s",
+		workerOptionsSummary(options),
+	)
+}
+
+func workerOptionsSummary(options workerCreateOptionsWire) string {
+	var parts []string
+	for _, workerType := range options.WorkerTypes {
+		if workerType.Slug == echoWorkerType {
+			parts = append(parts, fmt.Sprintf(
+				"workerType selectable=%t reason=%q modes=%v",
+				workerType.Selectable,
+				workerType.BlockingReason,
+				workerType.InteractionModes,
+			))
+			break
+		}
+	}
+	if len(parts) == 0 {
+		parts = append(parts, fmt.Sprintf(
+			"workerType missing among %d type(s)",
+			len(options.WorkerTypes),
+		))
+	}
+	parts = append(parts, fmt.Sprintf(
+		"runtimeImages=%d computeTargets=%d deploymentModes=%d resourceProfiles=%d",
+		len(options.RuntimeImages),
+		len(options.ComputeTargets),
+		len(options.DeploymentModes),
+		len(options.ResourceProfiles),
+	))
+	return strings.Join(parts, "; ")
 }
 
 func parsePositiveID(field, value string) (int64, error) {
