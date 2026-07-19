@@ -19,7 +19,7 @@ describe("MCPToolsPage", () => {
 
     expect(podSection).not.toBeNull();
     expect(workflowSection).not.toBeNull();
-    expect(within(podSection!).getByText("resource (Worker, required)"))
+    expect(within(podSection!).getByText("plan_id (required)"))
       .toBeInTheDocument();
     expect(within(workflowSection!).getByText("create_workflow"))
       .toBeInTheDocument();

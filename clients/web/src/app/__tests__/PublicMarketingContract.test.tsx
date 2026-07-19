@@ -6,6 +6,12 @@ vi.mock("next/font/google", () => ({
   Geist_Mono: () => ({ variable: "--font-geist-mono" }),
   Space_Grotesk: () => ({ variable: "--font-space-grotesk" }),
 }));
+vi.mock("geist/font/sans", () => ({
+  GeistSans: { variable: "--font-geist-sans" },
+}));
+vi.mock("geist/font/mono", () => ({
+  GeistMono: { variable: "--font-geist-mono" },
+}));
 
 import DownloadPage from "../download/page";
 import EnterprisePage from "../enterprise/page";

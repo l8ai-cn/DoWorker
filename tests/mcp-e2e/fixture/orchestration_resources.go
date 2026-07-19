@@ -8,6 +8,11 @@ import (
 	"github.com/anthropics/agentsmesh/tests/mcp-e2e/client"
 )
 
+type WorkflowResource struct {
+	Name string
+	ID   int64
+}
+
 func NewEchoWorkerTemplateResource(
 	t *testing.T,
 	env *Env,
@@ -96,6 +101,38 @@ func NewPromptResource(
 		"content": content, "variables": map[string]any{},
 	})
 	return name
+}
+
+func NewWorkflowResource(
+	t *testing.T,
+	env *Env,
+	rest *client.REST,
+	prefix,
+	prompt string,
+) WorkflowResource {
+	t.Helper()
+	templateName := NewEchoWorkerTemplateResource(t, env, rest, prefix)
+	promptName := NewPromptResource(t, env, rest, prefix, prompt)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	name := uniqueAlias(prefix)
+	applied := applyResource(t, ctx, rest, env.DevOrgSlug, "Workflow", name, map[string]any{
+		"workerTemplateRef": map[string]any{
+			"kind": "WorkerTemplate", "name": templateName,
+		},
+		"promptRef": map[string]any{
+			"kind": "Prompt", "name": promptName,
+		},
+		"inputs": map[string]any{}, "executionMode": "direct",
+		"cronExpression": "", "sandboxStrategy": "fresh",
+		"sessionPersistence": false, "concurrencyPolicy": "skip",
+		"maxConcurrentRuns": 1, "maxRetainedRuns": 0,
+		"timeoutMinutes": 1, "idleTimeoutSeconds": 30,
+	})
+	if applied.WorkflowID <= 0 {
+		t.Fatal("workflow apply returned no workflow id")
+	}
+	return WorkflowResource{Name: name, ID: applied.WorkflowID}
 }
 
 func applyResource(

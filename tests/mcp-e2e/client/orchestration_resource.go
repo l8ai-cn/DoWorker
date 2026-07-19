@@ -14,6 +14,7 @@ const orchestrationResourceService = "/proto.orchestration_resource.v1." +
 type AppliedOrchestrationResource struct {
 	Revision             int64
 	WorkerSpecSnapshotID int64
+	WorkflowID           int64
 }
 
 type resourceIssueWire struct {
@@ -141,6 +142,8 @@ func (r *REST) ApplyOrchestrationResource(
 			err = parseErr
 		}
 		return response.Resource.applied(snapshotID, err)
+	case "Workflow":
+		return r.applyWorkflowResource(ctx, request)
 	default:
 		return AppliedOrchestrationResource{}, fmt.Errorf(
 			"unsupported orchestration resource kind %q",

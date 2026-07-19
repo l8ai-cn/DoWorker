@@ -2,77 +2,59 @@ package suites
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/tests/mcp-e2e/client"
 	"github.com/anthropics/agentsmesh/tests/mcp-e2e/fixture"
 )
-
-// These specs create workflows through Connect, then exercise their MCP surface.
 
 func TestWorkflow_ListShowsSeededWorkflow(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	rest := fixture.SharedREST(t, env)
-	runner := fixture.DiscoverRunner(t, env, rest)
-	pod := fixture.NewEchoPod(t, env, rest, runner.ID)
+	pod := fixture.NewEchoPod(t, env, rest)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	workflowName := fmt.Sprintf("e2e-workflow-list-%d", time.Now().UnixMilli())
-	workflow, err := rest.CreateWorkflow(ctx, env.DevOrgSlug, client.CreateWorkflowRequest{
-		Name:           workflowName,
-		AgentSlug:      "e2e-echo",
-		PromptTemplate: "do something",
-		RunnerID:       &runner.ID,
-	})
-	if err != nil {
-		t.Fatalf("create workflow via Connect: %v", err)
-	}
+	workflow := fixture.NewWorkflowResource(
+		t,
+		env,
+		rest,
+		"e2e-workflow-list",
+		"do something",
+	)
 
 	out, err := pod.MCP.CallToolText(ctx, "list_workflows", map[string]any{
-		"query": workflowName,
+		"query": workflow.Name,
 		"limit": 10,
 	})
 	if err != nil {
 		t.Fatalf("list_workflows: %v", err)
 	}
-	if !strings.Contains(out, workflowName) && !strings.Contains(out, workflow.Slug) {
-		t.Errorf("seeded workflow %q (slug=%s) not surfaced by list_workflows:\n%s",
-			workflowName, workflow.Slug, out)
+	if !strings.Contains(out, workflow.Name) {
+		t.Errorf("seeded workflow %q not surfaced by list_workflows:\n%s",
+			workflow.Name, out)
 	}
 }
 
 func TestWorkflow_TriggerCreatesRun(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	rest := fixture.SharedREST(t, env)
-	runner := fixture.DiscoverRunner(t, env, rest)
-	pod := fixture.NewEchoPod(t, env, rest, runner.ID)
+	pod := fixture.NewEchoPod(t, env, rest)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	workflowName := fmt.Sprintf("e2e-workflow-trigger-%d", time.Now().UnixMilli())
-	workflow, err := rest.CreateWorkflow(ctx, env.DevOrgSlug, client.CreateWorkflowRequest{
-		Name:           workflowName,
-		AgentSlug:      "e2e-echo",
-		PromptTemplate: "{{.task}}",
-		RunnerID:       &runner.ID,
-	})
-	if err != nil {
-		t.Fatalf("create workflow: %v", err)
-	}
-	if err := rest.EnableWorkflow(ctx, env.DevOrgSlug, workflow.Slug); err != nil {
-		t.Fatalf("enable workflow %s: %v", workflow.Slug, err)
-	}
+	workflow := fixture.NewWorkflowResource(
+		t,
+		env,
+		rest,
+		"e2e-workflow-trigger",
+		"{{.task}}",
+	)
 
-	db, err := client.OpenDB(env.PostgresDSN)
-	if err != nil {
-		t.Fatalf("open db: %v", err)
-	}
+	db := fixture.OpenDB(t, env)
 	t.Cleanup(func() { _ = db.Close() })
 
 	var beforeRuns int
@@ -83,10 +65,10 @@ func TestWorkflow_TriggerCreatesRun(t *testing.T) {
 	}
 
 	if _, err := pod.MCP.CallToolText(ctx, "trigger_workflow", map[string]any{
-		"workflow_slug": workflow.Slug,
+		"workflow_slug": workflow.Name,
 		"variables":     map[string]any{"task": "ping"},
 	}); err != nil {
-		t.Fatalf("trigger_workflow %s: %v", workflow.Slug, err)
+		t.Fatalf("trigger_workflow %s: %v", workflow.Name, err)
 	}
 
 	deadline := time.Now().Add(5 * time.Second)

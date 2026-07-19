@@ -12,8 +12,7 @@ import (
 func TestWorkflow_ListDecodes(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	rest := fixture.SharedREST(t, env)
-	runner := fixture.DiscoverRunner(t, env, rest)
-	pod := fixture.NewEchoPod(t, env, rest, runner.ID)
+	pod := fixture.NewEchoPod(t, env, rest)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -28,8 +27,7 @@ func TestWorkflow_ListDecodes(t *testing.T) {
 func TestWorkflow_TriggerUnknownErrors(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	rest := fixture.SharedREST(t, env)
-	runner := fixture.DiscoverRunner(t, env, rest)
-	pod := fixture.NewEchoPod(t, env, rest, runner.ID)
+	pod := fixture.NewEchoPod(t, env, rest)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

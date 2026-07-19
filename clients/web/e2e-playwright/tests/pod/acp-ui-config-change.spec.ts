@@ -1,7 +1,6 @@
 import { test, expect } from "../../fixtures/index";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { terminateAllPods } from "../../helpers/pod-cleanup";
-import { takeWorkerControl } from "../../helpers/acp-spec-setup";
 import {
   createMockAgentPod,
   workspaceUrlForPod,
