@@ -75,6 +75,8 @@ if grep -q './runner-ssh:/home/runner/.ssh' docker-compose.runners.yml; then
   exit 1
 fi
 grep -q "'e2e-mock-agent'," seed/e2e_echo.sql
+grep -q 'autopilot_fs' seed/e2e_echo.sql
+grep -q 'permission_modes_loopal' seed/e2e_echo.sql
 grep -q 'DEV_SKIP_DOAGENT:-}" != "1"' dev.sh
 grep -q 'DEV_E2E_RUNNERS_ONLY:-}" != "1"' dev.sh
 
