@@ -65,9 +65,7 @@ func validateRepositoryCredential(repository Repository) error {
 			return fmt.Errorf("unauthenticated repository clone requires an HTTP endpoint")
 		}
 	case user.CredentialTypeRunnerLocal:
-		if credential.CredentialID != nil || credential.OwnerUserID != 0 {
-			return fmt.Errorf("runner-local repository clone must not carry a credential id")
-		}
+		return fmt.Errorf("runner-local repository clone requires an exact Runner secret reference")
 	case user.CredentialTypeOAuth, user.CredentialTypePAT:
 		if credential.CredentialID == nil || *credential.CredentialID <= 0 {
 			return fmt.Errorf("repository credential id must be positive")

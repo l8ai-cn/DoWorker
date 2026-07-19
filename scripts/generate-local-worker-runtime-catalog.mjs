@@ -32,6 +32,11 @@ const localRuntimeMetadata = {
     name: "DoAgent (local development)",
     workerTypeSlugs: ["do-agent", "seedance-expert"],
   },
+  "e2e-echo": {
+    id: 13,
+    slug: "e2e-echo-local",
+    name: "E2E Echo (local development)",
+  },
   aider: {
     id: 6,
     slug: "aider-local",

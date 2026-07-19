@@ -9,17 +9,18 @@ local_worker_runner_services() {
         case "$worker_type" in
             codex-cli|pattern-designer) service="runner-codex-cli" ;;
             gemini-cli) service="runner-gemini-cli" ;;
-        minimax-cli) service="runner-minimax-cli" ;;
-        openclaw) service="runner-openclaw" ;;
-        do-agent|seedance-expert) service="runner-do-agent" ;;
-        aider) service="runner-aider" ;;
-        claude-code) service="runner-claude-code" ;;
-        cursor-cli) service="runner-cursor-cli" ;;
-        grok-build) service="runner-grok-build" ;;
-        hermes) service="runner-hermes" ;;
-        loopal) service="runner-loopal" ;;
-        opencode) service="runner-opencode" ;;
-        *) continue ;;
+            minimax-cli) service="runner-minimax-cli" ;;
+            openclaw) service="runner-openclaw" ;;
+            do-agent|seedance-expert) service="runner-do-agent" ;;
+            e2e-echo) service="runner-e2e-echo" ;;
+            aider) service="runner-aider" ;;
+            claude-code) service="runner-claude-code" ;;
+            cursor-cli) service="runner-cursor-cli" ;;
+            grok-build) service="runner-grok-build" ;;
+            hermes) service="runner-hermes" ;;
+            loopal) service="runner-loopal" ;;
+            opencode) service="runner-opencode" ;;
+            *) continue ;;
         esac
         if [[ " ${services[*]-} " != *" $service "* ]]; then
             services+=("$service")
@@ -40,6 +41,7 @@ prepare_local_worker_runtime_catalog() {
         --runtime "minimax-cli=${COMPOSE_PROJECT_NAME}-runner-minimax-cli:latest" \
         --runtime "openclaw=${COMPOSE_PROJECT_NAME}-runner-openclaw:latest" \
         --runtime "do-agent=${COMPOSE_PROJECT_NAME}-runner-do-agent:latest" \
+        --runtime "e2e-echo=${COMPOSE_PROJECT_NAME}-runner-e2e-echo:latest" \
         --runtime "aider=${COMPOSE_PROJECT_NAME}-runner-aider:latest" \
         --runtime "claude-code=${COMPOSE_PROJECT_NAME}-runner-claude-code:latest" \
         --runtime "cursor-cli=${COMPOSE_PROJECT_NAME}-runner-cursor-cli:latest" \

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
@@ -20,8 +21,10 @@ func (service *Service) listWorkerTypeOptions(
 		return nil, err
 	}
 	options := make([]WorkerTypeOption, 0, len(agents))
+	includeInternal := os.Getenv("AGENTSMESH_INCLUDE_INTERNAL_AGENTS") == "true"
 	for _, agent := range agents {
-		if agent == nil || !agent.IsActive || agent.IsInternal ||
+		if agent == nil || !agent.IsActive ||
+			(agent.IsInternal && !includeInternal) ||
 			(filter != "" && agent.Slug != filter) {
 			continue
 		}

@@ -3,6 +3,8 @@ package workercreation
 import (
 	"context"
 	"errors"
+	"os"
+	"path/filepath"
 	"testing"
 
 	agentdomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
@@ -100,6 +102,71 @@ func TestServiceListOptionsExposesModelRequirement(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, options.WorkerTypes, 1)
 	assert.False(t, options.WorkerTypes[0].RequiresModelResource)
+}
+
+func TestServiceListOptionsAllowsInternalWorkerTypesInE2EEnvironment(
+	t *testing.T,
+) {
+	t.Setenv("AGENTSMESH_INCLUDE_INTERNAL_AGENTS", "true")
+	source := "AGENT e2e-mock-agent\nEXECUTABLE e2e-mock-agent\nMODE pty\nMODE acp\n"
+	agent := activeWorkerTypeAgentFor("e2e-echo", "e2e-mock-agent", source)
+	agent.IsInternal = true
+	agent.SupportedModes = "pty,acp"
+	catalogPath := filepath.Join(t.TempDir(), "runtime-catalog.json")
+	require.NoError(t, os.WriteFile(
+		catalogPath,
+		[]byte(`{
+  "schema_version": 1,
+  "revision": "e2e-runtime-catalog",
+  "images": [{
+    "id": 1,
+    "slug": "e2e-echo-local",
+    "name": "E2E Echo",
+    "reference": "docker-daemon://agentsmesh-runner-e2e-echo:latest@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "worker_type_slugs": ["e2e-echo"],
+    "enabled": true
+  }]
+}`),
+		0o600,
+	))
+	catalog, err := runtimedomain.LoadCatalog(catalogPath)
+	require.NoError(t, err)
+	service := NewService(Deps{
+		Catalog: catalog,
+		Definitions: staticWorkerDefinitions{
+			"e2e-echo": noModelWorkerDefinition(
+				"e2e-echo",
+				"e2e-mock-agent",
+				source,
+				"pty",
+				"acp",
+			),
+		},
+		Agents: &workerOptionsAgentProvider{agents: []*agentdomain.Agent{agent}},
+		Runners: workerOptionsRunnerAvailability{
+			available: true,
+		},
+	})
+
+	options, err := service.ListOptions(
+		context.Background(),
+		specservice.Scope{OrgID: 77, UserID: 7},
+		OptionsFilter{WorkerTypeSlug: "e2e-echo"},
+	)
+
+	require.NoError(t, err)
+	require.Len(t, options.WorkerTypes, 1)
+	assert.True(t, options.WorkerTypes[0].Selectable)
+	assert.False(t, options.WorkerTypes[0].RequiresModelResource)
+	assert.Contains(
+		t,
+		options.WorkerTypes[0].SupportedInteractionModes,
+		specdomain.InteractionModeACP,
+	)
+	require.Len(t, options.RuntimeImages, 1)
+	assert.True(t, options.RuntimeImages[0].Selectable)
+	assert.Contains(t, options.RuntimeImages[0].Image.WorkerTypeSlugs, "e2e-echo")
 }
 
 func TestServiceListOptionsRequiresRunnerAvailabilityResolver(t *testing.T) {
