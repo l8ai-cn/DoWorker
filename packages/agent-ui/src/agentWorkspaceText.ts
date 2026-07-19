@@ -1,6 +1,7 @@
 import type { AgentConnectionStatus, AgentSessionStatus } from "./contracts";
 import type { ArtifactWorkspaceText } from "./artifactWorkspaceText";
 import type { ToolActivityCount } from "./toolActivityGroupText";
+import type { VideoExecutionTraceText } from "./videoExecutionTraceText";
 import type { VideoTaskStatusText } from "./videoTaskStatusText";
 import {
   chineseAgentWorkspaceText,
@@ -42,9 +43,9 @@ export interface AgentWorkspaceText {
   takeControl: string;
   releaseControl: string;
   taskFailed: string;
-  userProgressTitle: string;
   unsupportedToolPreview: string;
   rawToolEvidence: string;
+  videoExecutionTrace: VideoExecutionTraceText;
   videoTaskStatus: VideoTaskStatusText;
   artifact: ArtifactWorkspaceText;
   generatedArtifact: string;

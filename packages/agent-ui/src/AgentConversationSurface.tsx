@@ -1,5 +1,5 @@
 import { History, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 
 import { ActivityTimeline } from "./ActivityTimeline";
 import { ApprovalDock } from "./ApprovalDock";
@@ -19,6 +19,7 @@ import type { AgentWorkspacePresentation } from "./userWorkspacePresentation";
 
 export interface AgentConversationSurfaceProps {
   contentRenderers?: ContentRendererRegistry<AgentContentRendererRegistration>;
+  executionTrace?: ReactNode;
   items: AgentTimelineItem[];
   onError: (cause: unknown) => void;
   presentation: AgentWorkspacePresentation;
@@ -29,6 +30,7 @@ export interface AgentConversationSurfaceProps {
 
 export function AgentConversationSurface({
   contentRenderers,
+  executionTrace,
   items,
   onError,
   presentation,
@@ -38,7 +40,8 @@ export function AgentConversationSurface({
 }: AgentConversationSurfaceProps) {
   const text = useAgentWorkspaceText();
   const [loadingOlder, setLoadingOlder] = useState(false);
-  const isEmpty = items.length === 0 && snapshot.permissions.length === 0;
+  const isEmpty =
+    !executionTrace && items.length === 0 && snapshot.permissions.length === 0;
 
   if (isEmpty) {
     return (
@@ -56,6 +59,7 @@ export function AgentConversationSurface({
 
   return (
     <div className="flex h-full min-h-0 flex-col">
+      {executionTrace}
       <main className="min-h-0 flex-1 overflow-y-auto">
         {snapshot.hasOlderItems && (
           <div className="flex justify-center px-3 pt-3">

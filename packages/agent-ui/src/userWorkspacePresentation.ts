@@ -1,5 +1,4 @@
 import type {
-  AgentActivityItem,
   AgentArtifactItem,
   AgentSessionSnapshot,
   AgentTimelineItem,
@@ -14,23 +13,8 @@ export type AgentWorkspacePresentation = "developer" | "user";
 
 export function userConversationItems(
   items: readonly AgentTimelineItem[],
-  progressTitle = "Progress",
 ): AgentTimelineItem[] {
-  const visible: AgentTimelineItem[] = [];
-  let progress: AgentActivityItem | null = null;
-  for (const item of items) {
-    if (userVisibleConversationItem(item)) {
-      if (progress) visible.push(progress);
-      progress = null;
-      visible.push(item);
-      continue;
-    }
-    if (userProgressCandidate(item)) {
-      progress = mergeUserProgress(progress, item, progressTitle);
-    }
-  }
-  if (progress) visible.push(progress);
-  return visible;
+  return items.filter(userVisibleConversationItem);
 }
 
 function userVisibleConversationItem(item: AgentTimelineItem): boolean {
@@ -39,51 +23,6 @@ function userVisibleConversationItem(item: AgentTimelineItem): boolean {
       (item.role === "user" || item.role === "assistant")) ||
     item.kind === "attachment"
   );
-}
-
-function userProgressCandidate(item: AgentTimelineItem): boolean {
-  return (
-    item.kind === "tool" ||
-    item.kind === "system" ||
-    item.kind === "reasoning" ||
-    item.kind === "error"
-  );
-}
-
-function mergeUserProgress(
-  current: AgentActivityItem | null,
-  item: AgentTimelineItem,
-  title: string,
-): AgentActivityItem {
-  return {
-    id: current?.id ?? `${item.id}:user-progress`,
-    kind: "system",
-    title,
-    status: strongerProgressStatus(current?.status, userProgressStatus(item)),
-  };
-}
-
-function userProgressStatus(
-  item: AgentTimelineItem,
-): "pending" | "running" | "completed" | "failed" {
-  if (item.kind === "error") return "failed";
-  if (
-    item.kind === "system" ||
-    item.kind === "reasoning" ||
-    item.kind === "tool"
-  ) {
-    return item.status;
-  }
-  return "completed";
-}
-
-function strongerProgressStatus(
-  current: "pending" | "running" | "completed" | "failed" | undefined,
-  next: "pending" | "running" | "completed" | "failed",
-) {
-  const rank = { completed: 0, pending: 1, running: 2, failed: 3 };
-  if (!current) return next;
-  return rank[next] > rank[current] ? next : current;
 }
 
 export function userVisibleArtifacts(
@@ -100,16 +39,24 @@ export type UserVideoTaskState =
   | "verified"
   | "verification_failed";
 
+export function userVideoTaskArtifacts(
+  snapshot: AgentSessionSnapshot,
+  artifacts: readonly AgentArtifactItem[],
+): AgentArtifactItem[] {
+  return artifacts.filter(
+    (artifact) =>
+      isVideoArtifact(artifact) &&
+      (!snapshot.latestUserCommandId ||
+        artifact.provenance?.commandId === snapshot.latestUserCommandId),
+  );
+}
+
 export function userVideoTaskState(
   snapshot: AgentSessionSnapshot,
   artifacts: readonly AgentArtifactItem[],
 ): UserVideoTaskState | null {
   const allVideos = artifacts.filter(isVideoArtifact);
-  const videos = allVideos.filter(
-    (artifact) =>
-      (!snapshot.latestUserCommandId ||
-        artifact.provenance?.commandId === snapshot.latestUserCommandId),
-  );
+  const videos = userVideoTaskArtifacts(snapshot, artifacts);
   if (videos.length === 0) {
     if (
       snapshot.status === "completed" &&

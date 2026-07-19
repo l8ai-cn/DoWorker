@@ -15,17 +15,16 @@ import { useWorkbenchContainerMode } from "./react/useWorkbenchContainerMode";
 import { useAgentSessionSnapshot } from "./useAgentSessionSnapshot";
 import { WorkspaceHeader } from "./WorkspaceHeader";
 import { ReadOnlyAgentSessionRuntime } from "./runtime/ReadOnlyAgentSessionRuntime";
-import {
-  agentWorkspaceText,
-  type AgentWorkspaceLocale,
-} from "./agentWorkspaceText";
+import { agentWorkspaceText, type AgentWorkspaceLocale } from "./agentWorkspaceText";
 import { focusAdjacentTab } from "./react/tabKeyboardNavigation";
 import { UserTaskStatus } from "./UserTaskStatus";
+import { UserVideoExecutionTrace } from "./VideoExecutionTrace";
 import {
   type AgentWorkspacePresentation,
   userConversationItems,
   userVisibleArtifacts,
 } from "./userWorkspacePresentation";
+import { userVideoExecutionSteps } from "./userVideoExecutionTrace";
 import { WorkspaceViewTab } from "./WorkspaceViewTab";
 
 export interface AgentWorkspaceProps {
@@ -80,8 +79,12 @@ export function AgentWorkspace({
       : allArtifacts;
   const conversationItems =
     presentation === "user"
-      ? userConversationItems(allConversationItems, text.userProgressTitle)
+      ? userConversationItems(allConversationItems)
       : allConversationItems;
+  const videoExecutionSteps =
+    presentation === "user"
+      ? userVideoExecutionSteps(snapshot, allArtifacts)
+      : [];
   const terminalEnabled =
     presentation === "developer" &&
     snapshot.capabilities.terminal &&
@@ -150,10 +153,7 @@ export function AgentWorkspace({
         >
           {presentation === "developer" && <PlanStrip steps={snapshot.plan} />}
           {presentation === "user" && (
-            <UserTaskStatus
-              artifacts={allArtifacts}
-              snapshot={snapshot}
-            />
+            <UserTaskStatus artifacts={allArtifacts} snapshot={snapshot} />
           )}
           <ResultWorkbench
             artifacts={artifacts}
@@ -161,6 +161,11 @@ export function AgentWorkspace({
             conversation={
               <AgentConversationSurface
                 contentRenderers={contentRenderers}
+                executionTrace={
+                  videoExecutionSteps.length > 0 ? (
+                    <UserVideoExecutionTrace steps={videoExecutionSteps} />
+                  ) : undefined
+                }
                 items={conversationItems}
                 onError={(cause) =>
                   setSurfaceError(

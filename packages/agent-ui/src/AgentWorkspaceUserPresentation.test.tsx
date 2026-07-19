@@ -8,7 +8,7 @@ import {
 } from "./AgentWorkspace.test-fixture";
 
 describe("AgentWorkspace user presentation", () => {
-  it("shows business activity and verified video status", async () => {
+  it("shows verified video execution steps without raw runtime details", async () => {
     const snapshot = sessionSnapshot();
     snapshot.status = "completed";
     snapshot.plan = [];
@@ -56,8 +56,12 @@ describe("AgentWorkspace user presentation", () => {
     );
 
     expect(await screen.findByText("生成一个灯笼升空的视频")).toBeVisible();
-    expect(screen.getByText("生成过程")).toBeVisible();
-    expect(screen.getAllByText("已完成").length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByLabelText("视频创作进度")).toBeVisible();
+    expect(screen.getByText("接收创作请求")).toBeVisible();
+    expect(screen.getByText("生成视频画面")).toBeVisible();
+    expect(screen.getByText("准备播放文件")).toBeVisible();
+    expect(screen.getByText("校验并发布结果")).toBeVisible();
+    expect(screen.getByText("文件已校验并发布")).toBeVisible();
     expect(screen.getByText("视频文件已发布并通过完整性校验")).toBeVisible();
     expect(screen.getByRole("tab", { name: "成果" })).toBeVisible();
     expect(screen.queryByText(/tools registered/)).not.toBeInTheDocument();
@@ -65,6 +69,7 @@ describe("AgentWorkspace user presentation", () => {
     expect(screen.queryByRole("tab", { name: "终端" })).not.toBeInTheDocument();
     expect(screen.queryByText("智能体模式")).not.toBeInTheDocument();
     expect(screen.queryByText("dev-runner-codex")).not.toBeInTheDocument();
+    expect(screen.queryByText("生成过程")).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("tab", { name: "成果" }));
     expect(screen.queryByText("video/mp4")).not.toBeInTheDocument();
