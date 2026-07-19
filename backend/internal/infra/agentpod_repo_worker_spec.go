@@ -14,6 +14,8 @@ func (r *podRepo) CreateWithConfigAndWorkerSpec(
 	pod *agentpod.Pod,
 	revision *agentpod.PodConfigRevision,
 	resolved workerspecservice.ResolvedSnapshot,
+	artifactJSON []byte,
+	artifactDigest string,
 ) error {
 	if pod.OrganizationID != resolved.OrganizationID() {
 		return fmt.Errorf("pod organization does not match workerspec snapshot")
@@ -24,6 +26,15 @@ func (r *podRepo) CreateWithConfigAndWorkerSpec(
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		snapshot, err := createWorkerSpecSnapshot(tx, resolved)
 		if err != nil {
+			return err
+		}
+		if err := createWorkerSpecDependencyArtifact(
+			tx,
+			pod.OrganizationID,
+			snapshot.ID,
+			artifactJSON,
+			artifactDigest,
+		); err != nil {
 			return err
 		}
 		pod.WorkerSpecSnapshotID = &snapshot.ID

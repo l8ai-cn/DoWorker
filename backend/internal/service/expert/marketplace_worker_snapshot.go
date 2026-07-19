@@ -8,6 +8,7 @@ import (
 	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
 	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
+	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 	"github.com/lib/pq"
 )
 
@@ -43,11 +44,16 @@ func (s *Service) prepareMarketplaceWorkerSnapshot(
 	); err != nil {
 		return 0, errors.Join(ErrMarketplaceInstallationInvalid, err)
 	}
+	targetSlug, err := slugkit.NewFromTrusted(request.TargetOrganizationSlug)
+	if err != nil {
+		return 0, errors.Join(ErrMarketplaceInstallationInvalid, err)
+	}
 	resolved, err := s.marketWorkerSpecs.PrepareMarketSnapshot(
 		ctx,
 		specservice.Scope{
-			OrgID:  request.TargetOrganizationID,
-			UserID: request.ActorUserID,
+			OrgID:   request.TargetOrganizationID,
+			OrgSlug: targetSlug,
+			UserID:  request.ActorUserID,
 		},
 		source,
 		request.ModelResourceID,

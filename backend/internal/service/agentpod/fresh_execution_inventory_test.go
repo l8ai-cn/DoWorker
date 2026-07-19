@@ -39,7 +39,6 @@ var forbiddenForSnapshotOrPlan = map[string]struct{}{
 	"RepositoryID":    {},
 	"AgentfileLayer":  {},
 	"ModelResourceID": {},
-	"LocalPath":       {},
 	"BranchName":      {},
 }
 
@@ -60,29 +59,37 @@ func TestFreshExecutionInventory(t *testing.T) {
 			Fields: []string{"SourcePodKey"},
 		},
 		"backend/internal/api/rest/v1/session/hosts.go:handleBindHostRunner": {
-			Mode:   "legacy",
-			Fields: []string{"RunnerID", "AgentSlug", "AgentfileLayer", "LocalPath"},
+			Mode:   "snapshot",
+			Fields: []string{"RunnerID", "WorkerSpecSnapshotID", "LocalPath"},
 		},
 		"backend/internal/api/rest/v1/session/session_create_pod_request.go:sessionCreatePodRequest": {
-			Mode:   "legacy",
-			Fields: []string{"AgentSlug", "AgentfileLayer", "ModelResourceID", "LocalPath"},
+			Mode:   "plan",
+			Fields: []string{"WorkerSpecDraft", "LocalPath"},
 		},
-		"backend/internal/api/rest/v1/session/session_fork.go:handleForkSession": {
-			Mode:   "legacy",
-			Fields: []string{"RunnerID", "AgentSlug", "AgentfileLayer"},
+		"backend/internal/api/rest/v1/session/session_fork_pod_request.go:buildForkPlanPodRequest": {
+			Mode:   "plan",
+			Fields: []string{"RunnerID", "WorkerSpecDraft"},
+		},
+		"backend/internal/api/rest/v1/session/session_fork_pod_request.go:buildForkSnapshotPodRequest": {
+			Mode:   "snapshot",
+			Fields: []string{"RunnerID", "WorkerSpecSnapshotID"},
 		},
 		"backend/internal/api/rest/v1/session/session_import.go:handleImportSession": {
-			Mode:   "legacy",
-			Fields: []string{"AgentSlug", "AgentfileLayer"},
+			Mode:   "plan",
+			Fields: []string{"WorkerSpecDraft"},
 		},
 		"backend/internal/api/rest/v1/session/session_message_pod.go:ensureMessagePod": {Mode: "lineage", Fields: []string{"SourcePodKey"}},
-		"backend/internal/api/rest/v1/session/session_switch.go:rebuildSessionPod": {
-			Mode:   "legacy",
-			Fields: []string{"RunnerID", "AgentSlug", "AgentfileLayer"},
+		"backend/internal/api/rest/v1/session/session_switch_pod_request.go:buildSessionPlanRebuildPodRequest": {
+			Mode:   "plan",
+			Fields: []string{"RunnerID", "WorkerSpecDraft"},
+		},
+		"backend/internal/api/rest/v1/session/session_switch_pod_request.go:buildSessionSnapshotRebuildPodRequest": {
+			Mode:   "snapshot",
+			Fields: []string{"RunnerID", "WorkerSpecSnapshotID"},
 		},
 		"backend/internal/service/coordinator/dispatch.go:claimAndDispatch": {
-			Mode:   "legacy",
-			Fields: []string{"AgentSlug", "RepositoryID", "AgentfileLayer"},
+			Mode:   "snapshot",
+			Fields: []string{"WorkerSpecSnapshotID", "WorkerSpecPromptOverride"},
 		},
 		"backend/internal/service/expert/run.go:Run": {
 			Mode:   "snapshot",
@@ -294,6 +301,38 @@ func classifyMode(relPath, funcName string) string {
 		"internal/api/rest/v1/session/session_message_pod.go",
 	) && funcName == "ensureMessagePod" {
 		return "lineage"
+	}
+	if strings.HasSuffix(relPath, "internal/api/rest/v1/session/hosts.go") &&
+		funcName == "handleBindHostRunner" {
+		return "snapshot"
+	}
+	if strings.HasSuffix(relPath, "internal/api/rest/v1/session/session_create_pod_request.go") &&
+		funcName == "sessionCreatePodRequest" {
+		return "plan"
+	}
+	if strings.HasSuffix(relPath, "internal/api/rest/v1/session/session_import.go") &&
+		funcName == "handleImportSession" {
+		return "plan"
+	}
+	if strings.HasSuffix(relPath, "internal/api/rest/v1/session/session_fork_pod_request.go") {
+		switch funcName {
+		case "buildForkPlanPodRequest":
+			return "plan"
+		case "buildForkSnapshotPodRequest":
+			return "snapshot"
+		}
+	}
+	if strings.HasSuffix(relPath, "internal/api/rest/v1/session/session_switch_pod_request.go") {
+		switch funcName {
+		case "buildSessionPlanRebuildPodRequest":
+			return "plan"
+		case "buildSessionSnapshotRebuildPodRequest":
+			return "snapshot"
+		}
+	}
+	if strings.HasSuffix(relPath, "internal/service/coordinator/dispatch.go") &&
+		funcName == "claimAndDispatch" {
+		return "snapshot"
 	}
 	if strings.HasSuffix(relPath, "internal/service/goalloop/goal_loop_start.go") && funcName == "Start" {
 		return "snapshot"

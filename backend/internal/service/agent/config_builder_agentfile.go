@@ -6,7 +6,6 @@ import (
 
 	"github.com/anthropics/agentsmesh/agentfile/eval"
 	"github.com/anthropics/agentsmesh/agentfile/parser"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agent"
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
 
@@ -24,7 +23,7 @@ const (
 func (b *ConfigBuilder) buildFromAgentfile(
 	ctx context.Context,
 	req *ConfigBuildRequest,
-	agentDef *agent.Agent,
+	agentSlug string,
 ) (*runnerv1.CreatePodCommand, error) {
 	mergedSource := req.MergedAgentfileSource
 	if mergedSource == "" {
@@ -32,15 +31,15 @@ func (b *ConfigBuilder) buildFromAgentfile(
 	}
 
 	// Build MCP context
-	builtinMCP, installedMCP := b.buildMCPContext(ctx, req, agentDef.Slug)
+	builtinMCP, installedMCP := b.buildMCPContext(ctx, req, agentSlug)
 
 	// Build EnvBundle context (mirror of MCP pattern: load every visible
 	// bundle, decrypt, expose by name to eval; USE_ENV_BUNDLE picks).
-	envBundles, err := b.buildEnvBundleContext(ctx, req, agentDef.Slug)
+	envBundles, err := b.buildEnvBundleContext(ctx, req, agentSlug)
 	if err != nil {
 		return nil, err
 	}
-	configBundles, err := b.buildConfigBundleContext(ctx, req, agentDef.Slug)
+	configBundles, err := b.buildConfigBundleContext(ctx, req, agentSlug)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +69,7 @@ func (b *ConfigBuilder) buildFromAgentfile(
 	cmd.ResourcesToDownload, err = b.buildSkillResources(
 		ctx,
 		req,
-		agentDef.Slug,
+		agentSlug,
 		evalCtx.Result.Skills,
 	)
 	if err != nil {

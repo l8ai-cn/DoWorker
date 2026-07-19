@@ -73,7 +73,12 @@ func execSQL(ctx context.Context, conn *sql.Conn, query string) error {
 func postgresTableExists(ctx context.Context, t *testing.T, conn *sql.Conn, table string) bool {
 	t.Helper()
 	var exists bool
-	err := conn.QueryRowContext(ctx, `SELECT to_regclass($1) IS NOT NULL`, table).Scan(&exists)
+	err := conn.QueryRowContext(ctx, `
+SELECT EXISTS (
+	SELECT 1 FROM information_schema.tables
+	WHERE table_schema = current_schema()
+	AND table_name = $1
+)`, table).Scan(&exists)
 	require.NoError(t, err)
 	return exists
 }

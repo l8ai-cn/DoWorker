@@ -23,7 +23,7 @@ func enabledCodexRuntimeCatalog() runtimedomain.Catalog {
     "id": 1,
     "slug": "codex-cli-test",
     "name": "Codex CLI (test)",
-    "reference": "docker-daemon://runner-codex@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "reference": "registry.example.com/runner-codex@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
     "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
     "worker_type_slugs": ["codex-cli"],
     "enabled": true

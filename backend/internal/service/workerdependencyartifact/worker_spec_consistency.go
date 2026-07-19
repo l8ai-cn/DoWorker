@@ -8,7 +8,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 )
 
-func validateWorkerSpecConsistency(
+func ValidateWorkerSpecConsistency(
 	spec workerspec.Spec,
 	document workerdependency.Document,
 ) error {

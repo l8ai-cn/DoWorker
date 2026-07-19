@@ -17,7 +17,7 @@ func TestMarketUpgradeSerializesConcurrentRequests(t *testing.T) {
 	installed, _, err := fixture.service.InstallPublishedMarketApplication(
 		ctx,
 		InstallMarketApplicationRequest{
-			OrganizationID:  42,
+			OrganizationID: 42, OrganizationSlug: "target-org",
 			UserID:          501,
 			ModelResourceID: 301,
 			MarketSlug:      string(v1.Application.Slug),
@@ -52,10 +52,9 @@ func TestMarketUpgradeSerializesConcurrentRequests(t *testing.T) {
 			<-start
 			_, changed, upgradeErr := fixture.service.UpgradeMarketApplication(
 				ctx,
-				UpgradeMarketApplicationRequest{
-					OrganizationID: 42,
-					UserID:         501,
-					ExpertID:       installed.ID,
+				UpgradeMarketApplicationRequest{OrganizationID: 42, OrganizationSlug: "target-org",
+					UserID:   501,
+					ExpertID: installed.ID,
 				},
 			)
 			results <- changed

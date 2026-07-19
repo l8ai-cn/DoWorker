@@ -8,6 +8,7 @@ import (
 
 	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 	"github.com/google/uuid"
 )
 
@@ -16,6 +17,7 @@ var ErrMarketplaceInstallationInvalid = errors.New("invalid marketplace installa
 type MarketplaceInstallationRequest struct {
 	InstallationID            string
 	TargetOrganizationID      int64
+	TargetOrganizationSlug    string
 	ActorUserID               int64
 	ModelResourceID           int64
 	ToolModelResourceIDs      map[string]int64
@@ -38,6 +40,9 @@ func (s *Service) InstallMarketplaceExpert(
 	if err != nil {
 		return nil, false, err
 	}
+	if request.TargetOrganizationSlug == "" {
+		return nil, false, ErrMarketplaceInstallationInvalid
+	}
 	if request.SourceMarketApplicationID > 0 {
 		existing, lookupErr := s.store.GetByMarketApplication(
 			ctx,
@@ -57,6 +62,9 @@ func (s *Service) InstallMarketplaceExpert(
 	}
 	if !errors.Is(err, expertdom.ErrNotFound) {
 		return nil, false, err
+	}
+	if _, err := slugkit.NewFromTrusted(request.TargetOrganizationSlug); err != nil {
+		return nil, false, ErrMarketplaceInstallationInvalid
 	}
 	var snapshot marketplaceRuntimeSnapshot
 	if decodeStrictJSON(request.RuntimeSnapshot, &snapshot) != nil ||

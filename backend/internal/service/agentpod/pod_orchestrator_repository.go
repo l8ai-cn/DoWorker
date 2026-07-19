@@ -16,6 +16,9 @@ func (o *PodOrchestrator) preResolveFreshRepository(
 	req *OrchestrateCreatePodRequest,
 	agentDef *agentDomain.Agent,
 ) error {
+	if req.preResolvedDependencies != nil {
+		return nil
+	}
 	if req.preparedWorkerSpec == nil || req.preResolvedRepository == nil {
 		req.preResolvedRepository = nil
 		req.preResolvedRepositorySlug = ""
@@ -80,6 +83,9 @@ func (o *PodOrchestrator) resolveEffectiveRepository(
 	resolved *agentfileResolved,
 	repositoryID *int64,
 ) error {
+	if req.preResolvedDependencies != nil {
+		return nil
+	}
 	if repositoryID == nil {
 		return nil
 	}

@@ -27,6 +27,9 @@ func (service *Service) PrepareMarketSnapshot(
 			"must be positive",
 		)
 	}
+	if scope.OrgSlug == "" {
+		return workerspec.ResolvedSnapshot{}, workerspec.ErrInvalidScope
+	}
 	if err := rejectPrivateMarketSnapshotReferences(normalized); err != nil {
 		return workerspec.ResolvedSnapshot{}, err
 	}
@@ -49,7 +52,8 @@ func (service *Service) PrepareMarketSnapshot(
 		runtimeSelection.CustomResources = &resources
 	}
 	prepared, err := service.Prepare(ctx, scope, Draft{
-		OptionsRevision: service.Revision(),
+		OptionsRevision:  service.Revision(),
+		OrganizationSlug: scope.OrgSlug,
 		WorkerSpec: workerspec.Draft{
 			ModelResourceID:      modelResourceID,
 			ToolModelResourceIDs: cloneToolModelResourceIDs(toolModelResourceIDs),

@@ -1,6 +1,7 @@
 package sessionapi
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"net/http"
@@ -10,6 +11,7 @@ import (
 
 	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	sessionDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
+	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	sessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
 	runnerservice "github.com/anthropics/agentsmesh/backend/internal/service/runner"
@@ -32,7 +34,7 @@ func TestRebuildSessionPodKeepsOldPodUntilNewBindingPersists(t *testing.T) {
 		assert.Equal(t, "new-pod", persisted.PodKey)
 	}
 
-	created, err := deps.rebuildSessionPod(sessionSwitchTestContext(), row, oldPod, "codex-cli")
+	created, err := deps.rebuildSessionPod(sessionSwitchTestContext(), row, oldPod, "codex-cli", "dev-org", sessionSwitchPlan())
 
 	require.NoError(t, err)
 	assert.Equal(t, "new-pod", created.PodKey)
@@ -51,7 +53,7 @@ func TestRebuildSessionPodRestoresOldBindingWhenDeferredDispatchFails(t *testing
 	dispatchErr := errors.New("runner dispatch failed")
 	orchestrator.dispatchErr = dispatchErr
 
-	created, err := deps.rebuildSessionPod(sessionSwitchTestContext(), row, oldPod, "codex-cli")
+	created, err := deps.rebuildSessionPod(sessionSwitchTestContext(), row, oldPod, "codex-cli", "dev-org", sessionSwitchPlan())
 
 	assert.Nil(t, created)
 	assert.ErrorIs(t, err, dispatchErr)
@@ -72,7 +74,7 @@ func TestRebuildSessionPodTerminatesNewPodWhenBindingUpdateFails(t *testing.T) {
 		END
 	`).Error)
 
-	created, err := deps.rebuildSessionPod(sessionSwitchTestContext(), row, oldPod, "codex-cli")
+	created, err := deps.rebuildSessionPod(sessionSwitchTestContext(), row, oldPod, "codex-cli", "dev-org", sessionSwitchPlan())
 
 	require.Error(t, err)
 	assert.Nil(t, created)
@@ -91,7 +93,7 @@ func TestRebuildSessionPodReturnsCompensationFailure(t *testing.T) {
 	terminationErr := errors.New("termination unavailable")
 	lifecycle.terminateErr = terminationErr
 
-	created, err := deps.rebuildSessionPod(sessionSwitchTestContext(), row, oldPod, "codex-cli")
+	created, err := deps.rebuildSessionPod(sessionSwitchTestContext(), row, oldPod, "codex-cli", "dev-org", sessionSwitchPlan())
 
 	assert.Nil(t, created)
 	assert.ErrorIs(t, err, terminationErr)
@@ -103,7 +105,7 @@ func TestRebuildSessionPodReportsOldPodTerminationFailureAfterBinding(t *testing
 	terminationErr := errors.New("termination unavailable")
 	lifecycle.terminateErrors = map[string]error{"old-pod": terminationErr}
 
-	created, err := deps.rebuildSessionPod(sessionSwitchTestContext(), row, oldPod, "codex-cli")
+	created, err := deps.rebuildSessionPod(sessionSwitchTestContext(), row, oldPod, "codex-cli", "dev-org", sessionSwitchPlan())
 
 	assert.Nil(t, created)
 	assert.ErrorIs(t, err, terminationErr)
@@ -129,6 +131,29 @@ func TestWriteSessionPodErrorPrioritizesCompensationFailure(t *testing.T) {
 		"error":"session cleanup failed",
 		"code":"session_compensation_failed"
 	}`, response.Body.String())
+}
+
+func TestSwitchAgentRejectsSameAgentWorkerConfigChange(t *testing.T) {
+	deps, _, _, _, orchestrator := setupSessionSwitchOrderTest(t)
+
+	response := sessionSwitchRequest(
+		deps.Deps,
+		`{"agent_id":"claude-code","worker_spec":{
+			"options_revision":"rev-1",
+			"runtime_image_id":4,
+			"placement_policy":"explicit",
+			"compute_target_id":8,
+			"deployment_mode":"pooled",
+			"resource_profile_id":9
+		},"automation_level":"autonomous"}`,
+	)
+
+	assert.Equal(t, http.StatusBadRequest, response.Code)
+	assert.JSONEq(t, `{
+		"error":"same-agent operation cannot change worker configuration",
+		"code":"validation_failed"
+	}`, response.Body.String())
+	assert.Nil(t, orchestrator.request)
 }
 
 type sessionSwitchTestDeps struct {
@@ -160,6 +185,7 @@ func setupSessionSwitchOrderTest(
 		CreatedByID: 7, AgentSlug: "claude-code", Status: podDomain.StatusCompleted,
 		ExternalSessionID: stringPtr("provider-session"),
 	}
+	oldPod.WorkerSpecSnapshotID = int64Ptr(91)
 	lifecycle := &recordingSessionPodLifecycle{}
 	orchestrator := &switchPodOrchestrator{
 		result: &agentpod.OrchestrateCreatePodResult{
@@ -174,15 +200,47 @@ func setupSessionSwitchOrderTest(
 			Sessions:        sessions,
 			PodOrchestrator: orchestrator,
 			PodCoordinator:  lifecycle,
+			WorkerCreation: &recordingSessionWorkerDraftFactory{
+				draft: sessionTestWorkerDraft(t, "codex-cli"),
+			},
 		},
 		SessionsDB: db,
 	}, row, oldPod, lifecycle, orchestrator
+}
+
+func sessionSwitchPlan() sessionWorkerPlanInput {
+	return sessionWorkerPlanInput{
+		WorkerSpec:      validSessionWorkerSpecBody(),
+		WorkerTypeSlug:  "codex-cli",
+		AgentfileLayer:  acpAgentfileLayer(),
+		AutomationLevel: "autonomous",
+	}
+}
+
+func int64Ptr(value int64) *int64 {
+	return &value
 }
 
 func sessionSwitchTestContext() *gin.Context {
 	ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
 	ctx.Request = httptest.NewRequest("POST", "/v1/sessions/conv_switch/switch-agent", nil)
 	return ctx
+}
+
+func sessionSwitchRequest(deps *Deps, body string) *httptest.ResponseRecorder {
+	response := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(response)
+	ctx.Request = httptest.NewRequest(
+		http.MethodPost,
+		"/v1/sessions/conv_switch/switch-agent",
+		bytes.NewBufferString(body),
+	)
+	ctx.Request.Header.Set("Content-Type", "application/json")
+	ctx.Params = gin.Params{{Key: "id", Value: "conv_switch"}}
+	ctx.Set("tenant", &middleware.TenantContext{OrganizationID: 11, UserID: 7})
+	deps.handleSwitchAgent(ctx)
+	ctx.Writer.WriteHeaderNow()
+	return response
 }
 
 type switchPodOrchestrator struct {

@@ -51,10 +51,11 @@ type Project struct {
 	LabelFilter pq.StringArray  `gorm:"type:text[];not null;default:'{}'" json:"label_filter"`
 	ClaimPolicy json.RawMessage `gorm:"type:jsonb;not null;default:'{}'" json:"claim_policy"`
 
-	AgentSlug           string `gorm:"size:100;not null;default:'do-agent'" json:"agent_slug"`
-	ScanIntervalSeconds int    `gorm:"not null;default:300" json:"scan_interval_seconds"`
-	MaxConcurrent       int    `gorm:"not null;default:1" json:"max_concurrent"`
-	Enabled             bool   `gorm:"not null;default:true;index" json:"enabled"`
+	AgentSlug            string `gorm:"size:100;not null;default:'do-agent'" json:"agent_slug"`
+	WorkerSpecSnapshotID *int64 `gorm:"column:worker_spec_snapshot_id" json:"worker_spec_snapshot_id,omitempty"`
+	ScanIntervalSeconds  int    `gorm:"not null;default:300" json:"scan_interval_seconds"`
+	MaxConcurrent        int    `gorm:"not null;default:1" json:"max_concurrent"`
+	Enabled              bool   `gorm:"not null;default:true;index" json:"enabled"`
 
 	CreatedByID int64 `gorm:"not null" json:"created_by_id"`
 

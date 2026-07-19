@@ -1,16 +1,20 @@
 package workercreation
 
 import (
+	"context"
 	"fmt"
 
 	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	"github.com/anthropics/agentsmesh/backend/internal/service/workerdependencyartifact"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
+	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 )
 
 func (service *Service) buildArtifact(
+	ctx context.Context,
 	scope specservice.Scope,
+	namespace slugkit.Slug,
 	refs ArtifactReferences,
 	spec workerspec.Spec,
 	agentfileLayer string,
@@ -19,7 +23,19 @@ func (service *Service) buildArtifact(
 	workspace *workspaceResolver,
 ) (*workerdependencyartifact.Artifact, error) {
 	if len(refs.AllPlanReferences) == 0 {
-		return nil, nil
+		var err error
+		refs, err = buildFreshArtifactReferences(
+			scope,
+			namespace,
+			refs,
+			spec,
+			models,
+			runtime,
+			workspace,
+		)
+		if err != nil {
+			return nil, err
+		}
 	}
 	controlScope, err := artifactScope(scope, refs.AllPlanReferences)
 	if err != nil {
@@ -30,6 +46,7 @@ func (service *Service) buildArtifact(
 		return nil, err
 	}
 	dependencies, err := buildResolvedDependencies(
+		ctx,
 		controlScope,
 		refs,
 		spec,

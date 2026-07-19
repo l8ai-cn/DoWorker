@@ -12,10 +12,11 @@ import (
 )
 
 type WorkerSnapshotPreparer interface {
-	PrepareSnapshot(
+	PrepareSnapshotWithDependencies(
 		context.Context,
 		specservice.Scope,
 		specdomain.Snapshot,
+		workerdependency.Document,
 	) (workercreation.PreparedSnapshot, error)
 }
 
@@ -62,13 +63,15 @@ func (o *PodOrchestrator) prepareSnapshotWorkerCreate(
 		snapshot.OrganizationID != req.OrganizationID {
 		return ErrWorkerSpecSnapshotMismatch
 	}
-	if err := o.validateSnapshotDependencyArtifact(ctx, req.OrganizationID, snapshot); err != nil {
+	artifact, err := o.loadSnapshotDependencyArtifact(ctx, req.OrganizationID, snapshot)
+	if err != nil {
 		return err
 	}
-	prepared, err := o.workerSnapshots.PrepareSnapshot(
+	prepared, err := o.workerSnapshots.PrepareSnapshotWithDependencies(
 		ctx,
 		specservice.Scope{OrgID: req.OrganizationID, UserID: req.UserID},
 		snapshot,
+		artifact,
 	)
 	if err != nil {
 		return err
@@ -77,7 +80,9 @@ func (o *PodOrchestrator) prepareSnapshotWorkerCreate(
 		return err
 	}
 	aliasOverride := req.Alias
-	projectPreparedWorkerSnapshot(req, prepared)
+	if err := projectPreparedWorkerSnapshot(req, prepared); err != nil {
+		return err
+	}
 	if aliasOverride != nil {
 		req.Alias = aliasOverride
 	}
@@ -88,7 +93,6 @@ func (o *PodOrchestrator) prepareSnapshotWorkerCreate(
 
 func hasConflictingSnapshotWorkerInput(req *OrchestrateCreatePodRequest) bool {
 	return req.WorkerSpecDraft != nil ||
-		req.RunnerID != 0 ||
 		req.AgentSlug != "" ||
 		req.RepositoryID != nil ||
 		req.AgentfileLayer != nil ||
@@ -96,7 +100,6 @@ func hasConflictingSnapshotWorkerInput(req *OrchestrateCreatePodRequest) bool {
 		req.BranchName != nil ||
 		req.ModelResourceID != nil ||
 		req.Perpetual ||
-		req.LocalPath != "" ||
 		len(req.KnowledgeMounts) > 0 ||
 		len(req.ModelResourceEnv) > 0 ||
 		len(req.ModelResourceArgs) > 0
@@ -113,18 +116,32 @@ func projectPreparedWorkerSpec(
 		prepared.Repository,
 	)
 	req.resolvedWorkerSpec = &prepared.Snapshot
+	req.preResolvedDependencies = prepared.Dependencies
+	req.preResolvedArtifact = prepared.Artifact
 }
 
 func projectPreparedWorkerSnapshot(
 	req *OrchestrateCreatePodRequest,
 	prepared workercreation.PreparedSnapshot,
-) {
+) error {
 	projectWorkerSpec(
 		req,
 		prepared.Spec,
 		prepared.AgentfileLayer,
 		prepared.Repository,
 	)
+	req.preResolvedDependencies = prepared.Dependencies
+	if prepared.Dependencies != nil {
+		encoded, digest, err := workerdependency.EncodeAndDigest(
+			*prepared.Dependencies,
+		)
+		if err != nil {
+			return err
+		}
+		req.preResolvedArtifactJSON = encoded
+		req.preResolvedArtifactDigest = digest
+	}
+	return nil
 }
 
 func projectWorkerSpec(

@@ -11,21 +11,28 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/service/agent"
 	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gorm.io/gorm"
 )
 
 func TestPrepareStructuredWorkerCreateProjectsResolvedSpec(t *testing.T) {
 	spec := podServiceWorkerSpec()
-	resolved := resolvedWorkerSpecForPodServiceTest(t, 77)
+	layer := "MODE acp\nPROMPT \"Run checks.\"\n"
+	prepared := preparedWorkerSpecForArtifactTest(
+		t,
+		context.WithValue(
+			context.WithValue(context.Background(), ctxKeyOrgID, int64(77)),
+			ctxKeyUserID,
+			int64(7),
+		),
+		spec,
+		layer,
+		nil,
+	)
+	spec = prepared.Spec
+	resolved := prepared.Snapshot
 	preparer := &workerCreationPreparer{
-		prepared: workercreation.Prepared{
-			Snapshot:       resolved,
-			Spec:           spec,
-			AgentfileLayer: "MODE acp\nPROMPT \"Run checks.\"\n",
-		},
+		prepared: prepared,
 	}
 	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{
 		WorkerCreation: preparer,
@@ -98,7 +105,7 @@ func TestResumeInheritsWorkerSpecSnapshotWithoutPreparingDraft(t *testing.T) {
 	db := setupOrchestratorTestDB(t)
 	podService := NewPodService(infra.NewPodRepository(db))
 	snapshotID := int64(91)
-	spec := podServiceWorkerSpec()
+	spec := normalizedSnapshotWorkerSpec(t)
 	modelResourceID := spec.Runtime.ModelBinding.ResourceID
 	agentfileLayer := "MODE acp\n"
 	source, err := podService.CreatePod(context.Background(), &CreatePodRequest{
@@ -127,9 +134,10 @@ func TestResumeInheritsWorkerSpecSnapshotWithoutPreparingDraft(t *testing.T) {
 		},
 	}
 	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{
-		PodService:     podService,
-		WorkerCreation: preparer,
-		WorkerSpecs:    snapshots,
+		PodService:         podService,
+		WorkerCreation:     preparer,
+		WorkerSpecs:        snapshots,
+		WorkerDependencies: snapshotDependencyLoader(t, 1, spec),
 	})
 	req := &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
@@ -153,10 +161,10 @@ func TestResumeInheritsWorkerSpecSnapshotWithoutPreparingDraft(t *testing.T) {
 	assert.Zero(t, preparer.calls)
 }
 
-func TestResumeRejectsChangedWorkerSpecModelRevision(t *testing.T) {
+func TestResumeUsesPinnedWorkerSpecModelRevision(t *testing.T) {
 	db := setupOrchestratorTestDB(t)
 	podService := newTestPodService(db)
-	spec := podServiceWorkerSpec()
+	spec := normalizedSnapshotWorkerSpec(t)
 	snapshotID := int64(91)
 	modelResourceID := spec.Runtime.ModelBinding.ResourceID
 	agentfileLayer := "MODE acp\n"
@@ -201,64 +209,85 @@ func TestResumeRejectsChangedWorkerSpecModelRevision(t *testing.T) {
 				Spec:           spec,
 			},
 		},
+		WorkerDependencies: snapshotDependencyLoader(t, 1, spec),
 	})
 
-	_, err = createPodWithPlanSourceForTest(t, orchestrator, context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orchestrator, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
 		UserID:         1,
 		SourcePodKey:   source.PodKey,
 	})
 
-	require.ErrorIs(t, err, ErrWorkerSpecModelChanged)
+	require.NoError(t, err)
+	require.NotNil(t, result)
 	var podCount int64
 	require.NoError(t, db.Model(&poddomain.Pod{}).Count(&podCount).Error)
-	assert.Equal(t, int64(1), podCount)
+	assert.Equal(t, int64(2), podCount)
 }
 
-func TestCreatePodRejectsChangedWorkerTypeBeforePersistence(t *testing.T) {
+func TestCreatePodUsesArtifactWithoutCurrentDefinitionCheck(t *testing.T) {
 	spec := podServiceWorkerSpec()
+	prepared := preparedWorkerSpecForArtifactTest(
+		t,
+		context.WithValue(
+			context.WithValue(context.Background(), ctxKeyOrgID, int64(1)),
+			ctxKeyUserID,
+			int64(1),
+		),
+		spec,
+		"MODE acp\n",
+		nil,
+	)
+	spec = prepared.Spec
 	preparer := &workerCreationPreparer{
-		prepared: workercreation.Prepared{
-			Snapshot:       resolvedWorkerSpecForPodServiceTest(t, 1),
-			Spec:           spec,
-			AgentfileLayer: "MODE acp\n",
-		},
+		prepared: prepared,
 		validate: workercreation.ErrWorkerTypeDefinitionChanged,
 	}
 	provider := newCodexTestProvider()
+	db := setupOrchestratorTestDB(t)
+	ensureWorkerSpecSnapshotTable(t, db)
+	resource := resolvedModelResourceFromSpecForArtifactTest(t, spec)
 	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{
 		AgentResolver:  &mockAgentResolver{agentDef: provider.agentDef},
 		WorkerCreation: preparer,
+		ModelResources: &recordingModelResourceResolver{resource: resource},
+		PodService:     newTestPodService(db),
+		ConfigBuilder:  agent.NewConfigBuilder(provider, noopBundleLoader{}),
+		PodCoordinator: &mockPodCoordinator{},
+		RunnerSelector: &mockRunnerSelector{
+			resolveRunner: &runnerDomain.Runner{ID: 1},
+		},
 	})
 
 	_, err := createPodWithPlanSourceForTest(t, orchestrator, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
+		RunnerID:        1,
 		WorkerSpecDraft: &workercreation.Draft{},
 	})
 
-	require.ErrorIs(t, err, ErrWorkerSpecDefinitionChanged)
-	assert.Equal(t, 1, preparer.validateCalls)
+	require.NoError(t, err)
+	assert.Zero(t, preparer.validateCalls)
 }
 
 func TestCreatePodPersistsWorkerSpecBeforeRunnerDispatch(t *testing.T) {
 	db := setupOrchestratorTestDB(t)
-	require.NoError(t, db.Exec(`CREATE TABLE worker_spec_snapshots (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		organization_id INTEGER NOT NULL,
-		version INTEGER NOT NULL,
-		spec_json BLOB NOT NULL,
-		summary_json BLOB NOT NULL,
-		created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-	)`).Error)
+	ensureWorkerSpecSnapshotTable(t, db)
 	spec := podServiceWorkerSpec()
-	resolved := resolvedWorkerSpecForPodServiceTest(t, 1)
+	prepared := preparedWorkerSpecForArtifactTest(
+		t,
+		context.WithValue(
+			context.WithValue(context.Background(), ctxKeyOrgID, int64(1)),
+			ctxKeyUserID,
+			int64(1),
+		),
+		spec,
+		"MODE acp\nPROMPT \"Run checks.\"\n",
+		nil,
+	)
+	spec = prepared.Spec
 	preparer := &workerCreationPreparer{
-		prepared: workercreation.Prepared{
-			Snapshot:       resolved,
-			Spec:           spec,
-			AgentfileLayer: "MODE acp\nPROMPT \"Run checks.\"\n",
-		},
+		prepared: prepared,
 	}
 	resource := resolvedOpenAIResource()
 	resource.Connection.ID = spec.Runtime.ModelBinding.ConnectionID
@@ -295,79 +324,4 @@ func TestCreatePodPersistsWorkerSpecBeforeRunnerDispatch(t *testing.T) {
 	assert.True(t, coordinator.observedSnapshot)
 	assert.NoError(t, coordinator.err)
 	assert.Equal(t, 1, preparer.calls)
-}
-
-type workerCreationPreparer struct {
-	prepared      workercreation.Prepared
-	err           error
-	validate      error
-	calls         int
-	validateCalls int
-	scope         specservice.Scope
-}
-
-func (preparer *workerCreationPreparer) Prepare(
-	_ context.Context,
-	scope specservice.Scope,
-	_ workercreation.Draft,
-) (workercreation.Prepared, error) {
-	preparer.calls++
-	preparer.scope = scope
-	return preparer.prepared, preparer.err
-}
-
-func (preparer *workerCreationPreparer) ValidateWorkerTypeSnapshot(
-	context.Context,
-	specservice.Scope,
-	specdomain.WorkerType,
-) error {
-	preparer.validateCalls++
-	return preparer.validate
-}
-
-type workerSpecDispatchObserver struct {
-	db               *gorm.DB
-	observedSnapshot bool
-	err              error
-}
-
-type workerSpecSnapshotLoader struct {
-	snapshot       specdomain.Snapshot
-	err            error
-	organizationID int64
-	snapshotID     int64
-}
-
-func (loader *workerSpecSnapshotLoader) GetByID(
-	_ context.Context,
-	organizationID, snapshotID int64,
-) (specdomain.Snapshot, error) {
-	loader.organizationID = organizationID
-	loader.snapshotID = snapshotID
-	return loader.snapshot, loader.err
-}
-
-func (observer *workerSpecDispatchObserver) CreatePod(
-	ctx context.Context,
-	_ int64,
-	command *runnerv1.CreatePodCommand,
-) error {
-	var pod poddomain.Pod
-	if err := observer.db.WithContext(ctx).
-		Where("pod_key = ?", command.PodKey).
-		First(&pod).Error; err != nil {
-		observer.err = err
-		return err
-	}
-	observer.observedSnapshot = pod.WorkerSpecSnapshotID != nil
-	return nil
-}
-
-func (observer *workerSpecDispatchObserver) CreatePodOrQueue(
-	ctx context.Context,
-	runnerID int64,
-	command *runnerv1.CreatePodCommand,
-	_ poddomain.CreatePodQueueOpts,
-) error {
-	return observer.CreatePod(ctx, runnerID, command)
 }

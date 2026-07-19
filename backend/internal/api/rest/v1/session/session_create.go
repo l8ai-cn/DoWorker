@@ -5,9 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/agentfile"
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	domain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
+	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 	sessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
 	itemsvc "github.com/anthropics/agentsmesh/backend/internal/service/conversationitem"
@@ -26,8 +25,10 @@ type createSessionBody struct {
 	Scenario        *string           `json:"scenario"`
 	PTYOnly         *bool             `json:"pty_only"`
 
-	ModelResourceID *int64 `json:"model_resource_id"`
-	TokenBudget     *int64 `json:"token_budget"`
+	ModelResourceID *int64                 `json:"model_resource_id"`
+	TokenBudget     *int64                 `json:"token_budget"`
+	WorkerSpec      *sessionWorkerSpecBody `json:"worker_spec"`
+	AutomationLevel string                 `json:"automation_level"`
 }
 
 func (d *Deps) handleCreateSession(c *gin.Context) {
@@ -69,6 +70,9 @@ func (d *Deps) handleCreateSession(c *gin.Context) {
 		return
 	}
 	ptyOnly := body.PTYOnly != nil && *body.PTYOnly
+	if ptyOnly && strings.TrimSpace(body.AutomationLevel) == "" {
+		body.AutomationLevel = string(specdomain.AutomationLevelInteractive)
+	}
 	var layerExtras []string
 	if body.Scenario != nil && strings.TrimSpace(*body.Scenario) != "" {
 		layerExtras = append(layerExtras, `CONFIG scenario = "`+strings.TrimSpace(*body.Scenario)+`"`)
@@ -85,12 +89,25 @@ func (d *Deps) handleCreateSession(c *gin.Context) {
 		}
 	}
 
-	orchReq := sessionCreatePodRequest(tenant.UserID, tenant.OrganizationID, body, layer, workspace)
+	orchReq, err := d.sessionCreatePodRequest(
+		c.Request.Context(),
+		tenant.UserID,
+		tenant.OrganizationID,
+		tenant.OrganizationSlug,
+		body,
+		layer,
+		workspace,
+	)
+	if err != nil {
+		writeOrchestratorError(c, err)
+		return
+	}
 	orchReq.DeferRunnerDispatch = true
 	// pty_only sessions must stay on PTY. Default automation (autonomous)
 	// appends MODE acp and would override the MODE pty layer above.
 	if ptyOnly {
-		orchReq.AutomationLevel = podDomain.AutomationLevelInteractive
+		orchReq.WorkerSpecDraft.WorkerSpec.TypeConfig.AutomationLevel =
+			specdomain.AutomationLevelInteractive
 	}
 	if body.HostID != "" {
 		runner, ok := d.runnerForHostID(c, body.HostID, tenant.OrganizationID)
@@ -163,42 +180,4 @@ func (d *Deps) beginAssistantTurn(sessionID string) {
 	if d.Stream != nil {
 		d.Stream.StartAssistantTurn(sessionID)
 	}
-}
-
-func promptLayerFromItems(items []json.RawMessage) *string {
-	text := promptTextFromInitialItems(items)
-	if text == "" {
-		return nil
-	}
-	layer := "PROMPT " + agentfile.FormatStringLiteral(text)
-	return &layer
-}
-
-func promptTextFromInitialItems(items []json.RawMessage) string {
-	for _, raw := range items {
-		var evt struct {
-			Type string `json:"type"`
-			Data struct {
-				Role    string `json:"role"`
-				Content []struct {
-					Type string `json:"type"`
-					Text string `json:"text"`
-				} `json:"content"`
-			} `json:"data"`
-		}
-		if json.Unmarshal(raw, &evt) != nil || evt.Type != "message" {
-			continue
-		}
-		var parts []string
-		for _, block := range evt.Data.Content {
-			if (block.Type == "text" || block.Type == "input_text") && block.Text != "" {
-				parts = append(parts, block.Text)
-			}
-		}
-		if len(parts) == 0 {
-			continue
-		}
-		return strings.Join(parts, "\n")
-	}
-	return ""
 }

@@ -64,6 +64,10 @@ func validateRepositoryCredential(repository Repository) error {
 		if repository.HTTPCloneURL == "" {
 			return fmt.Errorf("unauthenticated repository clone requires an HTTP endpoint")
 		}
+	case user.CredentialTypeRunnerLocal:
+		if credential.CredentialID != nil || credential.OwnerUserID != 0 {
+			return fmt.Errorf("runner-local repository clone must not carry a credential id")
+		}
 	case user.CredentialTypeOAuth, user.CredentialTypePAT:
 		if credential.CredentialID == nil || *credential.CredentialID <= 0 {
 			return fmt.Errorf("repository credential id must be positive")
@@ -84,10 +88,6 @@ func validateRepositoryCredential(repository Repository) error {
 		if repository.SSHCloneURL == "" {
 			return fmt.Errorf("SSH repository credential requires an SSH endpoint")
 		}
-	case user.CredentialTypeRunnerLocal:
-		return fmt.Errorf(
-			"runner-local repository credentials require an exact Runner secret reference",
-		)
 	default:
 		return fmt.Errorf("repository credential type %q is invalid", credential.Type)
 	}

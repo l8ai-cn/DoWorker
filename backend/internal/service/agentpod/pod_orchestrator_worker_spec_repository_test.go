@@ -19,15 +19,22 @@ func TestPrepareStructuredWorkerCreateReusesResolvedRepository(t *testing.T) {
 		ID:             repositoryID,
 		OrganizationID: 77,
 		Slug:           "org/repo",
+		HttpCloneURL:   "https://git.example.com/org/repo.git",
 		IsActive:       true,
 	}
+	layer := "REPO \"org/repo\"\nBRANCH \"main\"\nMODE acp\n"
 	preparer := &workerCreationPreparer{
-		prepared: workercreation.Prepared{
-			Snapshot:       resolvedWorkerSpecFromSpecForPodServiceTest(t, 77, spec),
-			Spec:           spec,
-			AgentfileLayer: "REPO \"org/repo\"\nBRANCH \"main\"\nMODE acp\n",
-			Repository:     repository,
-		},
+		prepared: preparedWorkerSpecForArtifactTest(
+			t,
+			context.WithValue(
+				context.WithValue(context.Background(), ctxKeyOrgID, int64(77)),
+				ctxKeyUserID,
+				int64(7),
+			),
+			spec,
+			layer,
+			repository,
+		),
 	}
 	repositories := &mockRepoService{}
 	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{

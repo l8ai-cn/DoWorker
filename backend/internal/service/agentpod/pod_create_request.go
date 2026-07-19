@@ -48,7 +48,9 @@ type CreatePodRequest struct {
 	PreviewPort     int
 	PreviewPath     string
 
-	ResolvedWorkerSpec          *specservice.ResolvedSnapshot
-	WorkerSpecSnapshotID        *int64
-	OrchestrationWorkerLaunchID *int64
+	ResolvedWorkerSpec             *specservice.ResolvedSnapshot
+	WorkerDependencyArtifactJSON   []byte
+	WorkerDependencyArtifactDigest string
+	WorkerSpecSnapshotID           *int64
+	OrchestrationWorkerLaunchID    *int64
 }

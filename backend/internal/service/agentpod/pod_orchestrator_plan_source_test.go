@@ -2,16 +2,14 @@ package agentpod
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"testing"
 
 	"github.com/anthropics/agentsmesh/agentfile"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	resourcesvc "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
 	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 )
 
 func workerSpecPlanRequestForTest(
@@ -23,6 +21,15 @@ func workerSpecPlanRequestForTest(
 ) (*OrchestrateCreatePodRequest, *workerCreationPreparer) {
 	t.Helper()
 	spec := workerSpecForPlanSource(agentSlug, agentfileLayer, resource)
+	artifactLayer := planSourceArtifactLayer(spec, agentfileLayer)
+	artifact, dependencies := planArtifactForTest(
+		t,
+		ctx,
+		&spec,
+		agentfileLayer,
+		resource,
+		nil,
+	)
 	draft := workercreation.Draft{
 		OptionsRevision: "test-options",
 		WorkerSpec:      workerSpecDraftFromSpec(spec),
@@ -30,7 +37,9 @@ func workerSpecPlanRequestForTest(
 	prepared := workercreation.Prepared{
 		Snapshot:       resolvedWorkerSpecFromSpecForPodServiceTest(t, ctxOrgID(ctx), spec),
 		Spec:           spec,
-		AgentfileLayer: normalizedPlanAgentfileLayer(agentfileLayer),
+		AgentfileLayer: artifactLayer,
+		Artifact:       artifact,
+		Dependencies:   dependencies,
 	}
 	req := &OrchestrateCreatePodRequest{
 		OrganizationID:  ctxOrgID(ctx),
@@ -65,6 +74,23 @@ func materializePlanSourceForTest(
 	}
 	layer := workerSpecStringValue(req.AgentfileLayer)
 	layer = appendKnowledgeLayerForTest(layer, req.KnowledgeMounts)
+	repositoryDeclaration, err := parseRepositoryDeclaration(layer)
+	if err != nil {
+		materializeFailedPlanSourceForTest(
+			req,
+			orchestrator,
+			fmt.Errorf("%w: %v", ErrInvalidAgentfileLayer, err),
+		)
+		return
+	}
+	if repositoryDeclaration.slug != "" && req.RepositoryID == nil {
+		materializeFailedPlanSourceForTest(
+			req,
+			orchestrator,
+			ErrCreateResourceUnavailable,
+		)
+		return
+	}
 	if req.BranchName != nil &&
 		req.RepositoryID == nil &&
 		!strings.Contains(layer, "BRANCH") {
@@ -83,8 +109,8 @@ func materializePlanSourceForTest(
 	applyPlanSourceOverridesForTest(&spec, req)
 	repository, prepareErr := planSourceRepositoryForTest(orchestrator, req)
 	if prepareErr != nil {
-		spec.Workspace.RepositoryID = nil
-		spec.Workspace.Branch = ""
+		materializeFailedPlanSourceForTest(req, orchestrator, prepareErr)
+		return
 	}
 	if prepareErr == nil && repository == nil && req.RepositoryID != nil {
 		spec.Workspace.RepositoryID = nil
@@ -93,6 +119,19 @@ func materializePlanSourceForTest(
 	if repository != nil && strings.TrimSpace(spec.Workspace.Branch) == "" {
 		spec.Workspace.Branch = firstNonEmpty(repository.DefaultBranch, "main")
 	}
+	artifact, dependencies := planArtifactForTest(
+		t,
+		context.WithValue(
+			context.WithValue(context.Background(), ctxKeyOrgID, req.OrganizationID),
+			ctxKeyUserID,
+			req.UserID,
+		),
+		&spec,
+		layer,
+		resource,
+		repository,
+		orchestrator.userService,
+	)
 	req.WorkerSpecDraft = &workercreation.Draft{
 		OptionsRevision: "test-options",
 		WorkerSpec:      workerSpecDraftFromSpec(spec),
@@ -100,8 +139,10 @@ func materializePlanSourceForTest(
 	prepared := workercreation.Prepared{
 		Snapshot:       resolvedWorkerSpecFromSpecForPodServiceTest(t, req.OrganizationID, spec),
 		Spec:           spec,
-		AgentfileLayer: normalizedPlanAgentfileLayer(layer),
+		AgentfileLayer: planSourceArtifactLayer(spec, layer),
 		Repository:     repository,
+		Artifact:       artifact,
+		Dependencies:   dependencies,
 	}
 	orchestrator.workerCreation = &workerCreationPreparer{
 		prepared: prepared,
@@ -110,140 +151,22 @@ func materializePlanSourceForTest(
 	clearLegacyPlanFixtureFields(req)
 }
 
-func workerSpecForPlanSource(
-	agentSlug string,
-	agentfileLayer string,
-	resource *resourcesvc.ResolvedResource,
-) specdomain.Spec {
-	spec := podServiceWorkerSpec()
-	spec.Runtime.WorkerType.Slug = slugkit.MustNewForTest(agentSlug)
-	spec.Runtime.ModelBinding = modelBindingFromResolvedResource(resource)
-	spec.TypeConfig.InteractionMode = planSourceInteractionMode(agentSlug, agentfileLayer, nil)
-	spec.Workspace.InitialTask = ""
-	spec.Metadata.Alias = ""
-	return spec
-}
-
-func applyPlanSourceOverridesForTest(
-	spec *specdomain.Spec,
+func materializeFailedPlanSourceForTest(
 	req *OrchestrateCreatePodRequest,
+	orchestrator *PodOrchestrator,
+	err error,
 ) {
-	if req.RepositoryID != nil {
-		spec.Workspace.RepositoryID = cloneWorkerSpecInt64Pointer(req.RepositoryID)
+	spec := workerSpecForPlanSource(
+		req.AgentSlug,
+		workerSpecStringValue(req.AgentfileLayer),
+		planSourceModelResourceForTest(orchestrator, req.AgentSlug),
+	)
+	req.WorkerSpecDraft = &workercreation.Draft{
+		OptionsRevision: "test-options",
+		WorkerSpec:      workerSpecDraftFromSpec(spec),
 	}
-	if req.BranchName != nil && req.RepositoryID != nil {
-		spec.Workspace.Branch = strings.TrimSpace(*req.BranchName)
-	}
-	if req.Alias != nil {
-		spec.Metadata.Alias = strings.TrimSpace(*req.Alias)
-	}
-	if req.AutomationLevel != "" {
-		spec.TypeConfig.AutomationLevel = specdomain.AutomationLevel(req.AutomationLevel)
-	}
-	if req.Perpetual {
-		spec.Lifecycle.TerminationPolicy = specdomain.TerminationPolicyManual
-	}
-}
-
-func workerSpecDraftFromSpec(spec specdomain.Spec) specservice.Draft {
-	return specservice.Draft{
-		ModelResourceID: spec.Runtime.ModelBinding.ResourceID,
-		WorkerTypeSlug:  spec.Runtime.WorkerType.Slug,
-		Runtime: specservice.RuntimeSelection{
-			RuntimeImageID:    spec.Runtime.Image.ID,
-			PlacementPolicy:   spec.Placement.Policy,
-			ComputeTargetID:   spec.Placement.ComputeTarget.ID,
-			DeploymentMode:    spec.Placement.DeploymentMode,
-			ResourceProfileID: spec.Placement.ResourceProfile.ID,
-		},
-		TypeConfig: spec.TypeConfig,
-		Workspace:  spec.Workspace,
-		Lifecycle:  spec.Lifecycle,
-		Metadata:   spec.Metadata,
-	}
-}
-
-func modelBindingFromResolvedResource(resource *resourcesvc.ResolvedResource) specdomain.ModelBinding {
-	return specdomain.ModelBinding{
-		ResourceID:         resource.Resource.ID,
-		ResourceRevision:   resource.Resource.Revision,
-		ConnectionID:       resource.Connection.ID,
-		ConnectionRevision: resource.Connection.Revision,
-		ProviderKey:        resource.Connection.ProviderKey,
-		ProtocolAdapter:    slugkit.Slug(resource.Provider.ProtocolAdapter),
-		ModelID:            strings.TrimSpace(resource.Resource.ModelID),
-	}
-}
-
-func planSourceInteractionMode(
-	agentSlug string,
-	agentfileLayer string,
-	orchestrator *PodOrchestrator,
-) specdomain.InteractionMode {
-	if strings.Contains(agentfileLayer, "MODE acp") {
-		return specdomain.InteractionModeACP
-	}
-	if strings.Contains(agentfileLayer, "MODE pty") {
-		return specdomain.InteractionModePTY
-	}
-	if agentSlug == "codex-cli" && planSourceAgentSupportsACP(orchestrator) {
-		return specdomain.InteractionModeACP
-	}
-	return specdomain.InteractionModePTY
-}
-
-func planSourceAgentSupportsACP(orchestrator *PodOrchestrator) bool {
-	if orchestrator == nil {
-		return false
-	}
-	if resolver, ok := orchestrator.agentResolver.(*mockAgentResolver); ok &&
-		resolver.agentDef != nil {
-		return strings.Contains(resolver.agentDef.SupportedModes, "acp")
-	}
-	return false
-}
-
-func normalizedPlanAgentfileLayer(agentfileLayer string) string {
-	if strings.TrimSpace(agentfileLayer) == "" {
-		return "CONFIG mcp_enabled = true\n"
-	}
-	return agentfileLayer
-}
-
-func appendKnowledgeLayerForTest(
-	layer string,
-	mounts []KnowledgeMountRequest,
-) string {
-	out := layer
-	for _, mount := range mounts {
-		line := "KNOWLEDGE " + mount.Slug
-		if strings.TrimSpace(mount.Mode) != "" {
-			line += " [" + mount.Mode + "]"
-		}
-		out = appendPlanLayerLineForTest(out, line)
-	}
-	return out
-}
-
-func appendPlanLayerLineForTest(layer string, line string) string {
-	if strings.TrimSpace(layer) == "" {
-		return line
-	}
-	return strings.TrimRight(layer, "\n") + "\n" + line
-}
-
-func planSourceModelResourceForTest(
-	orchestrator *PodOrchestrator,
-	agentSlug string,
-) *resourcesvc.ResolvedResource {
-	if resolver, ok := orchestrator.modelResources.(*recordingModelResourceResolver); ok &&
-		resolver.resource != nil {
-		return resolver.resource
-	}
-	if agentSlug == "claude-code" {
-		return resolvedResource("anthropic", "https://api.anthropic.com", "claude-test")
-	}
-	return resolvedOpenAIResource()
+	orchestrator.workerCreation = &workerCreationPreparer{err: err}
+	clearLegacyPlanFixtureFields(req)
 }
 
 func planSourceRepositoryForTest(

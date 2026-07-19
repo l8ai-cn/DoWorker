@@ -111,6 +111,7 @@ func buildSandboxConfig(req *ConfigBuildRequest) *runnerv1.SandboxConfig {
 		HttpCloneUrl:       req.HttpCloneURL,
 		SshCloneUrl:        req.SshCloneURL,
 		SourceBranch:       req.SourceBranch,
+		SourceCommitSha:    req.SourceCommitSha,
 		CredentialType:     req.CredentialType,
 		GitToken:           req.GitToken,
 		SshPrivateKey:      req.SSHPrivateKey,

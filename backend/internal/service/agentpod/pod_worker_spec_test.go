@@ -8,7 +8,6 @@ import (
 	runtimedomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	"github.com/anthropics/agentsmesh/backend/internal/infra"
-	"github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 	"github.com/stretchr/testify/assert"
@@ -17,26 +16,32 @@ import (
 
 func TestPodServicePersistsResolvedWorkerSpecWithPod(t *testing.T) {
 	db := setupTestDB(t)
-	require.NoError(t, db.Exec(`CREATE TABLE worker_spec_snapshots (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		organization_id INTEGER NOT NULL,
-		version INTEGER NOT NULL,
-		spec_json BLOB NOT NULL,
-		summary_json BLOB NOT NULL,
-		created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-	)`).Error)
+	ensureWorkerSpecSnapshotTable(t, db)
 	service := NewPodService(infra.NewPodRepository(db))
-	resolved := resolvedWorkerSpecForPodServiceTest(t, 1)
+	prepared := preparedWorkerSpecForArtifactTest(
+		t,
+		context.WithValue(
+			context.WithValue(context.Background(), ctxKeyOrgID, int64(1)),
+			ctxKeyUserID,
+			int64(1),
+		),
+		podServiceWorkerSpec(),
+		"MODE acp\n",
+		nil,
+	)
+	resolved := prepared.Snapshot
 
 	pod, err := service.CreatePod(context.Background(), &CreatePodRequest{
-		OrganizationID:     1,
-		RunnerID:           1,
-		AgentSlug:          "codex-cli",
-		CreatedByID:        1,
-		InteractionMode:    "acp",
-		AutomationLevel:    "autonomous",
-		AgentfileLayer:     "MODE acp\n",
-		ResolvedWorkerSpec: &resolved,
+		OrganizationID:                 1,
+		RunnerID:                       1,
+		AgentSlug:                      "codex-cli",
+		CreatedByID:                    1,
+		InteractionMode:                "acp",
+		AutomationLevel:                "autonomous",
+		AgentfileLayer:                 "MODE acp\n",
+		ResolvedWorkerSpec:             &resolved,
+		WorkerDependencyArtifactJSON:   prepared.Artifact.JSON(),
+		WorkerDependencyArtifactDigest: prepared.Artifact.Digest(),
 	})
 
 	require.NoError(t, err)
@@ -48,23 +53,26 @@ func TestPodServicePersistsResolvedWorkerSpecWithPod(t *testing.T) {
 
 func TestPodServicePersistsWorkerSpecWithoutMainModelAsNull(t *testing.T) {
 	db := setupTestDB(t)
-	require.NoError(t, db.Exec(`CREATE TABLE worker_spec_snapshots (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		organization_id INTEGER NOT NULL,
-		version INTEGER NOT NULL,
-		spec_json BLOB NOT NULL,
-		summary_json BLOB NOT NULL,
-		created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-	)`).Error)
+	ensureWorkerSpecSnapshotTable(t, db)
 	service := NewPodService(infra.NewPodRepository(db))
 	spec := podServiceWorkerSpec()
 	spec.Runtime.ModelBinding = specdomain.ModelBinding{}
 	spec.Runtime.WorkerType.Slug = slugkit.MustNewForTest("cursor-cli")
-	resolved := resolvedWorkerSpecFromSpecForPodServiceTest(t, 1, spec)
+	prepared := preparedWorkerSpecForArtifactTest(
+		t,
+		context.WithValue(
+			context.WithValue(context.Background(), ctxKeyOrgID, int64(1)),
+			ctxKeyUserID,
+			int64(1),
+		),
+		spec,
+		"MODE acp\n",
+		nil,
+	)
+	spec = prepared.Spec
+	resolved := prepared.Snapshot
 	orchestrate := &OrchestrateCreatePodRequest{}
-	projectPreparedWorkerSpec(orchestrate, workercreation.Prepared{
-		Snapshot: resolved, Spec: spec, AgentfileLayer: "MODE acp\n",
-	})
+	projectPreparedWorkerSpec(orchestrate, prepared)
 
 	require.Nil(t, orchestrate.ModelResourceID)
 	pod, err := service.CreatePod(context.Background(), &CreatePodRequest{
@@ -73,6 +81,8 @@ func TestPodServicePersistsWorkerSpecWithoutMainModelAsNull(t *testing.T) {
 		InteractionMode: string(spec.TypeConfig.InteractionMode),
 		AutomationLevel: string(spec.TypeConfig.AutomationLevel),
 		AgentfileLayer:  "MODE acp\n", ResolvedWorkerSpec: &resolved,
+		WorkerDependencyArtifactJSON:   prepared.Artifact.JSON(),
+		WorkerDependencyArtifactDigest: prepared.Artifact.Digest(),
 	})
 
 	require.NoError(t, err)

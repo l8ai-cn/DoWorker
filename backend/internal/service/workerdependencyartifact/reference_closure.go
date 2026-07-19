@@ -78,6 +78,7 @@ func directDocumentReferences(
 	}
 	for _, tool := range document.Models.Tools {
 		add(tool.Binding)
+		add(tool.Model.Pin.Reference)
 	}
 	if document.Repository != nil {
 		add(document.Repository.Pin.Reference)

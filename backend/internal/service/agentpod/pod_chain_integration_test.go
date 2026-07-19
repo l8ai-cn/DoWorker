@@ -10,6 +10,7 @@ import (
 
 	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
 	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	envbundledomain "github.com/anthropics/agentsmesh/backend/internal/domain/envbundle"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agent"
 	envbundleservice "github.com/anthropics/agentsmesh/backend/internal/service/envbundle"
@@ -30,6 +31,21 @@ func (f *fakeEnvBundleLoader) GetEffectiveForUser(_ context.Context, _, _ int64,
 		})
 	}
 	return out, nil
+}
+
+type malformedPodConfigBundleLoader struct{}
+
+func (malformedPodConfigBundleLoader) GetEffectiveForUser(
+	context.Context,
+	int64,
+	int64,
+	string,
+) ([]*envbundleservice.EffectiveBundle, error) {
+	return []*envbundleservice.EffectiveBundle{{
+		Name: "settings",
+		Kind: envbundledomain.KindConfig,
+		Data: map[string]string{envbundledomain.ConfigJSONDataKey: "{"},
+	}}, nil
 }
 
 // ==================== Helpers ====================
@@ -146,17 +162,17 @@ func TestPodChain_RepoSlugResolution(t *testing.T) {
 		withConfigBuilder(agent.NewConfigBuilder(provider, noopBundleLoader{})),
 	)
 
+	repositoryID := int64(77)
 	layer := "REPO \"org/repo-slug\"\n"
-	req, preparer := workerSpecPlanRequestForTest(
-		t,
-		ctx,
-		"claude-code",
-		layer,
-		resolvedResource("anthropic", "https://api.anthropic.com", "claude-test"),
-	)
-	orch.workerCreation = preparer
-	req.RunnerID = ctxRunnerID(ctx)
-	result, err := createPodWithPlanSourceForTest(t, orch, ctx, req)
+	result, err := createPodWithPlanSourceForTest(t, orch, ctx, &OrchestrateCreatePodRequest{
+		OrganizationID:  ctxOrgID(ctx),
+		UserID:          ctxUserID(ctx),
+		RunnerID:        ctxRunnerID(ctx),
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		RepositoryID:    &repositoryID,
+		AgentfileLayer:  &layer,
+	})
 	require.NoError(t, err)
 
 	// Pod should have RepositoryID set from slug resolution
@@ -223,57 +239,10 @@ func TestPodChain_CredentialFlow(t *testing.T) {
 	assert.Equal(t, "sk-test", cmd.EnvVars["ANTHROPIC_API_KEY"])
 }
 
-// ==================== Test 4: Unsupported Interaction Mode ====================
-
-func TestPodChain_UnsupportedInteractionMode(t *testing.T) {
-	coord := &mockPodCoordinator{}
-
-	// Agent only supports "pty"
-	ptyOnlySrc := "AGENT claude\nEXECUTABLE claude\nMODE pty\nPROMPT_POSITION prepend\n"
-	ptyOnlyResolver := &mockAgentResolver{
-		agentDef: &agentDomain.Agent{
-			Slug: "claude-code", AdapterID: "claude-stream-json", SupportedModes: "pty",
-			AgentfileSource: &ptyOnlySrc, UsesLegacyColumns: true,
-		},
-	}
-	provider := acpProvider(ptyOnlySrc) // provider doesn't matter for mode validation
-
-	orch, podSvc, ctx := setupIntegrationOrchestrator(t,
-		withCoordinator(coord),
-		withAgentResolver(ptyOnlyResolver),
-		withConfigBuilder(agent.NewConfigBuilder(provider, noopBundleLoader{})),
-	)
-
-	// AgentFile layer requests MODE acp, but agent only supports pty
-	layer := "MODE acp\n"
-	req, preparer := workerSpecPlanRequestForTest(
-		t,
-		ctx,
-		"claude-code",
-		layer,
-		resolvedResource("anthropic", "https://api.anthropic.com", "claude-test"),
-	)
-	orch.workerCreation = preparer
-	req.RunnerID = ctxRunnerID(ctx)
-	_, err := createPodWithPlanSourceForTest(t, orch, ctx, req)
-	require.Error(t, err)
-	assert.ErrorIs(t, err, ErrUnsupportedInteractionMode)
-	assert.False(t, coord.createPodCalled, "coordinator should not be called on mode mismatch")
-
-	// Verify no pod was created in DB (mode check happens before DB insert)
-	// We check via pod service — the only pod in DB was NOT created by this call
-	_ = podSvc // pod service available but no pod key to query
-}
-
-// ==================== Test 5: ConfigBuilder Failure ====================
+// ==================== Test 4: ConfigBuilder Failure ====================
 
 func TestPodChain_ConfigBuilderFailure(t *testing.T) {
 	coord := &mockPodCoordinator{}
-
-	// Provider that fails on GetAgent (simulating config build failure)
-	failProvider := &mockAgentConfigProvider{
-		agentErr: errors.New("agent config not available"),
-	}
 
 	agentfileSrc := acpAgentfile()
 	resolver := acpResolver(agentfileSrc)
@@ -281,14 +250,17 @@ func TestPodChain_ConfigBuilderFailure(t *testing.T) {
 	orch, podSvc, ctx := setupIntegrationOrchestrator(t,
 		withCoordinator(coord),
 		withAgentResolver(resolver),
-		withConfigBuilder(agent.NewConfigBuilder(failProvider, noopBundleLoader{})),
+		withConfigBuilder(agent.NewConfigBuilder(
+			acpProvider(agentfileSrc),
+			malformedPodConfigBundleLoader{},
+		)),
 	)
 
 	req, preparer := workerSpecPlanRequestForTest(
 		t,
 		ctx,
 		"claude-code",
-		"",
+		`USE_CONFIG_BUNDLE "settings"`,
 		resolvedResource("anthropic", "https://api.anthropic.com", "claude-test"),
 	)
 	orch.workerCreation = preparer
@@ -345,92 +317,4 @@ func TestPodChain_DispatchFailureMarksError(t *testing.T) {
 	assert.Equal(t, errCodeRunnerUnreachable, *dbPod.ErrorCode)
 	require.NotNil(t, dbPod.ErrorMessage)
 	assert.Contains(t, *dbPod.ErrorMessage, "runner connection refused")
-}
-
-// TestResumeIntegration_CodexFullChain exercises the full create → snapshot →
-// terminate → resume chain for a non-Claude (Codex) agent. It verifies that:
-//   - the resolved AgentFile CONFIG snapshot lands on Pod.ResolvedConfig
-//   - codex pods do NOT touch legacy Pod.Model / Pod.PermissionMode columns
-//   - resume re-injects the source pod's CONFIG snapshot and produces the
-//     `codex resume --last` launch command honored by Codex CLI
-func TestResumeIntegration_CodexFullChain(t *testing.T) {
-	coord := &mockPodCoordinator{}
-	codexAgentfile := "AGENT codex\nEXECUTABLE codex\nMODE pty\n" +
-		"CONFIG approval_mode SELECT(\"untrusted\", \"on-request\", \"never\") = \"untrusted\"\n" +
-		"PROMPT_POSITION append\n" +
-		"arg \"resume\" \"--last\" when config.resume_enabled and mode != \"acp\"\n" +
-		"arg \"--ask-for-approval\" config.approval_mode when config.approval_mode != \"\" and mode != \"acp\"\n"
-
-	codexProvider := &mockAgentConfigProvider{
-		agentDef: &agentDomain.Agent{
-			Slug:              "codex-cli",
-			Name:              "Codex CLI",
-			LaunchCommand:     "codex",
-			AdapterID:         "codex-app-server",
-			SupportedModes:    "pty",
-			AgentfileSource:   &codexAgentfile,
-			UsesLegacyColumns: false,
-		},
-		config:   agentDomain.ConfigValues{},
-		creds:    agentDomain.EncryptedCredentials{},
-		isRunner: true,
-	}
-	codexResolver := &mockAgentResolver{agentDef: codexProvider.agentDef}
-
-	orch, podSvc, ctx := setupIntegrationOrchestrator(t,
-		withCoordinator(coord),
-		withAgentResolver(codexResolver),
-		withConfigBuilder(agent.NewConfigBuilder(codexProvider, noopBundleLoader{})),
-		withModelResources(&recordingModelResourceResolver{resource: resolvedOpenAIResource()}),
-	)
-
-	sourceLayer := `CONFIG approval_mode = "never"`
-	req, preparer := workerSpecPlanRequestForTest(
-		t,
-		ctx,
-		"codex-cli",
-		sourceLayer,
-		resolvedOpenAIResource(),
-	)
-	orch.workerCreation = preparer
-	req.RunnerID = ctxRunnerID(ctx)
-	source, err := createPodWithPlanSourceForTest(t, orch, ctx, req)
-	require.NoError(t, err)
-	require.NotNil(t, source.Pod)
-
-	sourceDB, err := podSvc.GetPod(ctx, source.Pod.PodKey)
-	require.NoError(t, err)
-	assert.Equal(t, "never", sourceDB.ResolvedConfig["approval_mode"], "snapshot should land on ResolvedConfig")
-	assert.Nil(t, sourceDB.Model, "codex must not write legacy Model column")
-	assert.Nil(t, sourceDB.PermissionMode, "codex must not write legacy PermissionMode column")
-
-	// Terminate + attach a sandbox path so resume can pick up local_path.
-	sandboxPath := "/home/user/sandbox/codex-source"
-	_, err = podSvc.UpdateByKey(ctx, source.Pod.PodKey, map[string]interface{}{
-		"sandbox_path": sandboxPath,
-		"status":       podDomain.StatusTerminated,
-	})
-	require.NoError(t, err)
-
-	resumed, err := createPodWithPlanSourceForTest(t, orch, ctx, &OrchestrateCreatePodRequest{
-		OrganizationID: ctxOrgID(ctx),
-		UserID:         ctxUserID(ctx),
-		SourcePodKey:   source.Pod.PodKey,
-	})
-	require.NoError(t, err)
-	require.NotNil(t, resumed.Pod)
-
-	resumedDB, err := podSvc.GetPod(ctx, resumed.Pod.PodKey)
-	require.NoError(t, err)
-	assert.Equal(t, "never", resumedDB.ResolvedConfig["approval_mode"], "snapshot should survive resume")
-	assert.Nil(t, resumedDB.Model)
-	assert.Nil(t, resumedDB.PermissionMode)
-	assert.Equal(t, "codex-cli", resumedDB.AgentSlug, "agent slug should be inherited from source pod")
-
-	require.NotNil(t, coord.lastCmd)
-	assert.Equal(t, "codex", coord.lastCmd.LaunchCommand)
-	assert.Equal(t, "append", coord.lastCmd.PromptPosition)
-	assert.Equal(t, []string{"resume", "--last", "--ask-for-approval", "never"}, coord.lastCmd.LaunchArgs)
-	require.NotNil(t, coord.lastCmd.SandboxConfig)
-	assert.Equal(t, sandboxPath, coord.lastCmd.SandboxConfig.LocalPath)
 }

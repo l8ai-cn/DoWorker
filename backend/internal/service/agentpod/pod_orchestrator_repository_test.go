@@ -81,14 +81,19 @@ func TestCreatePod_UsesScopedAgentFileRepositoryOnce(t *testing.T) {
 	}}
 	coord := &mockPodCoordinator{}
 	orch, _, _ := setupOrchestrator(t, withRepoSvc(repoSvc), withCoordinator(coord))
+	repositoryID := int64(43)
 
-	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), repositoryCreateRequest(nil, ptrStr(`REPO "org/project"`)))
+	result, err := createPodWithPlanSourceForTest(
+		t,
+		orch,
+		context.Background(),
+		repositoryCreateRequest(&repositoryID, ptrStr(`REPO ""`)),
+	)
 
 	require.NoError(t, err)
 	require.NotNil(t, result.Pod.RepositoryID)
 	assert.Equal(t, int64(43), *result.Pod.RepositoryID)
-	assert.Empty(t, repoSvc.getAccessibleCalls)
-	require.Equal(t, []repositorySlugAccessCall{{OrganizationID: 7, UserID: 11, Slug: "org/project"}}, repoSvc.findAccessibleCalls)
+	assert.Empty(t, repoSvc.findAccessibleCalls)
 	require.NotNil(t, coord.lastCmd)
 	require.NotNil(t, coord.lastCmd.SandboxConfig)
 	assert.Equal(t, "https://example.com/org/project.git", coord.lastCmd.SandboxConfig.HttpCloneUrl)
@@ -116,7 +121,8 @@ func TestCreatePod_UsesAutoSelectedAgentFileRepositoryOnce(t *testing.T) {
 		withRunnerSelector(selector),
 		withCoordinator(coord),
 	)
-	req := repositoryCreateRequest(nil, ptrStr(`REPO "org/auto-project"`))
+	repositoryID := int64(45)
+	req := repositoryCreateRequest(&repositoryID, ptrStr(`REPO ""`))
 	req.RunnerID = 0
 
 	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), req)
@@ -136,8 +142,7 @@ func TestCreatePod_UsesAutoSelectedAgentFileRepositoryOnce(t *testing.T) {
 	assert.Equal(t, "release", coord.lastCmd.SandboxConfig.SourceBranch)
 	assert.Equal(t, "pnpm install --frozen-lockfile", coord.lastCmd.SandboxConfig.PreparationScript)
 	assert.Equal(t, int32(540), coord.lastCmd.SandboxConfig.PreparationTimeout)
-	assert.Empty(t, repoSvc.getAccessibleCalls)
-	assert.Len(t, repoSvc.findAccessibleCalls, 1)
+	assert.Empty(t, repoSvc.findAccessibleCalls)
 }
 
 func TestCreatePod_RejectsRepositoryLookupInfrastructureErrorsUnchanged(t *testing.T) {

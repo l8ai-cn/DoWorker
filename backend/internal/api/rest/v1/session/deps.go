@@ -26,6 +26,8 @@ import (
 	tokenquotasvc "github.com/anthropics/agentsmesh/backend/internal/service/tokenquota"
 	userservice "github.com/anthropics/agentsmesh/backend/internal/service/user"
 	virtualkeysvc "github.com/anthropics/agentsmesh/backend/internal/service/virtualkey"
+	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
+	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 	"github.com/anthropics/agentsmesh/backend/pkg/embedtoken"
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
@@ -57,6 +59,14 @@ type sessionPodOrchestrator interface {
 		*agentpod.OrchestrateCreatePodRequest,
 		*agentpod.OrchestrateCreatePodResult,
 	) (*agentpod.OrchestrateCreatePodResult, error)
+}
+
+type sessionWorkerDraftFactory interface {
+	NewFreshPodDraft(
+		context.Context,
+		specservice.Scope,
+		workercreation.FreshPodDraftInput,
+	) (workercreation.Draft, error)
 }
 
 type sessionPodLifecycle interface {
@@ -95,6 +105,7 @@ type Deps struct {
 	Elicitations       *ElicitationStore
 	Stream             *SessionStreamPublisher
 	PodOrchestrator    sessionPodOrchestrator
+	WorkerCreation     sessionWorkerDraftFactory
 	Pod                *agentpod.PodService
 	DeferredCommitter  sessionDeferredCommitter
 	DispatchQueue      sessionDispatchQueue
@@ -106,7 +117,6 @@ type Deps struct {
 	Policies           *permissionpolicysvc.Service
 	ReadState          *ReadStateStore
 	SandboxFs          sandboxFilesystem
-	ArtifactSnapshots  artifactSnapshotRepository
 	SessionFiles       *sessionfilesvc.Service
 	WorkbenchRepo      agentworkbenchdomain.Repository
 	MessageOutbox      sessionPromptOutbox

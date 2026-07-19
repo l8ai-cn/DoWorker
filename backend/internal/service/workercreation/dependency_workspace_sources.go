@@ -1,15 +1,20 @@
 package workercreation
 
 import (
+	"context"
 	"fmt"
 
+	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
 	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
+	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	"github.com/anthropics/agentsmesh/backend/internal/service/workerdependencyartifact"
+	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 )
 
 func buildRepositoryResolution(
+	ctx context.Context,
 	scope control.Scope,
 	refs ArtifactReferences,
 	spec workerspec.Spec,
@@ -23,7 +28,8 @@ func buildRepositoryResolution(
 	if reference == nil {
 		return nil, fmt.Errorf("WorkerTemplate artifact repository reference is missing")
 	}
-	if _, err := referencePin(scope, *reference, id); err != nil {
+	pin, err := referencePin(scope, *reference, id)
+	if err != nil {
 		return nil, err
 	}
 	repository := workspace.resolvedRepository(spec.Workspace.RepositoryID)
@@ -33,10 +39,35 @@ func buildRepositoryResolution(
 	if repository.DefaultBranch == "" || spec.Workspace.Branch == "" {
 		return nil, fmt.Errorf("WorkerTemplate artifact repository branch is missing")
 	}
-	return nil, fmt.Errorf(
-		"WorkerTemplate artifact repository %d has no immutable commit pin",
-		id,
+	if workspace.deps.Commits == nil {
+		return nil, fmt.Errorf("WorkerTemplate artifact repository commit resolver is unavailable")
+	}
+	commit, err := workspace.deps.Commits.ResolveRepositoryCommit(
+		ctx,
+		specScope(scope),
+		repository,
+		spec.Workspace.Branch,
 	)
+	if err != nil {
+		return nil, err
+	}
+	commit, err = validateResolvedCommit("repository", commit)
+	if err != nil {
+		return nil, err
+	}
+	credentialType := workerdependency.RepositoryCredentialTypeNone
+	script, scriptDigest, timeout, err := repositoryPreparation(repository)
+	if err != nil {
+		return nil, err
+	}
+	return &workerdependencyartifact.RepositoryResolution{
+		ResourceResolution: pin, HTTPCloneURL: repository.HttpCloneURL,
+		SSHCloneURL: repository.SshCloneURL, Branch: spec.Workspace.Branch,
+		CommitSHA: commit, CredentialType: credentialType,
+		PreparationScript:         script,
+		PreparationScriptDigest:   scriptDigest,
+		PreparationTimeoutSeconds: timeout,
+	}, nil
 }
 
 func buildSkillResolutions(
@@ -46,27 +77,34 @@ func buildSkillResolutions(
 	workspace *workspaceResolver,
 ) ([]workerdependencyartifact.SkillResolution, error) {
 	result := make([]workerdependencyartifact.SkillResolution, 0, len(spec.Workspace.SkillIDs))
+	packages := skillPackageIndex(spec.Workspace.SkillPackages)
 	for _, id := range spec.Workspace.SkillIDs {
-		row := workspace.skills[id]
+		packageBinding, err := requiredSkillPackage(packages, id)
+		if err != nil {
+			return nil, err
+		}
 		reference := refs.Skills[id]
 		pin, err := referencePin(scope, reference, id)
 		if err != nil {
 			return nil, err
 		}
-		slug, err := slugkit.NewFromTrusted(row.Slug)
+		slug, err := slugkit.NewFromTrusted(packageBinding.Slug)
 		if err != nil {
 			return nil, err
 		}
 		result = append(result, workerdependencyartifact.SkillResolution{
-			ResourceResolution: pin, Slug: slug, Version: row.Version,
-			ContentDigest: digestFromSHA(row.ContentSha),
-			StorageKey:    row.StorageKey, PackageSize: row.PackageSize,
+			ResourceResolution: pin, Slug: slug,
+			Version:       packageBinding.Version,
+			ContentDigest: digestFromSHA(packageBinding.ContentSHA),
+			StorageKey:    packageBinding.StorageKey,
+			PackageSize:   packageBinding.PackageSize,
 		})
 	}
 	return result, nil
 }
 
 func buildKnowledgeResolutions(
+	ctx context.Context,
 	scope control.Scope,
 	refs ArtifactReferences,
 	spec workerspec.Spec,
@@ -86,10 +124,53 @@ func buildKnowledgeResolutions(
 		if _, err := referencePin(scope, reference, id); err != nil {
 			return nil, err
 		}
-		return nil, fmt.Errorf(
-			"WorkerTemplate artifact knowledge base %d has no immutable commit pin",
-			id,
+		if workspace.deps.Commits == nil {
+			return nil, fmt.Errorf(
+				"WorkerTemplate artifact knowledge base commit resolver is unavailable",
+			)
+		}
+		commit, err := workspace.deps.Commits.ResolveKnowledgeBaseCommit(
+			ctx,
+			specScope(scope),
+			row,
+			row.DefaultBranch,
 		)
+		if err != nil {
+			return nil, err
+		}
+		commit, err = validateResolvedCommit("knowledge base", commit)
+		if err != nil {
+			return nil, err
+		}
+		slug, err := slugkit.NewFromTrusted(row.Slug)
+		if err != nil {
+			return nil, err
+		}
+		pin, err := referencePin(scope, reference, id)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, workerdependencyartifact.KnowledgeBaseResolution{
+			ResourceResolution: pin, Slug: slug, HTTPCloneURL: row.HTTPCloneURL,
+			Branch: row.DefaultBranch, CommitSHA: commit, Mode: mount.Mode,
+		})
 	}
 	return result, nil
+}
+
+func repositoryPreparation(repository *gitprovider.Repository) (string, string, uint32, error) {
+	if repository.PreparationScript == nil || *repository.PreparationScript == "" {
+		return "", "", 0, nil
+	}
+	if repository.PreparationTimeout == nil || *repository.PreparationTimeout <= 0 {
+		return "", "", 0, fmt.Errorf(
+			"WorkerTemplate artifact repository preparation timeout is missing",
+		)
+	}
+	script := *repository.PreparationScript
+	return script, workerdependency.TextDigest(script), uint32(*repository.PreparationTimeout), nil
+}
+
+func specScope(scope control.Scope) specservice.Scope {
+	return specservice.Scope{OrgID: scope.OrganizationID, UserID: scope.ActorID}
 }

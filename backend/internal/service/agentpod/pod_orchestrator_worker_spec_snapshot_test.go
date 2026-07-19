@@ -145,7 +145,7 @@ func TestPrepareSnapshotWorkerCreateRejectsLegacyRuntimeOverrides(t *testing.T) 
 		&OrchestrateCreatePodRequest{
 			OrganizationID:       7,
 			UserID:               5,
-			RunnerID:             88,
+			AgentSlug:            "codex-cli",
 			WorkerSpecSnapshotID: &snapshotID,
 		},
 	)
@@ -285,7 +285,10 @@ type snapshotWorkerCreationPreparer struct {
 
 func normalizedSnapshotWorkerSpec(t *testing.T) specdomain.Spec {
 	t.Helper()
-	spec, err := specdomain.NormalizeAndValidate(podServiceWorkerSpec())
+	spec := podServiceWorkerSpec()
+	definition := formalWorkerDefinitionForPlanTest(t, spec.Runtime.WorkerType.Slug.String())
+	spec.Runtime.WorkerType.DefinitionHash = definition.DefinitionHash
+	spec, err := specdomain.NormalizeAndValidate(spec)
 	require.NoError(t, err)
 	return spec
 }
@@ -296,9 +299,21 @@ func snapshotDependencyLoader(
 	spec specdomain.Spec,
 ) *workerSpecDependencyLoader {
 	t.Helper()
-	digest, err := workerSpecDigest(spec)
-	require.NoError(t, err)
-	return snapshotDependencyLoaderWithDigest(organizationID, digest)
+	_, document := planArtifactForTest(
+		t,
+		context.WithValue(
+			context.WithValue(context.Background(), ctxKeyOrgID, organizationID),
+			ctxKeyUserID,
+			int64(1),
+		),
+		&spec,
+		"MODE acp\n",
+		resolvedModelResourceFromSpecForArtifactTest(t, spec),
+		nil,
+	)
+	return &workerSpecDependencyLoader{
+		document: *document,
+	}
 }
 
 func snapshotDependencyLoaderWithDigest(
@@ -338,6 +353,20 @@ func (preparer *snapshotWorkerCreationPreparer) PrepareSnapshot(
 ) (workercreation.PreparedSnapshot, error) {
 	preparer.snapshotCalls++
 	return preparer.prepared, preparer.err
+}
+
+func (preparer *snapshotWorkerCreationPreparer) PrepareSnapshotWithDependencies(
+	_ context.Context,
+	_ specservice.Scope,
+	_ specdomain.Snapshot,
+	dependencies workerdependency.Document,
+) (workercreation.PreparedSnapshot, error) {
+	preparer.snapshotCalls++
+	prepared := preparer.prepared
+	if prepared.Dependencies == nil {
+		prepared.Dependencies = &dependencies
+	}
+	return prepared, preparer.err
 }
 
 type workerSpecDependencyLoader struct {

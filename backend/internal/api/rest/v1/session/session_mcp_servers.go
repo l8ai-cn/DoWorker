@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	domain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
+	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,6 +17,7 @@ func (d *Deps) handleCreateMcpServer(c *gin.Context) {
 	if !d.requireSessionLevel(c, row, levelEdit) {
 		return
 	}
+	tenant := middleware.GetTenant(c)
 	var body domain.McpServer
 	if err := c.ShouldBindJSON(&body); err != nil || strings.TrimSpace(body.Name) == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
@@ -34,7 +36,7 @@ func (d *Deps) handleCreateMcpServer(c *gin.Context) {
 		return
 	}
 	row.McpServers, _ = marshalJSON(servers)
-	if _, err := d.rebuildSessionPod(c, row, pod, row.AgentSlug); err != nil {
+	if _, err := d.rebuildSessionPod(c, row, pod, row.AgentSlug, tenant.OrganizationSlug); err != nil {
 		writeSessionPodError(c, err)
 		return
 	}
@@ -49,6 +51,7 @@ func (d *Deps) handleUpdateMcpServer(c *gin.Context) {
 	if !d.requireSessionLevel(c, row, levelEdit) {
 		return
 	}
+	tenant := middleware.GetTenant(c)
 	name := c.Param("server_name")
 	var body domain.McpServer
 	if err := c.ShouldBindJSON(&body); err != nil {
@@ -74,7 +77,7 @@ func (d *Deps) handleUpdateMcpServer(c *gin.Context) {
 		return
 	}
 	row.McpServers, _ = marshalJSON(servers)
-	if _, err := d.rebuildSessionPod(c, row, pod, row.AgentSlug); err != nil {
+	if _, err := d.rebuildSessionPod(c, row, pod, row.AgentSlug, tenant.OrganizationSlug); err != nil {
 		writeSessionPodError(c, err)
 		return
 	}
@@ -89,6 +92,7 @@ func (d *Deps) handleDeleteMcpServer(c *gin.Context) {
 	if !d.requireSessionLevel(c, row, levelEdit) {
 		return
 	}
+	tenant := middleware.GetTenant(c)
 	name := c.Param("server_name")
 	servers := domain.ParseMcpServers(row.McpServers)
 	next := make([]domain.McpServer, 0, len(servers))
@@ -109,7 +113,7 @@ func (d *Deps) handleDeleteMcpServer(c *gin.Context) {
 		return
 	}
 	row.McpServers, _ = marshalJSON(next)
-	if _, err := d.rebuildSessionPod(c, row, pod, row.AgentSlug); err != nil {
+	if _, err := d.rebuildSessionPod(c, row, pod, row.AgentSlug, tenant.OrganizationSlug); err != nil {
 		writeSessionPodError(c, err)
 		return
 	}

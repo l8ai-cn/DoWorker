@@ -135,7 +135,7 @@ func TestCreatePod_AutoSelectRunner_NoAvailableRunner(t *testing.T) {
 	assert.True(t, errors.Is(err, ErrNoAvailableRunner))
 }
 
-func TestCreatePod_AutoSelectRunner_AgentResolveError(t *testing.T) {
+func TestCreatePod_AutoSelectRunner_DoesNotResolveMutableAgent(t *testing.T) {
 	selector := &mockRunnerSelector{
 		runner: &runnerDomain.Runner{ID: 42},
 	}
@@ -148,7 +148,7 @@ func TestCreatePod_AutoSelectRunner_AgentResolveError(t *testing.T) {
 		withAgentResolver(resolver),
 	)
 
-	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        0,
@@ -157,8 +157,9 @@ func TestCreatePod_AutoSelectRunner_AgentResolveError(t *testing.T) {
 		AgentfileLayer:  ptrStr("CONFIG mcp_enabled = true"),
 	})
 
-	require.Error(t, err)
-	assert.True(t, errors.Is(err, ErrMissingAgentSlug))
+	require.NoError(t, err)
+	require.NotNil(t, result.Pod)
+	assert.Equal(t, int64(42), result.Pod.RunnerID)
 }
 
 func TestCreatePod_NormalMode_MissingAgentSlug(t *testing.T) {
@@ -246,22 +247,20 @@ func TestCreatePod_CoordinatorSendFailure_ReturnsError(t *testing.T) {
 }
 
 func TestCreatePod_ConfigBuildFailure(t *testing.T) {
-	// Create an orchestrator with a provider that fails on GetAgent
 	db := setupTestDB(t)
 	ensureWorkerSpecSnapshotTable(t, db)
 	podSvc := newTestPodService(db)
 
-	provider := &mockAgentConfigProvider{
-		agentErr: errors.New("agent not found"),
-	}
-	configBuilder := agent.NewConfigBuilder(provider, noopBundleLoader{})
+	agentfileSource := acpAgentfile()
+	configBuilder := agent.NewConfigBuilder(
+		acpProvider(agentfileSource),
+		malformedPodConfigBundleLoader{},
+	)
 
 	orch := NewPodOrchestrator(&PodOrchestratorDeps{
-		PodService:    podSvc,
-		ConfigBuilder: configBuilder,
-		AgentResolver: &mockAgentResolver{agentDef: &agentDomain.Agent{
-			Slug: "claude-code", AdapterID: "claude-stream-json", SupportedModes: "pty",
-		}},
+		PodService:     podSvc,
+		ConfigBuilder:  configBuilder,
+		AgentResolver:  acpResolver(agentfileSource),
 		RunnerSelector: &mockRunnerSelector{resolveRunner: &runnerDomain.Runner{ID: 1}},
 		ModelResources: &recordingModelResourceResolver{resource: resolvedResource("anthropic", "https://api.anthropic.com", "claude-test")},
 	})
@@ -272,7 +271,7 @@ func TestCreatePod_ConfigBuildFailure(t *testing.T) {
 		RunnerID:        1,
 		AgentSlug:       "claude-code",
 		ModelResourceID: testModelResourceID(),
-		AgentfileLayer:  ptrStr("CONFIG mcp_enabled = true"),
+		AgentfileLayer:  ptrStr(`USE_CONFIG_BUNDLE "settings"`),
 	})
 
 	require.Error(t, err)

@@ -98,7 +98,7 @@ func TestResumeAppendsInvocationPromptToPinnedWorkerSpec(t *testing.T) {
 	db := setupOrchestratorTestDB(t)
 	podService := NewPodService(infra.NewPodRepository(db))
 	snapshotID := int64(91)
-	spec := podServiceWorkerSpec()
+	spec := normalizedSnapshotWorkerSpec(t)
 	modelResourceID := spec.Runtime.ModelBinding.ResourceID
 	sourceLayer := "MODE acp\nPROMPT \"First run.\"\n"
 	source, err := podService.CreatePod(context.Background(), &CreatePodRequest{
@@ -126,6 +126,7 @@ func TestResumeAppendsInvocationPromptToPinnedWorkerSpec(t *testing.T) {
 			OrganizationID: 1,
 			Spec:           spec,
 		}},
+		WorkerDependencies: snapshotDependencyLoader(t, 1, spec),
 	})
 	override := "Continue with the next run."
 	req := &OrchestrateCreatePodRequest{

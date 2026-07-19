@@ -18,7 +18,7 @@ func TestMarketInstallCleanupSurvivesCanceledRequestContext(t *testing.T) {
 	_, _, err := fixture.service.InstallPublishedMarketApplication(
 		ctx,
 		InstallMarketApplicationRequest{
-			OrganizationID:  42,
+			OrganizationID: 42, OrganizationSlug: "target-org",
 			UserID:          501,
 			ModelResourceID: 301,
 			MarketSlug:      string(published.Application.Slug),

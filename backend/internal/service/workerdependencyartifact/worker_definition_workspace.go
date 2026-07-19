@@ -65,21 +65,21 @@ func validateDefinitionSecrets(
 		binding, exists := bindings[reference.Field]
 		if !exists || reference.BundleKey != binding.Target.Name {
 			return fmt.Errorf(
-				"Secret reference field %q does not match worker definition",
+				"secret reference field %q does not match worker definition",
 				reference.Field,
 			)
 		}
 		switch reference.OwnerScope {
 		case envbundle.OwnerScopeOrg:
 			if reference.OwnerID != scope.OrganizationID {
-				return fmt.Errorf("organization Secret owner does not match Plan scope")
+				return fmt.Errorf("organization secret owner does not match plan scope")
 			}
 		case envbundle.OwnerScopeUser:
 			if reference.OwnerID != scope.ActorID {
-				return fmt.Errorf("user Secret owner does not match Plan actor")
+				return fmt.Errorf("user secret owner does not match plan actor")
 			}
 		default:
-			return fmt.Errorf("Secret owner scope %q is invalid", reference.OwnerScope)
+			return fmt.Errorf("secret owner scope %q is invalid", reference.OwnerScope)
 		}
 	}
 	return nil

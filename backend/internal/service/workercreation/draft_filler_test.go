@@ -9,7 +9,6 @@ import (
 	resourcedomain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	resourceservice "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
-	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -110,9 +109,8 @@ func TestDraftFillerReturnsPreflightIssuesForInvalidPatch(t *testing.T) {
 
 func TestDraftFillerUsesSeparateGenerationModelForWorkerWithoutMainModel(t *testing.T) {
 	fixture := newWorkerCreationServiceFixture()
-	definition := fixture.definitions["codex-cli"]
-	definition.ModelRequirement = workerdefinition.ModelRequirement{}
-	definition.CredentialBindings = nil
+	source := *fixture.agents.agent.AgentfileSource
+	definition := noModelWorkerDefinition("codex-cli", "codex", source, "pty", "acp")
 	fixture.definitions["codex-cli"] = definition
 	generator := &recordingDraftJSONGenerator{output: []byte(`{"alias":"cursor-worker"}`)}
 	filler := NewDraftFiller(NewService(fixture.deps()), fixture.resources, generator)

@@ -2,11 +2,9 @@ package v1
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"strconv"
 
-	coordinatordom "github.com/anthropics/agentsmesh/backend/internal/domain/coordinator"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 	coordinatorService "github.com/anthropics/agentsmesh/backend/internal/service/coordinator"
@@ -55,17 +53,17 @@ func (h *CoordinatorHandler) CreateProject(c *gin.Context) {
 	}
 
 	project, err := h.service.CreateProject(c.Request.Context(), &coordinatorService.CreateProjectRequest{
-		OrganizationID:      tenant.OrganizationID,
-		RepositoryID:        req.RepositoryID,
-		Name:                req.Name,
-		PlatformType:        req.PlatformType,
-		SourceType:          req.SourceType,
-		LabelFilter:         req.LabelFilter,
-		ClaimPolicy:         req.ClaimPolicy,
-		AgentSlug:           req.AgentSlug,
-		ScanIntervalSeconds: req.ScanIntervalSeconds,
-		MaxConcurrent:       req.MaxConcurrent,
-		CreatedByID:         tenant.UserID,
+		OrganizationID:       tenant.OrganizationID,
+		RepositoryID:         req.RepositoryID,
+		Name:                 req.Name,
+		PlatformType:         req.PlatformType,
+		SourceType:           req.SourceType,
+		LabelFilter:          req.LabelFilter,
+		ClaimPolicy:          req.ClaimPolicy,
+		WorkerSpecSnapshotID: req.WorkerSpecSnapshotID,
+		ScanIntervalSeconds:  req.ScanIntervalSeconds,
+		MaxConcurrent:        req.MaxConcurrent,
+		CreatedByID:          tenant.UserID,
 	})
 	if err != nil {
 		apierr.BadRequest(c, apierr.VALIDATION_FAILED, err.Error())
@@ -108,8 +106,8 @@ func (h *CoordinatorHandler) UpdateProject(c *gin.Context) {
 	if req.LabelFilter != nil {
 		updates["label_filter"] = *req.LabelFilter
 	}
-	if req.AgentSlug != nil {
-		updates["agent_slug"] = *req.AgentSlug
+	if req.WorkerSpecSnapshotID != nil {
+		updates["worker_spec_snapshot_id"] = *req.WorkerSpecSnapshotID
 	}
 	if req.ScanIntervalSeconds != nil {
 		updates["scan_interval_seconds"] = *req.ScanIntervalSeconds
@@ -184,21 +182,4 @@ func (h *CoordinatorHandler) RunNow(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"result": result})
-}
-
-func (h *CoordinatorHandler) parseID(c *gin.Context) int64 {
-	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
-	if err != nil || id <= 0 {
-		apierr.BadRequest(c, apierr.VALIDATION_FAILED, "Invalid project id")
-		return 0
-	}
-	return id
-}
-
-func (h *CoordinatorHandler) notFoundOrInternal(c *gin.Context, err error) {
-	if errors.Is(err, coordinatordom.ErrNotFound) {
-		apierr.ResourceNotFound(c, "Coordinator project not found")
-		return
-	}
-	apierr.InternalError(c, "Coordinator request failed")
 }

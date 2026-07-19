@@ -5,11 +5,13 @@ import (
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
 	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
+	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
 	runtimedomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
 	"github.com/anthropics/agentsmesh/backend/internal/service/workerdependencyartifact"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
+	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 )
 
 type WorkerDefinitionProvider interface {
@@ -30,12 +32,14 @@ type Deps struct {
 	Skills       SkillLookup
 	Knowledge    KnowledgeLookup
 	EnvBundles   EnvBundleLookup
+	Commits      WorkspaceCommitResolver
 }
 
 type Draft struct {
-	OptionsRevision string
-	WorkerSpec      specservice.Draft
-	ArtifactRefs    ArtifactReferences
+	OptionsRevision  string
+	OrganizationSlug slugkit.Slug
+	WorkerSpec       specservice.Draft
+	ArtifactRefs     ArtifactReferences
 }
 
 type ArtifactReferences struct {
@@ -66,12 +70,14 @@ type Prepared struct {
 	AgentfileLayer string
 	Repository     *gitprovider.Repository `json:"-"`
 	Artifact       *workerdependencyartifact.Artifact
+	Dependencies   *workerdependency.Document
 }
 
 type PreparedSnapshot struct {
 	Spec           specdomain.Spec
 	AgentfileLayer string
 	Repository     *gitprovider.Repository `json:"-"`
+	Dependencies   *workerdependency.Document
 }
 
 type PreflightResult struct {

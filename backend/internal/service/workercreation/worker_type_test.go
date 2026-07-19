@@ -3,7 +3,6 @@ package workercreation
 import (
 	"context"
 	"regexp"
-	"strings"
 	"testing"
 
 	agentdomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
@@ -246,99 +245,4 @@ func TestWorkerTypeResolverAllowsInternalDefinitionsInE2EEnvironment(t *testing.
 	)
 
 	require.NoError(t, err)
-}
-
-type workerTypeAgentProvider struct {
-	agent *agentdomain.Agent
-	err   error
-}
-
-func (provider *workerTypeAgentProvider) GetAgent(
-	context.Context,
-	string,
-) (*agentdomain.Agent, error) {
-	return provider.agent, provider.err
-}
-
-func (provider *workerTypeAgentProvider) ListBuiltinAgents(
-	context.Context,
-) ([]*agentdomain.Agent, error) {
-	if provider.err != nil {
-		return nil, provider.err
-	}
-	if provider.agent == nil {
-		return nil, nil
-	}
-	return []*agentdomain.Agent{provider.agent}, nil
-}
-
-func activeWorkerTypeAgent(source string) *agentdomain.Agent {
-	return activeWorkerTypeAgentFor("codex-cli", "codex", source)
-}
-
-func activeWorkerTypeAgentFor(slug, executable, source string) *agentdomain.Agent {
-	return &agentdomain.Agent{
-		Slug:            slug,
-		Name:            slug,
-		Executable:      executable,
-		AdapterID:       "test-adapter",
-		AgentfileSource: &source,
-		IsActive:        true,
-		SupportedModes:  "pty,acp",
-	}
-}
-
-func workerDefinition(
-	slug, executable, source string,
-	modes ...string,
-) workerdefinition.Definition {
-	return workerdefinition.Definition{
-		Slug:           slug,
-		Version:        "1",
-		Executable:     executable,
-		AdapterID:      "test-adapter",
-		DefinitionHash: strings.Repeat("a", 64),
-		AgentFile:      source,
-		Modes:          modes,
-		ModelRequirement: workerdefinition.ModelRequirement{
-			Required:         true,
-			ProtocolAdapters: []string{"openai-compatible"},
-		},
-		CredentialBindings: []workerdefinition.CredentialBinding{
-			{
-				ID: "openai",
-				Source: workerdefinition.CredentialSource{
-					Kind: "model_resource",
-					Ref:  "openai-compatible",
-				},
-				Target: workerdefinition.CredentialTarget{
-					Kind: "env",
-					Name: "OPENAI_API_KEY",
-				},
-			},
-			{
-				ID: "signing",
-				Source: workerdefinition.CredentialSource{
-					Kind: "credential_bundle",
-					Ref:  slug,
-				},
-				Target: workerdefinition.CredentialTarget{
-					Kind: "env",
-					Name: "SIGNING_KEY",
-				},
-			},
-		},
-	}
-}
-
-func credentialBinding(
-	id, ref, target string,
-) workerdefinition.CredentialBinding {
-	return workerdefinition.CredentialBinding{
-		ID: id,
-		Source: workerdefinition.CredentialSource{
-			Kind: "credential_bundle", Ref: ref,
-		},
-		Target: workerdefinition.CredentialTarget{Kind: "env", Name: target},
-	}
 }

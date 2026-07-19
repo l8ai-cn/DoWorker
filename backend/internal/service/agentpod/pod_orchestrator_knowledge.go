@@ -18,6 +18,9 @@ func (o *PodOrchestrator) resolveKnowledgeMounts(
 	req *OrchestrateCreatePodRequest,
 	resolved *agentfileResolved,
 ) ([]*runnerv1.KnowledgeMount, error) {
+	if req.preResolvedDependencies != nil {
+		return artifactKnowledgeMounts(req.preResolvedDependencies)
+	}
 	if o.knowledgeBases == nil {
 		if len(resolved.Knowledge) > 0 || len(req.KnowledgeMounts) > 0 {
 			return nil, fmt.Errorf("%w: knowledge base feature is not configured", ErrConfigBuildFailed)

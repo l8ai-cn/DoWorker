@@ -14,7 +14,9 @@ import (
 func TestBuildCreatePodRequestRequiresWorkerSpecForFreshCreate(t *testing.T) {
 	_, err := buildCreatePodRequest(
 		&podv1.CreatePodRequest{AgentSlug: "codex-cli"},
-		&middleware.TenantContext{OrganizationID: 7, UserID: 42},
+		&middleware.TenantContext{
+			OrganizationID: 7, OrganizationSlug: "acme", UserID: 42,
+		},
 	)
 
 	require.Error(t, err)
@@ -28,7 +30,9 @@ func TestBuildCreatePodRequestUsesStructuredWorkerDraft(t *testing.T) {
 			Cols:       120,
 			Rows:       40,
 		},
-		&middleware.TenantContext{OrganizationID: 7, UserID: 42},
+		&middleware.TenantContext{
+			OrganizationID: 7, OrganizationSlug: "acme", UserID: 42,
+		},
 	)
 
 	require.NoError(t, err)
@@ -39,6 +43,7 @@ func TestBuildCreatePodRequestUsesStructuredWorkerDraft(t *testing.T) {
 	assert.Zero(t, request.RunnerID)
 	assert.Nil(t, request.AgentfileLayer)
 	assert.Nil(t, request.ModelResourceID)
+	assert.Equal(t, "acme", request.WorkerSpecDraft.OrganizationSlug.String())
 }
 
 func TestBuildCreatePodRequestUsesSourceLineage(t *testing.T) {

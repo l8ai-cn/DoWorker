@@ -10,14 +10,21 @@ import (
 )
 
 type fakeRunnerSelector struct {
-	calls int
-	err   error
+	calls     int
+	agentSlug string
+	err       error
 }
 
 func (f *fakeRunnerSelector) SelectRunnerWithAffinity(
-	context.Context, int64, int64, string, *runnerDomain.AffinityHints, map[int64]int,
+	_ context.Context,
+	_ int64,
+	_ int64,
+	agentSlug string,
+	_ *runnerDomain.AffinityHints,
+	_ map[int64]int,
 ) (*runnerDomain.Runner, error) {
 	f.calls++
+	f.agentSlug = agentSlug
 	if f.err != nil {
 		return nil, f.err
 	}
@@ -25,12 +32,14 @@ func (f *fakeRunnerSelector) SelectRunnerWithAffinity(
 }
 
 type fakeRunnerLauncher struct {
-	calls int
-	err   error
+	calls     int
+	agentSlug string
+	err       error
 }
 
-func (f *fakeRunnerLauncher) Launch(context.Context, int64, string) error {
+func (f *fakeRunnerLauncher) Launch(_ context.Context, _ int64, agentSlug string) error {
 	f.calls++
+	f.agentSlug = agentSlug
 	return f.err
 }
 

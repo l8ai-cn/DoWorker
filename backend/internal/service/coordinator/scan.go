@@ -2,6 +2,7 @@ package coordinator
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	coordinatordom "github.com/anthropics/agentsmesh/backend/internal/domain/coordinator"
@@ -17,6 +18,10 @@ type RunResult struct {
 	Errors     []string
 }
 
+var ErrCoordinatorWorkerSpecSnapshotStoreRequired = errors.New(
+	"coordinator: worker spec snapshot store is required",
+)
+
 // RunProject is one coordinator tick for a project: discover external tasks,
 // filter by claim policy, then claim+dispatch candidates up to the concurrency
 // budget.
@@ -24,7 +29,11 @@ func (s *Service) RunProject(ctx context.Context, project *coordinatordom.Projec
 	result := &RunResult{ProjectID: project.ID}
 
 	if s.runnerEnsurer != nil {
-		if err := s.runnerEnsurer.Ensure(ctx, project.OrganizationID, project.CreatedByID, project.AgentSlug); err != nil {
+		workerType, err := s.projectSnapshotWorkerType(ctx, project)
+		if err != nil {
+			return result, err
+		}
+		if err := s.runnerEnsurer.Ensure(ctx, project.OrganizationID, project.CreatedByID, workerType); err != nil {
 			return result, fmt.Errorf("ensure runner: %w", err)
 		}
 	}
@@ -71,6 +80,24 @@ func (s *Service) RunProject(ctx context.Context, project *coordinatordom.Projec
 		}
 	}
 	return result, nil
+}
+
+func (s *Service) projectSnapshotWorkerType(
+	ctx context.Context,
+	project *coordinatordom.Project,
+) (string, error) {
+	snapshotID, err := coordinatorSnapshotID(project)
+	if err != nil {
+		return "", err
+	}
+	if s.snapshots == nil {
+		return "", ErrCoordinatorWorkerSpecSnapshotStoreRequired
+	}
+	snapshot, err := s.snapshots.GetByID(ctx, project.OrganizationID, *snapshotID)
+	if err != nil {
+		return "", fmt.Errorf("load coordinator workerspec snapshot: %w", err)
+	}
+	return snapshot.Spec.Runtime.WorkerType.Slug.String(), nil
 }
 
 // dispatchBudget is the number of new dispatches allowed this tick, bounded by

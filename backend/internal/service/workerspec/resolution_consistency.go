@@ -100,6 +100,13 @@ func validateRuntimeResolution(
 	}
 }
 
+func ValidateRuntimeSelection(
+	selection RuntimeSelection,
+	resolved workerruntime.Resolved,
+) error {
+	return validateRuntimeResolution(selection, resolved)
+}
+
 func validateModelResolution(
 	requestedResourceID int64,
 	binding domain.ModelBinding,

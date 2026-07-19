@@ -77,14 +77,8 @@ func (b *ConfigBuilder) SetExtensionProvider(ep ExtensionProvider) {
 
 // BuildPodCommand evaluates the agent's AgentFile and produces a CreatePodCommand.
 func (b *ConfigBuilder) BuildPodCommand(ctx context.Context, req *ConfigBuildRequest) (*runnerv1.CreatePodCommand, error) {
-	agentDef, err := b.provider.GetAgent(ctx, req.AgentSlug)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get agent: %w", err)
+	if req == nil || req.AgentSlug == "" {
+		return nil, fmt.Errorf("agent slug is required")
 	}
-
-	if agentDef.AgentfileSource == nil || *agentDef.AgentfileSource == "" {
-		return nil, fmt.Errorf("agent %q has no AgentFile defined", agentDef.Slug)
-	}
-
-	return b.buildFromAgentfile(ctx, req, agentDef)
+	return b.buildFromAgentfile(ctx, req, req.AgentSlug)
 }

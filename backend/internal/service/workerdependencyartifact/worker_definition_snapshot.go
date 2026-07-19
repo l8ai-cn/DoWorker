@@ -2,6 +2,7 @@ package workerdependencyartifact
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/anthropics/agentsmesh/agentfile/merge"
@@ -9,6 +10,7 @@ import (
 	"github.com/anthropics/agentsmesh/agentfile/serialize"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	"github.com/anthropics/agentsmesh/backend/internal/service/agent/automation"
 	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
 	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 )
@@ -36,6 +38,10 @@ func buildWorkerSnapshot(
 	if err != nil {
 		return workerdependency.Worker{}, fmt.Errorf("worker definition adapter id: %w", err)
 	}
+	layer, err = workerAgentfileLayer(definition.Slug, layer, spec)
+	if err != nil {
+		return workerdependency.Worker{}, err
+	}
 	source, err := mergedAgentfile(definition.AgentFile, layer)
 	if err != nil {
 		return workerdependency.Worker{}, err
@@ -55,6 +61,47 @@ func buildWorkerSnapshot(
 		),
 		AgentfileSource: source, AgentfileSourceDigest: workerdependency.TextDigest(source),
 	}, nil
+}
+
+func workerAgentfileLayer(
+	workerSlug, layer string, spec workerspec.Spec,
+) (string, error) {
+	program, parseErrors := parser.Parse(layer)
+	if len(parseErrors) != 0 {
+		return "", fmt.Errorf("worker AgentFile layer is invalid: %s", parseErrors[0])
+	}
+	explicit := make(map[string]struct{})
+	for _, declaration := range program.Declarations {
+		if config, ok := declaration.(*parser.ConfigDecl); ok {
+			explicit[config.Name] = struct{}{}
+		}
+	}
+	output := automation.AdapterFor(workerSlug).Apply(
+		string(spec.TypeConfig.AutomationLevel),
+	)
+	keys := make([]string, 0, len(output.ConfigOverrides))
+	for key := range output.ConfigOverrides {
+		if _, found := explicit[key]; found {
+			continue
+		}
+		if _, found := spec.TypeConfig.Values[key]; found {
+			continue
+		}
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	for _, key := range keys {
+		layer = appendLayerConfig(layer, key, output.ConfigOverrides[key])
+	}
+	return layer, nil
+}
+
+func appendLayerConfig(layer, key, value string) string {
+	line := fmt.Sprintf("CONFIG %s = %q", key, value)
+	if strings.TrimSpace(layer) == "" {
+		return line
+	}
+	return strings.TrimRight(layer, "\n") + "\n" + line
 }
 
 func mergedAgentfile(base, layer string) (string, error) {

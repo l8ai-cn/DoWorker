@@ -127,6 +127,14 @@ VALUES (1, 77, 700, 'workerspec-runner')
 		summary_json BLOB NOT NULL,
 		created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 	)`).Error)
+	require.NoError(t, db.Exec(`CREATE TABLE worker_spec_dependency_artifacts (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		organization_id INTEGER NOT NULL,
+		worker_spec_snapshot_id INTEGER NOT NULL,
+		artifact_json BLOB NOT NULL,
+		artifact_digest TEXT NOT NULL,
+		created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+	)`).Error)
 	return db
 }
 

@@ -40,6 +40,7 @@ import (
 	tokenusagesvc "github.com/anthropics/agentsmesh/backend/internal/service/tokenusage"
 	"github.com/anthropics/agentsmesh/backend/internal/service/user"
 	virtualkeysvc "github.com/anthropics/agentsmesh/backend/internal/service/virtualkey"
+	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
 	workerspecsvc "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 	workflow "github.com/anthropics/agentsmesh/backend/internal/service/workflow"
 	"github.com/anthropics/agentsmesh/backend/pkg/embedtoken"
@@ -64,6 +65,7 @@ type Services struct {
 	PodCoordinator       *runner.PodCoordinator          // Pod lifecycle coordinator
 	Pod                  *agentpod.PodService
 	PodOrchestrator      *agentpod.PodOrchestrator // Unified Pod creation orchestrator
+	WorkerCreation       *workercreation.Service
 	WorkerPlanAuthorizer QuickTaskPlanAuthorizer
 	WorkerApply          QuickTaskPlanApplier
 	Autopilot            *agentpod.AutopilotControllerService // AutopilotController automation service

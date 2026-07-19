@@ -7,6 +7,7 @@ import (
 
 	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	domain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
+	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	runnerservice "github.com/anthropics/agentsmesh/backend/internal/service/runner"
 	"github.com/gin-gonic/gin"
@@ -17,17 +18,32 @@ func (d *Deps) handleSwitchAgent(c *gin.Context) {
 	if !ok {
 		return
 	}
+	tenant := middleware.GetTenant(c)
 	if !d.requireSessionLevel(c, row, levelEdit) {
 		return
 	}
 	var body struct {
-		AgentID string `json:"agent_id"`
+		AgentID         string                 `json:"agent_id"`
+		ModelResourceID *int64                 `json:"model_resource_id"`
+		WorkerSpec      *sessionWorkerSpecBody `json:"worker_spec"`
+		AutomationLevel string                 `json:"automation_level"`
 	}
 	if err := c.ShouldBindJSON(&body); err != nil || body.AgentID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "agent_id required"})
 		return
 	}
 	if body.AgentID == row.AgentSlug {
+		if hasSessionWorkerConfigChange(
+			body.ModelResourceID,
+			body.WorkerSpec,
+			body.AutomationLevel,
+		) {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": rejectSameAgentWorkerConfigChangeMessage(),
+				"code":  "validation_failed",
+			})
+			return
+		}
 		c.JSON(http.StatusOK, d.sessionWire(row, pod, row.RunnerNodeID))
 		return
 	}
@@ -37,7 +53,13 @@ func (d *Deps) handleSwitchAgent(c *gin.Context) {
 		})
 		return
 	}
-	newPod, err := d.rebuildSessionPod(c, row, pod, body.AgentID)
+	newPod, err := d.rebuildSessionPod(c, row, pod, body.AgentID, tenant.OrganizationSlug, sessionWorkerPlanInput{
+		WorkerSpec:      body.WorkerSpec,
+		WorkerTypeSlug:  body.AgentID,
+		ModelResourceID: body.ModelResourceID,
+		AgentfileLayer:  acpAgentfileLayer(),
+		AutomationLevel: body.AutomationLevel,
+	})
 	if err != nil {
 		writeSessionPodError(c, err)
 		return
@@ -64,7 +86,14 @@ func (d *Deps) sessionIsBusy(sessionID string, pod *podDomain.Pod) bool {
 	}
 }
 
-func (d *Deps) rebuildSessionPod(c *gin.Context, row *domain.Session, pod *podDomain.Pod, agentSlug string) (*podDomain.Pod, error) {
+func (d *Deps) rebuildSessionPod(
+	c *gin.Context,
+	row *domain.Session,
+	pod *podDomain.Pod,
+	agentSlug string,
+	orgSlug string,
+	plans ...sessionWorkerPlanInput,
+) (*podDomain.Pod, error) {
 	if d.PodOrchestrator == nil || d.Sessions == nil || d.PodCoordinator == nil {
 		return nil, errSwitchUnavailable
 	}
@@ -72,12 +101,28 @@ func (d *Deps) rebuildSessionPod(c *gin.Context, row *domain.Session, pod *podDo
 	if pod != nil {
 		runnerID = pod.RunnerID
 	}
-	orchReq := &agentpod.OrchestrateCreatePodRequest{
-		OrganizationID: row.OrganizationID, UserID: row.UserID,
-		RunnerID: runnerID, AgentSlug: agentSlug, AgentSessionID: row.ID,
-		AgentfileLayer:      acpAgentfileLayer(),
-		SessionMcpServers:   domain.McpServersToInstalled(domain.ParseMcpServers(row.McpServers)),
-		DeferRunnerDispatch: true,
+	var orchReq *agentpod.OrchestrateCreatePodRequest
+	if agentSlug == row.AgentSlug {
+		snapshotID, snapshotErr := sessionSnapshotSource(row, pod)
+		if snapshotErr != nil {
+			return nil, snapshotErr
+		}
+		orchReq = buildSessionSnapshotRebuildPodRequest(row, runnerID, snapshotID)
+	} else {
+		if len(plans) == 0 {
+			return nil, invalidSessionWorkerPlan("worker_spec", "is required")
+		}
+		draft, draftErr := d.buildFreshWorkerPlan(
+			c.Request.Context(),
+			row.OrganizationID,
+			row.UserID,
+			orgSlug,
+			plans[0],
+		)
+		if draftErr != nil {
+			return nil, draftErr
+		}
+		orchReq = buildSessionPlanRebuildPodRequest(row, runnerID, draft)
 	}
 	result, err := d.PodOrchestrator.CreatePod(c.Request.Context(), orchReq)
 	if err != nil {

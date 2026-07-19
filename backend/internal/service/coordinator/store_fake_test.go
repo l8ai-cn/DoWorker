@@ -60,8 +60,22 @@ func (s *fakeStore) ListEnabledProjects(_ context.Context) ([]*coordinatordom.Pr
 	return s.projects, nil
 }
 
-func (s *fakeStore) UpdateProject(context.Context, int64, int64, map[string]any) error { return nil }
-func (s *fakeStore) DeleteProject(context.Context, int64, int64) error                 { return nil }
+func (s *fakeStore) UpdateProject(_ context.Context, orgID, id int64, updates map[string]any) error {
+	for _, project := range s.projects {
+		if project.ID != id || project.OrganizationID != orgID {
+			continue
+		}
+		if workerType, ok := updates["agent_slug"].(string); ok {
+			project.AgentSlug = workerType
+		}
+		if snapshotID, ok := updates["worker_spec_snapshot_id"].(int64); ok {
+			project.WorkerSpecSnapshotID = &snapshotID
+		}
+		return nil
+	}
+	return coordinatordom.ErrNotFound
+}
+func (s *fakeStore) DeleteProject(context.Context, int64, int64) error { return nil }
 
 func (s *fakeStore) GetLinkByExternalID(_ context.Context, orgID int64, platformType, externalID string) (*coordinatordom.TicketExternalLink, error) {
 	s.mu.Lock()

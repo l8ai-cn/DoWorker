@@ -38,11 +38,32 @@ func containsRawSecretText(value string) bool {
 	for _, marker := range []string{
 		"sk-", "ghp_", "github_pat_", "begin private key",
 	} {
-		if strings.Contains(lower, marker) {
+		if containsSecretTokenPrefix(lower, marker) {
 			return true
 		}
 	}
 	return containsSensitiveJSON(value)
+}
+
+func containsSecretTokenPrefix(value, marker string) bool {
+	index := 0
+	for {
+		position := strings.Index(value[index:], marker)
+		if position < 0 {
+			return false
+		}
+		absolute := index + position
+		if absolute == 0 || !isTokenCharacter(rune(value[absolute-1])) {
+			return true
+		}
+		index = absolute + len(marker)
+	}
+}
+
+func isTokenCharacter(character rune) bool {
+	return unicode.IsLetter(character) ||
+		unicode.IsDigit(character) ||
+		character == '_'
 }
 
 func containsURLUserInfo(value string) bool {

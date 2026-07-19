@@ -45,6 +45,19 @@ func (b *ConfigBuilder) buildExactConfigDocumentContext(
 	req *ConfigBuildRequest,
 	agentSlug string,
 ) (map[string]interface{}, error) {
+	if req.PinnedConfigDocuments != nil {
+		out := make(map[string]interface{}, len(req.PinnedConfigDocuments)+len(req.SessionConfigBundles))
+		for name, document := range req.PinnedConfigDocuments {
+			out[name] = document
+		}
+		for name, document := range req.SessionConfigBundles {
+			if _, exists := out[name]; exists {
+				return nil, fmt.Errorf("session config document %q conflicts with worker binding", name)
+			}
+			out[name] = document
+		}
+		return out, nil
+	}
 	if len(req.RequiredConfigDocumentBindings) == 0 {
 		if len(req.SessionConfigBundles) == 0 {
 			return nil, nil

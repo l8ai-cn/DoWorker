@@ -13,22 +13,16 @@ func (b *ConfigBuilder) buildEnvBundleContext(
 	req *ConfigBuildRequest,
 	agentSlug string,
 ) (map[string]map[string]string, error) {
-	if len(req.RequiredEnvBundleIDs) > 0 {
-		loader, ok := b.envBundleSvc.(ExactEnvBundleLoader)
-		if !ok {
-			return nil, fmt.Errorf("exact env bundle loader is unavailable")
-		}
-		bundles, err := loader.GetEffectiveByIDs(
-			ctx,
-			req.UserID,
-			req.OrganizationID,
-			agentSlug,
-			req.RequiredEnvBundleIDs,
-		)
+	if req.PinnedEnvBundles != nil {
+		bundles, err := b.loadRequiredEnvBundles(ctx, req, agentSlug)
 		if err != nil {
-			return nil, fmt.Errorf("load required env bundles: %w", err)
+			return nil, err
 		}
-		if err := validateExactEnvBundles(req.RequiredEnvBundleIDs, bundles); err != nil {
+		return envbundleservice.AsContextMap(append(req.PinnedEnvBundles, bundles...)), nil
+	}
+	if len(req.RequiredEnvBundleIDs) > 0 {
+		bundles, err := b.loadRequiredEnvBundles(ctx, req, agentSlug)
+		if err != nil {
 			return nil, err
 		}
 		return envbundleservice.AsContextMap(bundles), nil
@@ -51,6 +45,31 @@ func (b *ConfigBuilder) buildEnvBundleContext(
 		return nil, nil
 	}
 	return envbundleservice.AsContextMap(bundles), nil
+}
+
+func (b *ConfigBuilder) loadRequiredEnvBundles(
+	ctx context.Context,
+	req *ConfigBuildRequest,
+	agentSlug string,
+) ([]*envbundleservice.EffectiveBundle, error) {
+	if len(req.RequiredEnvBundleIDs) == 0 {
+		return nil, nil
+	}
+	loader, ok := b.envBundleSvc.(ExactEnvBundleLoader)
+	if !ok {
+		return nil, fmt.Errorf("exact env bundle loader is unavailable")
+	}
+	bundles, err := loader.GetEffectiveByIDs(
+		ctx,
+		req.UserID,
+		req.OrganizationID,
+		agentSlug,
+		req.RequiredEnvBundleIDs,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("load required env bundles: %w", err)
+	}
+	return bundles, validateExactEnvBundles(req.RequiredEnvBundleIDs, bundles)
 }
 
 func validateExactEnvBundles(

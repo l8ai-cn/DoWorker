@@ -108,7 +108,7 @@ func TestBuildRejectsDefinitionWorkspaceSubstitution(t *testing.T) {
 					envbundle.OwnerScopeUser
 				input.Dependencies.SecretReferences[0].OwnerID = 99
 			},
-			match: "does not match Plan actor",
+			match: "does not match plan actor",
 		},
 		{
 			name: "tool model provider",

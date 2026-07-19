@@ -115,9 +115,10 @@ func (h *ExpertHandler) UpgradeMarketApplication(c *gin.Context) {
 	upgraded, changed, err := h.service.UpgradeMarketApplication(
 		c.Request.Context(),
 		expertsvc.UpgradeMarketApplicationRequest{
-			OrganizationID: tenant.OrganizationID,
-			UserID:         tenant.UserID,
-			ExpertID:       expert.ID,
+			OrganizationID:   tenant.OrganizationID,
+			OrganizationSlug: tenant.OrganizationSlug,
+			UserID:           tenant.UserID,
+			ExpertID:         expert.ID,
 		},
 	)
 	if err != nil {

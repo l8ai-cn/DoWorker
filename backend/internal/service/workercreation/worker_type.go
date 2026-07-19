@@ -64,7 +64,7 @@ func (resolver *workerTypeResolver) ResolveWorkerType(
 	if err != nil {
 		return specservice.WorkerTypeResolution{}, err
 	}
-	modelRequirement, err := modelRequirementFromDefinition(definition)
+	modelRequirement, err := modelRequirementFromDefinition(slug, definition)
 	if err != nil {
 		return specservice.WorkerTypeResolution{}, err
 	}
@@ -85,6 +85,7 @@ func (resolver *workerTypeResolver) ResolveWorkerType(
 }
 
 func modelRequirementFromDefinition(
+	workerType slugkit.Slug,
 	definition workerdefinition.Definition,
 ) (specdomain.ModelRequirement, error) {
 	adapters := make(
@@ -106,6 +107,9 @@ func modelRequirementFromDefinition(
 	}
 	if err := specservice.ValidateModelRequirement(requirement); err != nil {
 		return specdomain.ModelRequirement{}, invalidWorkerType(err.Error())
+	}
+	if err := validateWorkerModelRequirement(workerType, requirement); err != nil {
+		return specdomain.ModelRequirement{}, err
 	}
 	return requirement, nil
 }

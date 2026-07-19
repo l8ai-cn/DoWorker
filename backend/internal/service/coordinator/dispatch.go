@@ -6,16 +6,23 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/agentfile/serialize"
 	coordinatordom "github.com/anthropics/agentsmesh/backend/internal/domain/coordinator"
 	ticketDomain "github.com/anthropics/agentsmesh/backend/internal/domain/ticket"
 	agentpodSvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	ticketSvc "github.com/anthropics/agentsmesh/backend/internal/service/ticket"
 )
 
+var ErrCoordinatorWorkerSpecSnapshotRequired = errors.New(
+	"coordinator: worker spec snapshot is required",
+)
+
 func (s *Service) claimAndDispatch(ctx context.Context, project *coordinatordom.Project, platform TaskPlatform, repo string, task ExternalTask) (bool, error) {
 	if s.podTerminator == nil {
 		return false, errors.New("coordinator: pod terminator unavailable")
+	}
+	snapshotID, err := coordinatorSnapshotID(project)
+	if err != nil {
+		return false, err
 	}
 
 	claimKey := fmt.Sprintf("project=%d task=%s", project.ID, task.ExternalID)
@@ -84,14 +91,13 @@ func (s *Service) claimAndDispatch(ctx context.Context, project *coordinatordom.
 	}
 
 	pod, err := s.dispatch.CreatePod(ctx, &agentpodSvc.OrchestrateCreatePodRequest{
-		OrganizationID: project.OrganizationID,
-		UserID:         project.CreatedByID,
-		AgentSlug:      project.AgentSlug,
-		RepositoryID:   &project.RepositoryID,
-		TicketID:       &execution.TicketID,
-		AgentfileLayer: ptr(buildAgentfileLayer(repo, task)),
-		Cols:           120,
-		Rows:           40,
+		OrganizationID:           project.OrganizationID,
+		UserID:                   project.CreatedByID,
+		WorkerSpecSnapshotID:     snapshotID,
+		TicketID:                 &execution.TicketID,
+		WorkerSpecPromptOverride: ptr(buildTaskPrompt(repo, task)),
+		Cols:                     120,
+		Rows:                     40,
 	})
 	if err != nil {
 		return false, s.failClaimedExecution(ctx, execution, "dispatch_failed", fmt.Errorf("dispatch pod: %w", err))
@@ -170,16 +176,6 @@ func ticketTitle(task ExternalTask) string {
 		return task.ExternalID
 	}
 	return title
-}
-
-func buildAgentfileLayer(repo string, task ExternalTask) string {
-	var lines []string
-	prompt := strings.TrimSpace(task.Title + "\n\n" + task.Description)
-	lines = append(lines, fmt.Sprintf("PROMPT %s", serialize.QuoteString(prompt)))
-	if repo != "" {
-		lines = append(lines, fmt.Sprintf("REPO %s", serialize.QuoteString(repo)))
-	}
-	return strings.Join(lines, "\n")
 }
 
 func ptr[T any](v T) *T { return &v }

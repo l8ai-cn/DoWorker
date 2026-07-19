@@ -11,6 +11,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
+	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 	podv1 "github.com/anthropics/agentsmesh/proto/gen/go/pod/v1"
 )
 
@@ -29,9 +30,13 @@ func (s *Server) ListWorkerCreateOptions(
 		return nil, err
 	}
 	tenant := middleware.GetTenant(ctx)
+	scope, _, err := tenantWorkerScope(tenant)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
 	options, err := s.workerCreation.ListOptions(
 		ctx,
-		specservice.Scope{OrgID: tenant.OrganizationID, UserID: tenant.UserID},
+		scope,
 		workercreation.OptionsFilter{
 			WorkerTypeSlug:  req.Msg.GetWorkerTypeSlug(),
 			ComputeTargetID: optionalInt64(req.Msg.ComputeTargetId),
@@ -67,9 +72,14 @@ func (s *Server) PreflightWorker(
 		return nil, connect.NewError(connect.CodeInvalidArgument, err)
 	}
 	tenant := middleware.GetTenant(ctx)
+	scope, orgSlug, err := tenantWorkerScope(tenant)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	draft.OrganizationSlug = orgSlug
 	result, err := s.workerCreation.Preflight(
 		ctx,
-		specservice.Scope{OrgID: tenant.OrganizationID, UserID: tenant.UserID},
+		scope,
 		draft,
 	)
 	if err != nil {
@@ -122,9 +132,16 @@ func (s *Server) FillWorkerDraft(
 		current = &decoded
 	}
 	tenant := middleware.GetTenant(ctx)
+	scope, orgSlug, err := tenantWorkerScope(tenant)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if current != nil {
+		current.OrganizationSlug = orgSlug
+	}
 	result, err := s.workerDraftFiller.Fill(
 		ctx,
-		specservice.Scope{OrgID: tenant.OrganizationID, UserID: tenant.UserID},
+		scope,
 		prompt,
 		req.Msg.GetGenerationModelResourceId(),
 		current,
@@ -140,6 +157,21 @@ func (s *Server) FillWorkerDraft(
 		Draft:  draft,
 		Issues: workerIssuesToProto(result.Issues, nil),
 	}), nil
+}
+
+func tenantWorkerScope(
+	tenant *middleware.TenantContext,
+) (specservice.Scope, slugkit.Slug, error) {
+	if tenant == nil {
+		return specservice.Scope{}, "", errors.New("tenant context is missing")
+	}
+	orgSlug, err := slugkit.NewFromTrusted(tenant.OrganizationSlug)
+	if err != nil {
+		return specservice.Scope{}, "", err
+	}
+	return specservice.Scope{
+		OrgID: tenant.OrganizationID, OrgSlug: orgSlug, UserID: tenant.UserID,
+	}, orgSlug, nil
 }
 
 func mapWorkerCreationError(err error) error {

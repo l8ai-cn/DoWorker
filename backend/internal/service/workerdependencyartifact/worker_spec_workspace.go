@@ -31,7 +31,7 @@ func validateWorkspace(
 		return fmt.Errorf("worker dependency config documents do not match WorkerSpec")
 	}
 	if !sameSecretReferences(spec.TypeConfig.SecretRefs, document.SecretReferences) {
-		return fmt.Errorf("worker dependency Secret references do not match WorkerSpec")
+		return fmt.Errorf("worker dependency secret references do not match WorkerSpec")
 	}
 	return nil
 }

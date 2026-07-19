@@ -5,33 +5,41 @@ import (
 	"errors"
 
 	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
+	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	"github.com/anthropics/agentsmesh/backend/internal/service/workerdependencyartifact"
 )
 
-func (o *PodOrchestrator) validateSnapshotDependencyArtifact(
+func (o *PodOrchestrator) loadSnapshotDependencyArtifact(
 	ctx context.Context,
 	organizationID int64,
 	snapshot specdomain.Snapshot,
-) error {
+) (workerdependency.Document, error) {
 	artifact, err := o.workerDependencies.GetBySnapshotID(
 		ctx,
 		organizationID,
 		snapshot.ID,
 	)
 	if err != nil {
-		return errors.Join(ErrWorkerSpecDependencyUnavailable, err)
+		return workerdependency.Document{}, errors.Join(ErrWorkerSpecDependencyUnavailable, err)
 	}
 	if artifact.OrganizationID != organizationID {
-		return ErrWorkerSpecSnapshotMismatch
+		return workerdependency.Document{}, ErrWorkerSpecSnapshotMismatch
 	}
 	digest, err := workerSpecDigest(snapshot.Spec)
 	if err != nil {
-		return errors.Join(ErrWorkerSpecSnapshotMismatch, err)
+		return workerdependency.Document{}, errors.Join(ErrWorkerSpecSnapshotMismatch, err)
 	}
 	if artifact.Worker.SpecDigest != digest {
-		return ErrWorkerSpecSnapshotMismatch
+		return workerdependency.Document{}, ErrWorkerSpecSnapshotMismatch
 	}
-	return nil
+	if err := workerdependencyartifact.ValidateWorkerSpecConsistency(
+		snapshot.Spec,
+		artifact,
+	); err != nil {
+		return workerdependency.Document{}, errors.Join(ErrWorkerSpecSnapshotMismatch, err)
+	}
+	return artifact, nil
 }
 
 func workerSpecDigest(spec specdomain.Spec) (string, error) {

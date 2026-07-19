@@ -67,9 +67,18 @@ func validModelResourceService() *modelResourceService {
 			},
 			Connection: resourcedomain.Connection{
 				ID: 201, ProviderKey: slugkit.MustNewForTest("openai"), Revision: 9,
+				BaseURL: "https://api.openai.com/v1",
 			},
 			Resource: resourcedomain.ModelResource{
-				ID: 101, ProviderConnectionID: 201, ModelID: "gpt-5", Revision: 7,
+				ID: 101, ProviderConnectionID: 201,
+				Identifier: slugkit.MustNewForTest("gpt-five"),
+				ModelID:    "gpt-5", Revision: 7,
+				Modalities: []resourcedomain.Modality{
+					resourcedomain.ModalityChat,
+				},
+				Capabilities: []resourcedomain.Capability{
+					resourcedomain.CapabilityTextGeneration,
+				},
 			},
 		},
 	}

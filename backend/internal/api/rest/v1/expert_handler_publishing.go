@@ -134,6 +134,7 @@ func (h *ExpertHandler) InstallMarketApplication(c *gin.Context) {
 		c.Request.Context(),
 		expertSvc.InstallMarketApplicationRequest{
 			OrganizationID:       tenant.OrganizationID,
+			OrganizationSlug:     tenant.OrganizationSlug,
 			UserID:               tenant.UserID,
 			ModelResourceID:      request.ModelResourceID,
 			ToolModelResourceIDs: request.ToolModelResourceIDs,

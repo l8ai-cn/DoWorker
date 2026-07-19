@@ -46,12 +46,13 @@ func setupIntegrationOrchestrator(t *testing.T, opts ...func(*PodOrchestratorDep
 	configBuilder := agent.NewConfigBuilder(provider, noopBundleLoader{})
 
 	deps := &PodOrchestratorDeps{
-		PodService:     podSvc,
-		ConfigBuilder:  configBuilder,
-		AgentResolver:  &mockAgentResolver{agentDef: provider.agentDef},
-		RunnerSelector: &mockRunnerSelector{resolveRunner: &runnerDomain.Runner{ID: runnerID}},
-		ModelResources: &recordingModelResourceResolver{resource: resolvedResource("anthropic", "https://api.anthropic.com", "claude-test")},
-		WorkerSpecs:    infra.NewWorkerSpecSnapshotRepository(db),
+		PodService:         podSvc,
+		ConfigBuilder:      configBuilder,
+		AgentResolver:      &mockAgentResolver{agentDef: provider.agentDef},
+		RunnerSelector:     &mockRunnerSelector{resolveRunner: &runnerDomain.Runner{ID: runnerID}},
+		ModelResources:     &recordingModelResourceResolver{resource: resolvedResource("anthropic", "https://api.anthropic.com", "claude-test")},
+		WorkerSpecs:        infra.NewWorkerSpecSnapshotRepository(db),
+		WorkerDependencies: infra.NewWorkerSpecDependencyArtifactRepository(db),
 	}
 	for _, opt := range opts {
 		opt(deps)

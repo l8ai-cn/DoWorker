@@ -36,6 +36,7 @@ func TestRunProjectSerializesConcurrentDispatchForTask(t *testing.T) {
 	project := &coordinatordom.Project{
 		ID: 1, OrganizationID: 1, RepositoryID: 1,
 		PlatformType: coordinatordom.PlatformTypeCNB, MaxConcurrent: 5,
+		WorkerSpecSnapshotID: testCoordinatorSnapshotID(),
 	}
 
 	var wg sync.WaitGroup
@@ -93,6 +94,7 @@ func TestRunProjectCompensatesAttachmentAfterRequestCancellation(t *testing.T) {
 	project := &coordinatordom.Project{
 		ID: 1, OrganizationID: 1, RepositoryID: 1,
 		PlatformType: coordinatordom.PlatformTypeCNB, MaxConcurrent: 5,
+		WorkerSpecSnapshotID: testCoordinatorSnapshotID(),
 	}
 
 	result, err := svc.RunProject(ctx, project)
@@ -125,6 +127,7 @@ func TestClaimAndDispatchEnforcesProjectBudgetAcrossTasks(t *testing.T) {
 	project := &coordinatordom.Project{
 		ID: 1, OrganizationID: 1, RepositoryID: 1,
 		PlatformType: coordinatordom.PlatformTypeCNB, MaxConcurrent: 1,
+		WorkerSpecSnapshotID: testCoordinatorSnapshotID(),
 	}
 	tasks := []ExternalTask{
 		{ExternalID: "issue:1", Number: 1, Title: "first"},

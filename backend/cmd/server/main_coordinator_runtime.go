@@ -42,6 +42,8 @@ func initializeCoordinatorRuntime(
 		Dispatch:      podOrchestrator,
 		Platform:      coordinatorsvc.NewPlatformFactory(services.repository, services.user),
 		RunnerEnsurer: runnerEnsurer,
+		Snapshots:     infra.NewWorkerSpecSnapshotRepository(db),
+		Artifacts:     infra.NewWorkerSpecDependencyArtifactRepository(db),
 		Logger:        logger,
 	})
 	scheduler := coordinatorsvc.NewScheduler(service, logger)

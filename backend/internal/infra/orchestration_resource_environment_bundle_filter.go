@@ -18,7 +18,8 @@ func filterEnvironmentBundleReferences(
 	if filter.EnvironmentBundle == nil {
 		return query, nil
 	}
-	entityID, err := environmentBundleEntityIDExpression(query.Dialector.Name())
+	dialect := query.Name()
+	entityID, err := environmentBundleEntityIDExpression(dialect)
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +31,7 @@ func filterEnvironmentBundleReferences(
 	}
 	if err := validateEnvironmentBundleReferenceIntegrity(
 		query,
-		query.Dialector.Name(),
+		dialect,
 		entityID,
 	); err != nil {
 		return nil, err
@@ -64,7 +65,7 @@ JOIN env_bundles AS referenced_environment_bundle
 		)
 	return filterEnvironmentBundleData(
 		filtered,
-		query.Dialector.Name(),
+		dialect,
 		*filter.EnvironmentBundle,
 	)
 }

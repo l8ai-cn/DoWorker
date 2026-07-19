@@ -76,7 +76,7 @@ func TestInstallMarketplaceExpertClonesTemplateIdempotently(t *testing.T) {
 	require.NoError(t, err)
 	request := MarketplaceInstallationRequest{
 		InstallationID:       "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
-		TargetOrganizationID: 9, ActorUserID: 14,
+		TargetOrganizationID: 9, TargetOrganizationSlug: "target-org", ActorUserID: 14,
 		ModelResourceID:           301,
 		ToolModelResourceIDs:      map[string]int64{"seedance-video": 302},
 		SourceMarketApplicationID: 101,
@@ -155,10 +155,10 @@ func TestInstallMarketplaceExpertRejectsIncompleteSnapshot(t *testing.T) {
 
 	_, _, err := svc.InstallMarketplaceExpert(context.Background(), MarketplaceInstallationRequest{
 		InstallationID:       "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
-		TargetOrganizationID: 9,
-		ActorUserID:          14,
-		ModelResourceID:      301,
-		RuntimeSnapshot:      []byte(`{"name":"缺少运行时"}`),
+		TargetOrganizationID: 9, TargetOrganizationSlug: "target-org",
+		ActorUserID:     14,
+		ModelResourceID: 301,
+		RuntimeSnapshot: []byte(`{"name":"缺少运行时"}`),
 	})
 
 	require.ErrorIs(t, err, ErrMarketplaceInstallationInvalid)
@@ -186,9 +186,9 @@ func TestInstallMarketplaceExpertCleansSnapshotAfterRequestCancellation(t *testi
 
 	_, _, err = svc.InstallMarketplaceExpert(ctx, MarketplaceInstallationRequest{
 		InstallationID:       "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
-		TargetOrganizationID: 9,
-		ActorUserID:          14,
-		ModelResourceID:      301,
+		TargetOrganizationID: 9, TargetOrganizationSlug: "target-org",
+		ActorUserID:     14,
+		ModelResourceID: 301,
 		RuntimeSnapshot: append([]byte(`{"version":1,"expert":{
 			"version":1,"slug":"delivery-expert","name":"交付专家",
 			"description":"交付","agent_slug":"codex-cli","prompt":"deliver",

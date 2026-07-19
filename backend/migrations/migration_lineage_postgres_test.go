@@ -19,7 +19,7 @@ func TestMigrationLineageUpgradePostgres(t *testing.T) {
 		requireCurrentMigrationContract(t, dsn, false)
 	})
 
-	t.Run("legacy clean 000209", func(t *testing.T) {
+	t.Run("legacy clean 000209 is blocked before forward repair", func(t *testing.T) {
 		dsn := newMigrationLineageSchema(t)
 		legacy := newPostgresMigrator(t, legacy000209MigrationFS(t), dsn)
 		require.NoError(t, legacy.Up())
@@ -27,20 +27,9 @@ func TestMigrationLineageUpgradePostgres(t *testing.T) {
 		requireLegacy000209Contract(t, dsn)
 
 		bridge := newPostgresMigrator(t, FS, dsn)
-		require.NoError(t, bridge.Migrate(214))
+		require.Error(t, bridge.Migrate(214))
 		closePostgresMigrator(t, bridge)
-		requireMigrationVersion(t, dsn, 214, false)
-
-		rollback := newPostgresMigrator(t, FS, dsn)
-		require.NoError(t, rollback.Migrate(209))
-		closePostgresMigrator(t, rollback)
-		requireLegacy000209Contract(t, dsn)
-
-		latest := newPostgresMigrator(t, FS, dsn)
-		require.NoError(t, latest.Up())
-		closePostgresMigrator(t, latest)
-
-		requireCurrentMigrationContract(t, dsn, true)
+		requireMigrationVersion(t, dsn, 210, true)
 	})
 
 	t.Run("current clean 000222", func(t *testing.T) {
@@ -54,6 +43,30 @@ func TestMigrationLineageUpgradePostgres(t *testing.T) {
 		require.NoError(t, after.Up())
 		closePostgresMigrator(t, after)
 
+		requireCurrentMigrationContract(t, dsn, false)
+	})
+
+	t.Run("current clean 000229 forward repair is retained across down up", func(t *testing.T) {
+		dsn := newMigrationLineageSchema(t)
+		before := newPostgresMigrator(t, FS, dsn)
+		require.NoError(t, before.Migrate(229))
+		closePostgresMigrator(t, before)
+		requireMigrationVersion(t, dsn, 229, false)
+		breakPost229ResourceContract(t, dsn)
+
+		after := newPostgresMigrator(t, FS, dsn)
+		require.NoError(t, after.Up())
+		closePostgresMigrator(t, after)
+		requireCurrentMigrationContract(t, dsn, false)
+
+		rollback := newPostgresMigrator(t, FS, dsn)
+		require.NoError(t, rollback.Steps(-2))
+		closePostgresMigrator(t, rollback)
+		requireMigrationVersion(t, dsn, 229, false)
+
+		reapply := newPostgresMigrator(t, FS, dsn)
+		require.NoError(t, reapply.Up())
+		closePostgresMigrator(t, reapply)
 		requireCurrentMigrationContract(t, dsn, false)
 	})
 }
@@ -131,6 +144,33 @@ WHERE table_schema = current_schema()
   )
 `).Scan(&loopColumnCount))
 	require.Equal(t, 7, loopColumnCount)
+}
+
+func breakPost229ResourceContract(t *testing.T, dsn string) {
+	t.Helper()
+	db, err := sql.Open("postgres", dsn)
+	require.NoError(t, err)
+	defer db.Close()
+	_, err = db.Exec(`
+ALTER TABLE agents DROP CONSTRAINT IF EXISTS agents_adapter_id_check;
+UPDATE agents
+SET launch_command = 'cursor-agent',
+    executable = 'cursor-agent',
+    adapter_id = 'cursor-pty',
+    supported_modes = 'pty'
+WHERE slug = 'cursor-cli';
+UPDATE agents
+SET agentfile_source = replace(agentfile_source, '/do-agent-home', '/seedance-expert-home')
+WHERE slug = 'seedance-expert';
+CREATE OR REPLACE FUNCTION worker_spec_model_binding_is_valid(binding JSONB)
+RETURNS BOOLEAN
+LANGUAGE SQL
+IMMUTABLE
+AS $$
+    SELECT FALSE
+$$;
+`)
+	require.NoError(t, err)
 }
 
 func requireCurrentMigrationContract(t *testing.T, dsn string, legacyBridge bool) {

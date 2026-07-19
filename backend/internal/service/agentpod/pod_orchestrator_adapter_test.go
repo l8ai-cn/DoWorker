@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
+	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -19,19 +21,14 @@ func TestCreatePodSendsExplicitAgentAdapterID(t *testing.T) {
 	assert.Equal(t, "claude-stream-json", coordinator.lastCmd.AdapterId)
 }
 
-func TestCreatePodRejectsMissingAgentAdapterID(t *testing.T) {
-	coordinator := &mockPodCoordinator{}
-	provider := newTestProvider()
-	provider.agentDef.AdapterID = ""
-	orchestrator, _, _ := setupOrchestrator(t,
-		withCoordinator(coordinator),
-		withAgentConfigProvider(provider),
-	)
-
-	_, err := createPodWithPlanSourceForTest(t, orchestrator, context.Background(), adapterTestCreateRequest())
-
+func TestArtifactWorkerAgentRejectsMissingAdapterID(t *testing.T) {
+	_, err := artifactWorkerAgent(&workerdependency.Document{
+		Worker: workerdependency.Worker{
+			WorkerType:      slugkit.MustNewForTest("claude-code"),
+			AgentfileSource: "AGENT claude\nEXECUTABLE claude\nMODE pty\n",
+		},
+	})
 	require.ErrorIs(t, err, ErrMissingAgentAdapter)
-	assert.False(t, coordinator.createPodCalled)
 }
 
 func adapterTestCreateRequest() *OrchestrateCreatePodRequest {

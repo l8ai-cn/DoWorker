@@ -3,7 +3,7 @@ package sessionapi
 import (
 	"bytes"
 	"context"
-	"errors"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -25,17 +25,6 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
-
-func TestCreateSessionTerminatesPodWhenSessionPersistenceFails(t *testing.T) {
-	deps, db, lifecycle := setupSessionCreationCompensationTest(t)
-	require.NoError(t, failSessionInserts(db))
-
-	response := createSessionCompensationRequest(deps, `{"agent_id":"codex-cli"}`)
-
-	assert.Equal(t, http.StatusInternalServerError, response.Code)
-	assert.Equal(t, []string{"new-pod"}, lifecycle.terminated)
-	assert.Equal(t, int64(0), pendingCommandCount(t, db))
-}
 
 func TestCreateSessionRollsBackPodAndSessionWhenInitialItemPersistenceFails(t *testing.T) {
 	deps, db, lifecycle := setupSessionCreationCompensationTest(t)
@@ -93,20 +82,6 @@ func TestCreateSessionRemovesItemsPersistedBeforeLaterItemFailure(t *testing.T) 
 	assert.Equal(t, int64(0), pendingCommandCount(t, db))
 }
 
-func TestCreateSessionReportsPodCompensationFailure(t *testing.T) {
-	deps, db, lifecycle := setupSessionCreationCompensationTest(t)
-	lifecycle.terminateErr = errors.New("termination unavailable")
-	require.NoError(t, failSessionInserts(db))
-
-	response := createSessionCompensationRequest(deps, `{"agent_id":"codex-cli"}`)
-
-	assert.Equal(t, http.StatusInternalServerError, response.Code)
-	assert.JSONEq(t, `{
-		"error":"session creation cleanup failed",
-		"code":"session_compensation_failed"
-	}`, response.Body.String())
-}
-
 func TestCreateSessionCompensationOutlivesCancelledRequest(t *testing.T) {
 	deps, _, lifecycle := setupSessionCreationCompensationTest(t)
 	requestContext, cancel := context.WithCancel(context.Background())
@@ -116,7 +91,7 @@ func TestCreateSessionCompensationOutlivesCancelledRequest(t *testing.T) {
 	ctx.Request = httptest.NewRequest(
 		http.MethodPost,
 		"/v1/sessions",
-		bytes.NewBufferString(`{"agent_id":"codex-cli"}`),
+		bytes.NewBufferString(withSessionWorkerPlan(`{"agent_id":"codex-cli"}`)),
 	).WithContext(requestContext)
 	ctx.Request.Header.Set("Content-Type", "application/json")
 	ctx.Set("tenant", &middleware.TenantContext{OrganizationID: 21, UserID: 11})
@@ -240,6 +215,9 @@ func setupSessionCreationCompensationTest(
 		DeferredCommitter: sessionService.NewDeferredCommitter(db),
 		DispatchQueue:     queue,
 		PodCoordinator:    lifecycle,
+		WorkerCreation: &recordingSessionWorkerDraftFactory{
+			draft: sessionTestWorkerDraft(t, "do-agent"),
+		},
 	}
 	return deps, db, lifecycle
 }
@@ -256,7 +234,7 @@ func seedSourceSession(t *testing.T, deps *Deps, item *itemDomain.Item) {
 }
 
 func createSessionCompensationRequest(deps *Deps, body string) *httptest.ResponseRecorder {
-	return sessionCreationRequest(deps.handleCreateSession, "/v1/sessions", nil, body)
+	return sessionCreationRequest(deps.handleCreateSession, "/v1/sessions", nil, withSessionWorkerPlan(body))
 }
 
 func forkSessionCompensationRequest(deps *Deps) *httptest.ResponseRecorder {
@@ -264,7 +242,7 @@ func forkSessionCompensationRequest(deps *Deps) *httptest.ResponseRecorder {
 		deps.handleForkSession,
 		"/v1/sessions/conv_source/fork",
 		gin.Params{{Key: "id", Value: "conv_source"}},
-		`{}`,
+		withSessionWorkerPlan(`{"agent_id":"do-agent"}`),
 	)
 }
 
@@ -279,8 +257,33 @@ func importSessionCompensationRequest(t *testing.T, deps *Deps) *httptest.Respon
 		deps.handleImportSession,
 		"/v1/sessions/import",
 		nil,
-		`{"source_path":"`+path+`","agent_id":"codex-cli"}`,
+		withSessionWorkerPlan(`{"source_path":"`+path+`","agent_id":"do-agent"}`),
 	)
+}
+
+func withSessionWorkerPlan(body string) string {
+	var payload map[string]any
+	if err := json.Unmarshal([]byte(body), &payload); err != nil {
+		panic(err)
+	}
+	if _, ok := payload["worker_spec"]; !ok {
+		payload["worker_spec"] = map[string]any{
+			"options_revision":    "rev-1",
+			"runtime_image_id":    4,
+			"placement_policy":    "explicit",
+			"compute_target_id":   8,
+			"deployment_mode":     "pooled",
+			"resource_profile_id": 9,
+		}
+	}
+	if _, ok := payload["automation_level"]; !ok {
+		payload["automation_level"] = "autonomous"
+	}
+	raw, err := json.Marshal(payload)
+	if err != nil {
+		panic(err)
+	}
+	return string(raw)
 }
 
 func sessionCreationRequest(

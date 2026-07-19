@@ -15,31 +15,15 @@ import (
 
 const workerModelBundleName = "worker-model"
 
-type ModelResourceResolver interface {
-	ResolveExact(context.Context, resourcesvc.Actor, int64, int64, resourcesvc.ResolutionRequirements) (*resourcesvc.ResolvedResource, error)
-}
-
 func (o *PodOrchestrator) applyWorkerModel(ctx context.Context, req *OrchestrateCreatePodRequest, agentDef *agentDomain.Agent) error {
 	harness := workerModelHarness(req.AgentSlug, agentDef)
-	requirements, needsResource := modelRequirementsForRequest(req, agentDef)
-	if !needsResource {
-		return nil
-	}
-	if req.ModelResourceID == nil || *req.ModelResourceID <= 0 {
-		return ErrMissingModelResource
-	}
-	if o.modelResources == nil {
-		return ErrModelResourceResolverUnavailable
-	}
-	resource, err := o.modelResources.ResolveExact(
-		ctx,
-		resourcesvc.Actor{UserID: req.UserID},
-		req.OrganizationID,
-		*req.ModelResourceID,
-		requirements,
-	)
+	modelLayer := modelAgentfileLayer(req)
+	resource, err := o.resolveWorkerModelResource(ctx, req, agentDef)
 	if err != nil {
 		return err
+	}
+	if resource == nil {
+		return nil
 	}
 	if req.preparedWorkerSpec != nil {
 		if err := validatePreparedModelBinding(
@@ -58,7 +42,7 @@ func (o *PodOrchestrator) applyWorkerModel(ctx context.Context, req *Orchestrate
 			req.SessionConfigBundles = map[string]interface{}{}
 		}
 		req.SessionConfigBundles[workerModelBundleName] = settings
-		appendAgentfileLayer(&req.AgentfileLayer, fmt.Sprintf(`USE_CONFIG_BUNDLE "%s"`, workerModelBundleName))
+		appendAgentfileLayer(modelLayer, fmt.Sprintf(`USE_CONFIG_BUNDLE "%s"`, workerModelBundleName))
 	} else {
 		env, err := modelResourceEnvironment(harness, resource)
 		if err != nil {
@@ -67,19 +51,19 @@ func (o *PodOrchestrator) applyWorkerModel(ctx context.Context, req *Orchestrate
 		req.ModelResourceEnv = env
 		modelID := strings.TrimSpace(resource.Resource.ModelID)
 		if harness == "claude-code" && modelID != "" {
-			appendAgentfileLayer(&req.AgentfileLayer, `CONFIG model = `+agentfile.FormatStringLiteral(resource.Resource.ModelID))
+			appendAgentfileLayer(modelLayer, `CONFIG model = `+agentfile.FormatStringLiteral(resource.Resource.ModelID))
 		}
 		if harness == "opencode" {
-			appendAgentfileLayer(&req.AgentfileLayer, `CONFIG model = `+agentfile.FormatStringLiteral(opencodeModelSelector(resource)))
+			appendAgentfileLayer(modelLayer, `CONFIG model = `+agentfile.FormatStringLiteral(opencodeModelSelector(resource)))
 		}
 		if harness == "minimax-cli" {
 			if modelID == "" {
 				return ErrMissingModelResource
 			}
-			appendAgentfileLayer(&req.AgentfileLayer, `CONFIG model = `+agentfile.FormatStringLiteral(modelID))
+			appendAgentfileLayer(modelLayer, `CONFIG model = `+agentfile.FormatStringLiteral(modelID))
 			if baseURL := strings.TrimSpace(resource.Connection.BaseURL); baseURL != "" {
 				cliBaseURL := minimaxCLIBaseURL(baseURL)
-				appendAgentfileLayer(&req.AgentfileLayer, `CONFIG base_url = `+agentfile.FormatStringLiteral(cliBaseURL))
+				appendAgentfileLayer(modelLayer, `CONFIG base_url = `+agentfile.FormatStringLiteral(cliBaseURL))
 				req.ModelResourceArgs = []string{"--base-url", cliBaseURL}
 			}
 		}
@@ -89,19 +73,19 @@ func (o *PodOrchestrator) applyWorkerModel(ctx context.Context, req *Orchestrate
 				return err
 			}
 			appendAgentfileLayer(
-				&req.AgentfileLayer,
+				modelLayer,
 				`CONFIG provider = `+agentfile.FormatStringLiteral(provider),
 				`CONFIG model = `+agentfile.FormatStringLiteral(resource.Resource.ModelID),
 			)
 		}
 		if harness == "grok-build" && modelID != "" {
-			appendAgentfileLayer(&req.AgentfileLayer, `CONFIG model = `+agentfile.FormatStringLiteral(resource.Resource.ModelID))
+			appendAgentfileLayer(modelLayer, `CONFIG model = `+agentfile.FormatStringLiteral(resource.Resource.ModelID))
 		}
 		if harness == "minimax-cli" {
 			if modelID == "" {
 				return ErrMissingModelResource
 			}
-			appendAgentfileLayer(&req.AgentfileLayer, `CONFIG model = `+agentfile.FormatStringLiteral(modelID))
+			appendAgentfileLayer(modelLayer, `CONFIG model = `+agentfile.FormatStringLiteral(modelID))
 		}
 		if harness == "gemini-cli" {
 			if modelID == "" {
@@ -111,23 +95,16 @@ func (o *PodOrchestrator) applyWorkerModel(ctx context.Context, req *Orchestrate
 		}
 	}
 	if req.TokenBudget != nil && *req.TokenBudget > 0 {
-		appendAgentfileLayer(&req.AgentfileLayer, fmt.Sprintf(`CONFIG token_budget = "%s"`, strconv.FormatInt(*req.TokenBudget, 10)))
+		appendAgentfileLayer(modelLayer, fmt.Sprintf(`CONFIG token_budget = "%s"`, strconv.FormatInt(*req.TokenBudget, 10)))
 	}
 	return nil
 }
 
-func modelRequirementsForRequest(
-	req *OrchestrateCreatePodRequest,
-	agentDef *agentDomain.Agent,
-) (resourcesvc.ResolutionRequirements, bool) {
-	if req != nil && req.preparedWorkerSpec != nil {
-		binding := req.preparedWorkerSpec.Runtime.ModelBinding
-		if binding.IsEmpty() {
-			return resourcesvc.ResolutionRequirements{}, false
-		}
-		return chatRequirements(binding.ProtocolAdapter.String()), true
+func modelAgentfileLayer(req *OrchestrateCreatePodRequest) **string {
+	if req != nil && req.preResolvedDependencies != nil {
+		return &req.runtimeAgentfileLayer
 	}
-	return modelResourceRequirements(req.AgentSlug, agentDef)
+	return &req.AgentfileLayer
 }
 
 func validatePreparedModelBinding(

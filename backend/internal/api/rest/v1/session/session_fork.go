@@ -1,12 +1,11 @@
 package sessionapi
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
 
 	domain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
-	itemdomain "github.com/anthropics/agentsmesh/backend/internal/domain/conversationitem"
+	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	sessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
 	itemsvc "github.com/anthropics/agentsmesh/backend/internal/service/conversationitem"
@@ -17,10 +16,13 @@ import (
 var errForkResponseNotFound = errors.New("fork response not found")
 
 type forkSessionBody struct {
-	Title          *string `json:"title"`
-	AgentID        *string `json:"agent_id"`
-	UpToResponseID *string `json:"up_to_response_id"`
-	ModelOverride  *string `json:"model_override"`
+	Title           *string                `json:"title"`
+	AgentID         *string                `json:"agent_id"`
+	UpToResponseID  *string                `json:"up_to_response_id"`
+	ModelOverride   *string                `json:"model_override"`
+	ModelResourceID *int64                 `json:"model_resource_id"`
+	WorkerSpec      *sessionWorkerSpecBody `json:"worker_spec"`
+	AutomationLevel string                 `json:"automation_level"`
 }
 
 func (d *Deps) handleForkSession(c *gin.Context) {
@@ -34,6 +36,7 @@ func (d *Deps) handleForkSession(c *gin.Context) {
 	if !ok {
 		return
 	}
+	tenant := middleware.GetTenant(c)
 	var body forkSessionBody
 	_ = c.ShouldBindJSON(&body)
 	agentSlug := source.AgentSlug
@@ -49,13 +52,44 @@ func (d *Deps) handleForkSession(c *gin.Context) {
 	if sourcePod != nil {
 		runnerID = sourcePod.RunnerID
 	}
-	orchReq := &agentpod.OrchestrateCreatePodRequest{
-		OrganizationID:      source.OrganizationID,
-		UserID:              source.UserID,
-		RunnerID:            runnerID,
-		AgentSlug:           agentSlug,
-		AgentfileLayer:      acpAgentfileLayer(),
-		DeferRunnerDispatch: true,
+	var orchReq *agentpod.OrchestrateCreatePodRequest
+	if agentSlug == source.AgentSlug {
+		if hasSessionWorkerConfigChange(
+			body.ModelResourceID,
+			body.WorkerSpec,
+			body.AutomationLevel,
+		) || body.ModelOverride != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": rejectSameAgentWorkerConfigChangeMessage(),
+				"code":  "validation_failed",
+			})
+			return
+		}
+		snapshotID, snapshotErr := sessionSnapshotSource(source, sourcePod)
+		if snapshotErr != nil {
+			writeOrchestratorError(c, snapshotErr)
+			return
+		}
+		orchReq = buildForkSnapshotPodRequest(source, runnerID, snapshotID)
+	} else {
+		draft, draftErr := d.buildFreshWorkerPlan(
+			c.Request.Context(),
+			source.OrganizationID,
+			source.UserID,
+			tenant.OrganizationSlug,
+			sessionWorkerPlanInput{
+				WorkerSpec:      body.WorkerSpec,
+				WorkerTypeSlug:  agentSlug,
+				ModelResourceID: body.ModelResourceID,
+				AgentfileLayer:  acpAgentfileLayer(),
+				AutomationLevel: body.AutomationLevel,
+			},
+		)
+		if draftErr != nil {
+			writeOrchestratorError(c, draftErr)
+			return
+		}
+		orchReq = buildForkPlanPodRequest(source, runnerID, draft)
 	}
 	if sourcePod != nil && sourcePod.ExternalSessionID != nil {
 		orchReq.ResumeExternalSessionID = *sourcePod.ExternalSessionID
@@ -120,75 +154,4 @@ func (d *Deps) handleForkSession(c *gin.Context) {
 	}
 	d.DispatchQueue.TriggerDrain(result.Pod.RunnerID)
 	c.JSON(http.StatusOK, d.sessionWire(row, result.Pod, nil))
-}
-
-func (d *Deps) copyConversationItems(
-	c *gin.Context,
-	writer *itemsvc.Service,
-	sourceID, destID string,
-	upToResponseID *string,
-) error {
-	targetResponseID := ""
-	if upToResponseID != nil && *upToResponseID != "" {
-		targetResponseID = *upToResponseID
-	}
-	afterID := ""
-	targetFound := false
-	for {
-		page, err := d.Items.ListPage(c.Request.Context(), sourceID, 100, afterID, false)
-		if err != nil {
-			return err
-		}
-		for _, src := range page.Items {
-			if targetFound && src.ResponseID != targetResponseID {
-				return nil
-			}
-			if err := d.copyConversationItem(c, writer, destID, src); err != nil {
-				return err
-			}
-			if targetResponseID != "" && src.ResponseID == targetResponseID {
-				targetFound = true
-			}
-		}
-		if !page.HasMore {
-			if targetResponseID != "" && !targetFound {
-				return errForkResponseNotFound
-			}
-			return nil
-		}
-		if len(page.Items) == 0 {
-			return errors.New("conversation item pagination stalled")
-		}
-		afterID = page.Items[len(page.Items)-1].ID
-	}
-}
-
-func (d *Deps) copyConversationItem(
-	c *gin.Context,
-	writer *itemsvc.Service,
-	destID string,
-	src itemdomain.Item,
-) error {
-	id, err := itemsvc.NewItemID()
-	if err != nil {
-		return err
-	}
-	var payload map[string]json.RawMessage
-	if err := json.Unmarshal(src.Payload, &payload); err != nil || payload == nil {
-		return errors.New("conversation item payload is invalid")
-	}
-	encodedID, err := json.Marshal(id)
-	if err != nil {
-		return err
-	}
-	payload["id"] = encodedID
-	encodedPayload, err := json.Marshal(payload)
-	if err != nil {
-		return err
-	}
-	return writer.Append(c.Request.Context(), &itemdomain.Item{
-		ID: id, SessionID: destID, ItemType: src.ItemType,
-		ResponseID: src.ResponseID, Status: src.Status,
-		Position: src.Position, Payload: encodedPayload, CreatedAt: src.CreatedAt,
-	})
 }

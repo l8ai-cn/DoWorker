@@ -7,6 +7,8 @@ import (
 	coordinatordom "github.com/anthropics/agentsmesh/backend/internal/domain/coordinator"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
 	ticketDomain "github.com/anthropics/agentsmesh/backend/internal/domain/ticket"
+	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
+	workerspecdom "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	agentpodSvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	ticketSvc "github.com/anthropics/agentsmesh/backend/internal/service/ticket"
 )
@@ -37,6 +39,14 @@ type TokenProvider interface {
 	GetDecryptedProviderTokenByTypeAndURL(ctx context.Context, userID int64, providerType, baseURL string) (string, error)
 }
 
+type WorkerSpecSnapshotReader interface {
+	GetByID(ctx context.Context, organizationID, id int64) (workerspecdom.Snapshot, error)
+}
+
+type WorkerSpecDependencyArtifactReader interface {
+	GetBySnapshotID(ctx context.Context, organizationID, snapshotID int64) (workerdependency.Document, error)
+}
+
 // PlatformFactory builds a TaskPlatform (and resolves the repo slug) for a
 // project, injecting the org-scoped provider credential.
 type PlatformFactory interface {
@@ -50,6 +60,8 @@ type Service struct {
 	podTerminator PodTerminator
 	platform      PlatformFactory
 	runnerEnsurer *RunnerEnsurer
+	snapshots     WorkerSpecSnapshotReader
+	artifacts     WorkerSpecDependencyArtifactReader
 	logger        *slog.Logger
 }
 
@@ -60,6 +72,8 @@ type Deps struct {
 	PodTerminator PodTerminator
 	Platform      PlatformFactory
 	RunnerEnsurer *RunnerEnsurer
+	Snapshots     WorkerSpecSnapshotReader
+	Artifacts     WorkerSpecDependencyArtifactReader
 	Logger        *slog.Logger
 }
 
@@ -75,6 +89,8 @@ func NewService(deps Deps) *Service {
 		podTerminator: deps.PodTerminator,
 		platform:      deps.Platform,
 		runnerEnsurer: deps.RunnerEnsurer,
+		snapshots:     deps.Snapshots,
+		artifacts:     deps.Artifacts,
 		logger:        logger.With("component", "coordinator"),
 	}
 }

@@ -34,7 +34,7 @@ MODE acp
 REPO "org/repo"
 BRANCH "main"
 SKILLS code-review
-KNOWLEDGE docs [rw]
+KNOWLEDGE engineering-docs [rw]
 USE_ENV_BUNDLE "runtime-preferences"
 USE_ENV_BUNDLE "signing-secrets"
 PROMPT "Review before editing.\n\nFix the failing test."
@@ -80,7 +80,7 @@ func validCompiledWorkerSpec() specdomain.Spec {
 			},
 			WorkerType: specdomain.WorkerType{
 				Slug:           slugkit.MustNewForTest("codex-cli"),
-				DefinitionHash: strings.Repeat("a", 64),
+				DefinitionHash: workspaceTestDefinitions()["codex-cli"].DefinitionHash,
 			},
 			Image: specdomain.RuntimeImage{
 				ID:     1,

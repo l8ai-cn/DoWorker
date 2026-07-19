@@ -49,12 +49,9 @@ func (o *PodOrchestrator) preparePodCreationContext(
 			return podCreationContext{}, err
 		}
 	}
-	if req.AgentSlug != "" && o.agentResolver != nil {
-		var err error
-		state.agentDef, err = o.agentResolver.GetAgent(ctx, req.AgentSlug)
-		if err != nil {
-			return podCreationContext{}, ErrMissingAgentSlug
-		}
+	state.agentDef, err = o.runtimeAgentDefinition(ctx, req)
+	if err != nil {
+		return podCreationContext{}, err
 	}
 	if state.agentDef == nil ||
 		strings.TrimSpace(state.agentDef.AdapterID) == "" {

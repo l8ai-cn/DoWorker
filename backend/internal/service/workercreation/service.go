@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
 	runtimedomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
@@ -30,6 +31,7 @@ func NewService(deps Deps) *Service {
 		Knowledge:    deps.Knowledge,
 		EnvBundles:   deps.EnvBundles,
 		Definitions:  deps.Definitions,
+		Commits:      deps.Commits,
 	}
 	workerTypes := newWorkerTypeResolver(deps.Agents, deps.Definitions)
 	models := newModelResolver(deps.Models)
@@ -90,7 +92,9 @@ func (service *Service) Prepare(
 		return Prepared{}, err
 	}
 	artifact, err := service.buildArtifact(
+		ctx,
 		scope,
+		draft.OrganizationSlug,
 		draft.ArtifactRefs,
 		spec,
 		layer,
@@ -101,12 +105,20 @@ func (service *Service) Prepare(
 	if err != nil {
 		return Prepared{}, err
 	}
+	if artifact == nil {
+		return Prepared{}, fmt.Errorf("worker dependency artifact is required")
+	}
+	document, err := workerdependency.Decode(artifact.JSON())
+	if err != nil {
+		return Prepared{}, fmt.Errorf("decode worker dependency artifact: %w", err)
+	}
 	return Prepared{
 		Snapshot:       resolved,
 		Spec:           spec,
 		AgentfileLayer: layer,
 		Repository:     workspace.resolvedRepository(spec.Workspace.RepositoryID),
 		Artifact:       artifact,
+		Dependencies:   &document,
 	}, nil
 }
 

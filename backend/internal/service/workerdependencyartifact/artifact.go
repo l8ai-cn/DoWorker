@@ -54,7 +54,7 @@ func Build(input Input) (Artifact, error) {
 	if err != nil {
 		return Artifact{}, fmt.Errorf("validate worker dependency document: %w", err)
 	}
-	if err := validateWorkerSpecConsistency(spec, document); err != nil {
+	if err := ValidateWorkerSpecConsistency(spec, document); err != nil {
 		return Artifact{}, err
 	}
 	if err := validateDefinitionDependencies(

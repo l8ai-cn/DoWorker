@@ -148,7 +148,7 @@ func validInput(t testHelper) Input {
 	return Input{
 		Scope:          scope,
 		Definition:     definition,
-		PlanReferences: []control.ResolvedReference{tool, compute, profile},
+		PlanReferences: []control.ResolvedReference{tool, model, compute, profile},
 		WorkerSpec:     spec,
 		Dependencies: ResolvedDependencies{
 			ToolModels: []ToolModelResolution{{

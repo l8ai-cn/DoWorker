@@ -121,7 +121,7 @@ func TestBuildRejectsWorkerSpecDependencySubstitution(t *testing.T) {
 						ID:   93,
 					}
 			},
-			match: "Secret references",
+			match: "secret references",
 		},
 	}
 	for _, test := range tests {

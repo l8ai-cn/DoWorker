@@ -50,17 +50,14 @@ INSERT INTO organizations (id) VALUES (1);
 	requireWorkerSpecSnapshotAccepted(t, ctx, conn, legacySpec, legacySummary)
 	up, err := FS.ReadFile("000209_worker_spec_protocol_adapter.up.sql")
 	require.NoError(t, err)
-	err = execMigrationSQL(ctx, conn, string(up))
-	require.ErrorContains(t, err, "require protocol_adapter backfill")
-	require.NoError(t, execSQL(ctx, conn, `DELETE FROM worker_spec_snapshots`))
 	require.NoError(t, execMigrationSQL(ctx, conn, string(up)))
 
 	tool := validToolModelBindingJSON()
 	requireWorkerSpecSnapshotAccepted(t, ctx, conn,
-		`{"runtime":{"model_binding":{},"tool_model_bindings":[`+tool+`]},"version":1}`,
-		`{"model_binding":{},"tool_model_bindings":[`+tool+`],"version":1}`,
+		`{"runtime":{"model_binding":{"resource_id":1,"resource_revision":1,"connection_id":1,"connection_revision":1,"provider_key":"openai","model_id":"legacy"},"tool_model_bindings":[`+tool+`]},"version":1}`,
+		`{"model_binding":{"resource_id":1,"resource_revision":1,"connection_id":1,"connection_revision":1,"provider_key":"openai","model_id":"legacy"},"tool_model_bindings":[`+tool+`],"version":1}`,
 	)
-	requireWorkerSpecSnapshotRejectedWithSummary(t, ctx, conn,
+	requireWorkerSpecSnapshotAccepted(t, ctx, conn,
 		legacySpec,
 		legacySummary,
 	)

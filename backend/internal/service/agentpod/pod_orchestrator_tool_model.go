@@ -22,19 +22,7 @@ func (o *PodOrchestrator) applyWorkerToolModels(
 	}
 	environment := map[string]string{}
 	for _, binding := range req.preparedWorkerSpec.Runtime.ToolModelBindings {
-		resource, err := o.modelResources.ResolveExact(
-			ctx,
-			resourcesvc.Actor{UserID: req.UserID},
-			req.OrganizationID,
-			binding.ModelBinding.ResourceID,
-			resourcesvc.ResolutionRequirements{
-				Modality:   binding.Modality,
-				Capability: binding.Capability,
-				AllowedProtocolAdapters: []string{
-					binding.ModelBinding.ProtocolAdapter.String(),
-				},
-			},
-		)
+		resource, err := o.resolveToolModelResource(ctx, req, binding)
 		if err != nil {
 			return err
 		}
@@ -60,6 +48,34 @@ func (o *PodOrchestrator) applyWorkerToolModels(
 		req.ModelResourceEnv = map[string]string{}
 	}
 	return applyModelResourceEnv(req.ModelResourceEnv, environment)
+}
+
+func (o *PodOrchestrator) resolveToolModelResource(
+	ctx context.Context,
+	req *OrchestrateCreatePodRequest,
+	binding specdomain.ToolModelBinding,
+) (*resourcesvc.ResolvedResource, error) {
+	if req.preResolvedDependencies != nil {
+		for _, model := range req.preResolvedDependencies.Models.Tools {
+			if model.Role == binding.Role {
+				return o.artifactModelResource(ctx, req, model.Model)
+			}
+		}
+		return nil, ErrWorkerSpecDependencyUnavailable
+	}
+	return o.modelResources.ResolveExact(
+		ctx,
+		resourcesvc.Actor{UserID: req.UserID},
+		req.OrganizationID,
+		binding.ModelBinding.ResourceID,
+		resourcesvc.ResolutionRequirements{
+			Modality:   binding.Modality,
+			Capability: binding.Capability,
+			AllowedProtocolAdapters: []string{
+				binding.ModelBinding.ProtocolAdapter.String(),
+			},
+		},
+	)
 }
 
 func toolModelEnvironment(

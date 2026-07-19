@@ -36,6 +36,7 @@ type workspaceResolverDeps struct {
 	Knowledge    KnowledgeLookup
 	EnvBundles   EnvBundleLookup
 	Definitions  WorkerDefinitionProvider
+	Commits      WorkspaceCommitResolver
 }
 
 type workspaceResolver struct {

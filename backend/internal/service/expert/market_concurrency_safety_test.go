@@ -25,7 +25,7 @@ func TestMarketInstallRevalidatesPublishedReleaseInsideApplicationLock(t *testin
 	_, _, err := fixture.service.InstallPublishedMarketApplication(
 		context.Background(),
 		InstallMarketApplicationRequest{
-			OrganizationID:  42,
+			OrganizationID: 42, OrganizationSlug: "target-org",
 			UserID:          501,
 			ModelResourceID: 301,
 			MarketSlug:      string(published.Application.Slug),
@@ -43,7 +43,7 @@ func TestMarketUpgradeSerializesConsumerEdit(t *testing.T) {
 	installed, _, err := fixture.service.InstallPublishedMarketApplication(
 		ctx,
 		InstallMarketApplicationRequest{
-			OrganizationID: 42, UserID: 501, ModelResourceID: 301,
+			OrganizationID: 42, OrganizationSlug: "target-org", UserID: 501, ModelResourceID: 301,
 			MarketSlug: string(v1.Application.Slug),
 		},
 	)
@@ -65,9 +65,7 @@ func TestMarketUpgradeSerializesConsumerEdit(t *testing.T) {
 	go func() {
 		_, _, upgradeErr := fixture.service.UpgradeMarketApplication(
 			ctx,
-			UpgradeMarketApplicationRequest{
-				OrganizationID: 42, UserID: 501, ExpertID: installed.ID,
-			},
+			UpgradeMarketApplicationRequest{OrganizationID: 42, OrganizationSlug: "target-org", UserID: 501, ExpertID: installed.ID},
 		)
 		upgradeDone <- upgradeErr
 	}()
@@ -102,7 +100,7 @@ func TestMarketUpgradeCleanupSurvivesRequestCancellation(t *testing.T) {
 	installed, _, err := fixture.service.InstallPublishedMarketApplication(
 		ctx,
 		InstallMarketApplicationRequest{
-			OrganizationID: 42, UserID: 501, ModelResourceID: 301,
+			OrganizationID: 42, OrganizationSlug: "target-org", UserID: 501, ModelResourceID: 301,
 			MarketSlug: string(v1.Application.Slug),
 		},
 	)
@@ -123,9 +121,7 @@ func TestMarketUpgradeCleanupSurvivesRequestCancellation(t *testing.T) {
 
 	_, _, err = fixture.service.UpgradeMarketApplication(
 		ctx,
-		UpgradeMarketApplicationRequest{
-			OrganizationID: 42, UserID: 501, ExpertID: installed.ID,
-		},
+		UpgradeMarketApplicationRequest{OrganizationID: 42, OrganizationSlug: "target-org", UserID: 501, ExpertID: installed.ID},
 	)
 
 	require.True(t, errors.Is(err, context.Canceled))

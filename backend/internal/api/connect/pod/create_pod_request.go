@@ -8,6 +8,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
+	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 	podv1 "github.com/anthropics/agentsmesh/proto/gen/go/pod/v1"
 )
 
@@ -52,6 +53,11 @@ func buildCreatePodRequest(
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, err)
 	}
+	orgSlug, err := slugkit.NewFromTrusted(tenant.OrganizationSlug)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	draft.OrganizationSlug = orgSlug
 	return buildWorkerSpecPodRequest(message, tenant, draft), nil
 }
 

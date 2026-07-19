@@ -28,18 +28,6 @@ func (d *Deps) terminateSessionPod(ctx context.Context, podKey string) error {
 	return err
 }
 
-func (d *Deps) rollbackCreatedSession(ctx context.Context, sessionID, podKey string) error {
-	cleanupCtx, cancel := sessionCompensationContext(ctx)
-	defer cancel()
-	terminateErr := d.terminateSessionPod(cleanupCtx, podKey)
-	var itemErr error
-	if d.Items != nil {
-		itemErr = d.Items.DeleteBySession(cleanupCtx, sessionID)
-	}
-	sessionErr := d.Sessions.SoftDelete(cleanupCtx, sessionID)
-	return errors.Join(terminateErr, itemErr, sessionErr)
-}
-
 func sessionCompensationContext(ctx context.Context) (context.Context, context.CancelFunc) {
 	return context.WithTimeout(context.WithoutCancel(ctx), 15*time.Second)
 }

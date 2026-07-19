@@ -363,8 +363,9 @@ func setupOrchestrator(t *testing.T, opts ...func(*PodOrchestratorDeps)) (*PodOr
 		RunnerSelector: &mockRunnerSelector{
 			resolveRunner: &runnerDomain.Runner{ID: 1, ClusterID: 51},
 		},
-		ModelResources: &recordingModelResourceResolver{resource: resolvedResource("anthropic", "https://api.anthropic.com", "claude-test")},
-		WorkerSpecs:    infra.NewWorkerSpecSnapshotRepository(db),
+		ModelResources:     &recordingModelResourceResolver{resource: resolvedResource("anthropic", "https://api.anthropic.com", "claude-test")},
+		WorkerSpecs:        infra.NewWorkerSpecSnapshotRepository(db),
+		WorkerDependencies: infra.NewWorkerSpecDependencyArtifactRepository(db),
 	}
 
 	for _, opt := range opts {
@@ -372,50 +373,4 @@ func setupOrchestrator(t *testing.T, opts ...func(*PodOrchestratorDeps)) (*PodOr
 	}
 
 	return NewPodOrchestrator(deps), podSvc, db
-}
-
-func withCoordinator(coord PodCoordinatorForOrchestrator) func(*PodOrchestratorDeps) {
-	return func(d *PodOrchestratorDeps) { d.PodCoordinator = coord }
-}
-
-func withBilling(b BillingServiceForOrchestrator) func(*PodOrchestratorDeps) {
-	return func(d *PodOrchestratorDeps) { d.BillingService = b }
-}
-
-func withUserSvc(u UserServiceForOrchestrator) func(*PodOrchestratorDeps) {
-	return func(d *PodOrchestratorDeps) { d.UserService = u }
-}
-
-func withRepoSvc(r RepositoryServiceForOrchestrator) func(*PodOrchestratorDeps) {
-	return func(d *PodOrchestratorDeps) { d.RepoService = r }
-}
-
-func withTicketSvc(ts TicketServiceForOrchestrator) func(*PodOrchestratorDeps) {
-	return func(d *PodOrchestratorDeps) { d.TicketService = ts }
-}
-
-func withRunnerSelector(rs RunnerSelectorForOrchestrator) func(*PodOrchestratorDeps) {
-	return func(d *PodOrchestratorDeps) { d.RunnerSelector = rs }
-}
-
-func withAgentResolver(ar AgentResolverForOrchestrator) func(*PodOrchestratorDeps) {
-	return func(d *PodOrchestratorDeps) { d.AgentResolver = ar }
-}
-
-func withModelResources(m ModelResourceResolver) func(*PodOrchestratorDeps) {
-	return func(d *PodOrchestratorDeps) { d.ModelResources = m }
-}
-
-func withAgentConfigProvider(provider *mockAgentConfigProvider) func(*PodOrchestratorDeps) {
-	return func(d *PodOrchestratorDeps) {
-		d.ConfigBuilder = agent.NewConfigBuilder(provider, noopBundleLoader{})
-		d.AgentResolver = &mockAgentResolver{agentDef: provider.agentDef, err: provider.agentErr}
-	}
-}
-
-func ptrStr(s string) *string { return &s }
-
-func testModelResourceID() *int64 {
-	id := int64(9)
-	return &id
 }

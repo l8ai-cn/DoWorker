@@ -15,10 +15,13 @@ import (
 )
 
 type importSessionBody struct {
-	SourcePath string  `json:"source_path"`
-	AgentID    string  `json:"agent_id"`
-	Title      *string `json:"title"`
-	HostID     string  `json:"host_id"`
+	SourcePath      string                 `json:"source_path"`
+	AgentID         string                 `json:"agent_id"`
+	Title           *string                `json:"title"`
+	HostID          string                 `json:"host_id"`
+	ModelResourceID *int64                 `json:"model_resource_id"`
+	WorkerSpec      *sessionWorkerSpecBody `json:"worker_spec"`
+	AutomationLevel string                 `json:"automation_level"`
 }
 
 func (d *Deps) handleImportSession(c *gin.Context) {
@@ -60,11 +63,27 @@ func (d *Deps) handleImportSession(c *gin.Context) {
 		t := converted.Title
 		title = &t
 	}
+	draft, err := d.buildFreshWorkerPlan(
+		c.Request.Context(),
+		tenant.OrganizationID,
+		tenant.UserID,
+		tenant.OrganizationSlug,
+		sessionWorkerPlanInput{
+			WorkerSpec:      body.WorkerSpec,
+			WorkerTypeSlug:  body.AgentID,
+			ModelResourceID: body.ModelResourceID,
+			AgentfileLayer:  acpAgentfileLayer(),
+			AutomationLevel: body.AutomationLevel,
+		},
+	)
+	if err != nil {
+		writeOrchestratorError(c, err)
+		return
+	}
 	orchReq := &agentpod.OrchestrateCreatePodRequest{
 		OrganizationID:      tenant.OrganizationID,
 		UserID:              tenant.UserID,
-		AgentSlug:           body.AgentID,
-		AgentfileLayer:      acpAgentfileLayer(),
+		WorkerSpecDraft:     draft,
 		DeferRunnerDispatch: true,
 	}
 	if body.HostID != "" {

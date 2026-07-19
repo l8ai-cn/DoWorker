@@ -105,15 +105,18 @@ func (d *Deps) handleBindHostRunner(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"runner_id": r.NodeID})
 		return
 	}
-	layer := acpAgentfileLayer()
+	snapshotID, err := sessionSnapshotSource(row, pod)
+	if err != nil {
+		writeOrchestratorError(c, err)
+		return
+	}
 	orchReq := &agentpod.OrchestrateCreatePodRequest{
-		OrganizationID: tenant.OrganizationID,
-		UserID:         tenant.UserID,
-		RunnerID:       r.ID,
-		AgentSlug:      row.AgentSlug,
-		AgentfileLayer: layer,
-		LocalPath:      strings.TrimSpace(body.Workspace),
-		AgentSessionID: row.ID,
+		OrganizationID:       tenant.OrganizationID,
+		UserID:               tenant.UserID,
+		RunnerID:             r.ID,
+		WorkerSpecSnapshotID: snapshotID,
+		LocalPath:            strings.TrimSpace(body.Workspace),
+		AgentSessionID:       row.ID,
 		SessionProvision: &sessionDomain.ProvisionSpec{
 			ID: row.ID, ExpectedPodKey: row.PodKey, UpdateExisting: true,
 		},

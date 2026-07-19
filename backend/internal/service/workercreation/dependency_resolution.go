@@ -1,6 +1,8 @@
 package workercreation
 
 import (
+	"context"
+
 	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
@@ -8,6 +10,7 @@ import (
 )
 
 func buildResolvedDependencies(
+	ctx context.Context,
 	scope control.Scope,
 	refs ArtifactReferences,
 	spec workerspec.Spec,
@@ -25,6 +28,7 @@ func buildResolvedDependencies(
 		return workerdependencyartifact.ResolvedDependencies{}, err
 	}
 	workspaceDeps, err := buildWorkspaceDependencies(
+		ctx,
 		scope,
 		refs,
 		spec,

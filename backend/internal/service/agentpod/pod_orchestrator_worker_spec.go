@@ -8,6 +8,7 @@ import (
 
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
+	"github.com/anthropics/agentsmesh/backend/internal/service/workerdependencyartifact"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 )
 
@@ -86,6 +87,12 @@ func (o *PodOrchestrator) validatePreparedWorkerType(
 	if req.preparedWorkerSpec == nil {
 		return nil
 	}
+	if req.preResolvedDependencies != nil {
+		return workerdependencyartifact.ValidateWorkerSpecConsistency(
+			*req.preparedWorkerSpec,
+			*req.preResolvedDependencies,
+		)
+	}
 	if o.workerCreation == nil {
 		return ErrWorkerCreationUnavailable
 	}
@@ -107,9 +114,7 @@ func hasConflictingWorkerCreateInput(req *OrchestrateCreatePodRequest) bool {
 		req.AutomationLevel != "" ||
 		req.BranchName != nil ||
 		req.ModelResourceID != nil ||
-		req.TokenBudget != nil ||
 		req.Perpetual ||
-		req.LocalPath != "" ||
 		len(req.KnowledgeMounts) > 0 ||
 		len(req.ModelResourceEnv) > 0 ||
 		len(req.ModelResourceArgs) > 0
@@ -129,6 +134,9 @@ func validatePreparedWorkerSpec(
 	}
 	if !bytes.Equal(encoded, prepared.Snapshot.SpecJSON()) {
 		return ErrInvalidPreparedWorkerSpec
+	}
+	if prepared.Artifact == nil || prepared.Dependencies == nil {
+		return ErrWorkerSpecDependencyUnavailable
 	}
 	return validatePreparedWorkerRepository(
 		organizationID,

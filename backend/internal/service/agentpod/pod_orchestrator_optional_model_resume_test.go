@@ -16,9 +16,13 @@ func TestResumeInheritsWorkerSpecWithoutMainModel(t *testing.T) {
 	db := setupOrchestratorTestDB(t)
 	podService := NewPodService(infra.NewPodRepository(db))
 	snapshotID := int64(91)
-	spec := podServiceWorkerSpec()
+	spec := normalizedSnapshotWorkerSpec(t)
 	spec.Runtime.ModelBinding = specdomain.ModelBinding{}
 	spec.Runtime.WorkerType.Slug = slugkit.MustNewForTest("cursor-cli")
+	definition := formalWorkerDefinitionForPlanTest(t, spec.Runtime.WorkerType.Slug.String())
+	spec.Runtime.WorkerType.DefinitionHash = definition.DefinitionHash
+	spec, err := specdomain.NormalizeAndValidate(spec)
+	require.NoError(t, err)
 	agentfileLayer := "MODE acp\n"
 	source, err := podService.CreatePod(context.Background(), &CreatePodRequest{
 		OrganizationID: 1, RunnerID: 1, CreatedByID: 1,
@@ -37,6 +41,7 @@ func TestResumeInheritsWorkerSpecWithoutMainModel(t *testing.T) {
 		WorkerSpecs: &workerSpecSnapshotLoader{snapshot: specdomain.Snapshot{
 			ID: snapshotID, OrganizationID: 1, Spec: spec,
 		}},
+		WorkerDependencies: snapshotDependencyLoader(t, 1, spec),
 	})
 	req := &OrchestrateCreatePodRequest{
 		OrganizationID: 1, UserID: 1, SourcePodKey: source.PodKey,

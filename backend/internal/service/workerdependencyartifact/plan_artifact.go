@@ -102,7 +102,7 @@ func DecodePlanArtifact(data []byte) (DecodedPlanArtifact, error) {
 			"WorkerTemplate build artifact digest binding is invalid",
 		)
 	}
-	if err := validateWorkerSpecConsistency(spec, dependencies); err != nil {
+	if err := ValidateWorkerSpecConsistency(spec, dependencies); err != nil {
 		return DecodedPlanArtifact{}, err
 	}
 	return DecodedPlanArtifact{

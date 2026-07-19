@@ -82,6 +82,7 @@ func (s *Service) upgradeMarketApplication(
 	snapshot, workerSnapshotID, err := s.prepareMarketInstallation(
 		ctx,
 		req.OrganizationID,
+		req.OrganizationSlug,
 		req.UserID,
 		currentSnapshot.Spec.Runtime.ModelBinding.ResourceID,
 		marketToolModelResourceIDs(

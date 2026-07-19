@@ -29,25 +29,9 @@ func (o *PodOrchestrator) buildPodCommand(
 
 	effectiveBranch := firstNonEmptyPtr(resolved.BranchName, req.BranchName)
 	effectiveRepoID := firstNonNilInt64(resolved.RepositoryID, req.RepositoryID)
-
-	httpCloneURL, sshCloneURL := "", ""
-	sourceBranch, preparationScript := "", ""
-	preparationTimeout := 300
-	if repo := resolved.Repository; repo != nil {
-		httpCloneURL = repo.HttpCloneURL
-		sshCloneURL = repo.SshCloneURL
-		if repo.DefaultBranch != "" {
-			sourceBranch = repo.DefaultBranch
-		}
-		if repo.PreparationScript != nil {
-			preparationScript = *repo.PreparationScript
-		}
-		if repo.PreparationTimeout != nil {
-			preparationTimeout = *repo.PreparationTimeout
-		}
-	}
-	if effectiveBranch != nil && *effectiveBranch != "" {
-		sourceBranch = *effectiveBranch
+	repository, err := podCommandRepository(req, resolved, effectiveBranch)
+	if err != nil {
+		return nil, err
 	}
 
 	ticketSlug := ""
@@ -60,23 +44,14 @@ func (o *PodOrchestrator) buildPodCommand(
 		}
 	}
 
-	credentialType, gitToken, sshPrivateKey := "", "", ""
-	if o.userService != nil {
-		gitCred := o.getUserGitCredential(ctx, req.UserID)
-		if gitCred != nil {
-			credentialType = gitCred.Type
-			switch gitCred.Type {
-			case "oauth", "pat":
-				gitToken = gitCred.Token
-			case "ssh_key":
-				sshPrivateKey = gitCred.SSHPrivateKey
-			}
-		}
+	credential, err := o.podCommandGitCredential(ctx, req)
+	if err != nil {
+		return nil, err
 	}
 
 	if localPath != "" {
-		httpCloneURL = ""
-		sshCloneURL = ""
+		repository.httpCloneURL = ""
+		repository.sshCloneURL = ""
 	}
 
 	var runnerAgentVersions map[string]string
@@ -97,21 +72,28 @@ func (o *PodOrchestrator) buildPodCommand(
 	requiredEnvBundleIDs, requiredSkillIDs, requiredConfigDocuments := workerSpecResourceRequirements(
 		req.preparedWorkerSpec,
 	)
+	pinnedEnvBundles, pinnedConfigDocuments, err := workerDependencyRuntimeInputs(
+		req.preResolvedDependencies,
+	)
+	if err != nil {
+		return nil, err
+	}
 
 	buildReq := &agent.ConfigBuildRequest{
 		AgentSlug:                      req.AgentSlug,
 		OrganizationID:                 req.OrganizationID,
 		UserID:                         req.UserID,
 		RepositoryID:                   effectiveRepoID,
-		HttpCloneURL:                   httpCloneURL,
-		SshCloneURL:                    sshCloneURL,
-		SourceBranch:                   sourceBranch,
-		CredentialType:                 credentialType,
-		GitToken:                       gitToken,
-		SSHPrivateKey:                  sshPrivateKey,
+		HttpCloneURL:                   repository.httpCloneURL,
+		SshCloneURL:                    repository.sshCloneURL,
+		SourceBranch:                   repository.sourceBranch,
+		SourceCommitSha:                repository.sourceCommitSha,
+		CredentialType:                 credential.credentialType,
+		GitToken:                       credential.token,
+		SSHPrivateKey:                  credential.sshPrivateKey,
 		TicketSlug:                     ticketSlug,
-		PreparationScript:              preparationScript,
-		PreparationTimeout:             preparationTimeout,
+		PreparationScript:              repository.preparationScript,
+		PreparationTimeout:             repository.preparationTimeout,
 		LocalPath:                      localPath,
 		Prompt:                         resolved.Prompt,
 		PodKey:                         pod.PodKey,
@@ -124,8 +106,16 @@ func (o *PodOrchestrator) buildPodCommand(
 		SessionMcpInstalled:            req.SessionMcpServers,
 		SessionConfigBundles:           req.SessionConfigBundles,
 		RequiredEnvBundleIDs:           requiredEnvBundleIDs,
+		PinnedEnvBundles:               pinnedEnvBundles,
+		PinnedConfigDocuments:          pinnedConfigDocuments,
 		RequiredSkillIDs:               requiredSkillIDs,
+		RequiredSkillPackages:          artifactSkillPackages(req.preResolvedDependencies),
 		RequiredConfigDocumentBindings: requiredConfigDocuments,
+	}
+	if req.preResolvedDependencies != nil {
+		buildReq.RequiredSkillIDs = nil
+		buildReq.RequiredEnvBundleIDs = nil
+		buildReq.RequiredConfigDocumentBindings = nil
 	}
 
 	cmd, err := o.configBuilder.BuildPodCommand(ctx, buildReq)

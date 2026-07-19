@@ -23,6 +23,8 @@ type workerSpecPodRepository interface {
 		*agentpod.Pod,
 		*agentpod.PodConfigRevision,
 		specservice.ResolvedSnapshot,
+		[]byte,
+		string,
 	) error
 }
 
@@ -38,6 +40,10 @@ func (service *PodService) persistPodWithWorkerSpec(
 	if req.ResolvedWorkerSpec == nil {
 		return service.repo.CreateWithConfig(ctx, pod, revision)
 	}
+	if len(req.WorkerDependencyArtifactJSON) == 0 ||
+		req.WorkerDependencyArtifactDigest == "" {
+		return ErrWorkerSpecPersistenceUnavailable
+	}
 	repository, ok := service.repo.(workerSpecPodRepository)
 	if !ok {
 		return ErrWorkerSpecPersistenceUnavailable
@@ -47,5 +53,7 @@ func (service *PodService) persistPodWithWorkerSpec(
 		pod,
 		revision,
 		*req.ResolvedWorkerSpec,
+		req.WorkerDependencyArtifactJSON,
+		req.WorkerDependencyArtifactDigest,
 	)
 }

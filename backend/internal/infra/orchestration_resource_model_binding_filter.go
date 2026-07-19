@@ -17,7 +17,8 @@ func filterModelBindingReferences(
 	if filter.ModelBinding == nil {
 		return query, nil
 	}
-	entityID, err := modelBindingEntityIDExpression(query.Dialector.Name())
+	dialect := query.Name()
+	entityID, err := modelBindingEntityIDExpression(dialect)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +69,7 @@ JOIN provider_connections AS referenced_model_connection
 		)
 	return filterWorkerPrimaryModelCapabilities(
 		filtered,
-		query.Dialector.Name(),
+		dialect,
 	)
 }
 

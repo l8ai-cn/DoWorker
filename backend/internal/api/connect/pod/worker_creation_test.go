@@ -10,6 +10,7 @@ import (
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
+	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 	podv1 "github.com/anthropics/agentsmesh/proto/gen/go/pod/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -143,7 +144,11 @@ func TestListWorkerCreateOptionsMapsServiceResult(t *testing.T) {
 	assert.Equal(t, int64(1), response.Msg.RuntimeImages[0].Id)
 	require.Len(t, response.Msg.ResourceProfiles, 1)
 	assert.Equal(t, uint32(200), response.Msg.ResourceProfiles[0].CpuRequestMillicpu)
-	assert.Equal(t, specservice.Scope{OrgID: 7, UserID: 42}, service.optionsScope)
+	assert.Equal(
+		t,
+		specservice.Scope{OrgID: 7, OrgSlug: slugkit.MustNewForTest("acme"), UserID: 42},
+		service.optionsScope,
+	)
 	assert.Equal(t, workercreation.OptionsFilter{
 		WorkerTypeSlug:  "codex-cli",
 		ComputeTargetID: &targetID,
@@ -184,8 +189,13 @@ func TestPreflightWorkerDecodesDraftAndMapsIssues(t *testing.T) {
 	assert.Equal(t, "blocking", response.Msg.Issues[0].Severity)
 	assert.Equal(t, "warning", response.Msg.Issues[1].Severity)
 	assert.Equal(t, "runtime-catalog-1", response.Msg.OptionsRevision)
-	assert.Equal(t, specservice.Scope{OrgID: 7, UserID: 42}, service.preflightScope)
+	assert.Equal(
+		t,
+		specservice.Scope{OrgID: 7, OrgSlug: slugkit.MustNewForTest("acme"), UserID: 42},
+		service.preflightScope,
+	)
 	assert.Equal(t, int64(101), service.preflightDraft.WorkerSpec.ModelResourceID)
+	assert.Equal(t, "acme", service.preflightDraft.OrganizationSlug.String())
 	assert.Equal(t, []int64{3, 4}, service.preflightDraft.WorkerSpec.Workspace.SkillIDs)
 }
 
@@ -247,8 +257,13 @@ func TestFillWorkerDraftUsesInjectedFiller(t *testing.T) {
 	assert.Equal(t, "warning", response.Msg.Issues[0].Severity)
 	assert.Equal(t, "Build a review worker", filler.prompt)
 	assert.Equal(t, int64(101), filler.generationModelResourceID)
-	assert.Equal(t, specservice.Scope{OrgID: 7, UserID: 42}, filler.scope)
+	assert.Equal(
+		t,
+		specservice.Scope{OrgID: 7, OrgSlug: slugkit.MustNewForTest("acme"), UserID: 42},
+		filler.scope,
+	)
 	require.NotNil(t, filler.current)
+	assert.Equal(t, "acme", filler.current.OrganizationSlug.String())
 }
 
 func completeWorkerDraftProto() *podv1.WorkerSpecDraft {

@@ -8,6 +8,7 @@ import (
 
 	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
 	expertsvc "github.com/anthropics/agentsmesh/backend/internal/service/expert"
+	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 	"github.com/gin-gonic/gin"
 )
 
@@ -29,14 +30,15 @@ type MarketplaceInstallationDeps struct {
 }
 
 type marketplaceInstallRequest struct {
-	InstallationID       string          `json:"installation_id"`
-	PlatformResourceType string          `json:"platform_resource_type"`
-	PlatformResourceID   int64           `json:"platform_resource_id"`
-	SourceReleaseID      int64           `json:"source_release_id"`
-	TargetOrganizationID int64           `json:"target_platform_organization_id"`
-	ActorUserID          int64           `json:"actor_platform_user_id"`
-	RuntimeSnapshot      json.RawMessage `json:"runtime_snapshot"`
-	Configuration        json.RawMessage `json:"configuration"`
+	InstallationID         string          `json:"installation_id"`
+	PlatformResourceType   string          `json:"platform_resource_type"`
+	PlatformResourceID     int64           `json:"platform_resource_id"`
+	SourceReleaseID        int64           `json:"source_release_id"`
+	TargetOrganizationID   int64           `json:"target_platform_organization_id"`
+	TargetOrganizationSlug string          `json:"target_platform_organization_slug"`
+	ActorUserID            int64           `json:"actor_platform_user_id"`
+	RuntimeSnapshot        json.RawMessage `json:"runtime_snapshot"`
+	Configuration          json.RawMessage `json:"configuration"`
 }
 
 type marketplaceAuthorizeRequest struct {
@@ -89,6 +91,10 @@ func RegisterMarketplaceInstallationRoutes(
 		}
 		if c.ShouldBindJSON(&request) != nil ||
 			request.PlatformResourceType != "expert" ||
+			slugkit.ValidateIdentifier(
+				"target_platform_organization_slug",
+				request.TargetOrganizationSlug,
+			) != nil ||
 			json.Unmarshal(request.Configuration, &configuration) != nil ||
 			configuration.ModelResourceID <= 0 {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -101,6 +107,7 @@ func RegisterMarketplaceInstallationRoutes(
 			expertsvc.MarketplaceInstallationRequest{
 				InstallationID:            request.InstallationID,
 				TargetOrganizationID:      request.TargetOrganizationID,
+				TargetOrganizationSlug:    request.TargetOrganizationSlug,
 				ActorUserID:               request.ActorUserID,
 				ModelResourceID:           configuration.ModelResourceID,
 				ToolModelResourceIDs:      configuration.ToolModelResourceIDs,

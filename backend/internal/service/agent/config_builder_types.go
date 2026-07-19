@@ -5,6 +5,7 @@ import (
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agent"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	envbundleservice "github.com/anthropics/agentsmesh/backend/internal/service/envbundle"
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
 
@@ -30,9 +31,10 @@ type ConfigBuildRequest struct {
 	RepositoryID *int64
 
 	// Repository configuration
-	HttpCloneURL string // HTTPS clone URL
-	SshCloneURL  string // SSH clone URL
-	SourceBranch string // Branch to checkout
+	HttpCloneURL    string // HTTPS clone URL
+	SshCloneURL     string // SSH clone URL
+	SourceBranch    string // Branch to checkout
+	SourceCommitSha string // Immutable commit to checkout
 
 	// Git authentication
 	// CredentialType determines how to authenticate:
@@ -78,9 +80,8 @@ type ConfigBuildRequest struct {
 	// here without persisting an EnvBundle row.
 	SessionConfigBundles map[string]interface{}
 
-	// MergedAgentfileSource is the merged AgentFile source (base + user layer, serialized).
-	// Populated by orchestrator's extractFromAgentfileLayer when AgentfileLayer is provided.
-	// When empty (resume mode or no layer): buildFromAgentfile falls back to agent's base AgentFile.
+	// MergedAgentfileSource is the immutable AgentFile source selected by the
+	// WorkerSpec dependency artifact and resolved by the orchestrator.
 	MergedAgentfileSource string
 
 	// KnowledgeMounts are pre-resolved KB mounts (orchestrator merges agent
@@ -88,6 +89,8 @@ type ConfigBuildRequest struct {
 	KnowledgeMounts []*runnerv1.KnowledgeMount
 
 	RequiredEnvBundleIDs           []int64
+	PinnedEnvBundles               []*envbundleservice.EffectiveBundle
+	PinnedConfigDocuments          map[string]interface{}
 	RequiredSkillIDs               []int64
 	RequiredSkillPackages          []workerspec.SkillPackageBinding
 	RequiredConfigDocumentBindings []workerspec.ConfigDocumentBinding

@@ -33,6 +33,7 @@ func TestMarketplaceInstallationRouteClonesExpert(t *testing.T) {
 		  "platform_resource_id":101,
 		  "source_release_id":201,
 		  "target_platform_organization_id":9,
+		  "target_platform_organization_slug":"target-org",
 		  "actor_platform_user_id":14,
 		  "runtime_snapshot":{"market_application_slug":"software-delivery-expert"},
 		  "configuration":{
@@ -51,6 +52,7 @@ func TestMarketplaceInstallationRouteClonesExpert(t *testing.T) {
 	  "result":{"expert_id":"201","already_installed":false}
 	}`, response.Body.String())
 	require.Equal(t, int64(9), installer.request.TargetOrganizationID)
+	require.Equal(t, "target-org", installer.request.TargetOrganizationSlug)
 	require.Equal(t, int64(301), installer.request.ModelResourceID)
 	require.Equal(
 		t,

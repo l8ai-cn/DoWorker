@@ -2,7 +2,7 @@ package workercreation
 
 import (
 	"context"
-	"strings"
+	"fmt"
 	"testing"
 
 	resourcedomain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
@@ -10,7 +10,6 @@ import (
 	runtimedomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	"github.com/anthropics/agentsmesh/backend/internal/service/airesource"
-	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 	"github.com/stretchr/testify/assert"
@@ -26,7 +25,9 @@ func TestPrepareMarketSnapshotRebindsModelAndResolvesInTargetScope(t *testing.T)
 	fixture.resources.resolved.Resource.ID = 202
 	fixture.resources.resolved.Resource.ProviderConnectionID = 201
 	fixture.resources.calls = 0
-	targetScope := specservice.Scope{OrgID: 88, UserID: 9}
+	targetScope := specservice.Scope{
+		OrgID: 88, OrgSlug: slugkit.MustNewForTest("target-org"), UserID: 9,
+	}
 
 	snapshot, err := service.PrepareMarketSnapshot(
 		context.Background(),
@@ -87,7 +88,9 @@ func TestPrepareMarketSnapshotRebindsRequiredToolModels(t *testing.T) {
 
 	snapshot, err := service.PrepareMarketSnapshot(
 		context.Background(),
-		specservice.Scope{OrgID: 88, UserID: 9},
+		specservice.Scope{
+			OrgID: 88, OrgSlug: slugkit.MustNewForTest("target-org"), UserID: 9,
+		},
 		source,
 		202,
 		map[string]int64{"seedance-video": 302},
@@ -116,7 +119,9 @@ func TestPrepareMarketSnapshotPreservesCustomResources(t *testing.T) {
 
 	snapshot, err := service.PrepareMarketSnapshot(
 		context.Background(),
-		specservice.Scope{OrgID: 88, UserID: 9},
+		specservice.Scope{
+			OrgID: 88, OrgSlug: slugkit.MustNewForTest("target-org"), UserID: 9,
+		},
 		source,
 		202,
 		nil,
@@ -193,7 +198,9 @@ func TestPrepareMarketSnapshotRejectsPrivateReferences(t *testing.T) {
 
 			_, err := service.PrepareMarketSnapshot(
 				context.Background(),
-				specservice.Scope{OrgID: 88, UserID: 9},
+				specservice.Scope{
+					OrgID: 88, OrgSlug: slugkit.MustNewForTest("target-org"), UserID: 9,
+				},
 				source,
 				202,
 				nil,
@@ -215,7 +222,9 @@ func TestPrepareMarketSnapshotRejectsInvalidModelResourceID(t *testing.T) {
 
 	_, err := service.PrepareMarketSnapshot(
 		context.Background(),
-		specservice.Scope{OrgID: 88, UserID: 9},
+		specservice.Scope{
+			OrgID: 88, OrgSlug: slugkit.MustNewForTest("target-org"), UserID: 9,
+		},
 		source,
 		0,
 		nil,
@@ -251,7 +260,9 @@ func TestPrepareMarketSnapshotRejectsNonPlatformOrUnavailableSkill(t *testing.T)
 
 			_, err := service.PrepareMarketSnapshot(
 				context.Background(),
-				specservice.Scope{OrgID: 88, UserID: 9},
+				specservice.Scope{
+					OrgID: 88, OrgSlug: slugkit.MustNewForTest("target-org"), UserID: 9,
+				},
 				source,
 				202,
 				nil,
@@ -290,29 +301,18 @@ EXECUTABLE video-studio-codex
 MODE pty
 MODE acp
 ENV SIGNING_KEY SECRET OPTIONAL
+ENV SEEDANCE_API_KEY SECRET OPTIONAL
+ENV SEEDANCE_BASE_URL TEXT OPTIONAL
+ENV SEEDANCE_MODEL TEXT OPTIONAL
 `
-	definition := workerDefinition(
+	definition := toolModelWorkerDefinition(
 		"video-studio",
 		"video-studio-codex",
 		source,
+		[]map[string]any{seedanceToolModelRequirementDocument()},
 		"pty",
 		"acp",
 	)
-	definition.DefinitionHash = strings.Repeat("b", 64)
-	definition.Image = workerdefinition.Image{
-		Runtime: "video-studio", VersionProbe: []string{"video-studio-codex", "--version"},
-	}
-	definition.ToolModelRequirements = []workerdefinition.ToolModelRequirement{
-		{
-			ID: "seedance-video", ProviderKeys: []string{"doubao"},
-			ProtocolAdapters: []string{"openai-compatible"},
-			Modality:         "video", Capability: "video-generation",
-			Environment: workerdefinition.ToolModelEnvironment{
-				APIKey: "SEEDANCE_API_KEY", BaseURL: "SEEDANCE_BASE_URL",
-				ModelID: "SEEDANCE_MODEL",
-			},
-		},
-	}
 	resources := validModelResourceService()
 	resources.resolvedByID = map[int64]*airesource.ResolvedResource{
 		101: marketResolvedResource(101, "openai", "gpt-5"),
@@ -334,20 +334,49 @@ ENV SIGNING_KEY SECRET OPTIONAL
 	}
 }
 
+func seedanceToolModelRequirementDocument() map[string]any {
+	return map[string]any{
+		"id":                "seedance-video",
+		"provider_keys":     []string{"doubao"},
+		"protocol_adapters": []string{"openai-compatible"},
+		"modality":          "video",
+		"capability":        "video-generation",
+		"environment": map[string]any{
+			"api_key":  "SEEDANCE_API_KEY",
+			"base_url": "SEEDANCE_BASE_URL",
+			"model_id": "SEEDANCE_MODEL",
+		},
+	}
+}
+
 func marketResolvedResource(
 	id int64,
 	provider, modelID string,
 ) *airesource.ResolvedResource {
 	providerSlug := slugkit.MustNewForTest(provider)
+	modality := resourcedomain.ModalityChat
+	capability := resourcedomain.CapabilityTextGeneration
+	baseURL := "https://api.openai.com/v1"
+	if provider == "doubao" {
+		modality = resourcedomain.ModalityVideo
+		capability = resourcedomain.CapabilityVideoGeneration
+		baseURL = "https://ark.cn-beijing.volces.com/api/v3"
+	}
 	return &airesource.ResolvedResource{
 		Provider: resourcedomain.ProviderDefinition{
 			Key: providerSlug, ProtocolAdapter: "openai-compatible",
 		},
 		Connection: resourcedomain.Connection{
 			ID: id + 1000, ProviderKey: providerSlug, Revision: 1,
+			BaseURL: baseURL,
 		},
 		Resource: resourcedomain.ModelResource{
-			ID: id, ProviderConnectionID: id + 1000, ModelID: modelID, Revision: 1,
+			ID: id, ProviderConnectionID: id + 1000,
+			Identifier:   slugkit.MustNewForTest(fmt.Sprintf("model-%d", id)),
+			ModelID:      modelID,
+			Revision:     1,
+			Modalities:   []resourcedomain.Modality{modality},
+			Capabilities: []resourcedomain.Capability{capability},
 		},
 	}
 }

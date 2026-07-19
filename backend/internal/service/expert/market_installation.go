@@ -70,6 +70,7 @@ func (s *Service) installPublishedMarketRelease(
 	snapshot, workerSnapshotID, err := s.prepareMarketInstallation(
 		ctx,
 		req.OrganizationID,
+		req.OrganizationSlug,
 		req.UserID,
 		req.ModelResourceID,
 		req.ToolModelResourceIDs,

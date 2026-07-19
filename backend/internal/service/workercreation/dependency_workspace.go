@@ -1,6 +1,7 @@
 package workercreation
 
 import (
+	"context"
 	"fmt"
 
 	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
@@ -18,13 +19,14 @@ type workspaceDependencies struct {
 }
 
 func buildWorkspaceDependencies(
+	ctx context.Context,
 	scope control.Scope,
 	refs ArtifactReferences,
 	spec workerspec.Spec,
 	definition workerdefinition.Definition,
 	workspace *workspaceResolver,
 ) (workspaceDependencies, error) {
-	repository, err := buildRepositoryResolution(scope, refs, spec, workspace)
+	repository, err := buildRepositoryResolution(ctx, scope, refs, spec, workspace)
 	if err != nil {
 		return workspaceDependencies{}, err
 	}
@@ -32,7 +34,7 @@ func buildWorkspaceDependencies(
 	if err != nil {
 		return workspaceDependencies{}, err
 	}
-	knowledge, err := buildKnowledgeResolutions(scope, refs, spec, workspace)
+	knowledge, err := buildKnowledgeResolutions(ctx, scope, refs, spec, workspace)
 	if err != nil {
 		return workspaceDependencies{}, err
 	}

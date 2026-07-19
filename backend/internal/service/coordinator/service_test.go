@@ -29,6 +29,11 @@ func newTestService(t *testing.T, platform TaskPlatform) (*Service, *fakeStore, 
 	return svc, store, tickets
 }
 
+func testCoordinatorSnapshotID() *int64 {
+	id := int64(101)
+	return &id
+}
+
 func TestRunProjectClaimsAndDispatches(t *testing.T) {
 	platform := &fakePlatform{
 		tasks: []ExternalTask{
@@ -42,6 +47,7 @@ func TestRunProjectClaimsAndDispatches(t *testing.T) {
 	project := &coordinatordom.Project{
 		ID: 7, OrganizationID: 1, RepositoryID: 3, PlatformType: coordinatordom.PlatformTypeCNB,
 		LabelFilter: []string{"bug"}, MaxConcurrent: 5, AgentSlug: "do-agent",
+		WorkerSpecSnapshotID: testCoordinatorSnapshotID(),
 	}
 
 	res, err := svc.RunProject(context.Background(), project)
@@ -68,7 +74,7 @@ func TestRunProjectIsIdempotent(t *testing.T) {
 		claim: ClaimResult{Claimed: true, Marker: "m"},
 	}
 	svc, store, _ := newTestService(t, platform)
-	project := &coordinatordom.Project{ID: 1, OrganizationID: 1, RepositoryID: 1, PlatformType: coordinatordom.PlatformTypeCNB, MaxConcurrent: 5}
+	project := &coordinatordom.Project{ID: 1, OrganizationID: 1, RepositoryID: 1, PlatformType: coordinatordom.PlatformTypeCNB, MaxConcurrent: 5, WorkerSpecSnapshotID: testCoordinatorSnapshotID()}
 
 	if _, err := svc.RunProject(context.Background(), project); err != nil {
 		t.Fatalf("first run: %v", err)
@@ -90,7 +96,7 @@ func TestRunProjectRespectsBudget(t *testing.T) {
 		claim: ClaimResult{Claimed: true, Marker: "m"},
 	}
 	svc, store, _ := newTestService(t, platform)
-	project := &coordinatordom.Project{ID: 1, OrganizationID: 1, RepositoryID: 1, PlatformType: coordinatordom.PlatformTypeCNB, MaxConcurrent: 1}
+	project := &coordinatordom.Project{ID: 1, OrganizationID: 1, RepositoryID: 1, PlatformType: coordinatordom.PlatformTypeCNB, MaxConcurrent: 1, WorkerSpecSnapshotID: testCoordinatorSnapshotID()}
 
 	res, err := svc.RunProject(context.Background(), project)
 	if err != nil {
@@ -124,6 +130,7 @@ func TestRunProjectDoesNotDispatchWhenClaimedExecutionPersistenceFails(t *testin
 	project := &coordinatordom.Project{
 		ID: 1, OrganizationID: 1, RepositoryID: 1,
 		PlatformType: coordinatordom.PlatformTypeCNB, MaxConcurrent: 5,
+		WorkerSpecSnapshotID: testCoordinatorSnapshotID(),
 	}
 
 	result, err := svc.RunProject(context.Background(), project)
@@ -166,6 +173,7 @@ func TestRunProjectTerminatesPodWhenExecutionAttachmentFails(t *testing.T) {
 	project := &coordinatordom.Project{
 		ID: 1, OrganizationID: 1, RepositoryID: 1,
 		PlatformType: coordinatordom.PlatformTypeCNB, MaxConcurrent: 5,
+		WorkerSpecSnapshotID: testCoordinatorSnapshotID(),
 	}
 
 	result, err := svc.RunProject(context.Background(), project)
@@ -212,6 +220,7 @@ func TestRunProjectReportsTicketCompensationFailure(t *testing.T) {
 	project := &coordinatordom.Project{
 		ID: 1, OrganizationID: 1, RepositoryID: 1,
 		PlatformType: coordinatordom.PlatformTypeCNB, MaxConcurrent: 5,
+		WorkerSpecSnapshotID: testCoordinatorSnapshotID(),
 	}
 
 	result, err := svc.RunProject(context.Background(), project)
@@ -231,7 +240,7 @@ func TestHandlePodTerminatedPostsFeedback(t *testing.T) {
 		claim: ClaimResult{Claimed: true, Marker: "m"},
 	}
 	svc, store, tickets := newTestService(t, platform)
-	project := &coordinatordom.Project{ID: 1, OrganizationID: 1, RepositoryID: 1, PlatformType: coordinatordom.PlatformTypeCNB, MaxConcurrent: 5}
+	project := &coordinatordom.Project{ID: 1, OrganizationID: 1, RepositoryID: 1, PlatformType: coordinatordom.PlatformTypeCNB, MaxConcurrent: 5, WorkerSpecSnapshotID: testCoordinatorSnapshotID()}
 	_ = store.CreateProject(context.Background(), project)
 	if _, err := svc.RunProject(context.Background(), project); err != nil {
 		t.Fatalf("RunProject: %v", err)
@@ -257,7 +266,7 @@ func TestHandlePodTerminatedIsIdempotent(t *testing.T) {
 		claim: ClaimResult{Claimed: true, Marker: "m"},
 	}
 	svc, store, _ := newTestService(t, platform)
-	project := &coordinatordom.Project{ID: 1, OrganizationID: 1, RepositoryID: 1, PlatformType: coordinatordom.PlatformTypeCNB, MaxConcurrent: 5}
+	project := &coordinatordom.Project{ID: 1, OrganizationID: 1, RepositoryID: 1, PlatformType: coordinatordom.PlatformTypeCNB, MaxConcurrent: 5, WorkerSpecSnapshotID: testCoordinatorSnapshotID()}
 	_ = store.CreateProject(context.Background(), project)
 	if _, err := svc.RunProject(context.Background(), project); err != nil {
 		t.Fatalf("RunProject: %v", err)

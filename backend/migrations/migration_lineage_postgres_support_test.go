@@ -17,7 +17,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const latestMigrationVersion = 228
+const latestMigrationVersion = 231
 
 //go:embed testdata/legacy_000209/*.sql
 var legacy000209Fixtures embed.FS
@@ -46,7 +46,7 @@ func newMigrationLineageSchema(t *testing.T) string {
 	})
 
 	query := parsed.Query()
-	query.Set("search_path", schema)
+	query.Set("search_path", schema+",public")
 	parsed.RawQuery = query.Encode()
 	return parsed.String()
 }

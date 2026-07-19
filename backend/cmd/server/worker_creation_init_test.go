@@ -30,6 +30,10 @@ func TestInitializeWorkerServicesValidatesDefinitionCatalog(t *testing.T) {
 		)
 
 		require.NoError(t, err)
-		assert.Len(t, services.workerDefinitions.Slugs(), 13)
+		assert.ElementsMatch(t, []string{
+			"aider", "claude-code", "codex-cli", "cursor-cli", "do-agent",
+			"gemini-cli", "grok-build", "hermes", "loopal", "minimax-cli",
+			"openclaw", "opencode", "pattern-designer", "seedance-expert",
+		}, services.workerDefinitions.Slugs())
 	})
 }

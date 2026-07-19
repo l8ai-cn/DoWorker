@@ -9,8 +9,9 @@ import (
 )
 
 type Scope struct {
-	OrgID  int64
-	UserID int64
+	OrgID   int64
+	OrgSlug slugkit.Slug
+	UserID  int64
 }
 
 type RuntimeSelection struct {

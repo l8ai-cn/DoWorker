@@ -2,7 +2,6 @@ package workercreation
 
 import (
 	"context"
-	"strings"
 	"testing"
 
 	runtimedomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
@@ -40,7 +39,7 @@ func TestServicePreflightResolvesAndCompilesCompleteWorkerSpec(t *testing.T) {
 		SkillID:     3,
 		Slug:        "code-review",
 		Version:     2,
-		ContentSHA:  "sha-code-review",
+		ContentSHA:  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
 		StorageKey:  "skills/code-review.tar.gz",
 		PackageSize: 128,
 	}}, result.Resolved.Spec.Workspace.SkillPackages)
@@ -145,10 +144,7 @@ func TestServiceValidateWorkerTypeSnapshotRejectsDefinitionDrift(t *testing.T) {
 	require.NoError(t, err)
 	source := *fixture.agents.agent.AgentfileSource + "MCP ON\n"
 	fixture.agents.agent.AgentfileSource = &source
-	definition := fixture.definitions["codex-cli"]
-	definition.AgentFile = source
-	definition.DefinitionHash = strings.Repeat("b", 64)
-	fixture.definitions["codex-cli"] = definition
+	fixture.definitions["codex-cli"] = workerDefinition("codex-cli", "codex", source, "pty", "acp")
 
 	err = service.ValidateWorkerTypeSnapshot(
 		context.Background(),
@@ -192,12 +188,14 @@ func (fixture *workerCreationServiceFixture) deps() Deps {
 		Skills:       fixture.workspace.skills,
 		Knowledge:    fixture.workspace.knowledge,
 		EnvBundles:   fixture.workspace.envBundles,
+		Commits:      fixture.workspace.commits,
 	}
 }
 
 func validWorkerCreationDraft() Draft {
 	return Draft{
-		OptionsRevision: runtimedomain.DefaultCatalogRevision(),
+		OptionsRevision:  runtimedomain.DefaultCatalogRevision(),
+		OrganizationSlug: slugkit.MustNewForTest("dev-org"),
 		WorkerSpec: specservice.Draft{
 			ModelResourceID: 101,
 			WorkerTypeSlug:  slugkit.MustNewForTest("codex-cli"),

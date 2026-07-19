@@ -7,7 +7,6 @@ import (
 
 	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 )
 
 func (o *PodOrchestrator) inheritWorkerSpecSnapshot(
@@ -39,18 +38,16 @@ func (o *PodOrchestrator) inheritWorkerSpecSnapshot(
 		!sourceMatchesWorkerSpec(source, spec) {
 		return ErrWorkerSpecSnapshotMismatch
 	}
-	if o.workerCreation == nil {
-		return ErrWorkerCreationUnavailable
+	if o.workerDependencies == nil {
+		return ErrWorkerSpecDependencyUnavailable
 	}
-	if err := o.workerCreation.ValidateWorkerTypeSnapshot(
+	artifact, err := o.loadSnapshotDependencyArtifact(
 		ctx,
-		specservice.Scope{
-			OrgID:  source.OrganizationID,
-			UserID: req.UserID,
-		},
-		spec.Runtime.WorkerType,
-	); err != nil {
-		return errors.Join(ErrWorkerSpecDefinitionChanged, err)
+		source.OrganizationID,
+		snapshot,
+	)
+	if err != nil {
+		return err
 	}
 	if source.ActiveConfigRevision == nil ||
 		source.ActiveConfigRevisionID == nil ||
@@ -67,6 +64,7 @@ func (o *PodOrchestrator) inheritWorkerSpecSnapshot(
 	)
 	req.workerSpecSnapshotID = workerSpecInt64Pointer(snapshotID)
 	req.preparedWorkerSpec = &spec
+	req.preResolvedDependencies = &artifact
 	return nil
 }
 

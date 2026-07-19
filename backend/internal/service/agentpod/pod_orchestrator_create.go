@@ -29,6 +29,7 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 	sessionID := creation.sessionID
 	isResumeMode := creation.isResumeMode
 	agentDef := creation.agentDef
+	artifactRuntime := req.preResolvedDependencies != nil
 
 	if err := o.applyWorkerModel(ctx, req, agentDef); err != nil {
 		return nil, err
@@ -50,16 +51,13 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 		req.AutomationLevel = podDomain.NormalizeAutomationLevel(req.AutomationLevel)
 	} else {
 		req.AutomationLevel = podDomain.NormalizeAutomationLevel(req.AutomationLevel)
-		// An explicitly requested MODE (pty/acp) is authoritative: the automation
-		// adapter must not force a different mode over it, otherwise CLI/PTY
-		// workers are unreachable under the default autonomous level. The
-		// adapter's CONFIG overrides still apply, so an autonomous PTY worker
-		// stays non-interactive via the agent's native CLI flags.
-		canForceMode := agentDef != nil &&
-			agentDef.SupportsMode(podDomain.InteractionModeACP) &&
-			!agentfileLayerHasModeDecl(req.AgentfileLayer)
-		if lines := automation.LayerLinesFor(req.AgentSlug, req.AutomationLevel, canForceMode); lines != "" {
-			appendAgentfileLayer(&req.AgentfileLayer, lines)
+		if !artifactRuntime {
+			canForceMode := agentDef != nil &&
+				agentDef.SupportsMode(podDomain.InteractionModeACP) &&
+				!agentfileLayerHasModeDecl(req.AgentfileLayer)
+			if lines := automation.LayerLinesFor(req.AgentSlug, req.AutomationLevel, canForceMode); lines != "" {
+				appendAgentfileLayer(&req.AgentfileLayer, lines)
+			}
 		}
 	}
 
@@ -74,7 +72,7 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 
 	if agentDef != nil && agentDef.AgentfileSource != nil {
 		var userPrefs map[string]interface{}
-		if o.userConfigQuery != nil {
+		if !artifactRuntime && o.userConfigQuery != nil {
 			userPrefs = o.userConfigQuery.GetUserConfigPrefs(ctx, req.UserID, req.AgentSlug)
 		}
 		if isResumeMode {
@@ -82,7 +80,9 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 		}
 
 		layerSrc := ""
-		if req.AgentfileLayer != nil {
+		if artifactRuntime {
+			layerSrc = workerSpecStringValue(req.runtimeAgentfileLayer)
+		} else if req.AgentfileLayer != nil {
 			layerSrc = *req.AgentfileLayer
 		}
 
@@ -101,7 +101,7 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 		if result.Branch != "" {
 			resolved.BranchName = result.Branch
 		}
-		if result.RepoSlug != "" {
+		if result.RepoSlug != "" && !artifactRuntime {
 			if err := o.resolveAgentfileRepository(ctx, req, resolved, result.RepoSlug); err != nil {
 				return nil, err
 			}

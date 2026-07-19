@@ -20,7 +20,7 @@ func TestMarketInstallIsIdempotentAndCreatesConsumerSnapshot(t *testing.T) {
 	first, existing, err := fixture.service.InstallPublishedMarketApplication(
 		ctx,
 		InstallMarketApplicationRequest{
-			OrganizationID:  42,
+			OrganizationID: 42, OrganizationSlug: "target-org",
 			UserID:          501,
 			ModelResourceID: 301,
 			MarketSlug:      string(published.Application.Slug),
@@ -42,7 +42,7 @@ func TestMarketInstallIsIdempotentAndCreatesConsumerSnapshot(t *testing.T) {
 	second, existing, err := fixture.service.InstallPublishedMarketApplication(
 		ctx,
 		InstallMarketApplicationRequest{
-			OrganizationID:  42,
+			OrganizationID: 42, OrganizationSlug: "target-org",
 			UserID:          501,
 			ModelResourceID: 301,
 			MarketSlug:      string(published.Application.Slug),
@@ -62,7 +62,7 @@ func TestMarketInstallRaceRemovesUnusedConsumerSnapshot(t *testing.T) {
 	first, _, err := fixture.service.InstallPublishedMarketApplication(
 		ctx,
 		InstallMarketApplicationRequest{
-			OrganizationID:  42,
+			OrganizationID: 42, OrganizationSlug: "target-org",
 			UserID:          501,
 			ModelResourceID: 301,
 			MarketSlug:      string(published.Application.Slug),
@@ -74,7 +74,7 @@ func TestMarketInstallRaceRemovesUnusedConsumerSnapshot(t *testing.T) {
 	second, existing, err := fixture.service.InstallPublishedMarketApplication(
 		ctx,
 		InstallMarketApplicationRequest{
-			OrganizationID:  42,
+			OrganizationID: 42, OrganizationSlug: "target-org",
 			UserID:          501,
 			ModelResourceID: 301,
 			MarketSlug:      string(published.Application.Slug),
@@ -107,7 +107,7 @@ func TestMarketInstallSerializesGitBackedConcurrentRequests(t *testing.T) {
 			row, existing, err := fixture.service.InstallPublishedMarketApplication(
 				ctx,
 				InstallMarketApplicationRequest{
-					OrganizationID:  42,
+					OrganizationID: 42, OrganizationSlug: "target-org",
 					UserID:          501,
 					ModelResourceID: 301,
 					MarketSlug:      string(published.Application.Slug),
@@ -173,7 +173,7 @@ func TestMarketInstallRejectsInvalidPublishedExpertSnapshot(t *testing.T) {
 			_, _, err = fixture.service.InstallPublishedMarketApplication(
 				context.Background(),
 				InstallMarketApplicationRequest{
-					OrganizationID:  42,
+					OrganizationID: 42, OrganizationSlug: "target-org",
 					UserID:          501,
 					ModelResourceID: 301,
 					MarketSlug:      string(published.Application.Slug),
@@ -195,7 +195,7 @@ func TestMarketInstallUsesApprovedSkillPackagesAfterCatalogDrift(t *testing.T) {
 	installed, _, err := fixture.service.InstallPublishedMarketApplication(
 		context.Background(),
 		InstallMarketApplicationRequest{
-			OrganizationID:  42,
+			OrganizationID: 42, OrganizationSlug: "target-org",
 			UserID:          501,
 			ModelResourceID: 301,
 			MarketSlug:      string(published.Application.Slug),
@@ -217,7 +217,7 @@ func TestMarketUpgradeIsExplicitAndPreservesConsumerFields(t *testing.T) {
 	installed, _, err := fixture.service.InstallPublishedMarketApplication(
 		ctx,
 		InstallMarketApplicationRequest{
-			OrganizationID:  42,
+			OrganizationID: 42, OrganizationSlug: "target-org",
 			UserID:          501,
 			ModelResourceID: 301,
 			MarketSlug:      string(v1.Application.Slug),
@@ -267,10 +267,9 @@ func TestMarketUpgradeIsExplicitAndPreservesConsumerFields(t *testing.T) {
 
 	upgraded, changed, err := fixture.service.UpgradeMarketApplication(
 		ctx,
-		UpgradeMarketApplicationRequest{
-			OrganizationID: 42,
-			UserID:         501,
-			ExpertID:       installed.ID,
+		UpgradeMarketApplicationRequest{OrganizationID: 42, OrganizationSlug: "target-org",
+			UserID:   501,
+			ExpertID: installed.ID,
 		},
 	)
 	require.NoError(t, err)
@@ -285,10 +284,9 @@ func TestMarketUpgradeIsExplicitAndPreservesConsumerFields(t *testing.T) {
 
 	unchanged, changed, err := fixture.service.UpgradeMarketApplication(
 		ctx,
-		UpgradeMarketApplicationRequest{
-			OrganizationID: 42,
-			UserID:         501,
-			ExpertID:       installed.ID,
+		UpgradeMarketApplicationRequest{OrganizationID: 42, OrganizationSlug: "target-org",
+			UserID:   501,
+			ExpertID: installed.ID,
 		},
 	)
 	require.NoError(t, err)
@@ -304,7 +302,7 @@ func TestMarketUpgradeFailureRemovesUnusedConsumerSnapshot(t *testing.T) {
 	installed, _, err := fixture.service.InstallPublishedMarketApplication(
 		ctx,
 		InstallMarketApplicationRequest{
-			OrganizationID:  42,
+			OrganizationID: 42, OrganizationSlug: "target-org",
 			UserID:          501,
 			ModelResourceID: 301,
 			MarketSlug:      string(v1.Application.Slug),
@@ -331,10 +329,9 @@ func TestMarketUpgradeFailureRemovesUnusedConsumerSnapshot(t *testing.T) {
 
 	_, _, err = fixture.service.UpgradeMarketApplication(
 		ctx,
-		UpgradeMarketApplicationRequest{
-			OrganizationID: 42,
-			UserID:         501,
-			ExpertID:       installed.ID,
+		UpgradeMarketApplicationRequest{OrganizationID: 42, OrganizationSlug: "target-org",
+			UserID:   501,
+			ExpertID: installed.ID,
 		},
 	)
 	require.EqualError(t, err, "update failed")

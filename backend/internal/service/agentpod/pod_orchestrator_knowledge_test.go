@@ -10,6 +10,7 @@ import (
 
 	kbDomain "github.com/anthropics/agentsmesh/backend/internal/domain/knowledgebase"
 	kbservice "github.com/anthropics/agentsmesh/backend/internal/service/knowledgebase"
+	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
 
 type mockKnowledgeResolver struct {
@@ -70,23 +71,21 @@ func TestCreatePod_KnowledgeMountsFromLayerAndRequest(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	require.Equal(t, []kbservice.MountRequest{
-		{KBSlug: "team-docs", Mode: "rw"},
-		{KBSlug: "product-wiki", Mode: "ro"},
-	}, resolver.lastRequested, "Agentfile declarations first, request selections last")
+	require.Nil(t, resolver.lastRequested)
 
 	require.NotNil(t, coord.lastCmd)
 	require.NotNil(t, coord.lastCmd.SandboxConfig)
 	mounts := coord.lastCmd.SandboxConfig.KnowledgeMounts
 	require.Len(t, mounts, 2)
-	assert.Equal(t, "team-docs", mounts[0].Slug)
-	assert.Equal(t, "rw", mounts[0].Mode)
-	assert.Equal(t, "kb/team-docs", mounts[0].MountPath)
-	assert.Equal(t, "http://gitea.local/am-kb/team-docs.git", mounts[0].HttpCloneUrl)
-	assert.Equal(t, "ssh://git@gitea.local/am-kb/team-docs.git", mounts[0].SshCloneUrl)
-	assert.Equal(t, "gitea.local ssh-ed25519 host-key", mounts[0].GitKnownHosts)
-	assert.Equal(t, "main", mounts[0].Branch)
-	assert.Equal(t, "rw-private-key", mounts[0].GitPrivateKey)
+	teamDocs := knowledgeMountBySlugForTest(t, mounts, "team-docs")
+	assert.Equal(t, "rw", teamDocs.Mode)
+	assert.Equal(t, "kb/team-docs", teamDocs.MountPath)
+	assert.Equal(t, "https://git.example.com/kb/team-docs.git", teamDocs.HttpCloneUrl)
+	assert.Empty(t, teamDocs.SshCloneUrl)
+	assert.Empty(t, teamDocs.GitKnownHosts)
+	assert.Equal(t, "main", teamDocs.Branch)
+	assert.Equal(t, strings.Repeat("e", 40), teamDocs.CommitSha)
+	assert.Empty(t, teamDocs.GitPrivateKey)
 
 	var readme string
 	for _, f := range coord.lastCmd.FilesToCreate {
@@ -100,7 +99,22 @@ func TestCreatePod_KnowledgeMountsFromLayerAndRequest(t *testing.T) {
 	assert.Contains(t, readme, "llms.txt")
 }
 
-func TestCreatePod_KnowledgeDeclaredButFeatureDisabled(t *testing.T) {
+func knowledgeMountBySlugForTest(
+	t *testing.T,
+	mounts []*runnerv1.KnowledgeMount,
+	slug string,
+) *runnerv1.KnowledgeMount {
+	t.Helper()
+	for _, mount := range mounts {
+		if mount.Slug == slug {
+			return mount
+		}
+	}
+	require.Failf(t, "missing knowledge mount", slug)
+	return nil
+}
+
+func TestCreatePod_KnowledgeDeclaredUsesArtifactPins(t *testing.T) {
 	coord := &mockPodCoordinator{}
 	orch, _, _ := setupOrchestrator(t, withCoordinator(coord))
 
@@ -112,8 +126,9 @@ func TestCreatePod_KnowledgeDeclaredButFeatureDisabled(t *testing.T) {
 		ModelResourceID: testModelResourceID(),
 		AgentfileLayer:  ptrStr("KNOWLEDGE team-docs"),
 	})
-	require.Error(t, err)
-	assert.ErrorIs(t, err, ErrConfigBuildFailed)
+	require.NoError(t, err)
+	require.NotNil(t, coord.lastCmd.SandboxConfig)
+	assert.Len(t, coord.lastCmd.SandboxConfig.KnowledgeMounts, 1)
 }
 
 func TestCreatePod_NoKnowledgeMounts(t *testing.T) {
