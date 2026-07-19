@@ -177,5 +177,5 @@ func resourceManagedPromptOverride(
 	if requestOverride != nil {
 		return requestOverride, nil
 	}
-	return expert.Prompt, nil
+	return nil, nil
 }

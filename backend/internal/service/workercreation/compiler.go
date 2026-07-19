@@ -55,6 +55,7 @@ func (compiler *compiler) Compile(
 	}
 	program := &parser.Program{
 		Declarations: compileDeclarations(normalized, references),
+		Statements:   compileStatements(normalized.Workspace),
 	}
 	layer := serialize.Serialize(program)
 	if _, parseErrors := parser.Parse(layer); len(parseErrors) > 0 {
@@ -116,19 +117,25 @@ func compileDeclarations(
 			&parser.UseConfigBundleDecl{Name: documentID},
 		)
 	}
-	if prompt := compilePrompt(spec.Workspace); prompt != "" {
-		declarations = append(declarations, &parser.PromptDecl{Content: prompt})
+	if task := strings.TrimSpace(spec.Workspace.InitialTask); task != "" {
+		declarations = append(declarations, &parser.PromptDecl{Content: task})
 	}
 	return declarations
 }
 
-func compilePrompt(workspace specdomain.Workspace) string {
-	parts := make([]string, 0, 2)
+func compileStatements(workspace specdomain.Workspace) []parser.Statement {
 	if instructions := strings.TrimSpace(workspace.Instructions); instructions != "" {
-		parts = append(parts, instructions)
+		return []parser.Statement{&parser.FileStmt{
+			Path: &parser.BinaryExpr{
+				Left: &parser.DotExpr{
+					Left:  &parser.Ident{Name: "sandbox"},
+					Field: "work_dir",
+				},
+				Op:    "+",
+				Right: &parser.StringLit{Value: "/AGENTS.md"},
+			},
+			Content: &parser.StringLit{Value: instructions},
+		}}
 	}
-	if task := strings.TrimSpace(workspace.InitialTask); task != "" {
-		parts = append(parts, task)
-	}
-	return strings.Join(parts, "\n\n")
+	return nil
 }

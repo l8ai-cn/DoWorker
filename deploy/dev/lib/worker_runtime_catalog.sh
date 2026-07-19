@@ -8,6 +8,7 @@ local_worker_runner_services() {
     while IFS= read -r worker_type; do
         case "$worker_type" in
             codex-cli|pattern-designer) service="runner-codex-cli" ;;
+            video-studio) service="runner-video-studio" ;;
             gemini-cli) service="runner-gemini-cli" ;;
             minimax-cli) service="runner-minimax-cli" ;;
             openclaw) service="runner-openclaw" ;;
@@ -37,6 +38,7 @@ prepare_local_worker_runtime_catalog() {
     node "$repo_root/scripts/generate-local-worker-runtime-catalog.mjs" \
         --output "$output" \
         --runtime "codex-cli=${COMPOSE_PROJECT_NAME}-runner-codex-cli:latest" \
+        --runtime "video-studio=${COMPOSE_PROJECT_NAME}-runner-video-studio:latest" \
         --runtime "gemini-cli=${COMPOSE_PROJECT_NAME}-runner-gemini-cli:latest" \
         --runtime "minimax-cli=${COMPOSE_PROJECT_NAME}-runner-minimax-cli:latest" \
         --runtime "openclaw=${COMPOSE_PROJECT_NAME}-runner-openclaw:latest" \

@@ -3,6 +3,7 @@ import test from "node:test";
 import { buildLocalRuntimeCatalog } from "./generate-local-worker-runtime-catalog.mjs";
 
 const codexDigest = "sha256:e66f3e1990dd7828a9ee8dfc3685a155df55e3ff243a39eaaf6971925c7bee35";
+const videoDigest = "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd";
 const geminiDigest = "sha256:c24d6da11c46954cd617b21ff33581f9821dc07a8506378c7ac7e305c4ad7cab";
 const minimaxDigest = "sha256:1111111111111111111111111111111111111111111111111111111111111111";
 const openclawDigest = "sha256:2222222222222222222222222222222222222222222222222222222222222222";
@@ -66,12 +67,13 @@ test("supports every formal Worker runtime in the local catalog", () => {
   const runtimeImages = [
     "aider", "claude-code", "codex-cli", "cursor-cli", "do-agent", "gemini-cli",
     "e2e-echo", "grok-build", "hermes", "loopal", "minimax-cli", "openclaw",
-    "opencode",
+    "opencode", "video-studio",
   ].map((slug) => [slug, `agentsmesh-main-runner-${slug}:latest`]);
   const digests = {
     "agentsmesh-main-runner-aider:latest": aiderDigest,
     "agentsmesh-main-runner-claude-code:latest": claudeDigest,
     "agentsmesh-main-runner-codex-cli:latest": codexDigest,
+    "agentsmesh-main-runner-video-studio:latest": videoDigest,
     "agentsmesh-main-runner-cursor-cli:latest": cursorDigest,
     "agentsmesh-main-runner-do-agent:latest": doAgentDigest,
     "agentsmesh-main-runner-e2e-echo:latest": e2eEchoDigest,
@@ -94,7 +96,7 @@ test("supports every formal Worker runtime in the local catalog", () => {
     [
       "aider", "claude-code", "codex-cli", "cursor-cli", "do-agent", "e2e-echo",
       "gemini-cli", "grok-build", "hermes", "loopal", "minimax-cli", "openclaw",
-      "opencode", "pattern-designer", "seedance-expert",
+      "opencode", "pattern-designer", "seedance-expert", "video-studio",
     ],
   );
   assert.match(catalog.revision, /^local-dev-[a-f0-9]{64}$/);

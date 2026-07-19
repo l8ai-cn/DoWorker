@@ -278,6 +278,7 @@ BEGIN
         ('dev-runner-claude', 'Development Docker Runner (Claude Code)'),
         ('dev-runner-codex', 'Development Docker Runner (Codex CLI)'),
         ('dev-runner-codex-2', 'Development Docker Runner (Codex CLI #2)'),
+        ('dev-runner-video-studio', 'Development Docker Runner (Video Studio)'),
         ('dev-runner-cursor', 'Development Docker Runner (Cursor CLI)'),
         ('dev-runner-gemini', 'Development Docker Runner (Gemini CLI)'),
         ('dev-runner-loopal', 'Development Docker Runner (Loopal)'),

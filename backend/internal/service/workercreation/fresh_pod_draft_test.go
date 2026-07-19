@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/anthropics/agentsmesh/backend/internal/domain/envbundle"
 	runtimedomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
@@ -88,6 +89,83 @@ func TestNewFreshPodDraftRejectsInvalidAutomationLevel(t *testing.T) {
 	assert.Equal(t, "automation_level", specservice.InvalidDraftField(err))
 }
 
+func TestNewFreshPodDraftDefaultsIdleLifecycleTimeout(t *testing.T) {
+	service := NewService(newWorkerCreationServiceFixture().deps())
+
+	draft, err := service.NewFreshPodDraft(
+		context.Background(),
+		validFreshScope(),
+		validFreshPodDraftInput(),
+	)
+
+	require.NoError(t, err)
+	assert.Equal(t, specdomain.TerminationPolicyOnIdle, draft.WorkerSpec.Lifecycle.TerminationPolicy)
+	assert.Equal(t, uint32(30), draft.WorkerSpec.Lifecycle.IdleTimeoutMinutes)
+}
+
+func TestNewFreshPodDraftInitializesSecretRefsForWorkerWithoutCredentials(t *testing.T) {
+	fixture := newWorkerCreationServiceFixture()
+	source := "AGENT codex\nEXECUTABLE codex\nMODE pty\nMODE acp\n"
+	fixture.agents.agent = activeWorkerTypeAgent(source)
+	fixture.definitions["codex-cli"] = noModelWorkerDefinition(
+		"codex-cli",
+		"codex",
+		source,
+		"pty",
+		"acp",
+	)
+	service := NewService(fixture.deps())
+
+	draft, err := service.NewFreshPodDraft(
+		context.Background(),
+		validFreshScope(),
+		validFreshPodDraftInput(),
+	)
+
+	require.NoError(t, err)
+	require.NotNil(t, draft.WorkerSpec.TypeConfig.SecretRefs)
+	assert.Empty(t, draft.WorkerSpec.TypeConfig.SecretRefs)
+
+	prepared, err := service.Prepare(context.Background(), validFreshScope(), draft)
+
+	require.NoError(t, err)
+	require.NotNil(t, prepared.Spec.TypeConfig.SecretRefs)
+	assert.Empty(t, prepared.Spec.TypeConfig.SecretRefs)
+}
+
+func TestNewFreshPodDraftBindsRequiredCredentialBundleSecrets(t *testing.T) {
+	fixture := freshCredentialBundleFixture()
+	service := NewService(fixture.deps())
+
+	draft, err := service.NewFreshPodDraft(
+		context.Background(),
+		validFreshScope(),
+		validFreshPodDraftInput(),
+	)
+
+	require.NoError(t, err)
+	ref := draft.WorkerSpec.TypeConfig.SecretRefs["SIGNING_KEY"]
+	assert.Equal(t, int64(8), ref.ID)
+	assert.Equal(t, "env-bundle", ref.Kind.String())
+}
+
+func TestNewFreshPodDraftRejectsMissingRequiredCredentialBundle(t *testing.T) {
+	fixture := freshCredentialBundleFixture()
+	delete(fixture.workspace.envBundles.rows, 8)
+	service := NewService(fixture.deps())
+
+	_, err := service.NewFreshPodDraft(
+		context.Background(),
+		validFreshScope(),
+		validFreshPodDraftInput(),
+	)
+
+	require.Error(t, err)
+	assert.ErrorIs(t, err, specservice.ErrInvalidDraft)
+	assert.Equal(t, "SIGNING_KEY", specservice.InvalidDraftField(err))
+	assert.ErrorContains(t, err, `credential bundle "codex-cli" is required`)
+}
+
 func validFreshScope() specservice.Scope {
 	return specservice.Scope{OrgID: 77, UserID: 7}
 }
@@ -106,6 +184,30 @@ func validFreshPodDraftInput() FreshPodDraftInput {
 		},
 		AutomationLevel: specdomain.AutomationLevelAutonomous,
 	}
+}
+
+func freshCredentialBundleFixture() *workerCreationServiceFixture {
+	fixture := newWorkerCreationServiceFixture()
+	source := `AGENT codex
+EXECUTABLE codex
+ENV SIGNING_KEY SECRET
+`
+	fixture.agents.agent.AgentfileSource = &source
+	fixture.definitions["codex-cli"] = workerDefinition(
+		"codex-cli",
+		"codex",
+		source,
+		"pty",
+		"acp",
+	)
+	agentSlug := "codex-cli"
+	fixture.workspace.envBundles.rows[8] = &envbundle.EnvBundle{
+		ID: 8, OwnerScope: envbundle.OwnerScopeUser, OwnerID: 7,
+		AgentSlug: &agentSlug, Name: "codex-cli",
+		Kind: envbundle.KindCredential, IsActive: true,
+		Data: envbundle.BundleData{"SIGNING_KEY": "encrypted-value"},
+	}
+	return fixture
 }
 
 func disabledCodexRuntimeCatalog(t *testing.T) runtimedomain.Catalog {

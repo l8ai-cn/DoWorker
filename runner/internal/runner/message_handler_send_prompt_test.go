@@ -137,6 +137,100 @@ func TestOnSendPrompt_PTY_PressesEnterViaSendKeys(t *testing.T) {
 	}
 }
 
+func TestOnSendPrompt_PTY_AdaptsVideoStudioPrompt(t *testing.T) {
+	base := &sendPromptMockIO{mode: InteractionModePTY}
+	io := &ptyTerminalMock{sendPromptMockIO: base}
+	pod := &Pod{
+		PodKey:          "video-pod",
+		Agent:           "video-studio-codex",
+		InteractionMode: InteractionModePTY,
+		IO:              io,
+	}
+
+	store := NewInMemoryPodStore()
+	store.Put(pod.PodKey, pod)
+	h := &RunnerMessageHandler{podStore: store}
+
+	prompt := "请生成视频\n输出 MP4"
+	if err := h.OnSendPrompt(&runnerv1.SendPromptCommand{PodKey: pod.PodKey, Prompt: prompt}); err != nil {
+		t.Fatalf("OnSendPrompt error: %v", err)
+	}
+
+	base.mu.Lock()
+	defer base.mu.Unlock()
+	if len(base.inputs) != 1 {
+		t.Fatalf("expected 1 SendInput for the body; got %d: %v", len(base.inputs), base.inputs)
+	}
+	want := "\x1b[200~请生成视频\n输出 MP4\x1b[201~"
+	if base.inputs[0].payload != want {
+		t.Fatalf("body payload = %q, want %q", base.inputs[0].payload, want)
+	}
+	if len(base.keys) != 1 || base.keys[0].payload != "enter" {
+		t.Fatalf("expected one SendKeys([\"enter\"]); got %v", base.keys)
+	}
+}
+
+func TestOnSendPrompt_PTY_SubmitsVideoStudioWhenReadyDetectorStaysExecuting(t *testing.T) {
+	oldTimeout := ptyPromptReadyTimeout
+	ptyPromptReadyTimeout = 10 * time.Millisecond
+	defer func() { ptyPromptReadyTimeout = oldTimeout }()
+
+	base := &sendPromptMockIO{mode: InteractionModePTY, agentStatus: "executing"}
+	io := &ptyTerminalMock{sendPromptMockIO: base}
+	pod := &Pod{
+		PodKey:          "video-pod",
+		Agent:           "video-studio-codex",
+		InteractionMode: InteractionModePTY,
+		IO:              io,
+	}
+
+	store := NewInMemoryPodStore()
+	store.Put(pod.PodKey, pod)
+	h := &RunnerMessageHandler{podStore: store}
+
+	if err := h.OnSendPrompt(&runnerv1.SendPromptCommand{PodKey: pod.PodKey, Prompt: "brief"}); err != nil {
+		t.Fatalf("OnSendPrompt error: %v", err)
+	}
+
+	base.mu.Lock()
+	defer base.mu.Unlock()
+	if len(base.inputs) != 1 || base.inputs[0].payload != "\x1b[200~brief\x1b[201~" {
+		t.Fatalf("prompt input = %v, want bracketed paste despite stale executing state", base.inputs)
+	}
+	if len(base.keys) != 1 || base.keys[0].payload != "enter" {
+		t.Fatalf("submit keys = %v, want one enter key", base.keys)
+	}
+}
+
+func TestOnSendPrompt_PTY_DoesNotSubmitGenericAgentWhenNotReady(t *testing.T) {
+	oldTimeout := ptyPromptReadyTimeout
+	ptyPromptReadyTimeout = 10 * time.Millisecond
+	defer func() { ptyPromptReadyTimeout = oldTimeout }()
+
+	base := &sendPromptMockIO{mode: InteractionModePTY, agentStatus: "executing"}
+	io := &ptyTerminalMock{sendPromptMockIO: base}
+	pod := &Pod{
+		PodKey:          "generic-pod",
+		Agent:           "generic-agent",
+		InteractionMode: InteractionModePTY,
+		IO:              io,
+	}
+
+	store := NewInMemoryPodStore()
+	store.Put(pod.PodKey, pod)
+	h := &RunnerMessageHandler{podStore: store}
+
+	if err := h.OnSendPrompt(&runnerv1.SendPromptCommand{PodKey: pod.PodKey, Prompt: "brief"}); err == nil {
+		t.Fatal("expected stale non-Codex PTY prompt to fail")
+	}
+
+	base.mu.Lock()
+	defer base.mu.Unlock()
+	if len(base.inputs) != 0 || len(base.keys) != 0 {
+		t.Fatalf("generic agent must not receive input while not ready; inputs=%v keys=%v", base.inputs, base.keys)
+	}
+}
+
 func TestOnSendPrompt_PTY_GapBetweenBodyAndEnter(t *testing.T) {
 	base := &sendPromptMockIO{mode: InteractionModePTY}
 	io := &ptyTerminalMock{sendPromptMockIO: base}

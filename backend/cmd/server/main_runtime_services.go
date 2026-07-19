@@ -77,6 +77,7 @@ func createPodOrchestrator(
 		WorkerCreation:     services.workerCreation,
 		WorkerSpecs:        services.workerSpecs,
 		WorkerDependencies: services.workerDependencies,
+		SessionProvisioner: services.agentSessions,
 	})
 	slog.Info("PodOrchestrator created")
 	return orchestrator

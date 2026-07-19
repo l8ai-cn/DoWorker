@@ -67,6 +67,10 @@ func (service *Service) NewFreshPodDraft(
 	if err != nil {
 		return Draft{}, err
 	}
+	secretRefs, err := service.freshPodSecretRefs(ctx, scope, workerType, resolution.TypeSchema)
+	if err != nil {
+		return Draft{}, err
+	}
 	return Draft{
 		OptionsRevision:  service.revision,
 		OrganizationSlug: namespace,
@@ -77,6 +81,7 @@ func (service *Service) NewFreshPodDraft(
 			TypeConfig: specdomain.TypeConfig{
 				SchemaVersion:   resolution.TypeSchema.Version,
 				Values:          layer.config,
+				SecretRefs:      secretRefs,
 				InteractionMode: layer.interactionMode,
 				AutomationLevel: input.AutomationLevel,
 			},
@@ -143,7 +148,8 @@ func freshPodLifecycle(perpetual bool) specdomain.Lifecycle {
 		}
 	}
 	return specdomain.Lifecycle{
-		TerminationPolicy: specdomain.TerminationPolicyOnIdle,
+		TerminationPolicy:  specdomain.TerminationPolicyOnIdle,
+		IdleTimeoutMinutes: 30,
 	}
 }
 

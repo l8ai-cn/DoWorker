@@ -8,6 +8,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/infra/email"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agent"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	agentsessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
 	"github.com/anthropics/agentsmesh/backend/internal/service/billing"
 	"github.com/anthropics/agentsmesh/backend/internal/service/binding"
 	"github.com/anthropics/agentsmesh/backend/internal/service/channel"
@@ -47,6 +48,7 @@ func initializeWorkspaceServices(services *serviceContainer, cfg *config.Config,
 
 	services.podRepo = infra.NewPodRepository(db)
 	services.pod = agentpod.NewPodService(services.podRepo)
+	services.agentSessions = agentsessionsvc.NewService(db)
 	services.autopilotRepo = infra.NewAutopilotRepository(db)
 	services.autopilot = agentpod.NewAutopilotControllerService(services.autopilotRepo)
 	services.channel = channel.NewService(infra.NewChannelRepository(db))

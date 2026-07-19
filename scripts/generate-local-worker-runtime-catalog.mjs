@@ -11,6 +11,11 @@ const localRuntimeMetadata = {
     name: "Codex CLI (local development)",
     workerTypeSlugs: ["codex-cli", "pattern-designer"],
   },
+  "video-studio": {
+    id: 14,
+    slug: "video-studio-local",
+    name: "Video Studio (local development)",
+  },
   "gemini-cli": {
     id: 2,
     slug: "gemini-cli-local",

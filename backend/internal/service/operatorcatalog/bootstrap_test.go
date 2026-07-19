@@ -3,17 +3,13 @@ package operatorcatalog
 import (
 	"context"
 	"errors"
-	"strings"
 	"testing"
 
 	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/expertmarket"
 	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	expertsvc "github.com/anthropics/agentsmesh/backend/internal/service/expert"
 	skillsvc "github.com/anthropics/agentsmesh/backend/internal/service/skill"
-	"github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 	"github.com/lib/pq"
 	"github.com/stretchr/testify/require"
@@ -24,13 +20,15 @@ func TestBootstrapVideoExpertsIsIdempotent(t *testing.T) {
 	experts := newBootstrapExpertStore()
 	workers := &bootstrapWorkerPreparer{}
 	snapshots := &bootstrapSnapshotStore{}
-	bootstrapper := NewBootstrapper(skills, experts, workers, snapshots)
+	artifacts := &bootstrapDependencyArtifactStore{}
+	bootstrapper := NewBootstrapper(skills, experts, workers, snapshots, artifacts)
 	request := BootstrapRequest{
-		OrganizationID:  7,
-		PublisherUserID: 11,
-		ReviewerUserID:  13,
-		ModelResourceID: 17,
-		RuntimeImageID:  19,
+		OrganizationID:   7,
+		OrganizationSlug: slugkit.MustNewForTest("dev-org"),
+		PublisherUserID:  11,
+		ReviewerUserID:   13,
+		ModelResourceID:  17,
+		RuntimeImageID:   19,
 	}
 
 	first, err := bootstrapper.Run(context.Background(), request)
@@ -45,12 +43,55 @@ func TestBootstrapVideoExpertsIsIdempotent(t *testing.T) {
 	require.Len(t, experts.published, 3)
 	require.Equal(t, 3, workers.calls)
 	require.Equal(t, 3, snapshots.createCalls)
+	require.Equal(t, 3, artifacts.createCalls)
 
 	second, err := bootstrapper.Run(context.Background(), request)
 	require.NoError(t, err)
 	require.Equal(t, BootstrapResult{}, second)
 	require.Equal(t, 3, workers.calls)
 	require.Equal(t, 3, snapshots.createCalls)
+	require.Equal(t, 3, artifacts.createCalls)
+}
+
+func TestBootstrapVideoExpertsRebuildsLegacyPromptArtifact(t *testing.T) {
+	skills := &bootstrapSkillStore{}
+	experts := newBootstrapExpertStore()
+	workers := &bootstrapWorkerPreparer{}
+	snapshots := newBootstrapSnapshotStore()
+	artifacts := &bootstrapDependencyArtifactStore{}
+	bootstrapper := NewBootstrapper(skills, experts, workers, snapshots, artifacts)
+	request := BootstrapRequest{
+		OrganizationID:   7,
+		OrganizationSlug: slugkit.MustNewForTest("dev-org"),
+		PublisherUserID:  11,
+		ReviewerUserID:   13,
+		ModelResourceID:  17,
+		RuntimeImageID:   19,
+	}
+	_, err := bootstrapper.Run(context.Background(), request)
+	require.NoError(t, err)
+	expert := experts.experts["video-production-expert"]
+	require.NotNil(t, expert.WorkerSpecSnapshotID)
+	legacySnapshotID := *expert.WorkerSpecSnapshotID
+	artifacts.rows[legacySnapshotID] = bootstrapArtifactDocument(
+		legacyArtifactAgentfile(),
+	)
+
+	result, err := bootstrapper.Run(context.Background(), request)
+	require.NoError(t, err)
+
+	require.Equal(t, BootstrapResult{}, result)
+	require.NotEqual(t, legacySnapshotID, *expert.WorkerSpecSnapshotID)
+	require.Equal(t, int64(4), *expert.WorkerSpecSnapshotID)
+	require.Equal(t, 4, workers.calls)
+	require.Equal(t, 4, snapshots.createCalls)
+	require.Equal(t, 4, artifacts.createCalls)
+	require.True(
+		t,
+		artifactMatchesInstructionContract(
+			artifacts.rows[*expert.WorkerSpecSnapshotID],
+		),
+	)
 }
 
 func TestBootstrapVideoExpertsRejectsExistingExpertDrift(t *testing.T) {
@@ -65,14 +106,16 @@ func TestBootstrapVideoExpertsRejectsExistingExpertDrift(t *testing.T) {
 		experts,
 		&bootstrapWorkerPreparer{},
 		&bootstrapSnapshotStore{},
+		&bootstrapDependencyArtifactStore{},
 	)
 
 	_, err := bootstrapper.Run(context.Background(), BootstrapRequest{
-		OrganizationID:  7,
-		PublisherUserID: 11,
-		ReviewerUserID:  13,
-		ModelResourceID: 17,
-		RuntimeImageID:  19,
+		OrganizationID:   7,
+		OrganizationSlug: slugkit.MustNewForTest("dev-org"),
+		PublisherUserID:  11,
+		ReviewerUserID:   13,
+		ModelResourceID:  17,
+		RuntimeImageID:   19,
 	})
 
 	require.ErrorIs(t, err, ErrCatalogConflict)
@@ -94,9 +137,11 @@ func TestBootstrapVideoExpertsRejectsChangedRuntimeBindings(t *testing.T) {
 				newBootstrapExpertStore(),
 				&bootstrapWorkerPreparer{},
 				newBootstrapSnapshotStore(),
+				&bootstrapDependencyArtifactStore{},
 			)
 			request := BootstrapRequest{
-				OrganizationID: 7, PublisherUserID: 11, ReviewerUserID: 13,
+				OrganizationID: 7, OrganizationSlug: slugkit.MustNewForTest("dev-org"),
+				PublisherUserID: 11, ReviewerUserID: 13,
 				ModelResourceID: 17, RuntimeImageID: 19,
 			}
 			_, err := bootstrapper.Run(context.Background(), request)
@@ -116,15 +161,17 @@ func TestBootstrapVideoExpertsRejectsTypedNilDependency(t *testing.T) {
 		newBootstrapExpertStore(),
 		&bootstrapWorkerPreparer{},
 		&bootstrapSnapshotStore{},
+		&bootstrapDependencyArtifactStore{},
 	)
 
 	require.NotPanics(t, func() {
 		_, err := bootstrapper.Run(context.Background(), BootstrapRequest{
-			OrganizationID:  7,
-			PublisherUserID: 11,
-			ReviewerUserID:  13,
-			ModelResourceID: 17,
-			RuntimeImageID:  19,
+			OrganizationID:   7,
+			OrganizationSlug: slugkit.MustNewForTest("dev-org"),
+			PublisherUserID:  11,
+			ReviewerUserID:   13,
+			ModelResourceID:  17,
+			RuntimeImageID:   19,
 		})
 		require.EqualError(t, err, "operator catalog dependencies are incomplete")
 	})
@@ -159,107 +206,6 @@ func (store *bootstrapSkillStore) EnsurePlatformSkill(
 	}
 	store.rows[request.Slug] = row
 	return row, true, nil
-}
-
-type bootstrapWorkerPreparer struct {
-	calls int
-}
-
-func (preparer *bootstrapWorkerPreparer) Revision() string {
-	return "test-revision"
-}
-
-func (preparer *bootstrapWorkerPreparer) Prepare(
-	_ context.Context,
-	scope specservice.Scope,
-	draft workercreation.Draft,
-) (workercreation.Prepared, error) {
-	preparer.calls++
-	spec := specdomain.NewV1(
-		specdomain.Runtime{
-			ModelBinding: specdomain.ModelBinding{
-				ResourceID:       draft.WorkerSpec.ModelResourceID,
-				ResourceRevision: 1,
-				ConnectionID:     1, ConnectionRevision: 1,
-				ProviderKey:     slugkit.MustNewForTest("openai"),
-				ProtocolAdapter: slugkit.MustNewForTest("openai-compatible"),
-				ModelID:         "gpt-5",
-			},
-			WorkerType: specdomain.WorkerType{
-				Slug:           draft.WorkerSpec.WorkerTypeSlug,
-				DefinitionHash: strings.Repeat("a", 64),
-			},
-			Image: specdomain.RuntimeImage{
-				ID:     draft.WorkerSpec.Runtime.RuntimeImageID,
-				Digest: "sha256:" + strings.Repeat("b", 64),
-			},
-		},
-		specdomain.Placement{
-			Policy: draft.WorkerSpec.Runtime.PlacementPolicy,
-			ComputeTarget: specdomain.ComputeTarget{
-				ID:   draft.WorkerSpec.Runtime.ComputeTargetID,
-				Kind: specdomain.ComputeTargetKindRunnerPool,
-			},
-			DeploymentMode: draft.WorkerSpec.Runtime.DeploymentMode,
-			ResourceProfile: specdomain.ResourceProfile{
-				ID: draft.WorkerSpec.Runtime.ResourceProfileID,
-				Resources: specdomain.ResourceRequestsLimits{
-					CPURequestMilliCPU: 200, CPULimitMilliCPU: 1000,
-					MemoryRequestBytes: 256 << 20, MemoryLimitBytes: 1 << 30,
-				},
-			},
-		},
-		draft.WorkerSpec.TypeConfig,
-		draft.WorkerSpec.Workspace,
-		draft.WorkerSpec.Lifecycle,
-		draft.WorkerSpec.Metadata,
-	)
-	resolved, err := specservice.NewResolvedSnapshot(scope.OrgID, spec)
-	return workercreation.Prepared{Snapshot: resolved, Spec: spec}, err
-}
-
-type bootstrapSnapshotStore struct {
-	createCalls int
-	rows        map[int64]specdomain.Snapshot
-}
-
-func newBootstrapSnapshotStore() *bootstrapSnapshotStore {
-	return &bootstrapSnapshotStore{rows: map[int64]specdomain.Snapshot{}}
-}
-
-func (store *bootstrapSnapshotStore) Create(
-	_ context.Context,
-	resolved specservice.ResolvedSnapshot,
-) (specdomain.Snapshot, error) {
-	store.createCalls++
-	spec, err := specdomain.DecodeSpec(resolved.SpecJSON())
-	if err != nil {
-		return specdomain.Snapshot{}, err
-	}
-	row := specdomain.Snapshot{
-		ID: int64(store.createCalls), OrganizationID: resolved.OrganizationID(),
-		Spec: spec,
-	}
-	if store.rows == nil {
-		store.rows = map[int64]specdomain.Snapshot{}
-	}
-	store.rows[row.ID] = row
-	return row, nil
-}
-
-func (store *bootstrapSnapshotStore) GetByID(
-	_ context.Context,
-	organizationID, id int64,
-) (specdomain.Snapshot, error) {
-	row, ok := store.rows[id]
-	if !ok || row.OrganizationID != organizationID {
-		return specdomain.Snapshot{}, specdomain.ErrNotFound
-	}
-	return row, nil
-}
-
-func (*bootstrapSnapshotStore) Delete(context.Context, int64, int64) error {
-	return nil
 }
 
 type bootstrapExpertStore struct {
@@ -312,6 +258,22 @@ func (store *bootstrapExpertStore) Create(
 	}
 	store.experts[row.Slug] = row
 	return row, nil
+}
+
+func (store *bootstrapExpertStore) RebindWorkerSpecSnapshot(
+	_ context.Context,
+	_ int64,
+	expertID int64,
+	snapshotID int64,
+) (*expertdom.Expert, error) {
+	for _, row := range store.experts {
+		if row.ID != expertID {
+			continue
+		}
+		row.WorkerSpecSnapshotID = &snapshotID
+		return row, nil
+	}
+	return nil, expertdom.ErrNotFound
 }
 
 func (store *bootstrapExpertStore) SubmitMarketApplication(

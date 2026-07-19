@@ -2,11 +2,17 @@ package operatorcatalog
 
 import (
 	"context"
+	"errors"
 	"slices"
+	"strings"
 
 	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
 	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
+	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
 	specdom "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
+	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	"gorm.io/gorm"
 )
 
 func (bootstrapper *Bootstrapper) validateExpertSnapshot(
@@ -47,5 +53,54 @@ func (bootstrapper *Bootstrapper) validateExpertSnapshot(
 		!slices.Equal(spec.Workspace.SkillIDs, expectedSkillIDs) {
 		return ErrCatalogConflict
 	}
-	return nil
+	artifact, err := bootstrapper.artifacts.GetBySnapshotID(
+		ctx,
+		request.OrganizationID,
+		snapshot.ID,
+	)
+	artifactFound := err == nil
+	if artifactFound && artifactMatchesInstructionContract(artifact) {
+		return nil
+	}
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
+	workerType, err := slugkit.NewFromTrusted("video-studio")
+	if err != nil {
+		return err
+	}
+	prepared, err := bootstrapper.workers.Prepare(
+		ctx,
+		specservice.Scope{
+			OrgID:   request.OrganizationID,
+			OrgSlug: request.OrganizationSlug,
+			UserID:  request.PublisherUserID,
+		},
+		workerDraft(
+			bootstrapper.workers.Revision(),
+			request,
+			definition,
+			expectedSkillIDs,
+			workerType,
+		),
+	)
+	if err != nil {
+		return err
+	}
+	if artifactFound {
+		return bootstrapper.rebuildExpertSnapshot(
+			ctx,
+			request,
+			expert,
+			prepared,
+		)
+	}
+	return bootstrapper.createSnapshotArtifact(ctx, request, snapshot.ID, prepared)
+}
+
+func artifactMatchesInstructionContract(document workerdependency.Document) bool {
+	source := strings.TrimSpace(document.Worker.AgentfileSource)
+	return source != "" &&
+		!strings.Contains("\n"+source+"\n", "\nPROMPT ") &&
+		strings.Contains(source, `"/AGENTS.md"`)
 }

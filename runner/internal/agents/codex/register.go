@@ -25,6 +25,7 @@ func init() {
 	agentkit.RegisterInputAdapter("codex-cli", adapter)
 	agentkit.RegisterInputAdapter("pattern-designer", adapter)
 	agentkit.RegisterInputAdapter("video-studio", adapter)
+	agentkit.RegisterInputAdapter("video-studio-codex", adapter)
 
 	agentkit.RegisterAgentHome(agentkit.AgentHomeSpec{
 		EnvVar:      "CODEX_HOME",

@@ -84,8 +84,9 @@ func (bootstrapper *Bootstrapper) createExpert(
 	prepared, err := bootstrapper.workers.Prepare(
 		ctx,
 		specservice.Scope{
-			OrgID:  request.OrganizationID,
-			UserID: request.PublisherUserID,
+			OrgID:   request.OrganizationID,
+			OrgSlug: request.OrganizationSlug,
+			UserID:  request.PublisherUserID,
 		},
 		workerDraft(
 			bootstrapper.workers.Revision(),
@@ -101,6 +102,14 @@ func (bootstrapper *Bootstrapper) createExpert(
 	snapshot, err := bootstrapper.snapshots.Create(ctx, prepared.Snapshot)
 	if err != nil {
 		return nil, err
+	}
+	if err := bootstrapper.createSnapshotArtifact(ctx, request, snapshot.ID, prepared); err != nil {
+		cleanupErr := bootstrapper.snapshots.Delete(
+			context.WithoutCancel(ctx),
+			request.OrganizationID,
+			snapshot.ID,
+		)
+		return nil, errors.Join(err, cleanupErr)
 	}
 	description := definition.Description
 	prompt := definition.Prompt
@@ -121,12 +130,17 @@ func (bootstrapper *Bootstrapper) createExpert(
 	if err == nil {
 		return expert, nil
 	}
+	artifactCleanupErr := bootstrapper.artifacts.Delete(
+		context.WithoutCancel(ctx),
+		request.OrganizationID,
+		snapshot.ID,
+	)
 	cleanupErr := bootstrapper.snapshots.Delete(
 		context.WithoutCancel(ctx),
 		request.OrganizationID,
 		snapshot.ID,
 	)
-	return nil, errors.Join(err, cleanupErr)
+	return nil, errors.Join(err, artifactCleanupErr, cleanupErr)
 }
 
 func workerDraft(
@@ -137,7 +151,8 @@ func workerDraft(
 	workerType slugkit.Slug,
 ) workercreation.Draft {
 	return workercreation.Draft{
-		OptionsRevision: revision,
+		OptionsRevision:  revision,
+		OrganizationSlug: request.OrganizationSlug,
 		WorkerSpec: specservice.Draft{
 			ModelResourceID: request.ModelResourceID,
 			WorkerTypeSlug:  workerType,

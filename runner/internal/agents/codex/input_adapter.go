@@ -4,6 +4,11 @@ import "strings"
 
 type codexInputAdapter struct{}
 
+const (
+	bracketedPasteStart = "\x1b[200~"
+	bracketedPasteEnd   = "\x1b[201~"
+)
+
 func (a *codexInputAdapter) Adapt(data []byte) []byte {
 	if len(data) == 0 {
 		return data
@@ -12,21 +17,17 @@ func (a *codexInputAdapter) Adapt(data []byte) []byte {
 	endsWithEnter := data[len(data)-1] == '\r' || data[len(data)-1] == '\n'
 
 	s := string(data)
-	s = strings.ReplaceAll(s, "\r\n", " ")
-	s = strings.ReplaceAll(s, "\n", " ")
-	s = strings.ReplaceAll(s, "\r", " ")
-	s = strings.TrimSpace(s)
-
-	if s == "" {
-		if endsWithEnter {
-			return []byte("\r")
-		}
-		return data
+	if strings.HasSuffix(s, "\r\n") {
+		s = strings.TrimSuffix(s, "\r\n")
+	} else if strings.HasSuffix(s, "\r") || strings.HasSuffix(s, "\n") {
+		s = s[:len(s)-1]
 	}
+	s = strings.ReplaceAll(s, "\r\n", "\n")
+	s = strings.ReplaceAll(s, "\r", "\n")
 
+	adapted := []byte(bracketedPasteStart + s + bracketedPasteEnd)
 	if endsWithEnter {
-		return append([]byte(s), '\r')
+		adapted = append(adapted, '\r')
 	}
-
-	return []byte(s)
+	return adapted
 }

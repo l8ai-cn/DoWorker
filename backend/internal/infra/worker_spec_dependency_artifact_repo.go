@@ -19,6 +19,38 @@ func NewWorkerSpecDependencyArtifactRepository(
 	return &workerSpecDependencyArtifactRepo{db: db}
 }
 
+func (repo *workerSpecDependencyArtifactRepo) Create(
+	ctx context.Context,
+	organizationID int64,
+	snapshotID int64,
+	artifactJSON []byte,
+	artifactDigest string,
+) error {
+	if repo == nil || repo.db == nil {
+		return gorm.ErrInvalidData
+	}
+	return createWorkerSpecDependencyArtifact(
+		repo.db.WithContext(ctx),
+		organizationID,
+		snapshotID,
+		artifactJSON,
+		artifactDigest,
+	)
+}
+
+func (repo *workerSpecDependencyArtifactRepo) Delete(
+	ctx context.Context,
+	organizationID int64,
+	snapshotID int64,
+) error {
+	if repo == nil || repo.db == nil || organizationID <= 0 || snapshotID <= 0 {
+		return gorm.ErrInvalidData
+	}
+	return repo.db.WithContext(ctx).
+		Where("organization_id = ? AND worker_spec_snapshot_id = ?", organizationID, snapshotID).
+		Delete(&workerSpecDependencyArtifactRecord{}).Error
+}
+
 func (repo *workerSpecDependencyArtifactRepo) GetBySnapshotID(
 	ctx context.Context,
 	organizationID int64,

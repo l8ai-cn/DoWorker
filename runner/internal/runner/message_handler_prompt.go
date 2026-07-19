@@ -13,11 +13,13 @@ import (
 )
 
 const (
-	ptyPromptReadyTimeout = 30 * time.Second
-	ptySubmitGap          = 80 * time.Millisecond
+	ptySubmitGap = 80 * time.Millisecond
 )
 
-var ptyPromptWaitSequence atomic.Uint64
+var (
+	ptyPromptReadyTimeout = 30 * time.Second
+	ptyPromptWaitSequence atomic.Uint64
+)
 
 func (h *RunnerMessageHandler) OnSendPrompt(cmd *runnerv1.SendPromptCommand) error {
 	log := logger.Pod()
@@ -67,9 +69,12 @@ func (h *RunnerMessageHandler) OnSendPrompt(cmd *runnerv1.SendPromptCommand) err
 
 func sendPTYPromptWhenReady(pod *Pod, prompt string) (bool, error) {
 	if err := waitForPTYPromptReady(pod); err != nil {
-		return true, err
+		if !canSubmitPTYPromptAfterReadyTimeout(pod.Agent) {
+			return true, err
+		}
 	}
-	if err := pod.IO.SendInput(prompt); err != nil {
+	adapted := adaptTerminalInput([]byte(prompt), pod.Agent)
+	if err := pod.IO.SendInput(string(adapted)); err != nil {
 		return true, err
 	}
 	if terminal, ok := pod.IO.(TerminalAccess); ok {
@@ -77,6 +82,15 @@ func sendPTYPromptWhenReady(pod *Pod, prompt string) (bool, error) {
 		return false, terminal.SendKeys([]string{"enter"})
 	}
 	return false, nil
+}
+
+func canSubmitPTYPromptAfterReadyTimeout(agent string) bool {
+	switch agent {
+	case "codex", "codex-cli", "pattern-designer", "video-studio", "video-studio-codex":
+		return true
+	default:
+		return false
+	}
 }
 
 func waitForPTYPromptReady(pod *Pod) error {

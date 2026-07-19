@@ -14,6 +14,7 @@ import (
 	skillsvc "github.com/anthropics/agentsmesh/backend/internal/service/skill"
 	"github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
+	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 )
 
 var ErrCatalogConflict = errors.New("operator catalog conflicts with existing data")
@@ -28,6 +29,12 @@ type SkillEnsurer interface {
 type ExpertPublisher interface {
 	GetBySlug(context.Context, int64, string) (*expertdom.Expert, error)
 	Create(context.Context, *expertsvc.CreateExpertRequest) (*expertdom.Expert, error)
+	RebindWorkerSpecSnapshot(
+		context.Context,
+		int64,
+		int64,
+		int64,
+	) (*expertdom.Expert, error)
 	SubmitMarketApplication(
 		context.Context,
 		expertsvc.SubmitMarketApplicationRequest,
@@ -71,14 +78,16 @@ type Bootstrapper struct {
 	experts   ExpertPublisher
 	workers   WorkerPreparer
 	snapshots SnapshotStore
+	artifacts DependencyArtifactStore
 }
 
 type BootstrapRequest struct {
-	OrganizationID  int64
-	PublisherUserID int64
-	ReviewerUserID  int64
-	ModelResourceID int64
-	RuntimeImageID  int64
+	OrganizationID   int64
+	OrganizationSlug slugkit.Slug
+	PublisherUserID  int64
+	ReviewerUserID   int64
+	ModelResourceID  int64
+	RuntimeImageID   int64
 }
 
 type BootstrapResult struct {
@@ -92,9 +101,11 @@ func NewBootstrapper(
 	experts ExpertPublisher,
 	workers WorkerPreparer,
 	snapshots SnapshotStore,
+	artifacts DependencyArtifactStore,
 ) *Bootstrapper {
 	return &Bootstrapper{
 		skills: skills, experts: experts, workers: workers, snapshots: snapshots,
+		artifacts: artifacts,
 	}
 }
 
@@ -149,10 +160,13 @@ func (bootstrapper *Bootstrapper) validate(request BootstrapRequest) error {
 		dependencyMissing(bootstrapper.skills) ||
 		dependencyMissing(bootstrapper.experts) ||
 		dependencyMissing(bootstrapper.workers) ||
-		dependencyMissing(bootstrapper.snapshots) {
+		dependencyMissing(bootstrapper.snapshots) ||
+		dependencyMissing(bootstrapper.artifacts) {
 		return errors.New("operator catalog dependencies are incomplete")
 	}
-	if request.OrganizationID <= 0 || request.PublisherUserID <= 0 ||
+	if request.OrganizationID <= 0 ||
+		slugkit.Validate(request.OrganizationSlug.String()) != nil ||
+		request.PublisherUserID <= 0 ||
 		request.ReviewerUserID <= 0 || request.ModelResourceID <= 0 ||
 		request.RuntimeImageID <= 0 {
 		return errors.New("operator catalog bootstrap identifiers must be positive")

@@ -128,6 +128,7 @@ func buildServicesContainer(
 		PodCoordinator:       podCoordinator,
 		Pod:                  services.pod,
 		PodOrchestrator:      podOrchestrator,
+		AgentSessions:        services.agentSessions,
 		WorkerCreation:       services.workerCreation,
 		WorkerPlanAuthorizer: services.orchestration,
 		WorkerApply:          services.workerApply,

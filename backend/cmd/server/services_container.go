@@ -9,6 +9,7 @@ import (
 	adminservice "github.com/anthropics/agentsmesh/backend/internal/service/admin"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agent"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	agentsessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
 	airesourceservice "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
 	apikeyservice "github.com/anthropics/agentsmesh/backend/internal/service/apikey"
 	"github.com/anthropics/agentsmesh/backend/internal/service/auth"
@@ -62,6 +63,7 @@ type serviceContainer struct {
 	runner              *runner.Service
 	executionCluster    *executionclusterservice.Service
 	pod                 *agentpod.PodService
+	agentSessions       *agentsessionsvc.Service
 	autopilot           *agentpod.AutopilotControllerService
 	channel             *channel.Service
 	ticket              *ticket.Service

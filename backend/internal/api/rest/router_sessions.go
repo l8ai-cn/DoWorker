@@ -29,7 +29,10 @@ func registerSessionRoutes(
 	db *gorm.DB,
 	redisClient *redis.Client,
 ) {
-	sessions := sessionsvc.NewService(db)
+	sessions := svc.AgentSessions
+	if sessions == nil {
+		sessions = sessionsvc.NewService(db)
+	}
 	sessionDeps := sessionapi.Deps{
 		Auth:               svc.Auth,
 		User:               svc.User,

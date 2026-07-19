@@ -72,6 +72,26 @@ func (lookup *workspaceEnvBundleLookup) GetByID(
 	return lookup.rows[id], nil
 }
 
+func (lookup *workspaceEnvBundleLookup) ListEffectiveForUser(
+	_ context.Context,
+	userID, orgID int64,
+	agentSlug string,
+) ([]*envbundle.EnvBundle, error) {
+	bundles := make([]*envbundle.EnvBundle, 0, len(lookup.rows))
+	for _, row := range lookup.rows {
+		if row == nil || !row.IsActive || !envBundleVisibleTo(row, specservice.Scope{
+			OrgID: orgID, UserID: userID,
+		}) {
+			continue
+		}
+		if agentSlug != "" && row.AgentSlug != nil && *row.AgentSlug != agentSlug {
+			continue
+		}
+		bundles = append(bundles, row)
+	}
+	return bundles, nil
+}
+
 type workspaceCommitLookup struct{}
 
 func (*workspaceCommitLookup) ResolveRepositoryCommit(

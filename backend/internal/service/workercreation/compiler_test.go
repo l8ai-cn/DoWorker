@@ -37,9 +37,11 @@ SKILLS code-review
 KNOWLEDGE engineering-docs [rw]
 USE_ENV_BUNDLE "runtime-preferences"
 USE_ENV_BUNDLE "signing-secrets"
-PROMPT "Review before editing.\n\nFix the failing test."
+PROMPT "Fix the failing test."
+file sandbox.work_dir + "/AGENTS.md" "Review before editing."
 `, layer)
 	assert.NotContains(t, layer, "must-not-leak")
+	assert.NotContains(t, layer, "Review before editing.\\n\\nFix")
 	assert.Less(t, strings.Index(layer, "CONFIG approval_mode"), strings.Index(layer, "CONFIG retries"))
 }
 

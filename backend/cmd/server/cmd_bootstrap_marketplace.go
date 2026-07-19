@@ -16,6 +16,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/infra/database"
 	"github.com/anthropics/agentsmesh/backend/internal/service/operatorcatalog"
 	skillsvc "github.com/anthropics/agentsmesh/backend/internal/service/skill"
+	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 	"gorm.io/gorm"
 )
 
@@ -74,17 +75,23 @@ func runBootstrapMarketplace(arguments []string) error {
 	if err != nil {
 		return err
 	}
+	organizationSlug, err := slugkit.NewFromTrusted(options.organizationSlug)
+	if err != nil {
+		return err
+	}
 	result, err := operatorcatalog.NewBootstrapper(
 		platformSkills,
 		expertService,
 		services.workerCreation,
 		services.workerSpecs,
+		infra.NewWorkerSpecDependencyArtifactRepository(db),
 	).Run(context.Background(), operatorcatalog.BootstrapRequest{
-		OrganizationID:  identity.organizationID,
-		PublisherUserID: identity.publisherID,
-		ReviewerUserID:  identity.reviewerID,
-		ModelResourceID: options.modelResourceID,
-		RuntimeImageID:  options.runtimeImageID,
+		OrganizationID:   identity.organizationID,
+		OrganizationSlug: organizationSlug,
+		PublisherUserID:  identity.publisherID,
+		ReviewerUserID:   identity.reviewerID,
+		ModelResourceID:  options.modelResourceID,
+		RuntimeImageID:   options.runtimeImageID,
 	})
 	if err != nil {
 		return err

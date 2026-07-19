@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestRunResourceManagedExpertUsesRenderedPromptByDefault(t *testing.T) {
+func TestRunResourceManagedExpertDoesNotDispatchDefinitionPromptByDefault(t *testing.T) {
 	snapshotID := int64(42)
 	resourceID := int64(90)
 	resourceRevision := int64(3)
@@ -40,8 +40,8 @@ func TestRunResourceManagedExpertUsesRenderedPromptByDefault(t *testing.T) {
 	})
 
 	require.NoError(t, err)
-	require.NotNil(t, dispatcher.lastReq.WorkerSpecPromptOverride)
-	assert.Equal(t, prompt, *dispatcher.lastReq.WorkerSpecPromptOverride)
+	require.NotNil(t, dispatcher.lastReq)
+	assert.Nil(t, dispatcher.lastReq.WorkerSpecPromptOverride)
 }
 
 func TestRunResourceManagedExpertPrefersRequestPromptOverride(t *testing.T) {
