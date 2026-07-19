@@ -57,11 +57,17 @@ func TestResolverRejectsMissingRequiredToolModelResource(t *testing.T) {
 
 func seedanceRequirementForTest() domain.ToolModelRequirement {
 	return domain.ToolModelRequirement{
-		Role:             mustSlugForTest("seedance-video"),
-		ProviderKeys:     []slugkit.Slug{mustSlugForTest("doubao")},
-		ProtocolAdapters: []slugkit.Slug{mustSlugForTest("openai-compatible")},
-		Modality:         resourcedomain.ModalityVideo,
-		Capability:       resourcedomain.CapabilityVideoGeneration,
+		Role: mustSlugForTest("seedance-video"),
+		ProviderKeys: []slugkit.Slug{
+			mustSlugForTest("doubao"),
+			mustSlugForTest("sub2api-seedance"),
+		},
+		ProtocolAdapters: []slugkit.Slug{
+			mustSlugForTest("openai-compatible"),
+			mustSlugForTest("ark-seedance"),
+		},
+		Modality:   resourcedomain.ModalityVideo,
+		Capability: resourcedomain.CapabilityVideoGeneration,
 		Environment: domain.ToolModelEnvironment{
 			APIKey: "SEEDANCE_API_KEY", BaseURL: "SEEDANCE_BASE_URL",
 			ModelID: "SEEDANCE_MODEL",

@@ -337,8 +337,8 @@ ENV SEEDANCE_MODEL TEXT OPTIONAL
 func seedanceToolModelRequirementDocument() map[string]any {
 	return map[string]any{
 		"id":                "seedance-video",
-		"provider_keys":     []string{"doubao"},
-		"protocol_adapters": []string{"openai-compatible"},
+		"provider_keys":     []string{"doubao", "sub2api-seedance"},
+		"protocol_adapters": []string{"openai-compatible", "ark-seedance"},
 		"modality":          "video",
 		"capability":        "video-generation",
 		"environment": map[string]any{

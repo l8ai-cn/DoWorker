@@ -13,8 +13,8 @@ func TestDecodeToolModelRequirementsAcceptsSeedanceVideoRole(t *testing.T) {
 	requirements, err := decodeToolModelRequirements([]json.RawMessage{
 		json.RawMessage(`{
 			"id":"seedance-video",
-			"provider_keys":["doubao"],
-			"protocol_adapters":["openai-compatible"],
+			"provider_keys":["doubao","sub2api-seedance"],
+			"protocol_adapters":["openai-compatible","ark-seedance"],
 			"modality":"video",
 			"capability":"video-generation",
 			"environment":{
@@ -28,7 +28,8 @@ func TestDecodeToolModelRequirementsAcceptsSeedanceVideoRole(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, requirements, 1)
 	assert.Equal(t, "seedance-video", requirements[0].ID)
-	assert.Equal(t, []string{"doubao"}, requirements[0].ProviderKeys)
+	assert.Equal(t, []string{"doubao", "sub2api-seedance"}, requirements[0].ProviderKeys)
+	assert.Equal(t, []string{"openai-compatible", "ark-seedance"}, requirements[0].ProtocolAdapters)
 	assert.Equal(t, "video", requirements[0].Modality)
 	assert.Equal(t, "video-generation", requirements[0].Capability)
 	assert.Equal(t, "SEEDANCE_API_KEY", requirements[0].Environment.APIKey)

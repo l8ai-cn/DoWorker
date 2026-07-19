@@ -33,6 +33,25 @@ func TestModelResolverBindsSeedanceVideoResource(t *testing.T) {
 	assert.Equal(t, "SEEDANCE_API_KEY", binding.Environment.APIKey)
 }
 
+func TestModelResolverBindsSub2APISeedanceVideoResource(t *testing.T) {
+	resources := validModelResourceService()
+	resources.resolved.Provider.Key = slugkit.MustNewForTest("sub2api-seedance")
+	resources.resolved.Provider.ProtocolAdapter = "ark-seedance"
+	resources.resolved.Connection.ProviderKey = slugkit.MustNewForTest("sub2api-seedance")
+	resources.resolved.Resource.ModelID = "doubao-seedance-2-0-260128"
+
+	binding, err := newModelResolver(resources).ResolveToolModel(
+		context.Background(),
+		specservice.Scope{OrgID: 77, UserID: 7},
+		seedanceToolRequirement(),
+		101,
+	)
+
+	require.NoError(t, err)
+	assert.Equal(t, slugkit.MustNewForTest("sub2api-seedance"), binding.ModelBinding.ProviderKey)
+	assert.Equal(t, slugkit.MustNewForTest("ark-seedance"), binding.ModelBinding.ProtocolAdapter)
+}
+
 func TestModelResolverRejectsToolProviderSubstitution(t *testing.T) {
 	resources := validModelResourceService()
 	resources.resolved.Provider.Key = slugkit.MustNewForTest("openai")
@@ -68,11 +87,17 @@ func TestModelResolverRejectsDoubaoSeedLanguageModelForSeedanceRole(t *testing.T
 
 func seedanceToolRequirement() specdomain.ToolModelRequirement {
 	return specdomain.ToolModelRequirement{
-		Role:             slugkit.MustNewForTest("seedance-video"),
-		ProviderKeys:     []slugkit.Slug{slugkit.MustNewForTest("doubao")},
-		ProtocolAdapters: []slugkit.Slug{slugkit.MustNewForTest("openai-compatible")},
-		Modality:         resourcedomain.ModalityVideo,
-		Capability:       resourcedomain.CapabilityVideoGeneration,
+		Role: slugkit.MustNewForTest("seedance-video"),
+		ProviderKeys: []slugkit.Slug{
+			slugkit.MustNewForTest("doubao"),
+			slugkit.MustNewForTest("sub2api-seedance"),
+		},
+		ProtocolAdapters: []slugkit.Slug{
+			slugkit.MustNewForTest("openai-compatible"),
+			slugkit.MustNewForTest("ark-seedance"),
+		},
+		Modality:   resourcedomain.ModalityVideo,
+		Capability: resourcedomain.CapabilityVideoGeneration,
 		Environment: specdomain.ToolModelEnvironment{
 			APIKey: "SEEDANCE_API_KEY", BaseURL: "SEEDANCE_BASE_URL",
 			ModelID: "SEEDANCE_MODEL",

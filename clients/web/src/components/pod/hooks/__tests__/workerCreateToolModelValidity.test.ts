@@ -8,8 +8,8 @@ describe("workerCreateValidity tool models", () => {
     const options = createOptions();
     options.worker_types[0].tool_model_requirements = [{
       role: "seedance-video",
-      provider_keys: ["doubao"],
-      protocol_adapters: ["openai-compatible"],
+      provider_keys: ["doubao", "sub2api-seedance"],
+      protocol_adapters: ["openai-compatible", "ark-seedance"],
       modality: "video",
       capability: "video-generation",
     }];

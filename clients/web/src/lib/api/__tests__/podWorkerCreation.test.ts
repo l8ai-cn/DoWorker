@@ -131,6 +131,7 @@ describe("worker creation Connect boundary", () => {
         tool_model_requirements: [{
           role: "seedance-video",
           provider_keys: ["doubao"],
+          protocol_adapters: ["openai-compatible"],
         }],
         credential_requirements: [{
           id: "api-key",

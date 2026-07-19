@@ -14,8 +14,8 @@ func TestToolModelRequirementsFromDefinitionPreservesSeedanceContract(t *testing
 		ToolModelRequirements: []workerdefinition.ToolModelRequirement{
 			{
 				ID:               "seedance-video",
-				ProviderKeys:     []string{"doubao"},
-				ProtocolAdapters: []string{"openai-compatible"},
+				ProviderKeys:     []string{"doubao", "sub2api-seedance"},
+				ProtocolAdapters: []string{"openai-compatible", "ark-seedance"},
 				Modality:         "video",
 				Capability:       "video-generation",
 				Environment: workerdefinition.ToolModelEnvironment{

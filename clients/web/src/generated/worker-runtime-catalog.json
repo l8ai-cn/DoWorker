@@ -557,10 +557,12 @@
         {
           "id": "seedance-video",
           "provider_keys": [
-            "doubao"
+            "doubao",
+            "sub2api-seedance"
           ],
           "protocol_adapters": [
-            "openai-compatible"
+            "openai-compatible",
+            "ark-seedance"
           ],
           "modality": "video",
           "capability": "video-generation",

@@ -30,11 +30,17 @@ func TestWorkerCreateOptionsExposeToolModelRequirements(t *testing.T) {
 				Slug: "seedance-expert", Name: "Seedance Expert",
 				ToolModelRequirements: []specdomain.ToolModelRequirement{
 					{
-						Role:             slugkit.MustNewForTest("seedance-video"),
-						ProviderKeys:     []slugkit.Slug{slugkit.MustNewForTest("doubao")},
-						ProtocolAdapters: []slugkit.Slug{slugkit.MustNewForTest("openai-compatible")},
-						Modality:         resourcedomain.ModalityVideo,
-						Capability:       resourcedomain.CapabilityVideoGeneration,
+						Role: slugkit.MustNewForTest("seedance-video"),
+						ProviderKeys: []slugkit.Slug{
+							slugkit.MustNewForTest("doubao"),
+							slugkit.MustNewForTest("sub2api-seedance"),
+						},
+						ProtocolAdapters: []slugkit.Slug{
+							slugkit.MustNewForTest("openai-compatible"),
+							slugkit.MustNewForTest("ark-seedance"),
+						},
+						Modality:   resourcedomain.ModalityVideo,
+						Capability: resourcedomain.CapabilityVideoGeneration,
 					},
 				},
 			},
@@ -47,7 +53,8 @@ func TestWorkerCreateOptionsExposeToolModelRequirements(t *testing.T) {
 	require.Len(t, response.WorkerTypes, 1)
 	require.Len(t, response.WorkerTypes[0].ToolModelRequirements, 1)
 	assert.Equal(t, "seedance-video", response.WorkerTypes[0].ToolModelRequirements[0].Role)
-	assert.Equal(t, []string{"doubao"}, response.WorkerTypes[0].ToolModelRequirements[0].ProviderKeys)
+	assert.Equal(t, []string{"doubao", "sub2api-seedance"}, response.WorkerTypes[0].ToolModelRequirements[0].ProviderKeys)
+	assert.Equal(t, []string{"openai-compatible", "ark-seedance"}, response.WorkerTypes[0].ToolModelRequirements[0].ProtocolAdapters)
 }
 
 func TestWorkerCreateOptionsExposeDefinitionRequirements(t *testing.T) {

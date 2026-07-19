@@ -99,7 +99,8 @@ func TestSeedanceExpertRequiresExactVideoModelContract(t *testing.T) {
 	require.Len(t, seedance.ToolModelRequirements, 1)
 	requirement := seedance.ToolModelRequirements[0]
 	assert.Equal(t, "seedance-video", requirement.ID)
-	assert.Equal(t, []string{"doubao"}, requirement.ProviderKeys)
+	assert.Equal(t, []string{"doubao", "sub2api-seedance"}, requirement.ProviderKeys)
+	assert.Equal(t, []string{"openai-compatible", "ark-seedance"}, requirement.ProtocolAdapters)
 	assert.Equal(t, "video", requirement.Modality)
 	assert.Equal(t, "video-generation", requirement.Capability)
 	assert.Equal(t, "SEEDANCE_API_KEY", requirement.Environment.APIKey)
