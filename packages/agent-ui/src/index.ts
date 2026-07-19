@@ -10,6 +10,13 @@ export { ComposerCapabilityBar } from "./ComposerCapabilityBar";
 export { ConversationComposer } from "./ConversationComposer";
 export { ConversationEmptyState } from "./ConversationEmptyState";
 export { DEFAULT_AGENT_COMMANDS } from "./defaultCommands";
+export {
+  ImageLightboxProvider,
+  useLightbox,
+  ZoomableImage,
+  type ImageLightboxProviderProps,
+  type ZoomableImageProps,
+} from "./AgentImageLightbox";
 export { MarkdownMessage } from "./MarkdownMessage";
 export {
   ContentRendererRegistry,
@@ -49,6 +56,10 @@ export {
   ResultWorkbench,
   type ResultWorkbenchProps,
 } from "./react/ResultWorkbench";
+export {
+  SessionResourceImage,
+  type SessionResourceImageProps,
+} from "./SessionResourceImage";
 export {
   useWorkbenchContainerMode,
   workbenchContainerMode,

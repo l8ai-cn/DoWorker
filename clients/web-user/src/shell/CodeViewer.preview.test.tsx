@@ -61,7 +61,7 @@ function renderPreview(content: string, path: string, truncated = false) {
   );
 }
 
-function renderImage(path = "logo.png", truncated = false, withLightbox = false) {
+function renderImage(path = "logo.png", truncated = false) {
   const viewer = (
     <CodeViewer
       conversationId="conv_1"
@@ -77,7 +77,7 @@ function renderImage(path = "logo.png", truncated = false, withLightbox = false)
       viewMode="source"
     />
   );
-  return render(withLightbox ? <ImageLightboxProvider>{viewer}</ImageLightboxProvider> : viewer);
+  return render(<ImageLightboxProvider>{viewer}</ImageLightboxProvider>);
 }
 
 beforeEach(() => {
@@ -238,7 +238,7 @@ describe("CodeViewer image preview", () => {
   });
 
   it("opens the shared lightbox", async () => {
-    renderImage("assets/logo.png", false, true);
+    renderImage("assets/logo.png");
     fireEvent.click(await screen.findByAltText("logo.png"));
     expect(await screen.findByRole("dialog")).toBeDefined();
     expect(screen.getByLabelText("Zoom in")).toBeDefined();
