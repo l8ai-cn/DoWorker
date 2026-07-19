@@ -1,19 +1,16 @@
 import { expect, test } from "../../fixtures";
+import workerCatalog from "../../../src/generated/worker-runtime-catalog.json";
 
-const WORKER_NAMES = [
-  "Aider",
-  "Claude Code",
-  "Codex CLI",
-  "Cursor CLI",
-  "Do Agent",
-  "Gemini CLI",
-  "Grok Build",
-  "Hermes",
-  "Loopal",
-  "MiniMax CLI",
-  "OpenClaw",
-  "OpenCode",
-];
+const STATUS_LABELS: Record<string, string> = {
+  invalid_published_runtime: "Configured release digest cannot be pulled",
+  runtime_image_unavailable: "Runtime image unavailable",
+  runtime_ready_unverified: "Runtime ready; validation incomplete",
+};
+
+const RUNTIME_LABELS: Record<string, string> = {
+  invalid_published_digest: "configured digest cannot be pulled",
+  locked_available: "published digest verified",
+};
 
 test("public Worker docs use the runtime catalog instead of legacy terminology", async ({
   page,
@@ -29,16 +26,19 @@ test("public Worker docs use the runtime catalog instead of legacy terminology",
   await page.goto("/docs/concepts/workers");
 
   const workerDocs = page.locator("main");
-  for (const name of WORKER_NAMES) {
-    await expect(workerDocs).toContainText(name);
+  for (const worker of workerCatalog.workers) {
+    await expect(workerDocs).toContainText(worker.name);
+  }
+  for (const status of new Set(workerCatalog.workers.map((worker) => worker.validationStatus))) {
+    await expect(workerDocs).toContainText(STATUS_LABELS[status]);
+  }
+  for (const runtime of workerCatalog.workers.flatMap((worker) => (
+    worker.runtimeImage ? [worker.runtimeImage.availability] : []
+  ))) {
+    await expect(workerDocs).toContainText(RUNTIME_LABELS[runtime]);
   }
   await expect(workerDocs).not.toContainText("AgentPod");
-  await expect(workerDocs).toContainText(
-    "Local product flow verified; release image blocked",
-  );
-  await expect(workerDocs).toContainText(
-    "Configured release digest cannot be pulled",
-  );
+  await expect(workerDocs).toContainText("no published immutable runtime digest");
   const geminiCard = page.locator("article.surface-card").filter({
     has: page.getByRole("heading", { name: "Gemini CLI", exact: true }),
   });

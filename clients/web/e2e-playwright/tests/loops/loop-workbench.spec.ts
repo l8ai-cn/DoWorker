@@ -20,6 +20,13 @@ loop checkout-fix {
   on_failure pause
 }`;
 
+const ZH_LOOP_LABELS = {
+  blocks: "积木",
+  code: "代码",
+  run: "运行循环",
+  valid: "有效",
+} as const;
+
 const LOCALE_CASES = [
   {
     locale: "zh",
@@ -134,11 +141,8 @@ test.describe("Loop workbench", () => {
 
     await page.goto(`/${TEST_ORG_SLUG}/loops/workbench`);
 
-    await expect(
-      page.getByRole("heading", { name: "循环工作台" }),
-    ).toBeVisible();
+    await resetLoopSource(page, ZH_LOOP_LABELS);
     const runButton = page.getByRole("button", { name: "运行循环" });
-    await expect(runButton).toBeEnabled();
 
     await page
       .getByText("修复结算页税额计算，并补充边界测试。", { exact: true })
@@ -180,12 +184,7 @@ test.describe("Loop workbench", () => {
     await expect(
       page.getByRole("heading", { name: "循环工作台" }),
     ).toBeVisible();
-    await resetLoopSource(page, {
-      blocks: "积木",
-      code: "代码",
-      run: "运行循环",
-      valid: "有效",
-    });
+    await resetLoopSource(page, ZH_LOOP_LABELS);
 
     await doubleClickBlocklyBackground(page);
     await page.getByRole("button", { name: "创建自定义积木" }).click();
@@ -278,6 +277,7 @@ test.describe("Loop workbench", () => {
     const runtime = createLoopRuntimeFixture(db);
     try {
       await page.goto(`/${TEST_ORG_SLUG}/loops/workbench`);
+      await resetLoopSource(page, ZH_LOOP_LABELS);
 
       const runButton = page.getByRole("button", { name: "运行循环" });
       await expect(runButton).toBeEnabled();
