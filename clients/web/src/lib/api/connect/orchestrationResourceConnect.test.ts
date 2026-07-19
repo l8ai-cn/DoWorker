@@ -1,6 +1,18 @@
 import { create, fromBinary, toBinary } from "@bufbuild/protobuf";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  EnvironmentBundlePurpose,
+  ExportResourceResponseSchema,
+  GetResourceCapabilitiesRequestSchema,
+  GetResourceCapabilitiesResponseSchema,
+  GetResourcePlanRequestSchema,
+  ListResourcesRequestSchema,
+  ListResourcesResponseSchema,
+  PlanResourceResponseSchema,
+  ValidateResourceRequestSchema,
+  ValidateResourceResponseSchema,
+} from "@proto/orchestration_resource/v1/orchestration_resource_queries_pb";
+import {
   ApplyExpertPlanRequestSchema,
   ApplyExpertPlanResponseSchema,
   ApplyPromptPlanRequestSchema,
@@ -11,21 +23,13 @@ import {
   CreateGoalLoopFromPlanResponseSchema,
   CreateWorkerFromPlanRequestSchema,
   CreateWorkerFromPlanResponseSchema,
-  EnvironmentBundlePurpose,
-  ExportResourceResponseSchema,
-  GetResourceCapabilitiesRequestSchema,
-  GetResourceCapabilitiesResponseSchema,
-  GetResourcePlanRequestSchema,
-  ListResourcesRequestSchema,
-  ListResourcesResponseSchema,
-  PlanResourceResponseSchema,
+} from "@proto/orchestration_resource/v1/orchestration_resource_apply_pb";
+import {
   ResourceOperation,
   ResourcePlanSchema,
   ResourceSchema,
   SourceFormat,
-  ValidateResourceRequestSchema,
-  ValidateResourceResponseSchema,
-} from "@proto/orchestration_resource/v1/orchestration_resource_pb";
+} from "@proto/orchestration_resource/v1/orchestration_resource_types_pb";
 
 const methods = {
   validateResourceConnect: vi.fn(),

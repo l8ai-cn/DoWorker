@@ -3,7 +3,7 @@
 This file stores durable verification evidence for the
 [resource-native orchestration goal](./2026-07-14-resource-native-orchestration-goal.md).
 
-Audit date: 2026-07-17.
+Audit date: 2026-07-19.
 
 ## Verification Snapshot
 
@@ -190,8 +190,7 @@ Audit date: 2026-07-17.
 - GoalLoop `description` is Web-required but optional in the frozen Backend.
   Integer fields also need one policy for JavaScript-safe range versus `int64`;
   neither mismatch is hidden by fallback during the GoalLoop release freeze.
-- Candidate `000225` remains unreserved. A corrected Infra fixture is
-  compile-verified but not rerun while database execution is frozen.
-- Backend, proxy, and production Web health return 200; browser and E2E paths
-  are unblocked, while server-side authorization remains authoritative.
-- Migration execution and deployment remain frozen pending release-owner coordination.
+- `240d8b0877110f2eb0e204a2e2f7b8c7e385e1b8` completes immutable dependency-artifact replay, zero-source fresh-create cutover, Coordinator snapshot binding, and migrations 000230/000231.
+- Current checks pass: Resource Go/control-plane suites, `TestFreshExecutionInventory`, real PostgreSQL migration rehearsal through 000231, Web resource-editor/Connect tests (27 files, 134 tests), Web typecheck, scoped lint, Rust resource service fixture, and `pnpm proto:check`.
+- A live backend at `12415` accepted an authenticated Prompt `Validate -> Plan -> Apply`, returned canonical JSON, and persisted revision `1` for a unique development resource.
+- Browser inspection at `http://localhost:12407` renders the login route and WASM without console errors, but its Next proxy returns 500 for direct backend-healthy Connect auth/SSO requests; full Playwright execution remains blocked on that environment repair.

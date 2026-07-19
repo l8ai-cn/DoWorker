@@ -125,17 +125,17 @@ does not count as progress.
 
 | Phase | Status | Evidence |
 | --- | --- | --- |
-| 0 | complete | Execution inventory remains machine-checked and currently records 16 constructors: 6 legacy, 2 plan, 5 snapshot, and 3 lineage |
+| 0 | complete | Machine-checked execution inventory has no `legacy` constructor: every entry is Plan, Snapshot, or lineage |
 | 1 | complete | Strict JSON/YAML codecs, schema registry, ResourceRef and SecretReference tests pass |
 | 2 | complete | WorkerTemplate and Worker use persisted plans, immutable revisions, WorkerSpec snapshots, durable launch records, stale-plan checks, and typed Apply |
-| 3 | in progress | Prompt, Expert, Workflow, Worker, and GoalLoop pin resource revisions and WorkerSpec snapshots; resolved non-Secret model, repository, Skill, knowledge, environment, and placement facts still require a versioned dependency snapshot |
-| 4 | in progress | Expert/Workflow definition mutation guards, Workflow/GoalLoop create gates, full WorkflowRun manifests, snapshot-backed Mesh launch, Plan-only Quick Task/Runner MCP, durable Session create/fork/import ownership, and Coordinator atomic task claims are complete; Session switch replacement ownership and 6 legacy snapshot-binding constructors remain |
-| 5 | in progress | Draft concurrency, YAML gates, typed/redacted errors, Plan retirement, partial reference loading, mobile actions, exact numeric handling, Workflow create/new-revision editors, and locked identity have focused tests; Playwright execution remains frozen |
-| 6 | in progress | Focused backend, migration-static, documentation, and independent subtask reviews pass; PostgreSQL rehearsal, browser evidence, and final whole-goal review remain |
+| 3 | complete | Every executable WorkerSpec snapshot persists one resolved dependency artifact and runtime materializes its non-Secret inputs only from that artifact |
+| 4 | complete | Session, host, fork, import, switch, Coordinator, Expert, Workflow, GoalLoop, Mesh, Quick Task, and MCP create paths bind Plan, Snapshot, or lineage and fail closed on zero source |
+| 5 | in verification | Form/YAML one-Draft, semantic Diff, permission and Secret states pass 27 focused Web test files; a healthy browser API proxy is still required for current-run Playwright evidence |
+| 6 | in verification | Real PostgreSQL migration rehearsal through 000231, scoped backend checks, Rust protocol fixture, docs checks, and codegen pass; browser/API pairing is the remaining environment gate |
 
 ## Delivery Audit
 
-Audit date: 2026-07-17.
+Audit date: 2026-07-19.
 
 | Requirement | Status | Authoritative evidence |
 | --- | --- | --- |
@@ -150,11 +150,11 @@ Audit date: 2026-07-17.
 | GoalLoop typed Apply | proved | `CreateGoalLoopFromPlan` creates a pinned draft without a Pod; public legacy Create and RunLoopProgram are gated while Start/Verify/Cancel remain explicit actions |
 | One form/YAML Draft | proved | YAML/form transition is atomic; parsed YAML is locally gated; stale responses cannot replace current state; expired or terminal Apply Plans cannot be replayed |
 | Semantic Diff | proved | server digest-only changes and dedicated redaction rendering tests |
-| Permission revalidation | in verification | target and resolved references are reauthorized; Apply transaction locks current membership/role and replay rechecks it. Unit tests pass; PostgreSQL concurrency tests are authored but frozen |
+| Permission revalidation | proved | target and resolved references are reauthorized; Apply locks current membership/role and replay rechecks it |
 | Secret reference protection | proved | reference-only schemas, non-echoing errors, digest/redacted Diff, reference-only UI test |
-| Resolved dependency immutability | Plan builder proved; persistence frozen | Strict Artifact V1 and `WorkerTemplateBuild` codecs bind canonical WorkerSpec, exact Plan refs, typed ToolBinding model provenance, model/repository/content/image facts, ordered bundles, field ownership, and reference-only Secrets. Table and artifact-only runtime remain frozen |
-| Migration integrity | in verification | Formal release mainline is through 000224; local `000221_worker_spec_optional_model_binding` conflicts with formal `000221_add_expert_revision`. Sequence may restart at candidate 000225 only after owner ordering; DB execution is frozen |
-| Public documentation | in verification | Product/API/migration/YAML/Expert/Workflow manuals describe Apply-only definitions, explicit actions, snapshot consistency, Worker Definition credential/config-document bindings, REST lineage-only resume, Plan-only Quick Task and Runner MCP, and legacy entry-point errors; focused locale and docs checks pass |
+| Resolved dependency immutability | proved | Artifact V1 is persisted atomically with every executable snapshot and supplies all non-Secret runtime inputs; pins and mismatches fail closed |
+| Migration integrity | proved | 000219 through 000231 are unique and the PostgreSQL up/down/up lineage rehearsal passes |
+| Public documentation | proved | Product/API/migration/YAML/Expert/Workflow manuals describe typed Apply, explicit actions, snapshots, permission, Secret, and lineage behavior |
 
 ## Verification Snapshot
 
@@ -166,10 +166,10 @@ This goal file remains the control contract and current status SSOT.
 - The current worktree contains extensive unrelated uncommitted work.
 - Implementation must not revert or reformat those changes.
 - Files already modified by another task require diff review before editing.
-- Mainline is at `000224`; the dirty local view through `000221` confers no
-  ownership of later numbers. Have the owner order work from candidate `000225`
-  before file creation. Do not add, renumber, run, or deploy while frozen.
-- Do not modify Runner or GoalLoop during the Loop/Seedance production release.
+- Released migrations through `000231` are immutable; future migration numbers
+  require release-owner ordering and a real PostgreSQL rehearsal.
+- Browser evidence requires one healthy Web/API proxy pair; the stale `12407`
+  dev proxy must not be treated as product behavior.
 - Runtime code must never fall back to legacy Agent, model, repository,
   AgentFile, or mutable Expert/Workflow fields.
 - Runtime code must not fall back from a missing resolved dependency artifact

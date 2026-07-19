@@ -1,7 +1,7 @@
 import {
   IssueSeverity,
   SourceFormat,
-} from "../../../../proto/gen/ts/orchestration_resource/v1/orchestration_resource_pb";
+} from "../../../../proto/gen/ts/orchestration_resource/v1/orchestration_resource_types_pb";
 import type { ConnectClient } from "./connect-client";
 
 export type ApplicableResourceKind =

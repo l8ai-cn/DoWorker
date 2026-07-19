@@ -192,7 +192,6 @@ export function makeConnectClient(token: string | null) {
     file: makeServiceClient(FileService, token),
     sso: makeServiceClient(SSOService, token),
     ssoAdmin: makeServiceClient(SSOAdminService, token),
-    orchestrationResource: makeServiceClient(OrchestrationResourceService, token),
   };
 }
 
