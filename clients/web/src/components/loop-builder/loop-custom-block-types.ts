@@ -3,6 +3,7 @@ import {
   extractBlockTemplateParameters,
   matchBlockTemplate,
 } from "@/components/block-programming/block-custom-template-kernel";
+import { hasBlockCustomDefinition } from "@/components/block-programming/block-custom-definition-registry";
 
 const IDENTIFIER = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 export interface LoopCustomBlockExpansion {
@@ -31,7 +32,7 @@ export interface LoopCustomBlockDraft {
 
 export interface LoopCustomBlockIssue {
   field: keyof LoopCustomBlockDraft;
-  code: "identifier" | "required";
+  code: "duplicate" | "identifier" | "required";
 }
 
 export function customBlockType(definition: LoopCustomBlockDefinition): string {
@@ -40,12 +41,15 @@ export function customBlockType(definition: LoopCustomBlockDefinition): string {
 
 export function buildCustomBlockDefinition(
   draft: LoopCustomBlockDraft,
+  definitions: readonly LoopCustomBlockDefinition[] = [],
 ): { definition?: LoopCustomBlockDefinition; issues: LoopCustomBlockIssue[] } {
   const issues: LoopCustomBlockIssue[] = [];
   const slug = draft.slug.trim();
   const label = draft.label.trim();
   if (!IDENTIFIER.test(slug) || slug.length < 2 || slug.length > 100) {
     issues.push({ field: "slug", code: "identifier" });
+  } else if (hasBlockCustomDefinition(definitions, slug)) {
+    issues.push({ field: "slug", code: "duplicate" });
   }
   if (!label) issues.push({ field: "label", code: "required" });
   for (const field of ["promptTemplate", "commandTemplate", "acceptTemplate"] as const) {

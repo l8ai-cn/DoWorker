@@ -623,7 +623,7 @@
     },
     "customBlock": {
       "title": "Créer un bloc personnalisé",
-      "description": "Crée une macro brouillon versionnée qui s’étend en tâche et vérification du loop actuel.",
+      "description": "Crée une macro personnalisée pour ce brouillon d’éditeur qui s’étend en tâche et vérification du loop actuel.",
       "label": "Libellé du bloc",
       "slug": "Slug du bloc",
       "promptTemplate": "Modèle de prompt de tâche",
@@ -631,6 +631,7 @@
       "acceptTemplate": "Modèle de condition de réussite",
       "cancel": "Annuler",
       "create": "Créer le bloc",
+      "duplicate": "Ce slug de bloc existe déjà. Utilisez un nouveau slug.",
       "required": "Ce champ est requis",
       "identifier": "Utilisez 2 à 100 lettres minuscules, chiffres ou tirets"
     },

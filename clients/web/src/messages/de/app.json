@@ -617,7 +617,7 @@
     },
     "customBlock": {
       "title": "Benutzerdefinierten Block erstellen",
-      "description": "Erstellt ein versioniertes Entwurfs-Makro, das in die aktuelle Loop-Aufgabe und Verifizierung expandiert.",
+      "description": "Erstellt ein benutzerdefiniertes Makro für diesen Editorentwurf, das in die aktuelle Loop-Aufgabe und Verifizierung expandiert.",
       "label": "Blockname",
       "slug": "Block-Slug",
       "promptTemplate": "Vorlage für Task-Prompt",
@@ -625,6 +625,7 @@
       "acceptTemplate": "Vorlage für Bestehensbedingung",
       "cancel": "Abbrechen",
       "create": "Block erstellen",
+      "duplicate": "Dieser Block-Slug existiert bereits. Verwenden Sie einen neuen Slug.",
       "required": "Dieses Feld ist erforderlich",
       "identifier": "Verwenden Sie 2-100 Kleinbuchstaben, Ziffern oder Bindestriche"
     },

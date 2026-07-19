@@ -1084,7 +1084,7 @@
     },
     "customBlock": {
       "title": "创建自定义积木",
-      "description": "创建一个版本化草稿宏，展开为当前循环的任务和验证步骤。",
+      "description": "为当前编辑草稿创建自定义宏，展开为当前循环的任务和验证步骤。",
       "label": "积木名称",
       "slug": "积木标识",
       "promptTemplate": "任务模板",
@@ -1092,6 +1092,7 @@
       "acceptTemplate": "验收说明模板",
       "cancel": "取消",
       "create": "创建积木",
+      "duplicate": "积木标识已存在，请使用新的标识",
       "required": "此字段必填",
       "identifier": "使用 2-100 位小写字母、数字或连字符"
     },

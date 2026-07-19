@@ -19,6 +19,7 @@ import {
 import type { LoopCustomBlockMessages } from "./loop-workbench-messages";
 
 interface LoopCustomBlockDialogProps {
+  definitions: readonly LoopCustomBlockDefinition[];
   messages: LoopCustomBlockMessages;
   open: boolean;
   onCreate: (definition: LoopCustomBlockDefinition) => void;
@@ -34,6 +35,7 @@ const EMPTY_DRAFT: LoopCustomBlockDraft = {
 };
 
 export function LoopCustomBlockDialog({
+  definitions,
   messages,
   open,
   onCreate,
@@ -42,13 +44,18 @@ export function LoopCustomBlockDialog({
   const id = useId();
   const [draft, setDraft] = useState(EMPTY_DRAFT);
   const [submitted, setSubmitted] = useState(false);
-  const result = useMemo(() => buildCustomBlockDefinition(draft), [draft]);
+  const result = useMemo(
+    () => buildCustomBlockDefinition(draft, definitions),
+    [definitions, draft],
+  );
 
   function error(field: keyof LoopCustomBlockDraft): string | undefined {
     if (!submitted) return undefined;
     const issue = result.issues.find((item) => item.field === field);
     if (!issue) return undefined;
-    return issue.code === "identifier" ? messages.identifier : messages.required;
+    if (issue.code === "identifier") return messages.identifier;
+    if (issue.code === "duplicate") return messages.duplicate;
+    return messages.required;
   }
 
   function update(field: keyof LoopCustomBlockDraft, value: string) {

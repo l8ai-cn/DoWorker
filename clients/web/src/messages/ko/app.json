@@ -617,7 +617,7 @@
     },
     "customBlock": {
       "title": "사용자 블록 만들기",
-      "description": "현재 Loop의 작업과 검증으로 확장되는 버전 초안 매크로를 만듭니다.",
+      "description": "이 편집기 초안용 사용자 매크로를 만듭니다. 현재 Loop의 작업과 검증으로 확장됩니다.",
       "label": "블록 라벨",
       "slug": "블록 슬러그",
       "promptTemplate": "작업 프롬프트 템플릿",
@@ -625,6 +625,7 @@
       "acceptTemplate": "통과 조건 템플릿",
       "cancel": "취소",
       "create": "블록 만들기",
+      "duplicate": "이 블록 슬러그는 이미 존재합니다. 새 슬러그를 사용하세요.",
       "required": "이 필드는 필수입니다",
       "identifier": "2~100자의 소문자, 숫자 또는 하이픈을 사용하세요"
     },

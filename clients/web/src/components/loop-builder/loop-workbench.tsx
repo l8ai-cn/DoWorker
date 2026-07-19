@@ -3,6 +3,7 @@
 import { useLocale } from "next-intl";
 import { useState } from "react";
 import { BlockProgrammingWorkbench } from "@/components/block-programming/BlockProgrammingWorkbench";
+import { registerBlockCustomDefinition } from "@/components/block-programming/block-custom-definition-registry";
 import { Spinner } from "@/components/ui/spinner";
 import { LoopBlocklyCanvas } from "./loop-blockly-canvas";
 import { LoopAIAssistantDialog } from "./loop-ai-assistant-dialog";
@@ -115,13 +116,13 @@ export function LoopWorkbench({ orgSlug }: { orgSlug: string }) {
         }}
       />
       <LoopCustomBlockDialog
+        definitions={customDefinitions}
         messages={messages.customBlock}
         open={customDialogOpen}
         onCreate={(definition) => {
-          setCustomDefinitions((current) => [
-            ...current.filter((item) => item.slug !== definition.slug),
-            definition,
-          ]);
+          setCustomDefinitions((current) =>
+            [...registerBlockCustomDefinition(current, definition).definitions],
+          );
         }}
         onOpenChange={setCustomDialogOpen}
       />

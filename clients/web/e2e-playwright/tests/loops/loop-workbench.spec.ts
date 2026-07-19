@@ -1,4 +1,3 @@
-import type { BrowserContext, Page, Request } from "@playwright/test";
 import { expect, test } from "../../fixtures/index";
 import { getWebBaseUrl, TEST_ORG_SLUG } from "../../helpers/env";
 import {
@@ -6,19 +5,13 @@ import {
   createLoopRuntimeFixture,
 } from "../../helpers/loop-runtime-fixture";
 import { LOCALE_COOKIE } from "../../../src/lib/i18n/config";
-
-const DEFAULT_LOOP_SOURCE = `@id(n-checkout-fix)
-loop checkout-fix {
-  limits(iterations: 5, tokens: 80000, timeout: 60m, no_progress: 3, same_error: 2)
-  @id(n-fix-cycle)
-  repeat fix-cycle(max: 5, until: tests.passed) {
-    @id(n-fix-tax)
-    agent fix-tax { prompt """修复结算页税额计算，并补充边界测试。""" }
-    @id(n-tests)
-    verify tests { command "pnpm test --filter billing" accept "完整测试集通过" }
-  }
-  on_failure pause
-}`;
+import {
+  collectFailedRequests,
+  doubleClickBlocklyBackground,
+  openLocalizedLoopWorkbench,
+  overflowingText,
+  resetLoopSource,
+} from "./loop-workbench-browser-helpers";
 
 const ZH_LOOP_LABELS = {
   blocks: "积木",
@@ -197,16 +190,31 @@ test.describe("Loop workbench", () => {
     await dialog.getByRole("button", { name: "创建积木" }).click();
 
     await expect(page.getByText("有效").first()).toBeVisible();
+    const toolbox = page.locator(".blocklyToolbox");
+    await toolbox.locator(".blocklyToolboxCategory", {
+      hasText: "我的积木",
+    }).click();
+    await expect(
+      page.locator(".blocklyToolboxFlyout .blocklyDraggable"),
+    ).toBeVisible();
     await doubleClickBlocklyBackground(page);
     await expect(page.getByRole("button", { name: "专业 PPT" })).toBeVisible();
     await page.getByRole("button", { name: "专业 PPT" }).click();
 
     const codeEditor = page.locator(".cm-content");
-    await expect(page.getByText("专业 PPT", { exact: true })).toBeVisible();
-    await expect(page.getByText("topic", { exact: true })).toBeVisible();
-    await expect(page.getByText("file", { exact: true })).toBeVisible();
-
+    const workspace = page.getByLabel("Blockly Workspace");
     await expect(codeEditor).toContainText("agent ppt-step-task");
+    await expect(page.getByText("有效").first()).toBeVisible();
+    await expect(workspace.getByText("专业 PPT", { exact: true })).toBeVisible();
+    await expect(workspace.getByText("topic", { exact: true })).toBeVisible();
+    await expect(workspace.getByText("file", { exact: true })).toBeVisible();
+    await workspace.getByText("topic", { exact: true }).click();
+    await page.locator(".blocklyHtmlInput").fill("季度复盘");
+    await workspace.getByText("file", { exact: true }).click();
+    await page.locator(".blocklyHtmlInput").fill("output.pptx");
+
+    await expect(codeEditor).toContainText("制作 季度复盘 的专业 PPT");
+    await expect(codeEditor).toContainText("test -f output.pptx");
     const source = await codeEditor.innerText();
     expect(source.toLowerCase()).not.toContain("worker");
     expect(source).not.toContain("invalid-block-structure");
@@ -309,91 +317,3 @@ test.describe("Loop workbench", () => {
     }
   });
 });
-
-async function openLocalizedLoopWorkbench(
-  page: Page,
-  context: BrowserContext,
-  localeCase: (typeof LOCALE_CASES)[number],
-) {
-  await context.addCookies([
-    {
-      name: LOCALE_COOKIE,
-      value: localeCase.locale,
-      url: getWebBaseUrl(),
-    },
-  ]);
-  await page.goto(`/${TEST_ORG_SLUG}/loops/workbench`);
-}
-
-function collectFailedRequests(page: Page) {
-  const failed: string[] = [];
-  page.on("requestfailed", (request) => {
-    if (isExpectedNavigationAbort(request)) return;
-    failed.push(`${request.method()} ${request.url()} ${request.failure()?.errorText}`);
-  });
-  return () => failed;
-}
-
-function isExpectedNavigationAbort(request: Request) {
-  const error = request.failure()?.errorText;
-  if (error !== "net::ERR_ABORTED") return false;
-  return /EventsService\/Subscribe|GoalLoopService\/CompileLoopProgram/.test(
-    request.url(),
-  );
-}
-
-async function resetLoopSource(
-  page: Page,
-  labels: { blocks: string; code: string; run: string; valid: string },
-) {
-  await page.getByRole("tab", { name: labels.code }).click();
-  const codeEditor = page.locator(".cm-content");
-  await expect(codeEditor).toBeEditable();
-  await codeEditor.fill(DEFAULT_LOOP_SOURCE);
-  await expect(page.getByRole("button", { name: labels.run })).toBeEnabled();
-  await expect(page.getByText(labels.valid).first()).toBeVisible();
-  await page.getByRole("tab", { name: labels.blocks }).click();
-  await expect(page.locator(".blocklyMainBackground")).toBeVisible();
-}
-
-async function doubleClickBlocklyBackground(page: Page) {
-  await page.locator(".blocklyMainBackground").first().waitFor();
-  const point = await page.evaluate(() => {
-    const background = document.querySelector(".blocklyMainBackground");
-    if (!background) return undefined;
-    const rect = background.getBoundingClientRect();
-    const xSteps = [0.82, 0.72, 0.62, 0.52, 0.42, 0.32];
-    const ySteps = [0.22, 0.34, 0.46, 0.58, 0.7, 0.82];
-    for (const yStep of ySteps) {
-      for (const xStep of xSteps) {
-        const x = rect.left + rect.width * xStep;
-        const y = rect.top + rect.height * yStep;
-        if (document.elementFromPoint(x, y) === background) return { x, y };
-      }
-    }
-    return undefined;
-  });
-  if (!point) throw new Error("No empty Blockly background point is available");
-  await page.mouse.dblclick(point.x, point.y);
-}
-
-async function overflowingText(
-  page: Page,
-  labels: string[],
-) {
-  return page.evaluate((expectedLabels) => {
-    return Array.from(
-      document.querySelectorAll("button,[role='tab'],h1,h2,h3"),
-    )
-      .filter((element) => {
-        const text = element.textContent?.trim() ?? "";
-        return expectedLabels.some((label) => text.includes(label));
-      })
-      .map((element) => ({
-        text: element.textContent?.trim() ?? "",
-        overflows:
-          element.scrollWidth > Math.ceil(element.getBoundingClientRect().width),
-      }))
-      .filter(({ overflows }) => overflows);
-  }, labels);
-}

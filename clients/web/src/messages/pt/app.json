@@ -617,7 +617,7 @@
     },
     "customBlock": {
       "title": "Criar bloco personalizado",
-      "description": "Cria uma macro de rascunho versionada que se expande na tarefa e na verificação do loop atual.",
+      "description": "Cria uma macro personalizada para este rascunho do editor que se expande na tarefa e na verificação do loop atual.",
       "label": "Rótulo do bloco",
       "slug": "Slug do bloco",
       "promptTemplate": "Modelo do prompt da tarefa",
@@ -625,6 +625,7 @@
       "acceptTemplate": "Modelo da condição de aprovação",
       "cancel": "Cancelar",
       "create": "Criar bloco",
+      "duplicate": "Este slug de bloco já existe. Use um novo slug.",
       "required": "Este campo é obrigatório",
       "identifier": "Use 2-100 letras minúsculas, dígitos ou hifens"
     },

@@ -156,6 +156,7 @@ export function createLoopWorkbenchMessages(t: LoopMessageTranslator): LoopWorkb
       acceptTemplate: t("customBlock.acceptTemplate"),
       cancel: t("customBlock.cancel"),
       create: t("customBlock.create"),
+      duplicate: t("customBlock.duplicate"),
       required: t("customBlock.required"),
       identifier: t("customBlock.identifier"),
     },

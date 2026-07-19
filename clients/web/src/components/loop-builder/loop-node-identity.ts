@@ -18,7 +18,7 @@ function slug(value: string): string {
     .toLowerCase()
     .normalize("NFKD")
     .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
+    .replace(/^-+|-+$/g, "");
   return normalized || "node";
 }
 
@@ -34,7 +34,7 @@ export function ensureBlockNodeId(block: Blockly.Block): string {
   const existing = getBlockNodeId(block);
   if (existing) return existing;
   const localId = String(block.getFieldValue("LOCAL_ID") ?? block.type);
-  const suffix = slug(block.id).slice(-12);
+  const suffix = slug(slug(block.id).slice(-12));
   const nodeId = `n-${slug(localId)}-${suffix}`;
   setBlockNodeId(block, nodeId);
   return nodeId;

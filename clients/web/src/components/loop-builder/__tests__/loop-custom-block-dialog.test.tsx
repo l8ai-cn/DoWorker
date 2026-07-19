@@ -23,6 +23,7 @@ describe("LoopCustomBlockDialog", () => {
     const onCreate = vi.fn();
     render(
       <LoopCustomBlockDialog
+        definitions={[]}
         messages={messages}
         open
         onCreate={onCreate}
@@ -59,6 +60,7 @@ describe("LoopCustomBlockDialog", () => {
     const onCreate = vi.fn();
     render(
       <LoopCustomBlockDialog
+        definitions={[]}
         messages={messages}
         open
         onCreate={onCreate}
@@ -75,6 +77,39 @@ describe("LoopCustomBlockDialog", () => {
     fireEvent.click(screen.getByRole("button", { name: "创建积木" }));
 
     expect(screen.getByText("使用 2-100 位小写字母、数字或连字符")).toBeInTheDocument();
+    expect(onCreate).not.toHaveBeenCalled();
+  });
+
+  it("rejects an existing block slug instead of replacing its templates", () => {
+    const onCreate = vi.fn();
+    render(
+      <LoopCustomBlockDialog
+        definitions={[{
+          slug: "ppt-step",
+          version: 1,
+          label: "旧版 PPT",
+          parameters: [],
+          expansion: {
+            agentLocalId: "ppt-step-task",
+            verifierLocalId: "ppt-step-check",
+            promptTemplate: "旧模板",
+            commandTemplate: "旧命令",
+            acceptTemplate: "旧验收",
+          },
+        }]}
+        messages={messages}
+        open
+        onCreate={onCreate}
+        onOpenChange={vi.fn()}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText("积木名称"), {
+      target: { value: "新版 PPT" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "创建积木" }));
+
+    expect(screen.getByText("积木标识已存在，请使用新的标识")).toBeInTheDocument();
     expect(onCreate).not.toHaveBeenCalled();
   });
 });

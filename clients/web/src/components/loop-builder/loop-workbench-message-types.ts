@@ -84,6 +84,7 @@ export interface LoopCustomBlockMessages {
   acceptTemplate: string;
   cancel: string;
   create: string;
+  duplicate: string;
   required: string;
   identifier: string;
 }
