@@ -57,6 +57,7 @@ export const englishAgentWorkspaceText: AgentWorkspaceText = {
   takeControl: "Take control",
   releaseControl: "Release control",
   taskFailed: "The task failed. No verified result is available.",
+  userProgressTitle: "Generation progress",
   unsupportedToolPreview:
     "No specialized preview is registered. Raw tool evidence is available below.",
   rawToolEvidence: "Raw tool evidence",
@@ -118,6 +119,7 @@ export const chineseAgentWorkspaceText: AgentWorkspaceText = {
   takeControl: "接管终端",
   releaseControl: "释放控制",
   taskFailed: "任务执行失败，当前没有可验证的成果。",
+  userProgressTitle: "生成过程",
   unsupportedToolPreview:
     "未注册专用工具预览，以下保留原始工具证据。",
   rawToolEvidence: "原始工具证据",

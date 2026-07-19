@@ -1,4 +1,5 @@
 import type {
+  AgentActivityItem,
   AgentArtifactItem,
   AgentSessionSnapshot,
   AgentTimelineItem,
@@ -13,12 +14,76 @@ export type AgentWorkspacePresentation = "developer" | "user";
 
 export function userConversationItems(
   items: readonly AgentTimelineItem[],
+  progressTitle = "Progress",
 ): AgentTimelineItem[] {
-  return items.filter(
-    (item) =>
-      item.kind === "message" &&
-      (item.role === "user" || item.role === "assistant"),
+  const visible: AgentTimelineItem[] = [];
+  let progress: AgentActivityItem | null = null;
+  for (const item of items) {
+    if (userVisibleConversationItem(item)) {
+      if (progress) visible.push(progress);
+      progress = null;
+      visible.push(item);
+      continue;
+    }
+    if (userProgressCandidate(item)) {
+      progress = mergeUserProgress(progress, item, progressTitle);
+    }
+  }
+  if (progress) visible.push(progress);
+  return visible;
+}
+
+function userVisibleConversationItem(item: AgentTimelineItem): boolean {
+  return (
+    (item.kind === "message" &&
+      (item.role === "user" || item.role === "assistant")) ||
+    item.kind === "attachment"
   );
+}
+
+function userProgressCandidate(item: AgentTimelineItem): boolean {
+  return (
+    item.kind === "tool" ||
+    item.kind === "system" ||
+    item.kind === "reasoning" ||
+    item.kind === "error"
+  );
+}
+
+function mergeUserProgress(
+  current: AgentActivityItem | null,
+  item: AgentTimelineItem,
+  title: string,
+): AgentActivityItem {
+  return {
+    id: current?.id ?? `${item.id}:user-progress`,
+    kind: "system",
+    title,
+    status: strongerProgressStatus(current?.status, userProgressStatus(item)),
+  };
+}
+
+function userProgressStatus(
+  item: AgentTimelineItem,
+): "pending" | "running" | "completed" | "failed" {
+  if (item.kind === "error") return "failed";
+  if (
+    item.kind === "system" ||
+    item.kind === "reasoning" ||
+    item.kind === "tool"
+  ) {
+    return item.status;
+  }
+  return "completed";
+}
+
+function strongerProgressStatus(
+  current: "pending" | "running" | "completed" | "failed" | undefined,
+  next: "pending" | "running" | "completed" | "failed",
+) {
+  const rank = { completed: 0, pending: 1, running: 2, failed: 3 };
+  if (!current) return next;
+  return rank[next] > rank[current] ? next : current;
 }
 
 export function userVisibleArtifacts(

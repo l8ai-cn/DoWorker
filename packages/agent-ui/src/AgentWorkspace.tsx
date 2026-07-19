@@ -80,7 +80,7 @@ export function AgentWorkspace({
       : allArtifacts;
   const conversationItems =
     presentation === "user"
-      ? userConversationItems(allConversationItems)
+      ? userConversationItems(allConversationItems, text.userProgressTitle)
       : allConversationItems;
   const terminalEnabled =
     presentation === "developer" &&

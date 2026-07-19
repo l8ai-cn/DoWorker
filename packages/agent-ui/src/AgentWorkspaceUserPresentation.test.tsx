@@ -56,6 +56,8 @@ describe("AgentWorkspace user presentation", () => {
     );
 
     expect(await screen.findByText("生成一个灯笼升空的视频")).toBeVisible();
+    expect(screen.getByText("生成过程")).toBeVisible();
+    expect(screen.getAllByText("已完成").length).toBeGreaterThanOrEqual(2);
     expect(screen.getByText("视频文件已发布并通过完整性校验")).toBeVisible();
     expect(screen.getByRole("tab", { name: "成果" })).toBeVisible();
     expect(screen.queryByText(/tools registered/)).not.toBeInTheDocument();

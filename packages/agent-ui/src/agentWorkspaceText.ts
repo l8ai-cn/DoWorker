@@ -42,6 +42,7 @@ export interface AgentWorkspaceText {
   takeControl: string;
   releaseControl: string;
   taskFailed: string;
+  userProgressTitle: string;
   unsupportedToolPreview: string;
   rawToolEvidence: string;
   videoTaskStatus: VideoTaskStatusText;
