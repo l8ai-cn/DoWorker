@@ -350,10 +350,11 @@ message SandboxConfig {
 
   // Git 认证配置
   // credential_type 决定如何认证：
+  // - "none": 匿名公开访问，Runner 必须禁用本地 git/SSH 凭据
   // - "runner_local": 使用 Runner 本机的 git 配置，无需其他字段
   // - "oauth" 或 "pat": 使用 git_token
   // - "ssh_key": 使用 ssh_private_key
-  string credential_type = 3;     // runner_local, oauth, pat, ssh_key
+  string credential_type = 3;     // none, runner_local, oauth, pat, ssh_key
   string git_token = 4;           // Git HTTPS 认证令牌（oauth/pat 类型使用）
   string ssh_private_key = 5;     // SSH 私钥内容（ssh_key 类型使用，Runner 写入临时文件）
 
@@ -373,6 +374,7 @@ message SandboxConfig {
 
   // 知识库挂载（clone 到 sandbox 内 mount_path）
   repeated KnowledgeMount knowledge_mounts = 12;
+  string source_commit_sha = 13;  // 不可变源码提交；source_branch 仅用于审计/展示
 }
 
 // KnowledgeMount 知识库挂载配置
@@ -387,6 +389,7 @@ message KnowledgeMount {
   string ssh_clone_url = 7;    // 内部 Gitea SSH URL（不含凭证）
   string git_private_key = 8;  // 单仓库 deploy key；ro/rw 使用不同密钥
   string git_known_hosts = 9;  // 由控制面从 Gitea PVC 固定下发的 SSH 主机公钥
+  string commit_sha = 10;      // 不可变知识库提交；branch 仅用于审计/展示
 }
 
 // TerminatePodCommand 终止 Pod 命令
