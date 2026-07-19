@@ -14,6 +14,7 @@ const SUPPORTED_AGENTS = [
   { slug: "claude-code", label: "Claude Code" },
   { slug: "gemini-cli", label: "Gemini CLI" },
   { slug: "codex-cli", label: "Codex CLI" },
+  { slug: "pattern-designer", label: "Pattern Designer" },
   { slug: "aider", label: "Aider" },
 ] as const;
 
