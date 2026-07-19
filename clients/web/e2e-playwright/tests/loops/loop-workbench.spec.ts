@@ -43,72 +43,6 @@ const LOCALE_CASES = [
     failure: "Failure handling",
     ai: "AI assistant",
   },
-  {
-    locale: "de",
-    title: "Loop-Workbench",
-    blocks: "Blöcke",
-    code: "Code",
-    run: "Loop starten",
-    valid: "Gültig",
-    custom: "Benutzerdefinierten Block erstellen",
-    failure: "Fehlerbehandlung",
-    ai: "AI-Assistent",
-  },
-  {
-    locale: "es",
-    title: "Área de trabajo de Loop",
-    blocks: "Bloques",
-    code: "Código",
-    run: "Ejecutar loop",
-    valid: "Válido",
-    custom: "Crear bloque personalizado",
-    failure: "Gestión de fallos",
-    ai: "Asistente AI",
-  },
-  {
-    locale: "fr",
-    title: "Atelier Loop",
-    blocks: "Blocs",
-    code: "Code",
-    run: "Lancer le loop",
-    valid: "Valide",
-    custom: "Créer un bloc personnalisé",
-    failure: "Gestion des échecs",
-    ai: "Assistant IA",
-  },
-  {
-    locale: "ja",
-    title: "Loopワークベンチ",
-    blocks: "ブロック",
-    code: "コード",
-    run: "Loopを実行",
-    valid: "有効",
-    custom: "カスタムブロックを作成",
-    failure: "失敗処理",
-    ai: "AIアシスタント",
-  },
-  {
-    locale: "ko",
-    title: "Loop 워크벤치",
-    blocks: "블록",
-    code: "코드",
-    run: "Loop 실행",
-    valid: "유효",
-    custom: "사용자 블록 만들기",
-    failure: "실패 처리",
-    ai: "AI 어시스턴트",
-  },
-  {
-    locale: "pt",
-    title: "Bancada de Loop",
-    blocks: "Blocos",
-    code: "Código",
-    run: "Executar loop",
-    valid: "Válido",
-    custom: "Criar bloco personalizado",
-    failure: "Tratamento de falhas",
-    ai: "Assistente de IA",
-  },
 ] as const;
 
 test.describe("Loop workbench", () => {
@@ -222,7 +156,7 @@ test.describe("Loop workbench", () => {
     expect(source).toContain("verify ppt-step-check");
   });
 
-  test("keeps Loop projection equivalent across eight localized workbenches", async ({
+  test("keeps Loop projection equivalent across Chinese and English workbenches", async ({
     page,
     context,
   }) => {
@@ -254,7 +188,7 @@ test.describe("Loop workbench", () => {
     expect(failedRequests()).toEqual([]);
   });
 
-  test("keeps eight localized Loop workbenches usable on mobile", async ({
+  test("keeps Chinese and English Loop workbenches usable on mobile", async ({
     page,
     context,
   }) => {

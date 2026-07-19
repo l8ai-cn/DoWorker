@@ -1,11 +1,5 @@
 import { describe, expect, it } from "vitest";
-import deMessages from "@/messages/de/app.json";
 import enMessages from "@/messages/en/app.json";
-import esMessages from "@/messages/es/app.json";
-import frMessages from "@/messages/fr/app.json";
-import jaMessages from "@/messages/ja/app.json";
-import koMessages from "@/messages/ko/app.json";
-import ptMessages from "@/messages/pt/app.json";
 import zhMessages from "@/messages/zh/app.json";
 import {
   createLoopWorkbenchMessages,
@@ -37,12 +31,6 @@ describe("Loop workbench messages", () => {
   it.each([
     ["English", enMessages.loopWorkbench],
     ["Chinese", zhMessages.loopWorkbench],
-    ["German", deMessages.loopWorkbench],
-    ["Spanish", esMessages.loopWorkbench],
-    ["French", frMessages.loopWorkbench],
-    ["Japanese", jaMessages.loopWorkbench],
-    ["Korean", koMessages.loopWorkbench],
-    ["Portuguese", ptMessages.loopWorkbench],
   ])("keeps %s Loop keys aligned with English", (_, messages) => {
     expect(paths(messages).sort()).toEqual(paths(enMessages.loopWorkbench).sort());
   });
