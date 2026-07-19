@@ -92,6 +92,14 @@ for job in web-e2e session-compat-e2e mcp-e2e; do
   fi
 done
 
+for job in session-compat-e2e mcp-e2e; do
+  if ! awk "/^  ${job}:/{inside=1; next} inside && /^  [a-z0-9-]+:/{exit} inside" "$CI_WORKFLOW" \
+    | grep -q "wait_e2e_echo_runners_online.sh"; then
+    echo "${job} must wait for e2e-echo runner readiness" >&2
+    exit 1
+  fi
+done
+
 if grep -Eq 'e2e-mock-agent.*do-agent-binary' "$PREPARE" \
   || grep -q "_write_do_agent_stub" "$DOAGENT_BUILD"; then
   echo "do-agent build must not substitute a mock or stub binary" >&2

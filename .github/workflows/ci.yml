@@ -564,6 +564,8 @@ jobs:
         run: |
           source deploy/dev/.env
           echo "BACKEND_HTTP_PORT=$BACKEND_HTTP_PORT" >> $GITHUB_OUTPUT
+      - name: Wait for e2e-echo runners online
+        run: bash deploy/dev/wait_e2e_echo_runners_online.sh
       - name: Run session compatibility smoke
         env:
           SESSION_COMPAT_API_URL: http://localhost:${{ steps.ports.outputs.BACKEND_HTTP_PORT }}
@@ -623,6 +625,8 @@ jobs:
             sleep 3
           done
           echo "backend never reported healthy"; exit 1
+      - name: Wait for e2e-echo runners online
+        run: bash deploy/dev/wait_e2e_echo_runners_online.sh
       - name: Run MCP E2E suites
         env:
           MCP_PORT: ${{ steps.ports.outputs.RUNNER_MCP_PORT }}
