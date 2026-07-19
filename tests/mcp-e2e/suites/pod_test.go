@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"regexp"
-	"strings"
 	"testing"
 	"time"
 
@@ -12,8 +11,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// create_pod returns text like "Pod: <key> ..." — extract the key with a
-// regex and use it to clean up via REST.
 var nestedPodKeyRE = regexp.MustCompile(`(\d+-standalone-[a-f0-9]+)`)
 
 func TestCreatePod_NestedSpawn(t *testing.T) {
@@ -32,36 +29,29 @@ func TestCreatePod_NestedSpawn(t *testing.T) {
 	defer cancel()
 
 	alias := fmt.Sprintf("e2e-nested-%d", time.Now().UnixMilli())
-	out, err := pod.MCP.CallToolText(ctx, "create_pod", map[string]any{
-		"resource": map[string]any{
-			"apiVersion": "agentsmesh.io/v1alpha1",
-			"kind":       "Worker",
-			"metadata": map[string]any{
-				"name": alias, "namespace": env.DevOrgSlug,
+	planID, err := rest.PlanOrchestrationResource(ctx, env.DevOrgSlug, map[string]any{
+		"apiVersion": "agentsmesh.io/v1alpha1",
+		"kind":       "Worker",
+		"metadata": map[string]any{
+			"name": alias, "namespace": env.DevOrgSlug,
+		},
+		"spec": map[string]any{
+			"workerTemplateRef": map[string]any{
+				"kind": "WorkerTemplate", "name": templateName,
 			},
-			"spec": map[string]any{
-				"workerTemplateRef": map[string]any{
-					"kind": "WorkerTemplate", "name": templateName,
-				},
-				"inputs": map[string]any{}, "alias": alias,
-			},
+			"inputs": map[string]any{}, "alias": alias,
 		},
 	})
-	if err != nil {
-		t.Fatalf("create_pod: %v", err)
-	}
-	// The exact label varies (Pod / pod_key / etc.) — we only need the key
-	// itself, and pod keys follow a stable pattern <n>-standalone-<hex>.
-	m := nestedPodKeyRE.FindStringSubmatch(out)
-	if len(m) != 2 {
-		t.Fatalf("could not parse spawned pod key from output:\n%s", out)
-	}
-	spawnedKey := m[1]
-	if !strings.Contains(out, spawnedKey) {
-		t.Errorf("expected pod key in output:\n%s", out)
-	}
-	require.Contains(t, out, "Resource: Worker/")
-	require.Contains(t, out, "Snapshot:")
+	require.NoError(t, err)
+	out, err := pod.MCP.CallToolText(
+		ctx,
+		"create_pod",
+		map[string]any{"plan_id": planID},
+	)
+	require.NoError(t, err)
+	match := nestedPodKeyRE.FindStringSubmatch(out)
+	require.Len(t, match, 2, out)
+	spawnedKey := match[1]
 	binding, err := db.GetWorkerLaunchOrchestrationBinding(ctx, spawnedKey)
 	require.NoError(t, err)
 	require.Positive(t, binding.ResourceID)

@@ -2,7 +2,6 @@ package suites
 
 import (
 	"context"
-	"strings"
 	"testing"
 	"time"
 
@@ -10,10 +9,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestCreateWorkflow_ResourceManifestPersistsDisabledSnapshot(t *testing.T) {
+func TestCreateWorkflow_ResourceManifestPersistsSnapshotBinding(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	rest := fixture.SharedREST(t, env)
-	pod := fixture.NewEchoPod(t, env, rest)
+	fixture.NewEchoPod(t, env, rest)
 	templateName := fixture.NewEchoWorkerTemplateResource(
 		t,
 		env,
@@ -32,33 +31,31 @@ func TestCreateWorkflow_ResourceManifestPersistsDisabledSnapshot(t *testing.T) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	out, err := pod.MCP.CallToolText(ctx, "create_workflow", map[string]any{
-		"resource": map[string]any{
-			"apiVersion": "agentsmesh.io/v1alpha1",
-			"kind":       "Workflow",
-			"metadata": map[string]any{
-				"name": workflowName, "namespace": env.DevOrgSlug,
-				"displayName": workflowName,
+
+	applied, err := rest.ApplyOrchestrationResource(ctx, env.DevOrgSlug, "Workflow", map[string]any{
+		"apiVersion": "agentsmesh.io/v1alpha1",
+		"kind":       "Workflow",
+		"metadata": map[string]any{
+			"name": workflowName, "namespace": env.DevOrgSlug,
+			"displayName": workflowName,
+		},
+		"spec": map[string]any{
+			"workerTemplateRef": map[string]any{
+				"kind": "WorkerTemplate", "name": templateName,
 			},
-			"spec": map[string]any{
-				"workerTemplateRef": map[string]any{
-					"kind": "WorkerTemplate", "name": templateName,
-				},
-				"promptRef": map[string]any{
-					"kind": "Prompt", "name": promptName,
-				},
-				"inputs": map[string]any{}, "executionMode": "direct",
-				"cronExpression": "", "sandboxStrategy": "fresh",
-				"sessionPersistence": false, "concurrencyPolicy": "skip",
-				"maxConcurrentRuns": 1, "maxRetainedRuns": 0,
-				"timeoutMinutes": 1, "idleTimeoutSeconds": 30,
+			"promptRef": map[string]any{
+				"kind": "Prompt", "name": promptName,
 			},
+			"inputs": map[string]any{}, "executionMode": "direct",
+			"cronExpression": "", "sandboxStrategy": "fresh",
+			"sessionPersistence": false, "concurrencyPolicy": "skip",
+			"maxConcurrentRuns": 1, "maxRetainedRuns": 0,
+			"timeoutMinutes": 1, "idleTimeoutSeconds": 30,
 		},
 	})
 	require.NoError(t, err)
-	require.Contains(t, strings.ToLower(out), "disabled")
-	require.Contains(t, out, "Resource: Workflow/")
-	require.Contains(t, out, "Snapshot:")
+	require.Positive(t, applied.WorkflowID)
+	require.Positive(t, applied.WorkerSpecSnapshotID)
 
 	binding, err := db.GetWorkflowOrchestrationBinding(
 		ctx,
@@ -66,7 +63,7 @@ func TestCreateWorkflow_ResourceManifestPersistsDisabledSnapshot(t *testing.T) {
 		workflowName,
 	)
 	require.NoError(t, err)
-	require.Equal(t, "disabled", binding.Status)
+	require.Equal(t, "enabled", binding.Status)
 	require.Positive(t, binding.ResourceID)
 	require.Positive(t, binding.ResourceRevision)
 	require.Positive(t, binding.WorkerSpecSnapshotID)

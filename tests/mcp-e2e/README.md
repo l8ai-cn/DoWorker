@@ -23,6 +23,7 @@ source deploy/dev/.env
 cd tests/mcp-e2e
 BACKEND_HTTP_PORT="${BACKEND_HTTP_PORT:-10015}" \
 MCP_PORT="${RUNNER_MCP_PORT:-10018}" \
+RUNNER_2_MCP_PORT="${RUNNER_2_MCP_PORT:-10019}" \
 POSTGRES_PORT="${POSTGRES_PORT:-10002}" \
 go test ./suites/... -count=1
 ```

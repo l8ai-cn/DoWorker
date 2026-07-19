@@ -152,6 +152,14 @@ func (r *REST) ApplyOrchestrationResource(
 	}
 }
 
+func (r *REST) PlanOrchestrationResource(
+	ctx context.Context,
+	orgSlug string,
+	manifest any,
+) (string, error) {
+	return r.validateAndPlanResource(ctx, orgSlug, manifest)
+}
+
 type resourceApplyWire struct {
 	Revision string `json:"revision"`
 }
