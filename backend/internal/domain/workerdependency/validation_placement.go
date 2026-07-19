@@ -2,6 +2,7 @@ package workerdependency
 
 import (
 	"fmt"
+	"strings"
 
 	resource "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
@@ -28,13 +29,8 @@ func validatePlacement(document Document, placement Placement) error {
 	if err := validateDigest("worker dependency runtime image digest", image.Digest); err != nil {
 		return err
 	}
-	named, err := reference.ParseNormalizedNamed(image.Reference)
-	if err != nil {
-		return fmt.Errorf("worker dependency runtime image reference is invalid: %w", err)
-	}
-	canonical, ok := named.(reference.Canonical)
-	if !ok || canonical.Digest().String() != image.Digest {
-		return fmt.Errorf("worker dependency runtime image reference must match its digest")
+	if err := validateRuntimeImageReference(image.Reference, image.Digest); err != nil {
+		return err
 	}
 	if err := validatePin(
 		document,
@@ -69,4 +65,30 @@ func validatePlacement(document Document, placement Placement) error {
 		workerspec.RuntimeImage{ID: image.ID, Digest: image.Digest},
 		placement.Spec,
 	)
+}
+
+func validateRuntimeImageReference(value, digest string) error {
+	named, err := reference.ParseNormalizedNamed(value)
+	if err == nil {
+		canonical, ok := named.(reference.Canonical)
+		if ok && canonical.Digest().String() == digest {
+			return nil
+		}
+		return fmt.Errorf("worker dependency runtime image reference must match its digest")
+	}
+	if localDigest, ok := dockerDaemonReferenceDigest(value); ok {
+		if localDigest == digest {
+			return nil
+		}
+		return fmt.Errorf("worker dependency runtime image reference must match its digest")
+	}
+	return fmt.Errorf("worker dependency runtime image reference is invalid: %w", err)
+}
+
+func dockerDaemonReferenceDigest(value string) (string, bool) {
+	image, digest, ok := strings.Cut(strings.TrimPrefix(value, "docker-daemon://"), "@")
+	if !strings.HasPrefix(value, "docker-daemon://") || !ok || image == "" {
+		return "", false
+	}
+	return digest, digestPattern.MatchString(digest)
 }

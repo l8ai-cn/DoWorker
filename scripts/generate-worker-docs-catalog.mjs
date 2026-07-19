@@ -60,12 +60,17 @@ function buildWorkers() {
     evidenceMatrix.workers.map((worker) => [worker.slug, worker]),
   );
   const lockedImages = runtimeCatalog.images;
-  const definitionSlugs = definitionCatalog.worker_types.map((worker) => worker.slug);
+  const definitions = definitionCatalog.worker_types
+    .map((entry) => ({
+      entry,
+      definition: readJson(path.join(root, entry.definition_path)),
+    }))
+    .filter(({ definition }) => !definition.internal);
+  const definitionSlugs = definitions.map(({ entry }) => entry.slug);
 
   assertSameSlugs(definitionSlugs, [...evidenceBySlug.keys()], "evidence matrix");
 
-  return definitionCatalog.worker_types.map((entry) => {
-    const definition = readJson(path.join(root, entry.definition_path));
+  return definitions.map(({ entry, definition }) => {
     const evidence = evidenceBySlug.get(entry.slug);
     const runtimeImage = lockedImages.find((image) =>
       image.worker_type_slugs.includes(entry.slug),

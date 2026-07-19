@@ -128,3 +128,22 @@ func TestRuntimeImageRequiresNamedDigestReference(t *testing.T) {
 
 	require.ErrorContains(t, err, "runtime image reference is invalid")
 }
+
+func TestRuntimeImageAcceptsLocalDockerDaemonDigestReference(t *testing.T) {
+	document := validDocument(t)
+	document.Placement.RuntimeImage.Reference =
+		"docker-daemon://agentsmesh-runner-e2e-echo:latest@" +
+			document.Placement.RuntimeImage.Digest
+
+	require.NoError(t, Validate(document))
+}
+
+func TestRuntimeImageRejectsMutableLocalDockerDaemonReference(t *testing.T) {
+	document := validDocument(t)
+	document.Placement.RuntimeImage.Reference =
+		"docker-daemon://agentsmesh-runner-e2e-echo:latest"
+
+	err := Validate(document)
+
+	require.ErrorContains(t, err, "runtime image reference is invalid")
+}

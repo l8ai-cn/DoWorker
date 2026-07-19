@@ -56,6 +56,7 @@ func ParseSnapshot(source []byte, agentFile string) (Definition, error) {
 	}
 	return Definition{
 		Slug: document.Slug, Version: document.DefinitionVersion,
+		Internal:   document.Internal,
 		Executable: document.Executable, AdapterID: document.AdapterID,
 		DefinitionHash:   definitionBundleHash(source, []byte(agentFile)),
 		DefinitionSource: append([]byte{}, source...), AgentFile: agentFile,
