@@ -1,6 +1,8 @@
 package agentpod
 
 import (
+	"strings"
+
 	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 )
@@ -17,7 +19,7 @@ func artifactSkillPackages(
 			SkillID:     skill.Pin.DomainID,
 			Slug:        skill.Slug.String(),
 			Version:     skill.Version,
-			ContentSHA:  skill.ContentDigest,
+			ContentSHA:  strings.TrimPrefix(skill.ContentDigest, "sha256:"),
 			StorageKey:  skill.StorageKey,
 			PackageSize: skill.PackageSize,
 		}

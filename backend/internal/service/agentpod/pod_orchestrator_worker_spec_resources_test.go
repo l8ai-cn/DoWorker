@@ -3,6 +3,7 @@ package agentpod
 import (
 	"testing"
 
+	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 	"github.com/stretchr/testify/assert"
@@ -33,4 +34,44 @@ func TestWorkerSpecResourceRequirementsUseExactIDs(t *testing.T) {
 	assert.Equal(t, []int64{4, 6}, envBundleIDs)
 	assert.Equal(t, []int64{3, 9}, skillIDs)
 	assert.Empty(t, configBindings)
+}
+
+func TestWorkerSpecSecretEnvBundleIDsDeduplicateSecretRefs(t *testing.T) {
+	spec := &specdomain.Spec{
+		TypeConfig: specdomain.TypeConfig{
+			SecretRefs: map[string]specdomain.SecretReference{
+				"ACCESS_KEY": {
+					Kind: slugkit.MustNewForTest("env-bundle"),
+					ID:   6,
+				},
+				"SECRET_KEY": {
+					Kind: slugkit.MustNewForTest("env-bundle"),
+					ID:   6,
+				},
+			},
+		},
+		Workspace: specdomain.Workspace{
+			EnvBundleIDs: []specdomain.RuntimeEnvBundleID{4},
+		},
+	}
+
+	assert.Equal(t, []int64{6}, workerSpecSecretEnvBundleIDs(spec))
+}
+
+func TestArtifactSkillPackagesUsesBareContentSHAForRunnerCache(t *testing.T) {
+	packages := artifactSkillPackages(&workerdependency.Document{
+		Skills: []workerdependency.Skill{{
+			Pin:           workerdependency.ResourcePin{DomainID: 3},
+			Slug:          slugkit.MustNewForTest("canvas-compose"),
+			Version:       1,
+			ContentDigest: "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+			StorageKey:    "skills/catalog/canvas-compose.tar.gz",
+			PackageSize:   42,
+		}},
+	})
+
+	assert.Equal(t,
+		"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+		packages[0].ContentSHA,
+	)
 }

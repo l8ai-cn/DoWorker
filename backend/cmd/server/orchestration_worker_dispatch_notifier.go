@@ -6,6 +6,11 @@ type workerDispatchQueue interface {
 	TriggerDrain(int64)
 }
 
+type workerApplyDispatchQueue interface {
+	workerDispatchQueue
+	workerCommandPayloadSealer
+}
+
 type orchestrationWorkerDispatchNotifier struct {
 	queue workerDispatchQueue
 }

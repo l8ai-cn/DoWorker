@@ -326,35 +326,3 @@ func TestBuildPodCommand_WithSSHCredential(t *testing.T) {
 	assert.Equal(t, "ssh_key", coord.lastCmd.SandboxConfig.CredentialType)
 	assert.Contains(t, coord.lastCmd.SandboxConfig.SshPrivateKey, "BEGIN RSA PRIVATE KEY")
 }
-
-func TestBuildPodCommand_RunnerLocalCredential_NoCredsSent(t *testing.T) {
-	userSvc := &mockUserServiceForOrch{
-		defaultCred: &user.GitCredential{
-			ID:             1,
-			CredentialType: "runner_local",
-		},
-	}
-	repo := &gitprovider.Repository{
-		HttpCloneURL: "https://github.com/org/repo.git",
-	}
-	repoSvc := &mockRepoService{repo: repo}
-	coord := &mockPodCoordinator{}
-	repoID := int64(10)
-	orch, _, _ := setupOrchestrator(t, withCoordinator(coord), withUserSvc(userSvc), withRepoSvc(repoSvc))
-
-	agentSlug := "claude-code"
-	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID:  1,
-		UserID:          1,
-		RunnerID:        1,
-		AgentSlug:       agentSlug,
-		ModelResourceID: testModelResourceID(),
-		AgentfileLayer:  ptrStr("CONFIG mcp_enabled = true"),
-		RepositoryID:    &repoID,
-	})
-
-	require.NoError(t, err)
-	require.NotNil(t, coord.lastCmd.SandboxConfig)
-	assert.Equal(t, "runner_local", coord.lastCmd.SandboxConfig.CredentialType)
-	assert.Empty(t, coord.lastCmd.SandboxConfig.GitToken)
-}

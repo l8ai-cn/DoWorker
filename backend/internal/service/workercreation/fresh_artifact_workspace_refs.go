@@ -33,6 +33,7 @@ func appendFreshWorkspaceReferences(
 	if refs.KnowledgeBases == nil {
 		refs.KnowledgeBases = map[int64]control.ResolvedReference{}
 	}
+	plannedEnvBundles := map[int64]struct{}{}
 	if err := appendFreshRepositoryReference(scope, namespace, refs, spec, workspace); err != nil {
 		return err
 	}
@@ -83,7 +84,7 @@ func appendFreshWorkspaceReferences(
 			return err
 		}
 		refs.RuntimeBundles[int64(id)] = ref
-		refs.AllPlanReferences = append(refs.AllPlanReferences, ref)
+		appendFreshEnvBundlePlanReference(refs, plannedEnvBundles, int64(id), ref)
 	}
 	for field, secret := range spec.TypeConfig.SecretRefs {
 		ref, err := freshEnvBundleReference(scope, namespace, workspace.envBundles[secret.ID])
@@ -91,7 +92,7 @@ func appendFreshWorkspaceReferences(
 			return err
 		}
 		refs.SecretBundles[field] = ref
-		refs.AllPlanReferences = append(refs.AllPlanReferences, ref)
+		appendFreshEnvBundlePlanReference(refs, plannedEnvBundles, secret.ID, ref)
 	}
 	for _, binding := range spec.Workspace.ConfigDocumentBindings {
 		ref, err := freshEnvBundleReference(
@@ -103,9 +104,22 @@ func appendFreshWorkspaceReferences(
 			return err
 		}
 		refs.ConfigBundles[binding.ConfigBundleID] = ref
-		refs.AllPlanReferences = append(refs.AllPlanReferences, ref)
+		appendFreshEnvBundlePlanReference(refs, plannedEnvBundles, binding.ConfigBundleID, ref)
 	}
 	return nil
+}
+
+func appendFreshEnvBundlePlanReference(
+	refs *ArtifactReferences,
+	seen map[int64]struct{},
+	id int64,
+	ref control.ResolvedReference,
+) {
+	if _, exists := seen[id]; exists {
+		return
+	}
+	refs.AllPlanReferences = append(refs.AllPlanReferences, ref)
+	seen[id] = struct{}{}
 }
 
 func appendFreshRepositoryReference(

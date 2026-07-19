@@ -39,3 +39,21 @@ func workerSpecResourceRequirements(
 	)
 	return envBundleIDs, skillIDs, configBindings
 }
+
+func workerSpecSecretEnvBundleIDs(spec *specdomain.Spec) []int64 {
+	if spec == nil {
+		return nil
+	}
+	envBundleSet := make(map[int64]struct{}, len(spec.TypeConfig.SecretRefs))
+	for _, reference := range spec.TypeConfig.SecretRefs {
+		envBundleSet[reference.ID] = struct{}{}
+	}
+	envBundleIDs := make([]int64, 0, len(envBundleSet))
+	for id := range envBundleSet {
+		envBundleIDs = append(envBundleIDs, id)
+	}
+	sort.Slice(envBundleIDs, func(left, right int) bool {
+		return envBundleIDs[left] < envBundleIDs[right]
+	})
+	return envBundleIDs
+}

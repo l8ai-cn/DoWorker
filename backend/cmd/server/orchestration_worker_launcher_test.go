@@ -26,7 +26,8 @@ func TestOrchestrationWorkerPodLauncherMaterializesDeferredSnapshotPod(
 			},
 		},
 	}
-	launcher := newOrchestrationWorkerPodLauncher(orchestrator)
+	sealer := &workerCommandPayloadSealerStub{}
+	launcher := newOrchestrationWorkerPodLauncher(orchestrator, sealer)
 	prompt := "Review authorization"
 
 	launch, err := launcher.MaterializeWorkerPod(
@@ -52,11 +53,13 @@ func TestOrchestrationWorkerPodLauncherMaterializesDeferredSnapshotPod(
 	assert.True(t, orchestrator.request.QueueIfUnavailable)
 	assert.Equal(t, int64(73), launch.PodID)
 	assert.Equal(t, int64(11), launch.RunnerID)
+	assert.True(t, sealer.called)
 
 	var message runnerv1.ServerMessage
-	require.NoError(t, proto.Unmarshal(launch.CommandPayload, &message))
+	require.NoError(t, proto.Unmarshal(sealer.plaintext, &message))
 	require.NotNil(t, message.GetCreatePod())
 	assert.Equal(t, launch.PodKey, message.GetCreatePod().GetPodKey())
+	assert.Equal(t, []byte("sealed"), launch.CommandPayload)
 }
 
 func TestOrchestrationWorkerDispatchNotifierTriggersQueue(t *testing.T) {
@@ -88,4 +91,19 @@ type workerDispatchQueueStub struct {
 
 func (stub *workerDispatchQueueStub) TriggerDrain(runnerID int64) {
 	stub.runnerID = runnerID
+}
+
+func (stub *workerDispatchQueueStub) SealPayload(payload []byte) ([]byte, error) {
+	return append([]byte(nil), payload...), nil
+}
+
+type workerCommandPayloadSealerStub struct {
+	called    bool
+	plaintext []byte
+}
+
+func (stub *workerCommandPayloadSealerStub) SealPayload(payload []byte) ([]byte, error) {
+	stub.called = true
+	stub.plaintext = append([]byte(nil), payload...)
+	return []byte("sealed"), nil
 }

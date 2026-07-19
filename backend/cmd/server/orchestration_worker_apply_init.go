@@ -9,7 +9,7 @@ import (
 func attachOrchestrationWorkerApply(
 	services *serviceContainer,
 	orchestrator workerPodOrchestrator,
-	queue workerDispatchQueue,
+	queue workerApplyDispatchQueue,
 ) error {
 	if services == nil || orchestrator == nil || queue == nil {
 		return fmt.Errorf(
@@ -21,7 +21,7 @@ func attachOrchestrationWorkerApply(
 		runtime.registry,
 		runtime.repository,
 		runtime.resolver,
-		newOrchestrationWorkerPodLauncher(orchestrator),
+		newOrchestrationWorkerPodLauncher(orchestrator, queue),
 		newOrchestrationWorkerDispatchNotifier(queue),
 	)
 	if err != nil {

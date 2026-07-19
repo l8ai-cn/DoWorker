@@ -17,21 +17,28 @@ type workerPodOrchestrator interface {
 	) (*agentpod.OrchestrateCreatePodResult, error)
 }
 
+type workerCommandPayloadSealer interface {
+	SealPayload([]byte) ([]byte, error)
+}
+
 type orchestrationWorkerPodLauncher struct {
 	orchestrator workerPodOrchestrator
+	sealer       workerCommandPayloadSealer
 }
 
 func newOrchestrationWorkerPodLauncher(
 	orchestrator workerPodOrchestrator,
+	sealer workerCommandPayloadSealer,
 ) *orchestrationWorkerPodLauncher {
-	return &orchestrationWorkerPodLauncher{orchestrator: orchestrator}
+	return &orchestrationWorkerPodLauncher{orchestrator: orchestrator, sealer: sealer}
 }
 
 func (launcher *orchestrationWorkerPodLauncher) MaterializeWorkerPod(
 	ctx context.Context,
 	claim workerplanner.WorkerLaunchClaim,
 ) (workerplanner.WorkerPodLaunch, error) {
-	if launcher == nil || launcher.orchestrator == nil {
+	if launcher == nil || launcher.orchestrator == nil ||
+		launcher.sealer == nil {
 		return workerplanner.WorkerPodLaunch{}, control.ErrInvalid
 	}
 	request := &agentpod.OrchestrateCreatePodRequest{
@@ -57,6 +64,10 @@ func (launcher *orchestrationWorkerPodLauncher) MaterializeWorkerPod(
 			CreatePod: result.DeferredCreateCommand,
 		},
 	})
+	if err != nil {
+		return workerplanner.WorkerPodLaunch{}, err
+	}
+	payload, err = launcher.sealer.SealPayload(payload)
 	if err != nil {
 		return workerplanner.WorkerPodLaunch{}, err
 	}

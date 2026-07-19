@@ -46,6 +46,7 @@ func validateWorkerTemplate(metadata Metadata, spec *WorkerTemplateSpec) error {
 		KindToolBinding,
 		spec.ToolRefs,
 		slugkit.Validate,
+		false,
 	); err != nil {
 		return err
 	}
@@ -127,6 +128,7 @@ func validateWorkerTypeConfig(
 		KindEnvironmentBundle,
 		config.SecretRefs,
 		workerspec.ValidateConfigField,
+		true,
 	)
 }
 
@@ -151,6 +153,7 @@ func validateWorkerReferenceMap(
 	expectedKind string,
 	references map[string]Reference,
 	validateKey func(string) error,
+	allowDuplicateTargets bool,
 ) error {
 	keys := make([]string, 0, len(references))
 	for key := range references {
@@ -166,6 +169,9 @@ func validateWorkerReferenceMap(
 			path: field + "[map value]",
 			ref:  references[key],
 		})
+	}
+	if allowDuplicateTargets {
+		return validateWorkerReferenceFieldValues(metadata, expectedKind, fields)
 	}
 	return validateWorkerReferenceFields(metadata, field, expectedKind, fields)
 }

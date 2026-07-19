@@ -114,7 +114,7 @@ func (o *PodOrchestrator) buildPodCommand(
 	}
 	if req.preResolvedDependencies != nil {
 		buildReq.RequiredSkillIDs = nil
-		buildReq.RequiredEnvBundleIDs = nil
+		buildReq.RequiredEnvBundleIDs = workerSpecSecretEnvBundleIDs(req.preparedWorkerSpec)
 		buildReq.RequiredConfigDocumentBindings = nil
 	}
 

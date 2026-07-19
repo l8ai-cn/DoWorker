@@ -152,13 +152,6 @@ func TestWorkerTemplateRejectsDuplicateReferencesInCollections(t *testing.T) {
 			field: "toolRefs",
 		},
 		{
-			name: "secret refs",
-			mutate: func(spec *WorkerTemplateSpec) {
-				spec.TypeConfig.SecretRefs["access-token"] = spec.TypeConfig.SecretRefs["api-token"]
-			},
-			field: "typeConfig.secretRefs",
-		},
-		{
 			name: "skills",
 			mutate: func(spec *WorkerTemplateSpec) {
 				spec.Workspace.SkillRefs = append(
@@ -206,6 +199,18 @@ func TestWorkerTemplateRejectsDuplicateReferencesInCollections(t *testing.T) {
 			requireWorkerTemplateError(t, spec, test.field)
 		})
 	}
+}
+
+func TestWorkerTemplateAllowsOneCredentialBundleForMultipleSecretFields(t *testing.T) {
+	spec := validWorkerTemplateSpec()
+	spec.TypeConfig.SecretRefs["access-token"] = spec.TypeConfig.SecretRefs["api-token"]
+
+	registry := NewRegistry()
+	require.NoError(t, RegisterWorkerSchemas(registry))
+	_, err := registry.DecodeAndValidate(
+		workerSchemaManifest(t, KindWorkerTemplate, spec),
+	)
+	require.NoError(t, err)
 }
 
 func requireWorkerTemplateError(

@@ -47,6 +47,24 @@ func validateWorkerReferenceFields(
 	return nil
 }
 
+func validateWorkerReferenceFieldValues(
+	metadata Metadata,
+	expectedKind string,
+	fields []workerReferenceField,
+) error {
+	for _, field := range fields {
+		if _, err := validatedWorkerReferenceKey(
+			metadata,
+			field.path,
+			expectedKind,
+			field.ref,
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func validatedWorkerReferenceKey(
 	metadata Metadata,
 	path string,
