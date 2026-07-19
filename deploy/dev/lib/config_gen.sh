@@ -394,6 +394,11 @@ generate_env() {
             export PREVIEW_PUBLIC_ORIGIN="http://preview.localhost:$HTTP_PORT"
             info "补充 PREVIEW_PUBLIC_ORIGIN=$PREVIEW_PUBLIC_ORIGIN 到 .env"
         fi
+        if ! grep -q "PREVIEW_COOKIE_MODE" "$ENV_FILE"; then
+            echo "PREVIEW_COOKIE_MODE=same-site" >> "$ENV_FILE"
+            export PREVIEW_COOKIE_MODE="same-site"
+            info "补充 PREVIEW_COOKIE_MODE=$PREVIEW_COOKIE_MODE 到 .env"
+        fi
         if ! grep -q "^MCP_REGISTRY_ENABLED=" "$ENV_FILE"; then
             echo "MCP_REGISTRY_ENABLED=false" >> "$ENV_FILE"
             export MCP_REGISTRY_ENABLED=false
@@ -427,6 +432,7 @@ PRIMARY_DOMAIN=localhost:$http_port
 PUBLIC_WEB_URL=http://localhost:$((10007 + offset * 50))
 MOBILE_PUBLIC_BASE_URL=http://localhost:$((10021 + offset * 50))
 PREVIEW_PUBLIC_ORIGIN=http://preview.localhost:$http_port
+PREVIEW_COOKIE_MODE=same-site
 USE_HTTPS=false
 
 # =============================================================================

@@ -59,6 +59,8 @@ jobs:
           go-version: ${{ env.GO_VERSION }}
           cache: true
       - uses: dtolnay/rust-toolchain@stable
+      - name: Seed Rust proto stubs
+        run: bash scripts/seed-rust-proto-stubs.sh
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: clients/core
@@ -68,8 +70,6 @@ jobs:
           bash scripts/ci-install-codegen-tools.sh
       - name: Install JS deps (buf / protoc-gen-es)
         run: pnpm install --frozen-lockfile
-      - name: Seed Rust proto stubs
-        run: bash scripts/seed-rust-proto-stubs.sh
       - name: Proto consistency check
         run: pnpm run proto:check
 
@@ -402,6 +402,8 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown
+      - name: Seed Rust proto stubs
+        run: bash scripts/seed-rust-proto-stubs.sh
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: clients/core

@@ -11,6 +11,8 @@ source "$SCRIPT_DIR/lib/config_gen.sh"
 
 grep -qx '    export MCP_REGISTRY_ENABLED="${MCP_REGISTRY_ENABLED:-false}"' \
   "$SCRIPT_DIR/lib/host_services_lite.sh"
+grep -qx '    export PREVIEW_COOKIE_MODE="${PREVIEW_COOKIE_MODE}"' \
+  "$SCRIPT_DIR/lib/host_services_lite.sh"
 
 get_worktree_name() {
   printf 'registry-contract'
@@ -23,8 +25,14 @@ calculate_port_offset() {
 ENV_FILE="$TEMP_DIR/.env"
 generate_env
 grep -qx 'MCP_REGISTRY_ENABLED=false' "$ENV_FILE"
+grep -qx 'PREVIEW_COOKIE_MODE=same-site' "$ENV_FILE"
 
 sed -i.bak '/^MCP_REGISTRY_ENABLED=/d' "$ENV_FILE"
 rm -f "$ENV_FILE.bak"
 generate_env
 grep -qx 'MCP_REGISTRY_ENABLED=false' "$ENV_FILE"
+
+sed -i.bak '/^PREVIEW_COOKIE_MODE=/d' "$ENV_FILE"
+rm -f "$ENV_FILE.bak"
+generate_env
+grep -qx 'PREVIEW_COOKIE_MODE=same-site' "$ENV_FILE"

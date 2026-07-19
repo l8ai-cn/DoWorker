@@ -69,6 +69,7 @@ async fn worker_creation_connect_methods_use_binary_wire() {
         org_slug: "acme".into(),
         prompt: "Create a coding worker".into(),
         current_draft: Some(worker_draft()),
+        generation_model_resource_id: 77,
     };
     let fill_response = pod::FillWorkerDraftResponse {
         draft: Some(worker_draft()),
