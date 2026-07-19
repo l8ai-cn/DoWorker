@@ -49,8 +49,11 @@ FROM ${RUNTIME_SHARED_BASE} AS runtime-shared-base
 
 FROM runtime-shared-base AS python-runtime-base
 COPY --from=python-runtime /usr/local /usr/local
-COPY --from=python-runtime /usr/lib/x86_64-linux-gnu/libsqlite3.so.0.8.6 /usr/lib/x86_64-linux-gnu/
-COPY --from=python-runtime /usr/lib/x86_64-linux-gnu/libsqlite3.so.0 /usr/lib/x86_64-linux-gnu/
+RUN python3 - <<'PY'
+import sqlite3
+
+print(sqlite3.sqlite_version)
+PY
 
 FROM ${RUNTIME_BASE} AS runtime
 
@@ -97,7 +100,7 @@ RUN install_apt() { \
     }; \
     case "${AGENT_RUNTIME}" in \
       claude-code) npm install -g @anthropic-ai/claude-code ;; \
-      codex-cli) npm install -g @openai/codex ;; \
+      codex-cli) install_apt python3 python3-numpy python3-pil && npm install -g @openai/codex ;; \
       video-studio) \
         install_apt chromium ffmpeg fontconfig python3 \
         && npm install -g @openai/codex \

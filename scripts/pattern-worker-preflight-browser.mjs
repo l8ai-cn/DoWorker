@@ -13,6 +13,17 @@ export async function runBrowserPreflight(config, result) {
   }
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   try {
+    await page.goto(`${config.webUrl}/login`, { waitUntil: "domcontentloaded" });
+    await page.locator("#login-username").waitFor({ state: "visible" });
+    await page.screenshot({
+      path: path.join(config.evidenceDir, "01-login.png"),
+      fullPage: true,
+      caret: "initial",
+    });
+    await page.locator("#login-username").fill(config.username);
+    await page.locator("#login-password").fill(config.password);
+    await page.locator('button[type="submit"]').click();
+    await page.waitForURL((url) => url.pathname !== "/login", { timeout: 20000 });
     page.on("console", (message) => {
       if (message.type() === "error") {
         result.failures.push(`browser console error: ${message.text()}`);
@@ -28,18 +39,6 @@ export async function runBrowserPreflight(config, result) {
         result.failures.push(`browser HTTP ${response.status()}: ${response.url()}`);
       }
     });
-
-    await page.goto(`${config.webUrl}/login`, { waitUntil: "domcontentloaded" });
-    await page.locator("#username").waitFor({ state: "visible" });
-    await page.screenshot({
-      path: path.join(config.evidenceDir, "01-login.png"),
-      fullPage: true,
-      caret: "initial",
-    });
-    await page.locator("#username").fill(config.username);
-    await page.locator("#password").fill(config.password);
-    await page.locator('button[type="submit"]').click();
-    await page.waitForURL((url) => url.pathname !== "/login", { timeout: 20000 });
     await page.goto(
       `${config.webUrl}/${config.orgSlug}/settings?scope=organization&tab=extensions`,
       { waitUntil: "domcontentloaded" },

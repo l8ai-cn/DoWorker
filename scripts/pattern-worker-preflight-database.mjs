@@ -73,17 +73,23 @@ select jsonb_build_object(
         or (e.owner_scope = 'user' and e.owner_id = (select id from actor)))
     order by case when e.owner_scope = 'user' then 0 else 1 end limit 1),
   'providerModel', (select jsonb_build_object(
+    'model_binding_resource_id', mb.id, 'model_binding_revision', mb.active_revision,
     'connection_id', pc.id, 'resource_id', mr.id, 'provider_key', pc.provider_key,
     'protocol_adapter', 'openai-compatible',
     'connection_revision', pc.revision, 'resource_revision', mr.revision,
     'model_id', mr.model_id, 'modalities', mr.modalities, 'capabilities', mr.capabilities)
-    from provider_connections pc
-    join model_resources mr on mr.provider_connection_id = pc.id
+    from orchestration_resources mb
+    join orchestration_resource_revisions mbr
+      on mbr.resource_id = mb.id and mbr.revision = mb.active_revision
+    join model_resources mr on mr.id = (mbr.canonical_spec->>'resourceId')::bigint
+    join provider_connections pc on mr.provider_connection_id = pc.id
     join org on pc.owner_scope = 'org' and pc.owner_id = org.id
-    where pc.is_enabled and mr.is_enabled and pc.status = 'valid' and mr.status = 'valid'
+    where mb.organization_id = org.id and mb.kind = 'ModelBinding'
+      and mb.namespace = ${sqlString(config.orgSlug)} and mb.name = 'pattern-chat-model'
+      and pc.is_enabled and mr.is_enabled and pc.status = 'valid' and mr.status = 'valid'
       and pc.provider_key in (${sqlStringList(openAICompatibleProviders)})
       and mr.modalities ? 'chat' and mr.capabilities ? 'text-generation'
-    order by pc.id, mr.id limit 1),
+    limit 1),
   'runner', (select jsonb_build_object(
     'node_id', r.node_id, 'status', r.status, 'is_enabled', r.is_enabled,
     'available_agents', r.available_agents, 'tunnel_state', r.tunnel_state,
