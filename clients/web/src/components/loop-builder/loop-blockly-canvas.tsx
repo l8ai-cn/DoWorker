@@ -4,10 +4,7 @@ import * as Blockly from "blockly";
 import { useEffect, useRef, useState } from "react";
 import type { LoopProgram } from "@proto/goalloop/v1/goalloop_pb";
 import { setLoopBlockAccess } from "./loop-block-access";
-import {
-  insertPointFromDoubleClick,
-  type LoopBlockInsertPoint,
-} from "./loop-block-insert-point";
+import { insertPointFromDoubleClick, type LoopBlockInsertPoint } from "./loop-block-insert-point";
 import { insertLoopBlock } from "./loop-block-insertion";
 import { loopBlockProgrammingHostAdapter } from "./loop-block-programming-host-adapter";
 import { loopBlocklyTheme } from "./loop-blockly-theme";
@@ -20,48 +17,32 @@ interface LoopBlocklyCanvasProps {
   semanticRevision: number;
   readOnly: boolean;
   customDefinitions: readonly LoopCustomBlockDefinition[];
-  messages: {
-    blockly: LoopBlockCatalogMessages;
-    quickInsert: LoopQuickInsertMessages;
-  };
+  messages: { blockly: LoopBlockCatalogMessages; quickInsert: LoopQuickInsertMessages };
   onCreateCustom: () => void;
   onSourceChange: (source: string) => void;
   onSelectNode: (nodeId?: string) => void;
 }
 
-export function LoopBlocklyCanvas({
-  program,
-  semanticRevision,
-  readOnly,
-  customDefinitions,
-  onSourceChange,
-  onCreateCustom,
-  onSelectNode,
-  messages,
-}: LoopBlocklyCanvasProps) {
+export function LoopBlocklyCanvas(props: LoopBlocklyCanvasProps) {
+  const {
+    program, semanticRevision, readOnly, customDefinitions, onSourceChange, onCreateCustom, onSelectNode, messages,
+  } = props;
   const hostRef = useRef<HTMLDivElement>(null);
   const workspaceRef = useRef<Blockly.WorkspaceSvg | undefined>(undefined);
   const programRef = useRef(program);
   const readOnlyRef = useRef(readOnly);
   const customDefinitionsRef = useRef(customDefinitions);
+  const customInsertPointRef = useRef<LoopBlockInsertPoint | undefined>(undefined);
+  const customCountRef = useRef(customDefinitions.length);
   const callbackRef = useRef({ onSourceChange, onSelectNode });
   const [insertPoint, setInsertPoint] = useState<LoopBlockInsertPoint>();
 
   useEffect(() => {
     callbackRef.current = { onSourceChange, onSelectNode };
-  }, [onSourceChange, onSelectNode]);
-
-  useEffect(() => {
     programRef.current = program;
-  }, [program]);
-
-  useEffect(() => {
     readOnlyRef.current = readOnly;
-  }, [readOnly]);
-
-  useEffect(() => {
     customDefinitionsRef.current = customDefinitions;
-  }, [customDefinitions]);
+  }, [customDefinitions, onSelectNode, onSourceChange, program, readOnly]);
 
   useEffect(() => {
     if (!hostRef.current) return;
@@ -144,6 +125,19 @@ export function LoopBlocklyCanvas({
     workspace.updateToolbox(
       loopBlockProgrammingHostAdapter.createCatalog(messages.blockly, customDefinitions).toolbox,
     );
+    const createdDefinition =
+      customDefinitions.length > customCountRef.current ? customDefinitions.at(-1) : undefined;
+    customCountRef.current = customDefinitions.length;
+    const customInsertPoint = customInsertPointRef.current;
+    if (createdDefinition && customInsertPoint) {
+      insertLoopBlock({
+        workspace,
+        type: loopBlockProgrammingHostAdapter.customBlockType(createdDefinition),
+        insertPoint: customInsertPoint,
+        customDefinitions,
+      });
+      customInsertPointRef.current = undefined;
+    }
     callbackRef.current.onSourceChange(
       loopBlockProgrammingHostAdapter.workspaceToSource(workspace, customDefinitions).source,
     );
@@ -185,6 +179,7 @@ export function LoopBlocklyCanvas({
           y={insertPoint.menuY}
           onClose={() => setInsertPoint(undefined)}
           onCreateCustom={() => {
+            customInsertPointRef.current = insertPoint;
             setInsertPoint(undefined);
             onCreateCustom();
           }}

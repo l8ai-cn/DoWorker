@@ -124,6 +124,10 @@ test.describe("Loop workbench", () => {
     await dialog.getByRole("button", { name: "创建积木" }).click();
 
     await expect(page.getByText("有效").first()).toBeVisible();
+    const codeEditor = page.locator(".cm-content");
+    const workspace = page.getByLabel("Blockly Workspace");
+    await expect(codeEditor).toContainText("agent ppt-step-task");
+    await expect(workspace.getByText("专业 PPT", { exact: true })).toBeVisible();
     const toolbox = page.locator(".blocklyToolbox");
     await toolbox.locator(".blocklyToolboxCategory", {
       hasText: "我的积木",
@@ -131,15 +135,8 @@ test.describe("Loop workbench", () => {
     await expect(
       page.locator(".blocklyToolboxFlyout .blocklyDraggable"),
     ).toBeVisible();
-    await doubleClickBlocklyBackground(page);
-    await expect(page.getByRole("button", { name: "专业 PPT" })).toBeVisible();
-    await page.getByRole("button", { name: "专业 PPT" }).click();
 
-    const codeEditor = page.locator(".cm-content");
-    const workspace = page.getByLabel("Blockly Workspace");
-    await expect(codeEditor).toContainText("agent ppt-step-task");
     await expect(page.getByText("有效").first()).toBeVisible();
-    await expect(workspace.getByText("专业 PPT", { exact: true })).toBeVisible();
     await expect(workspace.getByText("topic", { exact: true })).toBeVisible();
     await expect(workspace.getByText("file", { exact: true })).toBeVisible();
     await workspace.getByText("topic", { exact: true }).click();
