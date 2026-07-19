@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Popover as PopoverPrimitive } from "radix-ui";
 
+import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
 import { getEmbedRoot } from "@/lib/host";
 import { cn } from "@/lib/utils";
 
@@ -10,9 +11,42 @@ function Popover({ ...props }: React.ComponentProps<typeof PopoverPrimitive.Root
   return <PopoverPrimitive.Root data-slot="popover" {...props} />;
 }
 
-function PopoverTrigger({ ...props }: React.ComponentProps<typeof PopoverPrimitive.Trigger>) {
-  return <PopoverPrimitive.Trigger data-slot="popover-trigger" {...props} />;
+function isTooltipRoot(
+  node: React.ReactNode,
+): node is React.ReactElement<React.ComponentPropsWithoutRef<typeof Tooltip>> {
+  return React.isValidElement(node) && node.type === Tooltip;
 }
+
+function isTooltipTrigger(
+  node: React.ReactNode,
+): node is React.ReactElement<React.ComponentPropsWithoutRef<typeof TooltipTrigger>> {
+  return React.isValidElement(node) && node.type === TooltipTrigger;
+}
+
+const PopoverTrigger = React.forwardRef<
+  React.ElementRef<typeof PopoverPrimitive.Trigger>,
+  React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Trigger>
+>(({ asChild, children, ...props }, ref) => {
+  if (asChild && isTooltipRoot(children)) {
+    const tooltipChildren = React.Children.map(children.props.children, (node) => {
+      if (!isTooltipTrigger(node)) return node;
+      return (
+        <TooltipTrigger {...node.props}>
+          <PopoverPrimitive.Trigger ref={ref} asChild data-slot="popover-trigger" {...props}>
+            {node.props.children}
+          </PopoverPrimitive.Trigger>
+        </TooltipTrigger>
+      );
+    });
+    return React.cloneElement(children, undefined, tooltipChildren);
+  }
+  return (
+    <PopoverPrimitive.Trigger ref={ref} asChild={asChild} data-slot="popover-trigger" {...props}>
+      {children}
+    </PopoverPrimitive.Trigger>
+  );
+});
+PopoverTrigger.displayName = "PopoverTrigger";
 
 function PopoverContent({
   className,
