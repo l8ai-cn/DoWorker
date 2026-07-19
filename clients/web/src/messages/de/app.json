@@ -615,6 +615,13 @@
       "start": "Loop starten",
       "snapshotLabel": "{name} · {workerType} · Snapshot {id}"
     },
+    "errors": {
+      "compileFailed": "LoopScript-Validierung fehlgeschlagen. Prüfen Sie das Netzwerk und versuchen Sie es erneut.",
+      "initFailed": "Loop-Workbench konnte nicht initialisiert werden.",
+      "runtimeLoadFailed": "Runtimes konnten nicht geladen werden. Versuchen Sie es erneut.",
+      "runFailed": "Loop konnte nicht gestartet werden. Prüfen Sie, ob die Runtime noch verfügbar ist.",
+      "runRequiresPlanApply": "Loop-Ausführung erfordert jetzt resource orchestration validate-plan-apply vor Start."
+    },
     "customBlock": {
       "title": "Benutzerdefinierten Block erstellen",
       "description": "Erstellt ein benutzerdefiniertes Makro für diesen Editorentwurf, das in die aktuelle Loop-Aufgabe und Verifizierung expandiert.",

@@ -247,7 +247,7 @@ test.describe("Loop workbench", () => {
       await startButton.click();
 
       await expect(
-        page.getByText("循环启动失败，请确认运行环境仍然可用"),
+        page.getByText("循环执行现在必须先通过资源编排 validate-plan-apply，再启动。"),
       ).toBeVisible();
       expect(db.queryValue(`
         SELECT count(*)

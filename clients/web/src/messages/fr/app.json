@@ -621,6 +621,13 @@
       "start": "Démarrer le loop",
       "snapshotLabel": "{name} · {workerType} · Instantané {id}"
     },
+    "errors": {
+      "compileFailed": "La validation LoopScript a échoué. Vérifiez le réseau et réessayez.",
+      "initFailed": "L’atelier Loop n’a pas pu être initialisé.",
+      "runtimeLoadFailed": "Impossible de charger les environnements. Réessayez.",
+      "runFailed": "Le loop n’a pas pu démarrer. Vérifiez que l’environnement est encore disponible.",
+      "runRequiresPlanApply": "L’exécution du loop exige maintenant resource orchestration validate-plan-apply avant Start."
+    },
     "customBlock": {
       "title": "Créer un bloc personnalisé",
       "description": "Crée une macro personnalisée pour ce brouillon d’éditeur qui s’étend en tâche et vérification du loop actuel.",

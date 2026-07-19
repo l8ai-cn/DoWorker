@@ -1082,6 +1082,13 @@
       "start": "启动循环",
       "snapshotLabel": "{name} · {workerType} · 快照 {id}"
     },
+    "errors": {
+      "compileFailed": "循环脚本校验失败，请检查网络或稍后重试",
+      "initFailed": "循环工作台初始化失败",
+      "runtimeLoadFailed": "运行环境加载失败，请稍后重试",
+      "runFailed": "循环启动失败，请确认运行环境仍然可用",
+      "runRequiresPlanApply": "循环执行现在必须先通过资源编排 validate-plan-apply，再启动。"
+    },
     "customBlock": {
       "title": "创建自定义积木",
       "description": "为当前编辑草稿创建自定义宏，展开为当前循环的任务和验证步骤。",

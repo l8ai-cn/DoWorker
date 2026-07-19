@@ -1057,6 +1057,13 @@
       "start": "Start loop",
       "snapshotLabel": "{name} · {workerType} · Snapshot {id}"
     },
+    "errors": {
+      "compileFailed": "LoopScript validation failed. Check the network and try again.",
+      "initFailed": "Loop workbench failed to initialize.",
+      "runtimeLoadFailed": "Failed to load runtimes. Try again.",
+      "runFailed": "Loop failed to start. Confirm the runtime is still available.",
+      "runRequiresPlanApply": "Loop execution now requires resource orchestration validate-plan-apply before Start."
+    },
     "customBlock": {
       "title": "Create custom block",
       "description": "Create a custom macro for this editor draft. It expands into the current loop task and verifier.",

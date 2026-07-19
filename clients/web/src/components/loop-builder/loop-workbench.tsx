@@ -22,8 +22,8 @@ import { useLoopAIAssistant } from "./use-loop-ai-assistant";
 import { useLoopWorkbench } from "./use-loop-workbench";
 
 export function LoopWorkbench({ orgSlug }: { orgSlug: string }) {
-  const model = useLoopWorkbench(orgSlug);
   const messages = useLoopWorkbenchMessages();
+  const model = useLoopWorkbench(orgSlug, messages.errors);
   const locale = useLocale();
   const ai = useLoopAIAssistant({
     orgSlug,

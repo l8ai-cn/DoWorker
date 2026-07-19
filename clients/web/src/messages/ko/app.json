@@ -615,6 +615,13 @@
       "start": "Loop 시작",
       "snapshotLabel": "{name} · {workerType} · 스냅샷 {id}"
     },
+    "errors": {
+      "compileFailed": "LoopScript 검증에 실패했습니다. 네트워크를 확인하고 다시 시도하세요.",
+      "initFailed": "Loop 워크벤치를 초기화하지 못했습니다.",
+      "runtimeLoadFailed": "실행 환경을 불러오지 못했습니다. 다시 시도하세요.",
+      "runFailed": "Loop를 시작하지 못했습니다. 실행 환경이 아직 사용 가능한지 확인하세요.",
+      "runRequiresPlanApply": "Loop 실행은 이제 Start 전에 resource orchestration validate-plan-apply가 필요합니다."
+    },
     "customBlock": {
       "title": "사용자 블록 만들기",
       "description": "이 편집기 초안용 사용자 매크로를 만듭니다. 현재 Loop의 작업과 검증으로 확장됩니다.",

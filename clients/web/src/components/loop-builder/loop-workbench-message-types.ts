@@ -74,6 +74,14 @@ export interface LoopRuntimeMessages {
   snapshotLabel: (name: string, workerType: string, id: string) => string;
 }
 
+export interface LoopErrorMessages {
+  compileFailed: string;
+  initFailed: string;
+  runtimeLoadFailed: string;
+  runFailed: string;
+  runRequiresPlanApply: string;
+}
+
 export interface LoopCustomBlockMessages {
   title: string;
   description: string;
@@ -179,6 +187,7 @@ export interface LoopWorkbenchMessages {
   quickInsert: LoopQuickInsertMessages;
   status: LoopStatusMessages;
   runtime: LoopRuntimeMessages;
+  errors: LoopErrorMessages;
   customBlock: LoopCustomBlockMessages;
   ai: LoopAIMessages;
 }

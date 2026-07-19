@@ -621,6 +621,13 @@
       "start": "Iniciar loop",
       "snapshotLabel": "{name} · {workerType} · Snapshot {id}"
     },
+    "errors": {
+      "compileFailed": "La validación de LoopScript falló. Revisa la red e inténtalo de nuevo.",
+      "initFailed": "No se pudo inicializar el banco de trabajo de loop.",
+      "runtimeLoadFailed": "No se pudieron cargar los runtimes. Inténtalo de nuevo.",
+      "runFailed": "No se pudo iniciar el loop. Confirma que el runtime siga disponible.",
+      "runRequiresPlanApply": "La ejecución del loop ahora requiere resource orchestration validate-plan-apply antes de Start."
+    },
     "customBlock": {
       "title": "Crear bloque personalizado",
       "description": "Crea una macro personalizada para este borrador del editor que se expande en la tarea y la verificación del loop actual.",

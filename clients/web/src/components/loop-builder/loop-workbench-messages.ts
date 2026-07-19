@@ -14,6 +14,7 @@ export type {
   LoopAIRepairMessages,
   LoopBlockCatalogMessages,
   LoopCustomBlockMessages,
+  LoopErrorMessages,
   LoopMessageTranslator,
   LoopQuickInsertMessages,
   LoopRuntimeMessages,
@@ -145,6 +146,13 @@ export function createLoopWorkbenchMessages(t: LoopMessageTranslator): LoopWorkb
       cancel: t("runtime.cancel"), start: t("runtime.start"),
       snapshotLabel: (name, workerType, id) =>
         t("runtime.snapshotLabel", { name, workerType, id }),
+    },
+    errors: {
+      compileFailed: t("errors.compileFailed"),
+      initFailed: t("errors.initFailed"),
+      runtimeLoadFailed: t("errors.runtimeLoadFailed"),
+      runFailed: t("errors.runFailed"),
+      runRequiresPlanApply: t("errors.runRequiresPlanApply"),
     },
     customBlock: {
       title: t("customBlock.title"),

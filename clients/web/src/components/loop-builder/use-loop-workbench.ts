@@ -16,6 +16,7 @@ import {
   type LoopRuntimeSnapshot,
   type LoopWorkbenchSnapshot,
 } from "@/lib/viewModels/loop-program";
+import type { LoopErrorMessages } from "./loop-workbench-messages";
 
 const EMPTY: LoopWorkbenchSnapshot = {
   source: "",
@@ -27,7 +28,7 @@ const EMPTY: LoopWorkbenchSnapshot = {
   semanticRevision: 0,
 };
 
-export function useLoopWorkbench(orgSlug: string) {
+export function useLoopWorkbench(orgSlug: string, messages: LoopErrorMessages) {
   const [snapshot, setSnapshot] = useState<LoopWorkbenchSnapshot>(EMPTY);
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
@@ -58,12 +59,10 @@ export function useLoopWorkbench(orgSlug: string) {
         setSnapshot(await applyLoopCompile(response));
       } catch (cause) {
         if (sequence !== compileSequence.current) return;
-        setError(
-          cause instanceof Error ? cause.message : "循环脚本校验失败，请检查网络或稍后重试",
-        );
+        setError(cause instanceof Error ? cause.message : messages.compileFailed);
       }
     }, delay);
-  }, [orgSlug]);
+  }, [messages.compileFailed, orgSlug]);
 
   useEffect(() => {
     let cancelled = false;
@@ -80,7 +79,7 @@ export function useLoopWorkbench(orgSlug: string) {
         await compile(source, "blocks");
       } catch (cause) {
         if (!cancelled) {
-          setError(cause instanceof Error ? cause.message : "循环工作台初始化失败");
+          setError(cause instanceof Error ? cause.message : messages.initFailed);
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -92,7 +91,7 @@ export function useLoopWorkbench(orgSlug: string) {
       compileSequence.current += 1;
       if (compileTimer.current) clearTimeout(compileTimer.current);
     };
-  }, [compile, orgSlug]);
+  }, [compile, messages.initFailed, orgSlug]);
 
   useEffect(() => {
     let cancelled = false;
@@ -104,7 +103,7 @@ export function useLoopWorkbench(orgSlug: string) {
         if (!cancelled) setRuntimeSnapshots(snapshots);
       })
       .catch(() => {
-        if (!cancelled) setRuntimeError("运行环境加载失败，请稍后重试");
+        if (!cancelled) setRuntimeError(messages.runtimeLoadFailed);
       })
       .finally(() => {
         if (!cancelled) setRuntimeLoading(false);
@@ -112,7 +111,7 @@ export function useLoopWorkbench(orgSlug: string) {
     return () => {
       cancelled = true;
     };
-  }, [orgSlug, runtimeLoadAttempt]);
+  }, [messages.runtimeLoadFailed, orgSlug, runtimeLoadAttempt]);
 
   const setEditor = useCallback(async (editor: LoopEditor) => {
     activeEditorRef.current = editor;
@@ -145,12 +144,12 @@ export function useLoopWorkbench(orgSlug: string) {
     setError(undefined);
     try {
       setSnapshot(await runLoopProgram(orgSlug, snapshot.source, workerSnapshotId));
-    } catch {
-      setError("循环启动失败，请确认运行环境仍然可用");
+    } catch (cause) {
+      setError(loopRunErrorMessage(cause, messages));
     } finally {
       setRunning(false);
     }
-  }, [orgSlug, snapshot.source]);
+  }, [messages, orgSlug, snapshot.source]);
 
   return {
     snapshot,
@@ -167,4 +166,11 @@ export function useLoopWorkbench(orgSlug: string) {
     updateCode,
     run,
   };
+}
+
+function loopRunErrorMessage(cause: unknown, messages: LoopErrorMessages): string {
+  const detail = cause instanceof Error ? cause.message : String(cause ?? "");
+  return detail.includes("validate-plan-apply")
+    ? messages.runRequiresPlanApply
+    : messages.runFailed;
 }

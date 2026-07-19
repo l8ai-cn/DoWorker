@@ -621,6 +621,13 @@
       "start": "Loopを開始",
       "snapshotLabel": "{name} · {workerType} · スナップショット {id}"
     },
+    "errors": {
+      "compileFailed": "LoopScript の検証に失敗しました。ネットワークを確認して再試行してください。",
+      "initFailed": "Loop ワークベンチを初期化できませんでした。",
+      "runtimeLoadFailed": "実行環境を読み込めませんでした。再試行してください。",
+      "runFailed": "Loop を開始できませんでした。実行環境がまだ利用可能か確認してください。",
+      "runRequiresPlanApply": "Loop 実行には Start の前に resource orchestration validate-plan-apply が必要です。"
+    },
     "customBlock": {
       "title": "カスタムブロックを作成",
       "description": "このエディター下書き用のカスタムマクロを作成します。現在のLoopのタスクと検証へ展開されます。",
