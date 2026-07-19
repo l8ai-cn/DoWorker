@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BlockProgrammingWorkbench } from "@/components/block-programming/BlockProgrammingWorkbench";
 import { registerBlockCustomDefinition } from "@/components/block-programming/block-custom-definition-registry";
 import { Spinner } from "@/components/ui/spinner";
@@ -9,6 +9,10 @@ import { LoopBlocklyCanvas } from "./loop-blockly-canvas";
 import { LoopAIAssistantDialog } from "./loop-ai-assistant-dialog";
 import { LoopCodeEditor } from "./loop-code-editor";
 import { LoopCustomBlockDialog } from "./loop-custom-block-dialog";
+import {
+  readLoopCustomBlocksFromHash,
+  writeLoopCustomBlocksToHash,
+} from "./loop-custom-block-url-state";
 import { LoopRuntimeDialog } from "./loop-runtime-dialog";
 import { LoopStatusPanel } from "./loop-status-panel";
 import { LoopWorkbenchToolbar } from "./loop-workbench-toolbar";
@@ -29,7 +33,9 @@ export function LoopWorkbench({ orgSlug }: { orgSlug: string }) {
     onApplied: model.applySnapshot,
   });
   const [selectedNodeId, setSelectedNodeId] = useState<string>();
-  const [customDefinitions, setCustomDefinitions] = useState<LoopCustomBlockDefinition[]>([]);
+  const [customDefinitions, setCustomDefinitions] = useState<LoopCustomBlockDefinition[]>(
+    () => (typeof window === "undefined" ? [] : readLoopCustomBlocksFromHash(window.location.hash)),
+  );
   const [customDialogOpen, setCustomDialogOpen] = useState(false);
   const [runtimeDialogOpen, setRuntimeDialogOpen] = useState(false);
   const blocksWritable =
@@ -38,6 +44,13 @@ export function LoopWorkbench({ orgSlug }: { orgSlug: string }) {
     !model.running;
   const codeWritable =
     model.snapshot.activeEditor === "code" && !model.running;
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const nextHash = writeLoopCustomBlocksToHash(window.location.hash, customDefinitions);
+    const nextUrl = `${window.location.pathname}${window.location.search}${nextHash}`;
+    window.history.replaceState(null, "", nextUrl);
+  }, [customDefinitions]);
 
   return (
     <>

@@ -124,6 +124,7 @@ test.describe("Loop workbench", () => {
     await dialog.getByRole("button", { name: "创建积木" }).click();
 
     await expect(page.getByText("有效").first()).toBeVisible();
+    expect(page.url()).toContain("loopCustomBlocks=");
     const codeEditor = page.locator(".cm-content");
     const workspace = page.getByLabel("Blockly Workspace");
     await expect(codeEditor).toContainText("agent ppt-step-task");
@@ -151,6 +152,16 @@ test.describe("Loop workbench", () => {
     expect(source).not.toContain("invalid-block-structure");
     expect(source).toContain("agent ppt-step-task");
     expect(source).toContain("verify ppt-step-check");
+
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await expect(
+      page.getByRole("heading", { name: "循环工作台" }),
+    ).toBeVisible();
+    await resetLoopSource(page, ZH_LOOP_LABELS);
+    await doubleClickBlocklyBackground(page);
+    await expect(page.getByRole("button", { name: "专业 PPT" })).toBeVisible();
+    await page.getByRole("button", { name: "专业 PPT" }).click();
+    await expect(codeEditor).toContainText("agent ppt-step-task");
   });
 
   test("keeps Loop projection equivalent across Chinese and English workbenches", async ({
