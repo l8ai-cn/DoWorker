@@ -3,15 +3,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { SwitchAgentDialog } from "./SwitchAgentDialog";
-import { switchSessionAgent } from "@/lib/sessionsApi";
+import { switchWorkerSessionAgent } from "@/lib/workerSessionMutations";
 import { useAvailableAgents } from "@/hooks/useAvailableAgents";
 import { useSessionAgent } from "@/hooks/useAgents";
 
-vi.mock("@/lib/sessionsApi", () => ({ switchSessionAgent: vi.fn() }));
+vi.mock("@/lib/workerSessionMutations", () => ({ switchWorkerSessionAgent: vi.fn() }));
 vi.mock("@/hooks/useAvailableAgents", () => ({ useAvailableAgents: vi.fn() }));
 vi.mock("@/hooks/useAgents", () => ({ useSessionAgent: vi.fn() }));
 
-const switchSessionAgentMock = vi.mocked(switchSessionAgent);
+const switchWorkerSessionAgentMock = vi.mocked(switchWorkerSessionAgent);
 const useAvailableAgentsMock = vi.mocked(useAvailableAgents);
 const useSessionAgentMock = vi.mocked(useSessionAgent);
 
@@ -20,6 +20,9 @@ const useSessionAgentMock = vi.mocked(useSessionAgent);
 const AVAILABLE_AGENTS = [
   {
     id: "ag_claude_sdk",
+    workerTypeSlug: "claude-sdk",
+    supportedModes: ["acp", "pty"],
+    requiresModelResource: true,
     name: "claude",
     display_name: "Claude",
     description: null,
@@ -27,6 +30,9 @@ const AVAILABLE_AGENTS = [
   },
   {
     id: "ag_claude_native",
+    workerTypeSlug: "claude-native",
+    supportedModes: ["acp", "pty"],
+    requiresModelResource: true,
     name: "claude-native-ui",
     display_name: "Claude Code",
     description: null,
@@ -34,6 +40,9 @@ const AVAILABLE_AGENTS = [
   },
   {
     id: "ag_codex_native",
+    workerTypeSlug: "codex-cli",
+    supportedModes: ["acp", "pty"],
+    requiresModelResource: true,
     name: "codex-native-ui",
     display_name: "Codex",
     description: null,
@@ -41,6 +50,9 @@ const AVAILABLE_AGENTS = [
   },
   {
     id: "ag_openai",
+    workerTypeSlug: "openai-agents",
+    supportedModes: ["acp", "pty"],
+    requiresModelResource: true,
     name: "gpt",
     display_name: "GPT",
     description: null,
@@ -77,7 +89,7 @@ function openAgentSelect(): void {
 }
 
 beforeEach(() => {
-  switchSessionAgentMock.mockReset();
+  switchWorkerSessionAgentMock.mockReset();
   // Default: the session currently runs claude-sdk (anthropic).
   setAgents({ id: "ag_source", name: "source", harness: "claude-sdk" });
 });
@@ -111,6 +123,9 @@ describe("SwitchAgentDialog", () => {
       data: [
         {
           id: "ag_cursor",
+          workerTypeSlug: "cursor",
+          supportedModes: ["acp", "pty"],
+          requiresModelResource: true,
           name: "cursor-native-ui",
           display_name: "Cursor",
           description: null,
@@ -118,6 +133,9 @@ describe("SwitchAgentDialog", () => {
         },
         {
           id: "ag_opencode",
+          workerTypeSlug: "opencode",
+          supportedModes: ["acp", "pty"],
+          requiresModelResource: true,
           name: "opencode-native-ui",
           display_name: "OpenCode",
           description: null,
@@ -125,6 +143,9 @@ describe("SwitchAgentDialog", () => {
         },
         {
           id: "ag_hermes",
+          workerTypeSlug: "hermes",
+          supportedModes: ["acp", "pty"],
+          requiresModelResource: true,
           name: "hermes-native-ui",
           display_name: "Hermes",
           description: null,
@@ -141,6 +162,28 @@ describe("SwitchAgentDialog", () => {
     expect(screen.queryByTestId("switch-agent-option-ag_cursor")).not.toBeInTheDocument();
     expect(screen.queryByTestId("switch-agent-option-ag_opencode")).not.toBeInTheDocument();
     expect(screen.getByTestId("switch-agent-option-ag_hermes")).toBeInTheDocument();
+  });
+
+  it("keeps a session-derived target without Worker creation metadata unselectable", () => {
+    useAvailableAgentsMock.mockReturnValue({
+      data: [
+        ...AVAILABLE_AGENTS,
+        {
+          id: "agent_session_opaque",
+          name: "custom-session-agent",
+          display_name: "Custom session agent",
+          description: null,
+          harness: "claude-sdk",
+        },
+      ],
+    } as unknown as ReturnType<typeof useAvailableAgents>);
+    renderDialog();
+    openAgentSelect();
+
+    expect(screen.getByTestId("switch-agent-option-agent_session_opaque")).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
   });
 
   it("excludes the session's own agent even when it's a '(switch …)' clone", () => {
@@ -205,9 +248,7 @@ describe("SwitchAgentDialog", () => {
   });
 
   it("switches to the chosen agent, refreshes the bound agent + list, and closes", async () => {
-    switchSessionAgentMock.mockResolvedValue({
-      id: "conv_src",
-    } as unknown as Awaited<ReturnType<typeof switchSessionAgent>>);
+    switchWorkerSessionAgentMock.mockResolvedValue({ id: "conv_src" });
 
     const { invalidateSpy, onOpenChange } = renderDialog();
 
@@ -215,10 +256,17 @@ describe("SwitchAgentDialog", () => {
     fireEvent.click(screen.getByTestId("switch-agent-option-ag_claude_native"));
     fireEvent.click(screen.getByTestId("switch-agent-submit"));
 
-    await waitFor(() => expect(switchSessionAgentMock).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(switchWorkerSessionAgentMock).toHaveBeenCalledTimes(1));
     // The SAME session id and the chosen target are sent — proves the in-place
     // switch targets this session (not a fork) with the picked agent.
-    expect(switchSessionAgentMock).toHaveBeenCalledWith("conv_src", "ag_claude_native");
+    expect(switchWorkerSessionAgentMock).toHaveBeenCalledWith({
+      sessionId: "conv_src",
+      sourceAgentId: "ag_source",
+      agentId: "ag_claude_native",
+      workerTypeSlug: "claude-native",
+      supportedModes: ["acp", "pty"],
+      requiresModelResource: true,
+    });
     // Bound-agent query refreshed so the header/pill shows the new harness,
     // the sidebar list refreshed, and the per-session snapshot invalidated so
     // the model settings + labels the switch reset don't linger stale (it uses
@@ -252,7 +300,7 @@ describe("SwitchAgentDialog", () => {
   });
 
   it("surfaces the server error inline on failure and stays open", async () => {
-    switchSessionAgentMock.mockRejectedValue(new Error("409 Session is busy"));
+    switchWorkerSessionAgentMock.mockRejectedValue(new Error("409 Session is busy"));
     const { onOpenChange } = renderDialog();
 
     openAgentSelect();

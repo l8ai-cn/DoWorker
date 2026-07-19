@@ -79,15 +79,6 @@ describe("worker creation Connect boundary", () => {
               required: true,
             }],
             selectable: true,
-            requiresModelResource: false,
-            modelProtocolAdapters: [],
-            toolModelRequirements: [{
-              role: "video-generator",
-              providerKeys: ["volcengine"],
-              protocolAdapters: ["openai-compatible"],
-              modality: "video",
-              capability: "video-generation",
-            }],
           }],
           runtimeImages: [{
             id: BigInt(12),
@@ -203,7 +194,10 @@ describe("worker creation Connect boundary", () => {
     );
     expect(preflightRequest.draft).toMatchObject({
       modelResourceId: BigInt(9),
-      toolModelResourceIds: { "seedance-video": BigInt(10) },
+      toolModelResourceIds: {
+        "seedance-video": BigInt(10),
+        "video-generator": BigInt(91),
+      },
       runtimeImageId: BigInt(12),
       repositoryId: BigInt(44),
       skillIds: [BigInt(51), BigInt(52)],
@@ -213,7 +207,6 @@ describe("worker creation Connect boundary", () => {
         configBundleId: BigInt(72),
       }],
       sourceExpertId: BigInt(81),
-      toolModelResourceIds: { "video-generator": BigInt(91) },
       typeConfigValuesJson: '{"temperature":0.2,"nested":{"enabled":true}}',
     });
 
@@ -229,13 +222,13 @@ describe("worker creation Connect boundary", () => {
         }),
       ),
     );
-    const filled = await fillWorkerDraft("acme", "Create a coding worker", 77, draft);
+    const filled = await fillWorkerDraft("acme", "Create a coding worker", draft);
     expect(filled.draft).toEqual({ ...draft, alias: "AI filled" });
     const fillRequest = fromBinary(
       FillWorkerDraftRequestSchema,
       service.fill_worker_draft_connect.mock.calls[0][0],
     );
-    expect(fillRequest.generationModelResourceId).toBe(BigInt(77));
+    expect(fillRequest.generationModelResourceId).toBe(BigInt(0));
 
     service.create_pod_connect.mockResolvedValue(
       toBinary(
@@ -253,12 +246,13 @@ describe("worker creation Connect boundary", () => {
         }),
       ),
     );
-    await createPod("acme", { agent_slug: "codex", worker_spec: draft });
+    await createPod("acme", { worker_spec: draft });
     const createRequest = fromBinary(
       CreatePodRequestSchema,
       service.create_pod_connect.mock.calls[0][0],
     );
     expect(createRequest.workerSpec).toEqual(preflightRequest.draft);
+    expect(createRequest.agentSlug).toBe("");
   });
 
   it("rejects unsafe identifiers and missing filled drafts", async () => {
@@ -274,7 +268,7 @@ describe("worker creation Connect boundary", () => {
         create(FillWorkerDraftResponseSchema, {}),
       ),
     );
-    await expect(fillWorkerDraft("acme", "Create worker", 77)).rejects.toThrow(
+    await expect(fillWorkerDraft("acme", "Create worker")).rejects.toThrow(
       "worker draft response is missing draft",
     );
   });
@@ -283,7 +277,10 @@ describe("worker creation Connect boundary", () => {
 function fullDraft(): WorkerSpecDraft {
   return {
     model_resource_id: 9,
-    tool_model_resource_ids: { "seedance-video": 10 },
+    tool_model_resource_ids: {
+      "seedance-video": 10,
+      "video-generator": 91,
+    },
     worker_type_slug: "codex",
     runtime_image_id: 12,
     placement_policy: "preferred",
@@ -311,6 +308,5 @@ function fullDraft(): WorkerSpecDraft {
     alias: "Coding worker",
     source_expert_id: 81,
     options_revision: "rev-7",
-    tool_model_resource_ids: { "video-generator": 91 },
   };
 }

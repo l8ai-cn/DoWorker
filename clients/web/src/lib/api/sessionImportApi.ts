@@ -1,6 +1,7 @@
 import { getApiBaseUrl } from "@/lib/env";
 import { getAuthManager } from "@/lib/wasm-core";
 import { readCurrentOrg } from "@/stores/auth";
+import { buildSessionImportWorkerPlan } from "./sessionImportWorkerPlan";
 
 export type ImportCodexResult = {
   sessionId: string;
@@ -46,11 +47,19 @@ async function sessionReq<T>(path: string, init?: RequestInit): Promise<T> {
 export async function importCodexSession(
   sourcePath: string,
   agentId: string,
-  options: { title?: string; hostId?: string } = {},
+  options: { title?: string; hostId?: string; modelResourceId?: number } = {},
 ): Promise<ImportCodexResult> {
-  const body: Record<string, string> = {
+  const orgSlug = readCurrentOrg()?.slug;
+  if (!orgSlug) throw new Error("not authenticated");
+  const plan = await buildSessionImportWorkerPlan({
+    orgSlug,
+    workerTypeSlug: agentId,
+    modelResourceId: options.modelResourceId,
+  });
+  const body: Record<string, unknown> = {
     source_path: sourcePath,
     agent_id: agentId,
+    ...plan,
   };
   if (options.title) body.title = options.title;
   if (options.hostId) body.host_id = options.hostId;

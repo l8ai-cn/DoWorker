@@ -30,8 +30,11 @@ describe("classifyAttachment", () => {
     expect(classifyAttachment(makeFile("data.csv", "application/vnd.ms-excel"))).toBe("text");
   });
 
-  it("rejects office/binary types", () => {
+  it("accepts DOCX and rejects unsupported office/binary types", () => {
+    const docx = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
     const pptx = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+    expect(classifyAttachment(makeFile("brief.docx", docx))).toBe("document");
+    expect(classifyAttachment(makeFile("brief.docx", ""))).toBe("document");
     expect(classifyAttachment(makeFile("deck.pptx", pptx))).toBeNull();
     expect(classifyAttachment(makeFile("a.zip", "application/zip"))).toBeNull();
     expect(classifyAttachment(makeFile("a.bin", "application/octet-stream"))).toBeNull();
@@ -41,9 +44,13 @@ describe("classifyAttachment", () => {
 
 describe("validateAttachments", () => {
   it("accepts supported files within their size limit", () => {
-    const files = [makeFile("a.png", "image/png"), makeFile("a.pdf", "application/pdf")];
+    const files = [
+      makeFile("a.png", "image/png"),
+      makeFile("a.pdf", "application/pdf"),
+      makeFile("brief.docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"),
+    ];
     const { accepted, errors } = validateAttachments(files);
-    expect(accepted).toHaveLength(2);
+    expect(accepted).toHaveLength(3);
     expect(errors).toHaveLength(0);
   });
 

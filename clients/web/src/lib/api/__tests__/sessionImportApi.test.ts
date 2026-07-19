@@ -12,11 +12,17 @@ vi.mock("@/stores/auth", () => ({
   readCurrentOrg: () => ({ slug: "acme" }),
 }));
 
-import { fetchSessionByPodKey } from "../sessionImportApi";
+vi.mock("../sessionImportWorkerPlan", () => ({
+  buildSessionImportWorkerPlan: vi.fn(),
+}));
+
+import { buildSessionImportWorkerPlan } from "../sessionImportWorkerPlan";
+import { fetchSessionByPodKey, importCodexSession } from "../sessionImportApi";
 
 describe("fetchSessionByPodKey", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    vi.mocked(buildSessionImportWorkerPlan).mockReset();
   });
 
   it("returns null only for an absent session association", async () => {
@@ -48,5 +54,54 @@ describe("fetchSessionByPodKey", () => {
     await expect(fetchSessionByPodKey("worker-pod")).rejects.toThrow(
       "database unavailable",
     );
+  });
+
+  it("imports only with an authoritative ACP Worker plan", async () => {
+    vi.mocked(buildSessionImportWorkerPlan).mockResolvedValue({
+      worker_spec: {
+        options_revision: "catalog-9",
+        runtime_image_id: 11,
+        placement_policy: "automatic",
+        compute_target_id: 21,
+        deployment_mode: "pooled",
+        resource_profile_id: 31,
+      },
+      automation_level: "autonomous",
+      model_resource_id: 42,
+    });
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          session: { id: "session_1", agent_id: "codex-cli" },
+          pod_key: "pod_1",
+          source_kind: "rollout",
+          source_id: "source_1",
+          item_count: 2,
+        }),
+        { status: 200 },
+      ),
+    );
+
+    await importCodexSession("/tmp/rollout", "codex-cli", { modelResourceId: 42 });
+
+    expect(buildSessionImportWorkerPlan).toHaveBeenCalledWith({
+      orgSlug: "acme",
+      workerTypeSlug: "codex-cli",
+      modelResourceId: 42,
+    });
+    expect(JSON.parse((fetchMock.mock.calls[0][1] as RequestInit).body as string)).toEqual({
+      source_path: "/tmp/rollout",
+      agent_id: "codex-cli",
+      worker_spec: {
+        options_revision: "catalog-9",
+        runtime_image_id: 11,
+        placement_policy: "automatic",
+        compute_target_id: 21,
+        deployment_mode: "pooled",
+        resource_profile_id: 31,
+      },
+      automation_level: "autonomous",
+      model_resource_id: 42,
+    });
   });
 });

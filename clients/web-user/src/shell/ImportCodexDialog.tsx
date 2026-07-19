@@ -11,7 +11,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { AgentCard } from "@/components/AgentCard";
 import { useAvailableAgents } from "@/hooks/useAvailableAgents";
-import { importCodexSession } from "@/lib/sessionsApi";
+import { importWorkerSession } from "@/lib/workerSessionMutations";
+import { hasWorkerCreationSelection, workerCreationSelection } from "@/lib/workerCreationSelection";
 
 /**
  * "Import from Codex" dialog.
@@ -34,7 +35,8 @@ export function ImportCodexDialog({
   const queryClient = useQueryClient();
   const { data: agents } = useAvailableAgents({ enabled: open });
 
-  const agentList = agents ?? [];
+  const agentList = (agents ?? []).filter(hasWorkerCreationSelection);
+  const unavailableAgentCount = (agents?.length ?? 0) - agentList.length;
   const [sourcePath, setSourcePath] = useState("");
   const [title, setTitle] = useState("");
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
@@ -67,8 +69,11 @@ export function ImportCodexDialog({
     setSubmitting(true);
     setError(null);
     try {
-      const result = await importCodexSession(path, selectedAgent.id, {
+      const result = await importWorkerSession({
+        agentId: selectedAgent.id,
+        sourcePath: path,
         title: title.trim() || undefined,
+        ...workerCreationSelection(selectedAgent),
       });
       // Refresh the sidebar lists so the migrated Worker appears immediately.
       await Promise.all([
@@ -76,7 +81,7 @@ export function ImportCodexDialog({
         queryClient.invalidateQueries({ queryKey: ["project-sessions"] }),
       ]);
       handleOpenChange(false);
-      navigate(`/c/${result.session.id}`);
+      navigate(`/c/${result.id}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Migration failed. Check the path and try again.");
     } finally {
@@ -155,6 +160,11 @@ export function ImportCodexDialog({
                   hover
                 />
               ))
+            )}
+            {unavailableAgentCount > 0 && (
+              <p data-testid="import-codex-unavailable" className="text-xs text-muted-foreground">
+                Some agents cannot import sessions because their Worker creation metadata is unavailable.
+              </p>
             )}
           </div>
 

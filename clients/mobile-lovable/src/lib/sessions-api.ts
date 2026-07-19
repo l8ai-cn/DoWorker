@@ -1,6 +1,16 @@
 import { apiFetch } from "./api-fetch";
-import { resolveDefaultModelResourceId } from "./model-resources-api";
+import { listMobileAgents } from "./mobile-session-catalog";
+import { createMobileWorkerSession } from "./mobile-session-creation";
 import { PROJECT_LABEL_KEY } from "./project-label";
+export {
+  fetchSessionItems,
+  openSessionStream,
+  postMessage,
+  postMessageContent,
+  resolveElicitation,
+  stopSession,
+  type MessageContentBlock,
+} from "./mobile-session-events";
 
 export type SessionStatus = "idle" | "launching" | "running" | "waiting" | "failed";
 export type SessionInteractionMode = "acp" | "pty";
@@ -21,19 +31,23 @@ export interface LiveSessionSummary {
 
 export interface AvailableAgent {
   id: string;
+  workerTypeSlug?: string;
   name: string;
   harness: string | null;
   supportedModes: SessionInteractionMode[];
   requiresModelResource: boolean;
 }
 
-export type SessionCreationAgent = Pick<AvailableAgent, "id" | "requiresModelResource">;
+export type SessionCreationAgent = Pick<
+  AvailableAgent,
+  "id" | "workerTypeSlug" | "supportedModes" | "requiresModelResource"
+>;
 
 export interface LiveSessionDetail extends LiveSessionSummary {
   events: import("./live-session-reducer").LiveAgentEvent[];
 }
 
-interface SessionWire {
+export interface SessionWire {
   id: string;
   agent_id: string;
   agent_name?: string | null;
@@ -126,157 +140,12 @@ export async function createSession(
   initialText?: string,
   options?: { mode?: SessionInteractionMode },
 ): Promise<LiveSessionSummary> {
-  const modelResourceId = agent.requiresModelResource
-    ? await resolveDefaultModelResourceId()
-    : undefined;
-  const initial_items = initialText?.trim()
-    ? [
-        {
-          type: "message",
-          data: {
-            role: "user",
-            content: [{ type: "input_text", text: initialText.trim() }],
-          },
-        },
-      ]
-    : [];
-  const res = await apiFetch("/v1/sessions", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      agent_id: agent.id,
-      initial_items,
-      ...(modelResourceId !== undefined ? { model_resource_id: modelResourceId } : {}),
-      ...(title ? { title } : {}),
-      ...(options?.mode === "pty" ? { pty_only: true } : {}),
-    }),
-  });
-  const body = await readJson<SessionWire>(res);
+  const body = await createMobileWorkerSession(agent, title, initialText, options?.mode ?? "acp");
   return summaryFromWire(body);
 }
 
-export type MessageContentBlock =
-  | { type: "input_text"; text: string }
-  | { type: "input_image"; file_id: string; filename?: string }
-  | { type: "input_file"; file_id: string; filename: string };
-
-export async function postMessageContent(
-  sessionId: string,
-  content: MessageContentBlock[],
-): Promise<void> {
-  const res = await apiFetch(`/v1/sessions/${encodeURIComponent(sessionId)}/events`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      type: "message",
-      data: { role: "user", content },
-    }),
-  });
-  if (!res.ok) throw new Error(await res.text());
-}
-
-export async function postMessage(sessionId: string, text: string): Promise<void> {
-  await postMessageContent(sessionId, [{ type: "input_text", text }]);
-}
-
-export async function stopSession(sessionId: string): Promise<void> {
-  const res = await apiFetch(`/v1/sessions/${encodeURIComponent(sessionId)}/events`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ type: "stop_session", data: {} }),
-  });
-  if (!res.ok) throw new Error(await res.text());
-}
-
-export async function resolveElicitation(
-  sessionId: string,
-  elicitationId: string,
-  accept: boolean,
-): Promise<void> {
-  const res = await apiFetch(
-    `/v1/sessions/${encodeURIComponent(sessionId)}/elicitations/${encodeURIComponent(elicitationId)}/resolve`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: accept ? "accept" : "decline" }),
-    },
-  );
-  if (!res.ok) throw new Error(await res.text());
-}
-
-export function openSessionStream(sessionId: string, signal: AbortSignal): Promise<Response> {
-  return apiFetch(`/v1/sessions/${encodeURIComponent(sessionId)}/stream`, {
-    headers: { Accept: "text/event-stream" },
-    signal,
-  });
-}
-
-interface ItemsPageWire {
-  data: Array<Record<string, unknown>>;
-  has_more: boolean;
-}
-
-export async function fetchSessionItems(
-  sessionId: string,
-  limit = 50,
-): Promise<Array<Record<string, unknown>>> {
-  const res = await apiFetch(
-    `/v1/sessions/${encodeURIComponent(sessionId)}/items?limit=${limit}&order=desc`,
-  );
-  const page = await readJson<ItemsPageWire>(res);
-  return [...(page.data ?? [])].reverse();
-}
-
 export async function listAgents(): Promise<AvailableAgent[]> {
-  const res = await apiFetch("/v1/agents");
-  const body = await readJson<{
-    data: Array<{
-      id: string;
-      name: string;
-      harness?: string;
-      supported_modes?: string[];
-      requires_model_resource?: boolean;
-    }>;
-  }>(res);
-  return (body.data ?? []).map((a) => availableAgentFromWire(a));
-}
-
-function availableAgentFromWire(a: {
-  id: string;
-  name: string;
-  harness?: string;
-  supported_modes?: string[];
-  requires_model_resource?: boolean;
-}): AvailableAgent {
-  if (typeof a.requires_model_resource !== "boolean") {
-    throw new Error(`Worker ${a.id} 未声明模型资源要求`);
-  }
-  return {
-    id: a.id,
-    name: a.name,
-    harness: a.harness ?? null,
-    supportedModes: readSupportedModes(a.id, a.supported_modes),
-    requiresModelResource: a.requires_model_resource,
-  };
-}
-
-function readSupportedModes(
-  agentID: string,
-  modes: string[] | undefined,
-): SessionInteractionMode[] {
-  if (!modes || modes.length === 0) {
-    throw new Error(`Worker ${agentID} 未声明支持的交互模式`);
-  }
-  const supportedModes = modes.filter(
-    (mode): mode is SessionInteractionMode => mode === "acp" || mode === "pty",
-  );
-  if (
-    supportedModes.length !== modes.length ||
-    new Set(supportedModes).size !== supportedModes.length
-  ) {
-    throw new Error(`Worker ${agentID} 返回了无效的交互模式`);
-  }
-  return supportedModes;
+  return listMobileAgents();
 }
 
 export async function listProjects(): Promise<string[]> {

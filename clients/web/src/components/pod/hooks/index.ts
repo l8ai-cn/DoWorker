@@ -3,8 +3,7 @@ export type { PodCreationData } from "./usePodCreationData";
 
 export { useFocusTrap } from "./useFocusTrap";
 
-export { useCreatePodForm } from "./useCreatePodForm";
-export type { CreatePodFormState, FormValidationErrors } from "./useCreatePodForm";
+export type { CreatePodFormState, FormValidationErrors } from "./useCreatePodFormTypes";
 
 export { useWorkerCreateDraft } from "./useWorkerCreateDraft";
 export type { WorkerCreateController } from "./useWorkerCreateDraft";

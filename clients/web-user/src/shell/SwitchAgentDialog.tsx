@@ -8,18 +8,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { switchSessionAgent } from "@/lib/sessionsApi";
+import { switchWorkerSessionAgent } from "@/lib/workerSessionMutations";
 import { useAvailableAgents } from "@/hooks/useAvailableAgents";
 import { useSessionAgent } from "@/hooks/useAgents";
 import { agentRootName, harnessFamily, switchTargetCarriesHistory } from "@/lib/forkHarness";
+import { workerCreationSelection } from "@/lib/workerCreationSelection";
+import { SwitchAgentSelector } from "./SwitchAgentSelector";
 
 // "" means no target chosen yet. It must be empty (not a sentinel like
 // "__none__"): Radix only renders the trigger placeholder when the controlled
@@ -116,11 +111,20 @@ export function SwitchAgentDialog({
   }
 
   async function handleSwitch(): Promise<void> {
-    if (agentChoice === NONE_CHOSEN) return;
+    if (agentChoice === NONE_CHOSEN || !chosen) return;
+    if (!currentAgent) {
+      setError("The current Worker is unavailable. Reload and try again.");
+      return;
+    }
     setSubmitting(true);
     setError(null);
     try {
-      await switchSessionAgent(sessionId, agentChoice);
+      await switchWorkerSessionAgent({
+        sessionId,
+        sourceAgentId: currentAgent.id,
+        agentId: agentChoice,
+        ...workerCreationSelection(chosen),
+      });
       // The bound agent changed; refresh it and the sidebar so the new
       // harness shows. Same session, so no navigation. The per-session
       // snapshot (["session", sessionId], staleTime: Infinity) carries the
@@ -149,46 +153,12 @@ export function SwitchAgentDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-1.5">
-          <label
-            htmlFor="switch-agent-select"
-            className="text-xs font-medium text-muted-foreground"
-          >
-            Agent
-          </label>
-          <Select value={agentChoice || undefined} onValueChange={setAgentChoice}>
-            <SelectTrigger
-              id="switch-agent-select"
-              data-testid="switch-agent-select"
-              className="w-full text-xs"
-            >
-              <SelectValue
-                placeholder={
-                  currentDisplay ? (
-                    <span data-testid="switch-agent-current">
-                      <span className="text-foreground">{currentDisplay}</span>{" "}
-                      <span className="text-muted-foreground">(current agent)</span>
-                    </span>
-                  ) : (
-                    "Choose an agent"
-                  )
-                }
-              />
-            </SelectTrigger>
-            <SelectContent position="popper" align="start">
-              {switchableAgents.map((agent) => (
-                <SelectItem
-                  key={agent.id}
-                  value={agent.id}
-                  data-testid={`switch-agent-option-${agent.id}`}
-                  className="text-xs"
-                >
-                  {agent.display_name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <SwitchAgentSelector
+          choice={agentChoice}
+          currentDisplay={currentDisplay}
+          agents={switchableAgents}
+          onChoiceChange={setAgentChoice}
+        />
 
         {resetsModelSettings && (
           <p data-testid="switch-agent-reset-warning" className="text-xs text-muted-foreground">
@@ -210,7 +180,7 @@ export function SwitchAgentDialog({
           <Button
             data-testid="switch-agent-submit"
             onClick={handleSwitch}
-            disabled={submitting || agentChoice === NONE_CHOSEN}
+            disabled={submitting || currentAgent === undefined || agentChoice === NONE_CHOSEN}
           >
             {submitting ? "Switching…" : "Switch"}
           </Button>

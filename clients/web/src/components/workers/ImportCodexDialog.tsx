@@ -11,7 +11,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { WorkerImageSelect } from "@/components/pod/CreatePodForm/WorkerImageSelect";
 import { usePodCreationData } from "@/components/pod/hooks";
 import { getPod } from "@/lib/api/facade/podConnect";
 import {
@@ -26,6 +25,8 @@ import { dispatchAcpRelayEvent } from "@/stores/acpEventDispatcher";
 import { usePodStore } from "@/stores/pod";
 import { readCurrentOrg } from "@/stores/auth";
 import { refreshImportedSessionsList } from "@/components/ide/sidebar/ImportedSessionsSection";
+import { ImportCodexFormFields } from "./ImportCodexFormFields";
+import { ImportCodexModelResourceSelect } from "./ImportCodexModelResourceSelect";
 
 export function ImportCodexDialog({
   open,
@@ -38,10 +39,12 @@ export function ImportCodexDialog({
 }) {
   const t = useTranslations();
   const { availableAgents, loading: loadingAgents } = usePodCreationData(open);
+  const orgSlug = readCurrentOrg()?.slug;
 
   const [sourcePath, setSourcePath] = useState("");
   const [title, setTitle] = useState("");
   const [selectedAgentSlug, setSelectedAgentSlug] = useState<string | null>(null);
+  const [selectedModelResourceId, setSelectedModelResourceId] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -54,6 +57,7 @@ export function ImportCodexDialog({
     setSourcePath("");
     setTitle("");
     setSelectedAgentSlug(null);
+    setSelectedModelResourceId(null);
     setError(null);
     setSubmitting(false);
   }
@@ -74,7 +78,6 @@ export function ImportCodexDialog({
       return;
     }
 
-    const orgSlug = readCurrentOrg()?.slug;
     if (!orgSlug) {
       setError(t("workers.create.import.errors.notAuthenticated"));
       return;
@@ -85,6 +88,7 @@ export function ImportCodexDialog({
     try {
       const result = await importCodexSession(path, selectedAgentSlug, {
         title: title.trim() || undefined,
+        modelResourceId: selectedModelResourceId ?? undefined,
       });
 
       const items = await fetchAllSessionItems(result.sessionId);
@@ -129,50 +133,23 @@ export function ImportCodexDialog({
         </DialogHeader>
 
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">
-          <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor="import-codex-source"
-              className="text-xs font-medium text-muted-foreground"
-            >
-              {t("workers.create.import.sourceLabel")}
-            </label>
-            <input
-              id="import-codex-source"
-              data-testid="import-codex-source-input"
-              type="text"
-              value={sourcePath}
-              onChange={(e) => setSourcePath(e.target.value)}
-              placeholder={t("workers.create.import.sourcePlaceholder")}
-              className="rounded-md border border-input bg-background px-3 py-2 font-mono text-xs outline-none transition-colors focus-visible:border-ring"
-            />
-            <p className="text-[11px] text-muted-foreground">
-              {t("workers.create.import.sourceHint")}
-            </p>
-          </div>
+          <ImportCodexFormFields
+            agents={availableAgents}
+            sourcePath={sourcePath}
+            title={title}
+            selectedAgentSlug={selectedAgentSlug}
+            onSourcePathChange={setSourcePath}
+            onTitleChange={setTitle}
+            onAgentChange={setSelectedAgentSlug}
+            t={t}
+          />
 
-          <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor="import-codex-title"
-              className="text-xs font-medium text-muted-foreground"
-            >
-              {t("workers.create.import.titleLabel")}
-            </label>
-            <input
-              id="import-codex-title"
-              data-testid="import-codex-title-input"
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder={t("workers.create.import.titlePlaceholder")}
-              className="rounded-md border border-input bg-background px-3 py-2 font-mono text-xs outline-none transition-colors focus-visible:border-ring"
-            />
-          </div>
-
-          <WorkerImageSelect
-            images={availableAgents}
-            selectedImageSlug={selectedAgentSlug}
-            onSelect={setSelectedAgentSlug}
-            hasOnlineClusters={availableAgents.length > 0}
+          <ImportCodexModelResourceSelect
+            open={open}
+            orgSlug={orgSlug ?? ""}
+            workerTypeSlug={selectedAgentSlug}
+            selectedResourceId={selectedModelResourceId}
+            onSelect={setSelectedModelResourceId}
             t={t}
           />
 

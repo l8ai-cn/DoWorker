@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { AddAgentDialog } from "./AddAgentDialog";
 import { useAvailableAgents, type AvailableAgent } from "@/hooks/useAvailableAgents";
-import { createSession } from "@/lib/sessionsApi";
+import { createWorkerSession } from "@/lib/workerSessionMutations";
 
 const navigateMock = vi.fn();
 vi.mock("react-router-dom", async (importOriginal) => {
@@ -13,10 +13,10 @@ vi.mock("react-router-dom", async (importOriginal) => {
   return { ...actual, useNavigate: () => navigateMock };
 });
 vi.mock("@/hooks/useAvailableAgents", () => ({ useAvailableAgents: vi.fn() }));
-vi.mock("@/lib/sessionsApi", () => ({ createSession: vi.fn() }));
+vi.mock("@/lib/workerSessionMutations", () => ({ createWorkerSession: vi.fn() }));
 
 const useAvailableAgentsMock = vi.mocked(useAvailableAgents);
-const createSessionMock = vi.mocked(createSession);
+const createWorkerSessionMock = vi.mocked(createWorkerSession);
 
 const AGENTS: AvailableAgent[] = [
   {
@@ -26,6 +26,9 @@ const AGENTS: AvailableAgent[] = [
     description: "Claude Code agent",
     harness: "claude-native",
     skills: [],
+    workerTypeSlug: "claude-native-ui",
+    supportedModes: ["acp", "pty"],
+    requiresModelResource: true,
   },
   {
     id: "ag_codex",
@@ -34,6 +37,9 @@ const AGENTS: AvailableAgent[] = [
     description: null,
     harness: "codex",
     skills: [],
+    workerTypeSlug: "codex",
+    supportedModes: ["acp", "pty"],
+    requiresModelResource: true,
   },
 ];
 
@@ -58,7 +64,7 @@ function renderDialog(parentSessionId = "conv_parent") {
 
 beforeEach(() => {
   useAvailableAgentsMock.mockReset();
-  createSessionMock.mockReset();
+  createWorkerSessionMock.mockReset();
   navigateMock.mockReset();
   mockAgents(AGENTS);
 });
@@ -72,10 +78,31 @@ describe("AddAgentDialog", () => {
     expect(screen.getByTestId("agent-card-ag_codex")).toHaveTextContent("codex");
   });
 
+  it("does not offer session-derived agents without Worker creation metadata", () => {
+    mockAgents([
+      ...AGENTS,
+      {
+        id: "agent_session_opaque",
+        name: "custom-session-agent",
+        display_name: "Custom session agent",
+        description: null,
+        harness: "codex",
+        skills: [],
+      },
+    ]);
+
+    renderDialog();
+
+    expect(screen.queryByTestId("agent-card-agent_session_opaque")).not.toBeInTheDocument();
+    expect(screen.getByTestId("add-agent-unavailable")).toHaveTextContent(
+      "Worker creation metadata is unavailable",
+    );
+  });
+
   it("submits ui:<agent>:<name> with the parent link and a null sub_agent_name", async () => {
-    createSessionMock.mockResolvedValue({
+    createWorkerSessionMock.mockResolvedValue({
       id: "conv_child",
-    } as unknown as Awaited<ReturnType<typeof createSession>>);
+    });
 
     const { invalidateSpy } = renderDialog("conv_parent");
 
@@ -86,14 +113,19 @@ describe("AddAgentDialog", () => {
     });
     fireEvent.click(screen.getByTestId("add-agent-submit"));
 
-    await waitFor(() => expect(createSessionMock).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(createWorkerSessionMock).toHaveBeenCalledTimes(1));
     // Whole call asserted: the 3-segment title carries the typed name, the
     // parent link, and sub_agent_name=null (so the runner resolves the
     // child's own agent_id).
-    expect(createSessionMock).toHaveBeenCalledWith("ag_claude", [], {
+    expect(createWorkerSessionMock).toHaveBeenCalledWith({
+      agentId: "ag_claude",
+      initialItems: [],
       parentSessionId: "conv_parent",
       subAgentName: null,
       title: "ui:claude-native-ui:jimmy",
+      workerTypeSlug: "claude-native-ui",
+      supportedModes: ["acp", "pty"],
+      requiresModelResource: true,
     });
     // Rail refreshed for the parent, then navigated into the new child.
     await waitFor(() => expect(navigateMock).toHaveBeenCalledWith("/c/conv_child"));
@@ -103,9 +135,9 @@ describe("AddAgentDialog", () => {
   });
 
   it("starts the name empty and blocks submit until the user types one", async () => {
-    createSessionMock.mockResolvedValue({
+    createWorkerSessionMock.mockResolvedValue({
       id: "conv_child",
-    } as unknown as Awaited<ReturnType<typeof createSession>>);
+    });
     renderDialog("conv_parent");
 
     fireEvent.click(screen.getByTestId("agent-card-ag_codex"));
@@ -119,11 +151,16 @@ describe("AddAgentDialog", () => {
     expect(screen.getByTestId("add-agent-submit")).toBeEnabled();
     fireEvent.click(screen.getByTestId("add-agent-submit"));
 
-    await waitFor(() => expect(createSessionMock).toHaveBeenCalledTimes(1));
-    expect(createSessionMock).toHaveBeenCalledWith("ag_codex", [], {
+    await waitFor(() => expect(createWorkerSessionMock).toHaveBeenCalledTimes(1));
+    expect(createWorkerSessionMock).toHaveBeenCalledWith({
+      agentId: "ag_codex",
+      initialItems: [],
       parentSessionId: "conv_parent",
       subAgentName: null,
       title: "ui:codex:reviewer",
+      workerTypeSlug: "codex",
+      supportedModes: ["acp", "pty"],
+      requiresModelResource: true,
     });
   });
 
@@ -135,9 +172,9 @@ describe("AddAgentDialog", () => {
   // red the moment a prompt field lands and its text flows into
   // createSession — at which point promote this to a normal assertion.
   it.fails("seeds the user's initial review prompt into the child transcript", async () => {
-    createSessionMock.mockResolvedValue({
+    createWorkerSessionMock.mockResolvedValue({
       id: "conv_child",
-    } as unknown as Awaited<ReturnType<typeof createSession>>);
+    });
     renderDialog("conv_parent");
 
     fireEvent.click(screen.getByTestId("agent-card-ag_codex"));
@@ -151,12 +188,12 @@ describe("AddAgentDialog", () => {
     });
     fireEvent.click(screen.getByTestId("add-agent-submit"));
 
-    await waitFor(() => expect(createSessionMock).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(createWorkerSessionMock).toHaveBeenCalledTimes(1));
     // The prompt must travel as initial_items (a seeded user message), not
     // the empty [] the dialog sends today.
-    const initialItems = createSessionMock.mock.calls[0][1];
-    expect(initialItems).not.toEqual([]);
-    expect(JSON.stringify(initialItems)).toContain("designs/feature-x.md");
+    const request = createWorkerSessionMock.mock.calls[0][0];
+    expect(request.initialItems).not.toEqual([]);
+    expect(JSON.stringify(request.initialItems)).toContain("designs/feature-x.md");
   });
 
   it("shows an empty-state and a disabled submit when no agents are available", () => {
@@ -167,7 +204,7 @@ describe("AddAgentDialog", () => {
   });
 
   it("surfaces the server error inline on failure and does not navigate", async () => {
-    createSessionMock.mockRejectedValue(new Error("409 label already in use"));
+    createWorkerSessionMock.mockRejectedValue(new Error("409 label already in use"));
     renderDialog();
 
     fireEvent.click(screen.getByTestId("agent-card-ag_codex"));

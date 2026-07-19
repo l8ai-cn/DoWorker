@@ -113,8 +113,6 @@ export function useRunnerDetail(t: (key: string) => string, runnerIdArg?: number
     setResumeError(null);
     try {
       const { pod } = await createPodConnect(orgSlug, {
-        agent_slug: resumingPod.agent_slug || "",
-        runner_id: runner.id,
         source_pod_key: resumingPod.pod_key,
         resume_agent_session: true,
         cols: 120,

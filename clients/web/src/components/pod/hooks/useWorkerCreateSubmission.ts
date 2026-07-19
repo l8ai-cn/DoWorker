@@ -56,7 +56,6 @@ export function useWorkerCreateSubmission(
     try {
       const { cols, rows } = estimateWorkspaceTerminalSize();
       const result = await podApi.create({
-        agent_slug: "",
         ticket_slug: params.ticketSlug,
         cols,
         rows,

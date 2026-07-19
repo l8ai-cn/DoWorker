@@ -12,7 +12,8 @@ import { Button } from "@/components/ui/button";
 import { AgentCard } from "@/components/AgentCard";
 import { useAvailableAgents } from "@/hooks/useAvailableAgents";
 import { childSessionsQueryKey } from "@/hooks/useChildSessions";
-import { createSession } from "@/lib/sessionsApi";
+import { createWorkerSession } from "@/lib/workerSessionMutations";
+import { hasWorkerCreationSelection, workerCreationSelection } from "@/lib/workerCreationSelection";
 
 // Title sentinel marking a user-added agent. Mirrors the server's
 // ``_UI_ADDED_AGENT_TITLE_PREFIX`` in omnigent/server/routes/sessions.py:
@@ -49,7 +50,8 @@ export function AddAgentDialog({
   const queryClient = useQueryClient();
   const { data: agents } = useAvailableAgents();
 
-  const agentList = agents ?? [];
+  const agentList = (agents ?? []).filter(hasWorkerCreationSelection);
+  const unavailableAgentCount = (agents?.length ?? 0) - agentList.length;
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -83,10 +85,13 @@ export function AddAgentDialog({
     setSubmitting(true);
     setError(null);
     try {
-      const session = await createSession(selectedAgent.id, [], {
+      const session = await createWorkerSession({
+        agentId: selectedAgent.id,
+        initialItems: [],
         parentSessionId,
         subAgentName: null,
         title,
+        ...workerCreationSelection(selectedAgent),
       });
       // Refresh the rail so the new child appears immediately, then jump
       // into it for the first message.
@@ -132,6 +137,11 @@ export function AddAgentDialog({
                   hover
                 />
               ))
+            )}
+            {unavailableAgentCount > 0 && (
+              <p data-testid="add-agent-unavailable" className="text-xs text-muted-foreground">
+                Some agents cannot be added because their Worker creation metadata is unavailable.
+              </p>
             )}
           </div>
 

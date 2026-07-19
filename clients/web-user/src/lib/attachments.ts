@@ -15,6 +15,7 @@ export const ATTACHMENT_SIZE_LIMITS_MB = {
   image: 5,
   pdf: 20,
   text: 10,
+  document: 10,
 } as const;
 
 export type AttachmentCategory = keyof typeof ATTACHMENT_SIZE_LIMITS_MB;
@@ -27,6 +28,10 @@ const TEXT_LIKE_APPLICATION_MIMES = new Set([
   "application/jsonl",
   "application/x-ndjson",
   "application/x-ipynb+json",
+]);
+
+const DOCUMENT_MIMES = new Set([
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 ]);
 
 // Text/code extensions whose browser-reported MIME type is often empty or
@@ -108,7 +113,7 @@ function extensionOf(filename: string): string {
 
 /**
  * Classify a file into an attachment category, or `null` if its type is not
- * supported (e.g. pptx, docx, xlsx, zip, binaries). Uses the browser MIME
+ * supported (e.g. pptx, xlsx, zip, binaries). Uses the browser MIME
  * type first, falling back to the filename extension for code/text files
  * whose MIME is unreliable.
  */
@@ -118,6 +123,7 @@ export function classifyAttachment(file: File): AttachmentCategory | null {
 
   if (type.startsWith("image/")) return "image";
   if (type === "application/pdf" || ext === ".pdf") return "pdf";
+  if (DOCUMENT_MIMES.has(type) || ext === ".docx") return "document";
   if (
     type.startsWith("text/") ||
     TEXT_LIKE_APPLICATION_MIMES.has(type) ||
@@ -149,7 +155,7 @@ export function validateAttachments(files: File[]): AttachmentValidation {
     const category = classifyAttachment(file);
     if (category === null) {
       errors.push(
-        `"${name}" can't be attached — only images, PDF, and text/code files are supported.`,
+        `"${name}" can't be attached — only images, PDF, Word documents, and text/code files are supported.`,
       );
       continue;
     }
