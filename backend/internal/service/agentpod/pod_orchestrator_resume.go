@@ -44,6 +44,9 @@ func (o *PodOrchestrator) handleResumeMode(ctx context.Context, req *Orchestrate
 	if req.AgentSlug == "" {
 		req.AgentSlug = sourcePod.AgentSlug
 	}
+	if err := validateResumeWorkerInput(req, sourcePod); err != nil {
+		return nil, "", err
+	}
 	if req.RepositoryID == nil {
 		req.RepositoryID = sourcePod.RepositoryID
 	}
@@ -73,6 +76,39 @@ func (o *PodOrchestrator) handleResumeMode(ctx context.Context, req *Orchestrate
 	}
 
 	return sourcePod, sessionID, nil
+}
+
+func validateResumeWorkerInput(
+	req *OrchestrateCreatePodRequest,
+	sourcePod *podDomain.Pod,
+) error {
+	if sourcePod.WorkerSpecSnapshotID == nil ||
+		*sourcePod.WorkerSpecSnapshotID <= 0 {
+		return ErrWorkerSpecSnapshotUnavailable
+	}
+	if req.RepositoryID != nil &&
+		!int64PointersEqual(req.RepositoryID, sourcePod.RepositoryID) {
+		return ErrWorkerSpecSnapshotMismatch
+	}
+	if req.ModelResourceID != nil &&
+		!int64PointersEqual(req.ModelResourceID, sourcePod.ModelResourceID) {
+		return ErrWorkerSpecSnapshotMismatch
+	}
+	if req.BranchName != nil &&
+		!stringPointerMatches(req.BranchName, workerSpecStringValue(sourcePod.BranchName)) {
+		return ErrWorkerSpecSnapshotMismatch
+	}
+	if req.AutomationLevel != "" &&
+		req.AutomationLevel != sourcePod.AutomationLevel {
+		return ErrWorkerSpecSnapshotMismatch
+	}
+	if req.TokenBudget != nil ||
+		len(req.KnowledgeMounts) > 0 ||
+		len(req.ModelResourceEnv) > 0 ||
+		len(req.ModelResourceArgs) > 0 {
+		return ErrWorkerSpecSnapshotMismatch
+	}
+	return nil
 }
 
 // getUserGitCredential retrieves the default Git credential for a user.

@@ -16,16 +16,15 @@ func TestCreatePod_ResumeMode_SessionReused(t *testing.T) {
 	orch, podSvc, db := setupOrchestrator(t, withCoordinator(coord))
 
 	agentSlug := "claude-code"
-	sourcePod, err := podSvc.CreatePod(context.Background(), &CreatePodRequest{
-		OrganizationID:  1,
-		RunnerID:        1,
-		AgentSlug:       agentSlug,
-		ModelResourceID: testModelResourceID(),
-		CreatedByID:     1,
-		SessionID:       "my-session-id",
+	sourcePod := createImmutableResumeSource(t, orch, podSvc, db, &OrchestrateCreatePodRequest{
+		OrganizationID: 1,
+		UserID:         1,
+		AgentSlug:      agentSlug,
 	})
-	require.NoError(t, err)
-	db.Exec("UPDATE pods SET status = ? WHERE pod_key = ?", podDomain.StatusTerminated, sourcePod.PodKey)
+	sourcePod = updateResumeSource(t, podSvc, db, sourcePod.PodKey, map[string]interface{}{
+		"session_id": "my-session-id",
+		"status":     podDomain.StatusTerminated,
+	})
 
 	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
@@ -48,18 +47,18 @@ func TestCreatePod_ResumeMode_CodexUsesCodexResumeLast(t *testing.T) {
 		withAgentConfigProvider(newCodexTestProvider()),
 	)
 
-	sourcePod, err := podSvc.CreatePod(context.Background(), &CreatePodRequest{
+	sourceLayer := "MODE pty"
+	sourcePod := createImmutableResumeSource(t, orch, podSvc, db, &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
-		RunnerID:        1,
+		UserID:          1,
 		AgentSlug:       "codex-cli",
-		ModelResourceID: testModelResourceID(),
-		CreatedByID:     1,
-		SessionID:       "platform-session-id-not-codex-thread",
+		AgentfileLayer:  &sourceLayer,
+		AutomationLevel: podDomain.AutomationLevelInteractive,
 	})
-	require.NoError(t, err)
 
 	sandboxPath := "/home/user/sandbox/codex-source"
-	db.Model(&podDomain.Pod{}).Where("pod_key = ?", sourcePod.PodKey).Updates(map[string]interface{}{
+	sourcePod = updateResumeSource(t, podSvc, db, sourcePod.PodKey, map[string]interface{}{
+		"session_id":   "platform-session-id-not-codex-thread",
 		"sandbox_path": sandboxPath,
 		"status":       podDomain.StatusTerminated,
 	})
@@ -169,24 +168,24 @@ func TestCreatePod_ResumeMode_ClaudePreservesSourcePermissionMode(t *testing.T) 
 	assert.NotContains(t, coord.lastCmd.LaunchArgs, "bypassPermissions")
 }
 
-func TestCreatePod_ResumeMode_ClaudePreservesLegacyPermissionColumn(t *testing.T) {
+func TestCreatePod_ResumeMode_ClaudePreservesSourcePermissionConfig(t *testing.T) {
 	coord := &mockPodCoordinator{}
 	orch, podSvc, db := setupOrchestrator(t,
 		withCoordinator(coord),
 		withAgentConfigProvider(newClaudePermissionTestProvider()),
 	)
 
-	sourcePod, err := podSvc.CreatePod(context.Background(), &CreatePodRequest{
-		OrganizationID:  1,
-		RunnerID:        1,
-		AgentSlug:       "claude-code",
-		ModelResourceID: testModelResourceID(),
-		CreatedByID:     1,
-		SessionID:       "legacy-session",
-		PermissionMode:  "dontAsk",
+	sourceLayer := `CONFIG permission_mode = "dontAsk"`
+	sourcePod := createImmutableResumeSource(t, orch, podSvc, db, &OrchestrateCreatePodRequest{
+		OrganizationID: 1,
+		UserID:         1,
+		AgentSlug:      "claude-code",
+		AgentfileLayer: &sourceLayer,
 	})
-	require.NoError(t, err)
-	db.Model(&podDomain.Pod{}).Where("pod_key = ?", sourcePod.PodKey).Update("status", podDomain.StatusTerminated)
+	sourcePod = updateResumeSource(t, podSvc, db, sourcePod.PodKey, map[string]interface{}{
+		"session_id": "legacy-session",
+		"status":     podDomain.StatusTerminated,
+	})
 
 	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
@@ -206,16 +205,15 @@ func TestCreatePod_ResumeMode_NoSessionID_GeneratesNew(t *testing.T) {
 	orch, podSvc, db := setupOrchestrator(t, withCoordinator(coord))
 
 	agentSlug := "claude-code"
-	sourcePod, err := podSvc.CreatePod(context.Background(), &CreatePodRequest{
-		OrganizationID:  1,
-		RunnerID:        1,
-		AgentSlug:       agentSlug,
-		ModelResourceID: testModelResourceID(),
-		CreatedByID:     1,
-		SessionID:       "", // No session ID
+	sourcePod := createImmutableResumeSource(t, orch, podSvc, db, &OrchestrateCreatePodRequest{
+		OrganizationID: 1,
+		UserID:         1,
+		AgentSlug:      agentSlug,
 	})
-	require.NoError(t, err)
-	db.Exec("UPDATE pods SET status = ? WHERE pod_key = ?", podDomain.StatusTerminated, sourcePod.PodKey)
+	sourcePod = updateResumeSource(t, podSvc, db, sourcePod.PodKey, map[string]interface{}{
+		"session_id": nil,
+		"status":     podDomain.StatusTerminated,
+	})
 
 	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
@@ -233,19 +231,18 @@ func TestCreatePod_ResumeMode_DisableResumeAgentSession(t *testing.T) {
 	orch, podSvc, db := setupOrchestrator(t, withCoordinator(coord))
 
 	agentSlug := "claude-code"
-	sourcePod, err := podSvc.CreatePod(context.Background(), &CreatePodRequest{
-		OrganizationID:  1,
-		RunnerID:        1,
-		AgentSlug:       agentSlug,
-		ModelResourceID: testModelResourceID(),
-		CreatedByID:     1,
-		SessionID:       "session-1",
+	sourcePod := createImmutableResumeSource(t, orch, podSvc, db, &OrchestrateCreatePodRequest{
+		OrganizationID: 1,
+		UserID:         1,
+		AgentSlug:      agentSlug,
 	})
-	require.NoError(t, err)
-	db.Exec("UPDATE pods SET status = ? WHERE pod_key = ?", podDomain.StatusTerminated, sourcePod.PodKey)
+	sourcePod = updateResumeSource(t, podSvc, db, sourcePod.PodKey, map[string]interface{}{
+		"session_id": "session-1",
+		"status":     podDomain.StatusTerminated,
+	})
 
 	resumeOff := false
-	_, err = createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:     1,
 		UserID:             1,
 		SourcePodKey:       sourcePod.PodKey,
@@ -264,16 +261,15 @@ func TestCreatePod_ResumeMode_CompletedPod(t *testing.T) {
 	orch, podSvc, db := setupOrchestrator(t, withCoordinator(coord))
 
 	agentSlug := "claude-code"
-	sourcePod, err := podSvc.CreatePod(context.Background(), &CreatePodRequest{
-		OrganizationID:  1,
-		RunnerID:        1,
-		AgentSlug:       agentSlug,
-		ModelResourceID: testModelResourceID(),
-		CreatedByID:     1,
-		SessionID:       "session-1",
+	sourcePod := createImmutableResumeSource(t, orch, podSvc, db, &OrchestrateCreatePodRequest{
+		OrganizationID: 1,
+		UserID:         1,
+		AgentSlug:      agentSlug,
 	})
-	require.NoError(t, err)
-	db.Exec("UPDATE pods SET status = ? WHERE pod_key = ?", podDomain.StatusCompleted, sourcePod.PodKey)
+	sourcePod = updateResumeSource(t, podSvc, db, sourcePod.PodKey, map[string]interface{}{
+		"session_id": "session-1",
+		"status":     podDomain.StatusCompleted,
+	})
 
 	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
@@ -290,16 +286,15 @@ func TestCreatePod_ResumeMode_OrphanedPod(t *testing.T) {
 	orch, podSvc, db := setupOrchestrator(t, withCoordinator(coord))
 
 	agentSlug := "claude-code"
-	sourcePod, err := podSvc.CreatePod(context.Background(), &CreatePodRequest{
-		OrganizationID:  1,
-		RunnerID:        1,
-		AgentSlug:       agentSlug,
-		ModelResourceID: testModelResourceID(),
-		CreatedByID:     1,
-		SessionID:       "session-1",
+	sourcePod := createImmutableResumeSource(t, orch, podSvc, db, &OrchestrateCreatePodRequest{
+		OrganizationID: 1,
+		UserID:         1,
+		AgentSlug:      agentSlug,
 	})
-	require.NoError(t, err)
-	db.Exec("UPDATE pods SET status = ? WHERE pod_key = ?", podDomain.StatusOrphaned, sourcePod.PodKey)
+	sourcePod = updateResumeSource(t, podSvc, db, sourcePod.PodKey, map[string]interface{}{
+		"session_id": "session-1",
+		"status":     podDomain.StatusOrphaned,
+	})
 
 	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
@@ -316,19 +311,15 @@ func TestCreatePod_ResumeMode_SandboxPath(t *testing.T) {
 	orch, podSvc, db := setupOrchestrator(t, withCoordinator(coord))
 
 	agentSlug := "claude-code"
-	sourcePod, err := podSvc.CreatePod(context.Background(), &CreatePodRequest{
-		OrganizationID:  1,
-		RunnerID:        1,
-		AgentSlug:       agentSlug,
-		ModelResourceID: testModelResourceID(),
-		CreatedByID:     1,
-		SessionID:       "session-1",
+	sourcePod := createImmutableResumeSource(t, orch, podSvc, db, &OrchestrateCreatePodRequest{
+		OrganizationID: 1,
+		UserID:         1,
+		AgentSlug:      agentSlug,
 	})
-	require.NoError(t, err)
 
-	// Set sandbox path on source pod
 	sandboxPath := "/home/user/sandbox/pod-123"
-	db.Model(&podDomain.Pod{}).Where("pod_key = ?", sourcePod.PodKey).Updates(map[string]interface{}{
+	sourcePod = updateResumeSource(t, podSvc, db, sourcePod.PodKey, map[string]interface{}{
+		"session_id":   "session-1",
 		"sandbox_path": sandboxPath,
 		"status":       podDomain.StatusTerminated,
 	})

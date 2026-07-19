@@ -44,16 +44,11 @@ func TestCreatePod_ResumeMode_AgentSlugMatch_Accepted(t *testing.T) {
 	coord := &mockPodCoordinator{}
 	orch, podSvc, db := setupOrchestrator(t, withCoordinator(coord))
 
-	sourcePod, err := podSvc.CreatePod(context.Background(), &CreatePodRequest{
-		OrganizationID:  1,
-		RunnerID:        1,
-		AgentSlug:       "claude-code",
-		ModelResourceID: testModelResourceID(),
-		CreatedByID:     1,
-		SessionID:       "session-1",
+	sourcePod := createImmutableResumeSource(t, orch, podSvc, db, &OrchestrateCreatePodRequest{
+		OrganizationID: 1,
+		UserID:         1,
+		AgentSlug:      "claude-code",
 	})
-	require.NoError(t, err)
-	db.Exec("UPDATE pods SET status = ? WHERE pod_key = ?", podDomain.StatusTerminated, sourcePod.PodKey)
 
 	// Explicit AgentSlug matching source — should be accepted (not rejected).
 	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
@@ -72,21 +67,12 @@ func TestCreatePod_ResumeMode_Success(t *testing.T) {
 	coord := &mockPodCoordinator{}
 	orch, podSvc, db := setupOrchestrator(t, withCoordinator(coord))
 
-	// Create source pod (terminated)
 	agentSlug := "claude-code"
-	sessionID := "existing-session-123"
-	sourcePod, err := podSvc.CreatePod(context.Background(), &CreatePodRequest{
-		OrganizationID:  1,
-		RunnerID:        1,
-		AgentSlug:       agentSlug,
-		ModelResourceID: testModelResourceID(),
-		CreatedByID:     1,
-		SessionID:       sessionID,
+	sourcePod := createImmutableResumeSource(t, orch, podSvc, db, &OrchestrateCreatePodRequest{
+		OrganizationID: 1,
+		UserID:         1,
+		AgentSlug:      agentSlug,
 	})
-	require.NoError(t, err)
-
-	// Terminate the source pod (use raw SQL to avoid GREATEST() SQLite incompatibility)
-	db.Exec("UPDATE pods SET status = ? WHERE pod_key = ?", podDomain.StatusTerminated, sourcePod.PodKey)
 
 	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
@@ -169,20 +155,14 @@ func TestCreatePod_ResumeMode_AlreadyResumed(t *testing.T) {
 	coord := &mockPodCoordinator{}
 	orch, podSvc, db := setupOrchestrator(t, withCoordinator(coord))
 
-	agentSlug := "claude-code"
-	sourcePod, err := podSvc.CreatePod(context.Background(), &CreatePodRequest{
-		OrganizationID:  1,
-		RunnerID:        1,
-		AgentSlug:       agentSlug,
-		ModelResourceID: testModelResourceID(),
-		CreatedByID:     1,
-		SessionID:       "session-1",
+	sourcePod := createImmutableResumeSource(t, orch, podSvc, db, &OrchestrateCreatePodRequest{
+		OrganizationID: 1,
+		UserID:         1,
+		AgentSlug:      "claude-code",
 	})
-	require.NoError(t, err)
-	db.Exec("UPDATE pods SET status = ? WHERE pod_key = ?", podDomain.StatusTerminated, sourcePod.PodKey)
 
 	// First resume should succeed
-	_, err = createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
 		UserID:         1,
 		SourcePodKey:   sourcePod.PodKey,
@@ -233,18 +213,11 @@ func TestCreatePod_ResumeMode_InheritRunnerID(t *testing.T) {
 	coord := &mockPodCoordinator{}
 	orch, podSvc, db := setupOrchestrator(t, withCoordinator(coord))
 
-	agentSlug := "claude-code"
-	sourcePod, err := podSvc.CreatePod(context.Background(), &CreatePodRequest{
-		OrganizationID:  1,
-		RunnerID:        1,
-		ClusterID:       19,
-		AgentSlug:       agentSlug,
-		ModelResourceID: testModelResourceID(),
-		CreatedByID:     1,
-		SessionID:       "session-1",
+	sourcePod := createImmutableResumeSource(t, orch, podSvc, db, &OrchestrateCreatePodRequest{
+		OrganizationID: 1,
+		UserID:         1,
+		AgentSlug:      "claude-code",
 	})
-	require.NoError(t, err)
-	db.Exec("UPDATE pods SET status = ? WHERE pod_key = ?", podDomain.StatusTerminated, sourcePod.PodKey)
 
 	// RunnerID=0 -> should inherit from source pod
 	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
@@ -255,32 +228,31 @@ func TestCreatePod_ResumeMode_InheritRunnerID(t *testing.T) {
 	})
 
 	require.NoError(t, err)
-	assert.Equal(t, int64(1), result.Pod.RunnerID)
-	assert.Equal(t, int64(19), result.Pod.ClusterID)
+	assert.Equal(t, sourcePod.RunnerID, result.Pod.RunnerID)
+	assert.Equal(t, sourcePod.ClusterID, result.Pod.ClusterID)
 }
 
 func TestCreatePod_ResumeMode_InheritConfig(t *testing.T) {
 	coord := &mockPodCoordinator{}
 	repoID := int64(10)
-	repoSvc := &mockRepoService{repo: &gitprovider.Repository{ID: repoID}}
+	repoSvc := &mockRepoService{repo: &gitprovider.Repository{
+		ID:            repoID,
+		HttpCloneURL:  "https://git.example.com/org/resume-config.git",
+		DefaultBranch: "main",
+	}}
 	orch, podSvc, db := setupOrchestrator(t, withCoordinator(coord), withRepoSvc(repoSvc))
 
 	agentSlug := "claude-code"
 	ticketID := int64(20)
 	branch := "feature-branch"
-	sourcePod, err := podSvc.CreatePod(context.Background(), &CreatePodRequest{
-		OrganizationID:  1,
-		RunnerID:        1,
-		AgentSlug:       agentSlug,
-		ModelResourceID: testModelResourceID(),
-		RepositoryID:    &repoID,
-		TicketID:        &ticketID,
-		BranchName:      &branch,
-		CreatedByID:     1,
-		SessionID:       "session-1",
+	sourcePod := createImmutableResumeSource(t, orch, podSvc, db, &OrchestrateCreatePodRequest{
+		OrganizationID: 1,
+		UserID:         1,
+		AgentSlug:      agentSlug,
+		RepositoryID:   &repoID,
+		TicketID:       &ticketID,
+		BranchName:     &branch,
 	})
-	require.NoError(t, err)
-	db.Exec("UPDATE pods SET status = ? WHERE pod_key = ?", podDomain.StatusTerminated, sourcePod.PodKey)
 
 	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
@@ -293,4 +265,49 @@ func TestCreatePod_ResumeMode_InheritConfig(t *testing.T) {
 	assert.Equal(t, &repoID, result.Pod.RepositoryID)
 	assert.Equal(t, &ticketID, result.Pod.TicketID)
 	assert.Equal(t, &branch, result.Pod.BranchName)
+}
+
+func TestCreatePod_ResumeMode_RejectsLegacySourceWithoutSnapshot(t *testing.T) {
+	orch, podSvc, db := setupOrchestrator(t)
+	sourcePod, err := podSvc.CreatePod(context.Background(), &CreatePodRequest{
+		OrganizationID:  1,
+		RunnerID:        1,
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		CreatedByID:     1,
+	})
+	require.NoError(t, err)
+	require.NoError(
+		t,
+		db.Model(&podDomain.Pod{}).
+			Where("pod_key = ?", sourcePod.PodKey).
+			Update("status", podDomain.StatusTerminated).Error,
+	)
+
+	_, err = createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
+		OrganizationID: 1,
+		UserID:         1,
+		SourcePodKey:   sourcePod.PodKey,
+	})
+
+	require.ErrorIs(t, err, ErrWorkerSpecSnapshotUnavailable)
+}
+
+func TestCreatePod_ResumeMode_RejectsModelOverride(t *testing.T) {
+	orch, podSvc, db := setupOrchestrator(t)
+	sourcePod := createImmutableResumeSource(t, orch, podSvc, db, &OrchestrateCreatePodRequest{
+		OrganizationID: 1,
+		UserID:         1,
+		AgentSlug:      "claude-code",
+	})
+	override := *sourcePod.ModelResourceID + 1
+
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
+		OrganizationID:  1,
+		UserID:          1,
+		SourcePodKey:    sourcePod.PodKey,
+		ModelResourceID: &override,
+	})
+
+	require.ErrorIs(t, err, ErrWorkerSpecSnapshotMismatch)
 }

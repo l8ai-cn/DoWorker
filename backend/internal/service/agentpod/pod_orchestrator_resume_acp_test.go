@@ -55,38 +55,36 @@ func TestCreatePod_ResumeMode_InheritsAncestorExternalSessionID(t *testing.T) {
 		withAgentConfigProvider(newCodexTestProvider()),
 	)
 
-	root, err := podSvc.CreatePod(context.Background(), &CreatePodRequest{
-		OrganizationID:  1,
-		RunnerID:        1,
-		AgentSlug:       "codex-cli",
-		ModelResourceID: testModelResourceID(),
-		CreatedByID:     1,
-		SessionID:       "platform-session",
-		InteractionMode: podDomain.InteractionModeACP,
+	root := createImmutableResumeSource(t, orch, podSvc, db, &OrchestrateCreatePodRequest{
+		OrganizationID: 1,
+		UserID:         1,
+		AgentSlug:      "codex-cli",
 	})
-	require.NoError(t, err)
 	externalID := "codex-thread-root"
-	require.NoError(t, db.Model(&podDomain.Pod{}).
-		Where("pod_key = ?", root.PodKey).
-		Updates(map[string]interface{}{
-			"external_session_id": externalID,
-			"status":              podDomain.StatusCompleted,
-		}).Error)
-
-	intermediate, err := podSvc.CreatePod(context.Background(), &CreatePodRequest{
-		OrganizationID:  1,
-		RunnerID:        1,
-		AgentSlug:       "codex-cli",
-		ModelResourceID: testModelResourceID(),
-		CreatedByID:     1,
-		SessionID:       "platform-session",
-		SourcePodKey:    root.PodKey,
-		InteractionMode: podDomain.InteractionModeACP,
+	root = updateResumeSource(t, podSvc, db, root.PodKey, map[string]interface{}{
+		"external_session_id": externalID,
+		"session_id":          "platform-session",
+		"status":              podDomain.StatusCompleted,
 	})
+
+	intermediateResult, err := createPodWithPlanSourceForTest(
+		t,
+		orch,
+		context.Background(),
+		&OrchestrateCreatePodRequest{
+			OrganizationID: 1,
+			UserID:         1,
+			SourcePodKey:   root.PodKey,
+		},
+	)
 	require.NoError(t, err)
-	require.NoError(t, db.Model(&podDomain.Pod{}).
-		Where("pod_key = ?", intermediate.PodKey).
-		Update("status", podDomain.StatusOrphaned).Error)
+	intermediate := updateResumeSource(
+		t,
+		podSvc,
+		db,
+		intermediateResult.Pod.PodKey,
+		map[string]interface{}{"status": podDomain.StatusOrphaned},
+	)
 
 	_, err = createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,

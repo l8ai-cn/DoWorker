@@ -14,6 +14,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/infra"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agent"
 	"github.com/anthropics/agentsmesh/backend/internal/testkit"
+	"gorm.io/gorm"
 )
 
 // setupIntegrationOrchestrator creates a PodOrchestrator wired with real DB
@@ -62,6 +63,7 @@ func setupIntegrationOrchestrator(t *testing.T, opts ...func(*PodOrchestratorDep
 	ctx = context.WithValue(ctx, ctxKeyOrgID, orgID)
 	ctx = context.WithValue(ctx, ctxKeyUserID, userID)
 	ctx = context.WithValue(ctx, ctxKeyRunnerID, runnerID)
+	ctx = context.WithValue(ctx, ctxKeyDB, db)
 
 	return NewPodOrchestrator(deps), podSvc, ctx
 }
@@ -73,11 +75,13 @@ const (
 	ctxKeyOrgID    ctxKey = "orgID"
 	ctxKeyUserID   ctxKey = "userID"
 	ctxKeyRunnerID ctxKey = "runnerID"
+	ctxKeyDB       ctxKey = "db"
 )
 
 func ctxOrgID(ctx context.Context) int64    { return ctx.Value(ctxKeyOrgID).(int64) }
 func ctxUserID(ctx context.Context) int64   { return ctx.Value(ctxKeyUserID).(int64) }
 func ctxRunnerID(ctx context.Context) int64 { return ctx.Value(ctxKeyRunnerID).(int64) }
+func ctxDB(ctx context.Context) *gorm.DB    { return ctx.Value(ctxKeyDB).(*gorm.DB) }
 
 // ---------- Test 1: Full lifecycle Create -> Running -> Terminated ----------
 
@@ -133,18 +137,16 @@ func TestPodLifecycle_ResumeMode(t *testing.T) {
 
 	orgID, userID, runnerID := ctxOrgID(ctx), ctxUserID(ctx), ctxRunnerID(ctx)
 
-	// Create and terminate source pod
-	source, err := podSvc.CreatePod(ctx, &CreatePodRequest{
-		OrganizationID:  orgID,
-		RunnerID:        runnerID,
-		AgentSlug:       "claude-code",
-		ModelResourceID: testModelResourceID(),
-		CreatedByID:     userID,
-		SessionID:       "session-abc",
+	source := createImmutableResumeSource(t, orch, podSvc, ctxDB(ctx), &OrchestrateCreatePodRequest{
+		OrganizationID: orgID,
+		UserID:         userID,
+		RunnerID:       runnerID,
+		AgentSlug:      "claude-code",
 	})
-	require.NoError(t, err)
-	err = podSvc.UpdatePodStatus(ctx, source.PodKey, podDomain.StatusTerminated)
-	require.NoError(t, err)
+	source = updateResumeSource(t, podSvc, ctxDB(ctx), source.PodKey, map[string]interface{}{
+		"session_id": "session-abc",
+		"status":     podDomain.StatusTerminated,
+	})
 
 	// Resume from terminated pod
 	result, err := createPodWithPlanSourceForTest(t, orch, ctx, &OrchestrateCreatePodRequest{

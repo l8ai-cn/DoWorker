@@ -14,8 +14,9 @@ func (o *PodOrchestrator) inheritWorkerSpecSnapshot(
 	req *OrchestrateCreatePodRequest,
 	source *podDomain.Pod,
 ) error {
-	if source.WorkerSpecSnapshotID == nil {
-		return nil
+	if source == nil || source.WorkerSpecSnapshotID == nil ||
+		*source.WorkerSpecSnapshotID <= 0 {
+		return ErrWorkerSpecSnapshotUnavailable
 	}
 	if o.workerSpecs == nil {
 		return ErrWorkerSpecSnapshotUnavailable
