@@ -86,17 +86,24 @@ if grep -Eq 'e2e-mock-agent.*do-agent-binary' "$PREPARE" \
   exit 1
 fi
 
+ci_job() {
+  local job="$1"
+  awk -v job="$job" '
+    $0 == "  " job ":" { inside=1; next }
+    inside && $0 ~ /^  [a-z][a-z0-9-]*:$/ { exit }
+    inside { print }
+  ' "$CI_WORKFLOW"
+}
+
 for job in web-e2e session-compat-e2e mcp-e2e; do
-  if ! awk "/^  ${job}:/{inside=1; next} inside && /^  [a-z0-9-]+:/{exit} inside" "$CI_WORKFLOW" \
-    | grep -q 'DEV_E2E_RUNNERS_ONLY: "1"'; then
+  if ! ci_job "$job" | grep -q 'DEV_E2E_RUNNERS_ONLY: "1"'; then
     echo "${job} must start only e2e-echo runners" >&2
     exit 1
   fi
 done
 
 for job in session-compat-e2e mcp-e2e; do
-  if ! awk "/^  ${job}:/{inside=1; next} inside && /^  [a-z0-9-]+:/{exit} inside" "$CI_WORKFLOW" \
-    | grep -q "wait_e2e_echo_runners_online.sh"; then
+  if ! ci_job "$job" | grep -q "wait_e2e_echo_runners_online.sh"; then
     echo "${job} must wait for e2e-echo runner readiness" >&2
     exit 1
   fi
