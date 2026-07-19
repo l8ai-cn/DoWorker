@@ -14,6 +14,15 @@ interface Props {
   t: (key: string) => string;
 }
 
+interface WorkerRequirement {
+  required: boolean;
+  protocolAdapters: string[];
+}
+
+type RequirementResult =
+  | { error: null; key: string; requirement: WorkerRequirement }
+  | { error: string; key: string; requirement: null };
+
 export function ImportCodexModelResourceSelect({
   open,
   orgSlug,
@@ -22,12 +31,13 @@ export function ImportCodexModelResourceSelect({
   onSelect,
   t,
 }: Props) {
-  const [requirement, setRequirement] = useState<{
-    required: boolean;
-    protocolAdapters: string[];
-  } | null>(null);
-  const [requirementError, setRequirementError] = useState<string | null>(null);
-  const [checking, setChecking] = useState(false);
+  const [result, setResult] = useState<RequirementResult | null>(null);
+  const requestKey =
+    open && workerTypeSlug ? `${orgSlug}\u0000${workerTypeSlug}` : null;
+  const currentResult = result?.key === requestKey ? result : null;
+  const requirement = currentResult?.requirement ?? null;
+  const requirementError = currentResult?.error ?? null;
+  const checking = requestKey !== null && currentResult === null;
   const resources = useWorkerModelResources(
     requirement ? workerTypeSlug : null,
     selectedResourceId,
@@ -36,35 +46,32 @@ export function ImportCodexModelResourceSelect({
   );
 
   useEffect(() => {
-    if (!open || !workerTypeSlug) {
-      setRequirement(null);
-      setRequirementError(null);
-      return;
-    }
+    if (!requestKey || !workerTypeSlug) return;
     let cancelled = false;
-    setChecking(true);
-    setRequirementError(null);
-    onSelect(null);
     void getSessionImportWorkerRequirement(orgSlug, workerTypeSlug)
       .then((value) => {
-        if (!cancelled) setRequirement({
-          required: value.requiresModelResource,
-          protocolAdapters: value.modelProtocolAdapters,
+        if (cancelled) return;
+        setResult({
+          error: null,
+          key: requestKey,
+          requirement: {
+            required: value.requiresModelResource,
+            protocolAdapters: value.modelProtocolAdapters,
+          },
         });
       })
       .catch((error: unknown) => {
-        if (!cancelled) {
-          setRequirement(null);
-          setRequirementError(error instanceof Error ? error.message : "无法加载 Worker 创建选项");
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setChecking(false);
+        if (cancelled) return;
+        setResult({
+          error: error instanceof Error ? error.message : "无法加载 Worker 创建选项",
+          key: requestKey,
+          requirement: null,
+        });
       });
     return () => {
       cancelled = true;
     };
-  }, [onSelect, open, orgSlug, workerTypeSlug]);
+  }, [orgSlug, requestKey, workerTypeSlug]);
 
   if (!workerTypeSlug) return null;
   if (checking) return <p className="text-xs text-muted-foreground">{t("common.loading")}</p>;

@@ -67,6 +67,11 @@ export function ImportCodexDialog({
     onOpenChange(next);
   }
 
+  function handleAgentChange(agentSlug: string | null): void {
+    setSelectedAgentSlug(agentSlug);
+    setSelectedModelResourceId(null);
+  }
+
   async function handleImport(): Promise<void> {
     const path = sourcePath.trim();
     if (!path) {
@@ -140,7 +145,7 @@ export function ImportCodexDialog({
             selectedAgentSlug={selectedAgentSlug}
             onSourcePathChange={setSourcePath}
             onTitleChange={setTitle}
-            onAgentChange={setSelectedAgentSlug}
+            onAgentChange={handleAgentChange}
             t={t}
           />
 
