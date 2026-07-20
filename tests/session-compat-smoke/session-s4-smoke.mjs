@@ -1,3 +1,5 @@
+import { createE2EEchoSession } from "./e2e-echo-session-plan.mjs";
+
 const API = process.env.SESSION_COMPAT_API_URL || "http://localhost:10015";
 const ORG = "dev-org";
 const USER = { username: "devuser", password: "AdminAb123456" };
@@ -32,14 +34,7 @@ async function ensureSession(token) {
   const listRes = await fetch(`${API}/v1/sessions?limit=1`, { headers: headers(token) });
   const listBody = await listRes.json();
   if (listBody.data?.[0]?.id) return listBody.data[0].id;
-  const createRes = await fetch(`${API}/v1/sessions`, {
-    method: "POST",
-    headers: headers(token),
-    body: JSON.stringify({ agent_id: "e2e-echo", title: "S4 fixture" }),
-  });
-  const created = await createRes.json();
-  if (!createRes.ok) throw new Error(`create session ${createRes.status}`);
-  return created.id;
+  return (await createE2EEchoSession(token, { title: "S4 fixture" })).id;
 }
 
 async function testReadStatePersist(token) {
@@ -75,13 +70,8 @@ async function testOrgUsageSummary(token) {
 }
 
 async function testCostBudgetGate(token) {
-  const createRes = await fetch(`${API}/v1/sessions`, {
-    method: "POST",
-    headers: headers(token),
-    body: JSON.stringify({ agent_id: "e2e-echo", title: "S4 cost budget" }),
-  });
-  const session = await createRes.json();
-  step("S4.2 session created", createRes.ok, session.id);
+  const session = await createE2EEchoSession(token, { title: "S4 cost budget" });
+  step("S4.2 session created", true, session.id);
 
   await fetch(`${API}/v1/sessions/${session.id}/events`, {
     method: "POST",
@@ -150,13 +140,8 @@ async function testCostBudgetRegistry(token) {
 }
 
 async function testResumeExternalSession(token) {
-  const createRes = await fetch(`${API}/v1/sessions`, {
-    method: "POST",
-    headers: headers(token),
-    body: JSON.stringify({ agent_id: "e2e-echo", title: "S4 resume source" }),
-  });
-  const source = await createRes.json();
-  step("S4.5 source session", createRes.ok, source.id);
+  const source = await createE2EEchoSession(token, { title: "S4 resume source" });
+  step("S4.5 source session", true, source.id);
 
   await fetch(`${API}/v1/sessions/${source.id}/events`, {
     method: "POST",

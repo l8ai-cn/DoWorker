@@ -9,22 +9,15 @@ if [[ ! -f "$ENV_FILE" ]]; then
     exit 1
 fi
 
+set -a
+# shellcheck disable=SC1090
 source "$ENV_FILE"
+set +a
 
-for _ in {1..60}; do
-    online=$(docker exec "${COMPOSE_PROJECT_NAME}-postgres-1" \
-        psql -U agentsmesh -d agentsmesh -Atc \
-        "SELECT count(*) FROM runners
-         WHERE node_id IN ('dev-runner','dev-runner-2')
-           AND status='online'
-           AND available_agents @> '[\"e2e-echo\"]'
-           AND last_heartbeat > now()-interval '60 seconds'" 2>/dev/null || echo 0)
-    if [[ "${online}" -ge 1 ]]; then
-        echo "e2e-echo runner(s) online: ${online}"
-        exit 0
-    fi
-    sleep 3
-done
+if SESSION_COMPAT_API_URL="http://localhost:${BACKEND_HTTP_PORT}" \
+    node "$ROOT/tests/session-compat-smoke/wait-e2e-echo-runners-online.mjs"; then
+    exit 0
+fi
 
 echo "no selectable e2e-echo runner online after wait" >&2
 docker compose -f "$ROOT/deploy/dev/docker-compose.yml" \

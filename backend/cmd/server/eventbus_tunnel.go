@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"time"
 
@@ -10,6 +11,16 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
 	"gorm.io/gorm"
 )
+
+var connectRunnerTunnelRetryDelays = []time.Duration{
+	0,
+	time.Second,
+	2 * time.Second,
+	4 * time.Second,
+	8 * time.Second,
+	15 * time.Second,
+	30 * time.Second,
+}
 
 // setupTunnelConnectCallback wires the runner "initialized" callback so that the
 // backend instructs each runner to establish its outbound HTTP data-plane tunnel
@@ -39,16 +50,39 @@ func connectRunnerTunnel(
 	commandSender runner.RunnerCommandSender,
 	runnerID int64,
 ) {
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-	defer cancel()
+	for attempt, delay := range connectRunnerTunnelRetryDelays {
+		if delay > 0 {
+			time.Sleep(delay)
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+		err := connectRunnerTunnelOnce(ctx, cfg, db, tokenGenerator, commandSender, runnerID)
+		cancel()
+		if err == nil {
+			slog.Info("Runner tunnel ready", "runner_id", runnerID, "gateway_url", cfg.TunnelURL())
+			return
+		}
+		slog.Warn("connect_tunnel: attempt failed",
+			"runner_id", runnerID,
+			"attempt", attempt+1,
+			"attempts", len(connectRunnerTunnelRetryDelays),
+			"error", err,
+		)
+	}
+}
 
+func connectRunnerTunnelOnce(
+	ctx context.Context,
+	cfg *config.Config,
+	db *gorm.DB,
+	tokenGenerator *relay.TokenGenerator,
+	commandSender runner.RunnerCommandSender,
+	runnerID int64,
+) error {
 	var r struct {
 		OrganizationID int64 `gorm:"column:organization_id"`
 	}
 	if err := db.WithContext(ctx).Table("runners").Where("id = ?", runnerID).First(&r).Error; err != nil {
-		slog.Warn("connect_tunnel: failed to load runner org",
-			"runner_id", runnerID, "error", err)
-		return
+		return fmt.Errorf("load runner org: %w", err)
 	}
 
 	token, err := tokenGenerator.GenerateTypedToken(
@@ -61,16 +95,11 @@ func connectRunnerTunnel(
 		24*time.Hour,
 	)
 	if err != nil {
-		slog.Warn("connect_tunnel: failed to generate tunnel token",
-			"runner_id", runnerID, "error", err)
-		return
+		return fmt.Errorf("generate tunnel token: %w", err)
 	}
 
 	if err := commandSender.SendConnectTunnel(ctx, runnerID, cfg.TunnelURL(), token); err != nil {
-		slog.Warn("connect_tunnel: runner did not confirm readiness",
-			"runner_id", runnerID, "error", err)
-		return
+		return fmt.Errorf("runner readiness: %w", err)
 	}
-
-	slog.Info("Runner tunnel ready", "runner_id", runnerID, "gateway_url", cfg.TunnelURL())
+	return nil
 }

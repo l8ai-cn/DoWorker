@@ -1,6 +1,7 @@
 import { chromium } from "@playwright/test";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { createE2EEchoSession } from "./e2e-echo-session-plan.mjs";
 
 const OUT = join(process.cwd(), "output", "s1-smoke");
 mkdirSync(OUT, { recursive: true });
@@ -36,6 +37,9 @@ function headers(token) {
 }
 
 async function createSession(token, body) {
+  if (body.agent_id === "e2e-echo") {
+    return createE2EEchoSession(token, body);
+  }
   const res = await fetch(`${API}/v1/sessions`, {
     method: "POST",
     headers: headers(token),

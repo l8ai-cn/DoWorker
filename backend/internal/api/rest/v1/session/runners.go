@@ -9,9 +9,11 @@ import (
 )
 
 type runnerWire struct {
-	RunnerID  string   `json:"runner_id"`
-	Online    bool     `json:"online"`
-	Harnesses []string `json:"harnesses"`
+	RunnerID        string   `json:"runner_id"`
+	Online          bool     `json:"online"`
+	Harnesses       []string `json:"harnesses"`
+	TunnelState     string   `json:"tunnel_state"`
+	TunnelLastError *string  `json:"tunnel_last_error,omitempty"`
 }
 
 func (d *Deps) handleListRunners(c *gin.Context) {
@@ -31,9 +33,11 @@ func (d *Deps) handleListRunners(c *gin.Context) {
 			continue
 		}
 		rows = append(rows, runnerWire{
-			RunnerID:  r.NodeID,
-			Online:    r.Status == domainrunner.RunnerStatusOnline,
-			Harnesses: []string(r.AvailableAgents),
+			RunnerID:        r.NodeID,
+			Online:          r.Status == domainrunner.RunnerStatusOnline,
+			Harnesses:       []string(r.AvailableAgents),
+			TunnelState:     r.TunnelState,
+			TunnelLastError: r.TunnelLastError,
 		})
 	}
 	c.JSON(http.StatusOK, gin.H{"data": rows})

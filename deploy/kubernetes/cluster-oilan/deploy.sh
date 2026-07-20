@@ -142,22 +142,19 @@ apply_all() {
   echo "==> ensure wildcard TLS in ${NS}"
   ensure_tls_secret "l8ai-wildcard-tls" "dowork.l8ai.cn" "health-preview.l8ai.cn"
   render_release
+  require_dosql_database_evidence
   stop_application_writes
-  require_empty_pending_commands
   ensure_internal_gitea
-  migrate_database
-  echo "==> apply workloads after migrations"
+  apply_stateful_prerequisites
+  echo "==> apply workloads after DoSql-audited database gate"
   dexec "kubectl apply -f /tmp/agentsmesh-release.yaml"
   dexec "kubectl -n ${NS} rollout status deploy/backend --timeout=300s"
   dexec "kubectl -n ${NS} rollout status deploy/marketplace --timeout=300s"
   dexec "kubectl -n ${NS} rollout status deploy/marketplace-web --timeout=300s"
   mark_application_writes_restored
-  echo "==> seed + minio bucket"
-  dexec "kubectl -n ${NS} delete job seed minio-setup worker-definition-sync --ignore-not-found"
-  dexec "kubectl apply -f 21-seed-configmap.yaml"
-  apply_pinned_manifest "22-seed-job.yaml" pgvector
+  echo "==> minio bucket + worker definition sync"
+  dexec "kubectl -n ${NS} delete job minio-setup worker-definition-sync --ignore-not-found"
   apply_pinned_manifest "13-minio-setup-job.yaml" mc
-  dexec "kubectl -n ${NS} wait --for=condition=complete job/seed --timeout=300s"
   dexec "kubectl -n ${NS} wait --for=condition=complete job/minio-setup --timeout=300s"
   sync_worker_definitions
 }

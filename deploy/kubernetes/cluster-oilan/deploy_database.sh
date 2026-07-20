@@ -1,42 +1,39 @@
 #!/usr/bin/env bash
 
-backup_database() {
-  echo "==> backup database before migrations"
-  dexec "set -eu; backup_dir=/root/backups/agentsmesh; timestamp=\$(date -u +%Y%m%dT%H%M%SZ); backup=\${backup_dir}/pre-migrate-${RELEASE_DEPLOY_COMMIT:0:12}-\${timestamp}.dump; umask 077; mkdir -p \"\${backup_dir}\"; kubectl -n ${NS} exec deploy/postgres -- sh -ceu 'PGPASSWORD=\"\$POSTGRES_PASSWORD\" exec pg_dump --format=custom --no-owner --no-privileges --username=\"\$POSTGRES_USER\" --dbname=\"\$POSTGRES_DB\"' > \"\${backup}.tmp\"; test -s \"\${backup}.tmp\"; mv \"\${backup}.tmp\" \"\${backup}\"; sha256sum \"\${backup}\" > \"\${backup}.sha256\"; echo \"database backup: \${backup}\""
+latest_backend_migration_version() {
+  find "${DIR}/../../../backend/migrations" -name '*.up.sql' -exec basename {} \; |
+    awk -F_ '{ print $1 }' |
+    sort -n |
+    tail -1
 }
 
-require_clean_migration_state() {
-  local state
-  state="$(dexec "kubectl -n ${NS} exec deploy/postgres -- sh -ceu 'PGPASSWORD=\"\$POSTGRES_PASSWORD\" psql --username=\"\$POSTGRES_USER\" --dbname=\"\$POSTGRES_DB\" --tuples-only --no-align --command=\"SELECT version, dirty FROM schema_migrations\"'" |
-    tail -n 1 | tr -d '\r')"
-  [[ "${state}" =~ ^[0-9]+\|f$ ]] || {
-    echo "database migration state must be clean before deploy, got ${state}" >&2
+require_dosql_database_evidence() {
+  local expected_version
+  expected_version="$(latest_backend_migration_version)"
+  [[ -n "${DOSQL_RELEASE_DB_TARGET:-}" ]] || {
+    echo "DOSQL_RELEASE_DB_TARGET is required for audited database changes" >&2
     return 1
   }
-  echo "==> current migration state ${state}"
-}
-
-require_empty_pending_commands() {
-  [[ "${APP_WRITES_STOPPED}" == true ]] || return
-  local count
-  count="$(dexec "kubectl -n ${NS} exec deploy/postgres -- sh -ceu 'PGPASSWORD=\"\$POSTGRES_PASSWORD\" psql --username=\"\$POSTGRES_USER\" --dbname=\"\$POSTGRES_DB\" --tuples-only --no-align --command=\"SELECT COUNT(*) FROM pending_runner_commands\"'" |
-    tail -n 1 | tr -d '\r')"
-  [[ "${count}" == "0" ]] || {
-    echo "pending_runner_commands must be empty before encrypted-payload cutover, got ${count}" >&2
+  [[ -n "${DOSQL_RELEASE_DB_SESSION:-}" ]] || {
+    echo "DOSQL_RELEASE_DB_SESSION is required for audited database changes" >&2
     return 1
   }
+  [[ "${DOSQL_RELEASE_MIGRATION_VERSION:-}" == "${expected_version}" ]] || {
+    echo "DOSQL_RELEASE_MIGRATION_VERSION must equal latest backend migration ${expected_version}" >&2
+    return 1
+  }
+  [[ -n "${DOSQL_RELEASE_CHANGE_ID:-}" ]] || {
+    echo "DOSQL_RELEASE_CHANGE_ID is required for audited database changes" >&2
+    return 1
+  }
+  echo "==> database schema/seed pre-applied by DoSql session ${DOSQL_RELEASE_DB_SESSION} on ${DOSQL_RELEASE_DB_TARGET}; change ${DOSQL_RELEASE_CHANGE_ID}; version ${expected_version}"
 }
 
-migrate_database() {
-  echo "==> apply migration prerequisites"
+apply_stateful_prerequisites() {
+  echo "==> apply stateful prerequisites"
   dexec "kubectl apply -f 02-configmap.yaml -f 30-backend-rbac.yaml"
-  require_clean_migration_state
-  backup_database
   apply_pinned_manifest "10-postgres.yaml" pgvector
   apply_pinned_manifest "11-redis.yaml" redis
   apply_pinned_manifest "12-minio.yaml" minio
   dexec "kubectl -n ${NS} rollout status deploy/postgres --timeout=300s"
-  dexec "kubectl -n ${NS} delete job migrate --ignore-not-found"
-  apply_backend_job "20-migrate-job.yaml"
-  dexec "kubectl -n ${NS} wait --for=condition=complete job/migrate --timeout=300s"
 }

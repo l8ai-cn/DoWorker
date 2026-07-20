@@ -1,3 +1,5 @@
+import { createE2EEchoSession } from "./e2e-echo-session-plan.mjs";
+
 const API = process.env.SESSION_COMPAT_API_URL || "http://localhost:10015";
 const ORG = "dev-org";
 const USER = { username: "devuser", password: "AdminAb123456" };
@@ -29,6 +31,9 @@ function headers(token, extra = {}) {
 }
 
 async function createSession(token, body) {
+  if (body.agent_id === "e2e-echo") {
+    return createE2EEchoSession(token, body);
+  }
   const res = await fetch(`${API}/v1/sessions`, {
     method: "POST",
     headers: headers(token),

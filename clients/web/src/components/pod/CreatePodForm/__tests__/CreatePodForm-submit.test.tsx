@@ -73,7 +73,6 @@ describe("useWorkerCreateDraft submission", () => {
 
     expect(mockPreflight).toHaveBeenCalledWith(result.current.state.draft);
     expect(mockCreate).toHaveBeenCalledWith({
-      agent_slug: "",
       ticket_slug: "TASK-7",
       cols: 120,
       rows: 40,

@@ -23,12 +23,6 @@ case " $* " in
     for ((index = 0; index < ${#args[@]}; index++)); do
       [[ "${args[index]}" == "--cmd" ]] || continue
       printf '%s\n' "${args[index + 1]}" >> "$DOOPS_LOG"
-      if [[ "${args[index + 1]}" == *"SELECT version, dirty FROM schema_migrations"* ]]; then
-        printf '222|f\n'
-      fi
-      if [[ "${args[index + 1]}" == *"SELECT COUNT(*) FROM pending_runner_commands"* ]]; then
-        printf '0\n'
-      fi
       if [[ "${args[index + 1]}" == *"get deploy backend -o jsonpath"* ]]; then
         printf '1\n'
       fi
@@ -51,6 +45,10 @@ PATH="$TMP/bin:$PATH" \
 DOOPS_LOG="$LOG" \
 DOOPS_SESSION="ses-contract" \
 DOOPS_TARGET="contract-target" \
+DOSQL_RELEASE_DB_TARGET="oilan-postgres" \
+DOSQL_RELEASE_DB_SESSION="dosql-contract" \
+DOSQL_RELEASE_MIGRATION_VERSION="$(find "$ROOT/../../../backend/migrations" -name '*.up.sql' -exec basename {} \; | awk -F_ '{ print $1 }' | sort -n | tail -1)" \
+DOSQL_RELEASE_CHANGE_ID="change-contract" \
 bash -c '
   set -euo pipefail
   source "$1/deploy.sh"
@@ -123,7 +121,6 @@ require_command 'kubectl apply -f generated-secrets'
 require_command 'rm -f generated-secrets/*.yaml'
 require_command "name='repo.aiedulab.cn:8443/library/gitea'"
 require_command 'scale deploy/backend deploy/marketplace --replicas=0'
-require_command 'SELECT COUNT(*) FROM pending_runner_commands'
 require_command 'scale deploy/gitea --replicas=0'
 require_command 'wait --for=delete pod -l app=gitea'
 require_command '15-gitea-backup-pod.yaml | kubectl apply -f -'
@@ -143,13 +140,6 @@ require_command '10-postgres.yaml | kubectl apply -f -'
 require_command '11-redis.yaml | kubectl apply -f -'
 require_command '12-minio.yaml | kubectl apply -f -'
 require_command 'kubectl -n agentsmesh rollout status deploy/postgres --timeout=300s'
-require_command 'pg_dump --format=custom'
-require_command '/root/backups/agentsmesh'
-require_command 'pre-migrate-'
-require_command '20-migrate-job.yaml | kubectl apply -f -'
-require_command '__BACKEND_IMAGE__'
-require_command '__BACKEND_DIGEST__'
-require_command 'kubectl -n agentsmesh wait --for=condition=complete job/migrate --timeout=300s'
 require_command 'kubectl apply -f /tmp/agentsmesh-release.yaml'
 require_command 'kubectl -n agentsmesh rollout status deploy/backend --timeout=300s'
 require_command "https://health-preview.l8ai.cn/"
@@ -159,14 +149,11 @@ require_command 'test "${reference_ip}" = "${hostname_ip}"'
 require_command 'https://release-preview-probe.l8ai.cn/preview/release-preview-probe/'
 require_command 'test "${status}" = 401'
 require_command 'grep -Fxq token_required "$body"'
-require_command 'kubectl apply -f 21-seed-configmap.yaml'
-require_command '22-seed-job.yaml | kubectl apply -f -'
 require_command '13-minio-setup-job.yaml | kubectl apply -f -'
 require_command '23-worker-definition-sync-job.yaml | kubectl apply -f -'
 
 render_line="$(line_number 'kubectl kustomize . > /tmp/agentsmesh-release.yaml')"
 stop_line="$(line_number 'scale deploy/backend deploy/marketplace --replicas=0')"
-pending_line="$(line_number 'SELECT COUNT(*) FROM pending_runner_commands')"
 gitea_stop_line="$(line_number 'scale deploy/gitea --replicas=0')"
 gitea_wait_line="$(line_number 'wait --for=delete pod -l app=gitea')"
 gitea_backup_pod_line="$(line_number '15-gitea-backup-pod.yaml | kubectl apply -f -')"
@@ -177,17 +164,14 @@ gitea_checksum_line="$(line_number 'sha256sum -c')"
 gitea_backup_delete_line="$(line_number 'delete pod gitea-backup --wait=true')"
 gitea_line="$(line_number '14-gitea.yaml | kubectl apply -f -')"
 prereq_line="$(line_number 'kubectl apply -f 02-configmap.yaml -f 30-backend-rbac.yaml')"
-backup_line="$(line_number 'pg_dump --format=custom')"
 postgres_line="$(line_number '10-postgres.yaml | kubectl apply -f -')"
-migrate_line="$(line_number '20-migrate-job.yaml | kubectl apply -f -')"
-migrate_wait_line="$(line_number 'wait --for=condition=complete job/migrate')"
 workload_line="$(line_number 'kubectl apply -f /tmp/agentsmesh-release.yaml')"
 backend_line="$(line_number 'rollout status deploy/backend')"
+minio_line="$(line_number '13-minio-setup-job.yaml | kubectl apply -f -')"
 sync_line="$(line_number '23-worker-definition-sync-job.yaml | kubectl apply -f -')"
 
 (( render_line < stop_line &&
-  stop_line < pending_line &&
-  pending_line < gitea_stop_line &&
+  stop_line < gitea_stop_line &&
   gitea_stop_line < gitea_wait_line &&
   gitea_wait_line < gitea_backup_pod_line &&
   gitea_backup_pod_line < gitea_backup_ready_line &&
@@ -197,20 +181,23 @@ sync_line="$(line_number '23-worker-definition-sync-job.yaml | kubectl apply -f 
   gitea_checksum_line < gitea_backup_delete_line &&
   gitea_backup_delete_line < gitea_line &&
   gitea_line < prereq_line &&
-  prereq_line < backup_line &&
-  backup_line < postgres_line &&
-  postgres_line < migrate_line &&
-  backup_line < migrate_line &&
-  migrate_line < migrate_wait_line &&
-  migrate_wait_line < workload_line &&
+  prereq_line < postgres_line &&
+  postgres_line < workload_line &&
   workload_line < backend_line &&
+  backend_line < minio_line &&
+  minio_line < sync_line &&
   backend_line < sync_line )) || {
   printf 'full deployment command order is invalid\n' >&2
   exit 1
 }
 
-grep -F 'command: ["/app/server", "migrate", "up"]' "$ROOT/20-migrate-job.yaml" >/dev/null
 ! grep -A12 -F 'initContainers:' "$ROOT/30-backend.yaml" | grep -F 'name: migrate' >/dev/null
+! grep -F 'name: migrate' "$ROOT/38-marketplace.yaml" >/dev/null
+! grep -F '20-migrate-job.yaml' "$LOG" >/dev/null
+! grep -F 'job/migrate' "$LOG" >/dev/null
+! grep -F 'job/seed' "$LOG" >/dev/null
+! grep -F 'psql --username' "$LOG" >/dev/null
+! grep -F '/app/server migrate up' "$LOG" >/dev/null
 grep -F 'workspace-artifacts/' "$ROOT/13-minio-setup-job.yaml" >/dev/null
 grep -F -- '--expire-days 1' "$ROOT/13-minio-setup-job.yaml" >/dev/null
 grep -F 'PREVIEW_PUBLIC_ORIGIN: "https://l8ai.cn"' "$ROOT/02-configmap.yaml" >/dev/null

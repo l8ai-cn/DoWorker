@@ -111,12 +111,10 @@ then deploy only those resources:
 DOOPS_TARGET=gw-oilan-node ./deploy-mobile-access.sh
 ```
 
-`deploy-mobile-access.sh` refuses mutable image tags. It applies the shared
-ConfigMap, runs the migration Job with the Backend digest pinned in
-`30-backend.yaml`, rolls out that Backend, then runs its
-`worker-definition-sync` command before rolling out Relay, Mobile Ingress, and
-Mobile. Do not bypass the migration or sync: the migration protects the
-Pod/session schema and the sync publishes Codex ACP/PTY metadata.
+`deploy-mobile-access.sh` refuses mutable image tags and requires the same DoSql
+database evidence as the full reconcile. It applies the shared ConfigMap, rolls
+out Backend, runs `worker-definition-sync`, then rolls out Relay, Mobile
+Ingress, and Mobile. It does not run migrations or seed SQL.
 
 After rollout, run the release smoke from a trusted operator machine. It fails
 closed when the Backend does not expose Codex ACP/PTY mode metadata or exactly
@@ -139,41 +137,21 @@ Each run is a **full reconcile**, not a DB-only reset:
 
 1. **Secrets** — restore existing cluster secrets or generate first-deploy values.
 2. **Immutable release** — reject any platform image not pinned by registry digest.
-3. **Pre-migration backup** — write a verified custom-format PostgreSQL dump to
-   `/root/backups/agentsmesh/pre-migrate-<UTC>.dump`; any backup failure stops
-   the release before changing the PostgreSQL image or running migrations.
-4. **Pinned migration Job** — use the exact Backend digest from the rendered
-   release to run `/app/server migrate up`, and block until all pending
-   migrations complete. A dirty migration state is rejected; it is never
-   force-cleared by the normal deployment path.
-5. **`kubectl apply -f /tmp/agentsmesh-release.yaml`** — only after migration
-   success, re-apply every Deployment/ConfigMap/Ingress from git.
+3. **DoSql database gate** — require `DOSQL_RELEASE_DB_TARGET`,
+   `DOSQL_RELEASE_DB_SESSION`, `DOSQL_RELEASE_CHANGE_ID`, and
+   `DOSQL_RELEASE_MIGRATION_VERSION` to identify the audited DoSql change that
+   already applied schema and seed changes. Normal deploy does not run DDL/DML,
+   does not create a migration Job, and does not query PostgreSQL directly.
+4. **`kubectl apply -f /tmp/agentsmesh-release.yaml`** — after the audited
+   database gate, re-apply every Deployment/ConfigMap/Ingress from git.
    Live hotfixes (`kubectl set env …`) are **overwritten** on the next deploy.
-6. **Seed and storage jobs** — run the idempotent seed, ensure the MinIO bucket
-   and its one-day `workspace-artifacts/` expiry rule, then sync Worker definitions.
+5. **Storage and catalog jobs** — ensure the MinIO bucket and its one-day
+   `workspace-artifacts/` expiry rule, then sync Worker definitions.
 
-Production migration state `222 dirty=true` caused by the historical
-`video-studio` insert must be repaired only after the corrected Backend image is
-published and committed:
-
-```bash
-MIGRATION_REPAIR_ACK=repair-dirty-222-video-studio \
-DOOPS_SESSION=<release-session> \
-bash deploy/kubernetes/cluster-oilan/repair-migration-222.sh
-```
-
-The repair requires a clean, pushed `main` commit with successful GitHub
-checks, verifies the exact dirty state and schema preconditions, stops
-application writes, creates a checksummed backup, and reruns migration `000222`
-from version `221`. Any failed precondition leaves the database untouched.
-
-The executable database and GitOps rollback procedure is in
-[`ROLLBACK.md`](ROLLBACK.md).
-
-The seed SQL is **idempotent** (`WHERE NOT EXISTS`): it ensures `dev-org`, the
-admin user, subscription, and pre-registered runner `node_id`s exist. It does **not**
-truncate pods/users/orgs; it also does **not** seed `dev@agentsmesh.local` (admin-only
-on this cluster). Re-running seed alone does not change relay/web env — only step 2 does.
+Historical migration repairs are documented in [`MIGRATION_REPAIRS.md`](MIGRATION_REPAIRS.md).
+The executable GitOps rollback procedure is in [`ROLLBACK.md`](ROLLBACK.md).
+`21-seed-configmap.yaml` is idempotent SQL source material for an audited DoSql
+change; normal deploy does not execute it.
 
 > The runner Go binary resolves its config dir via `config.UserConfigDir()`
 > (`~/.do-worker`, legacy `~/.agentsmesh`); older runner images that hardcoded
@@ -181,32 +159,8 @@ on this cluster). Re-running seed alone does not change relay/web env — only s
 
 ## Endpoints
 
-- App: https://dowork.l8ai.cn (`/api`, `/proto.`, `/relay`, `/health`)
-- Isolated Pod preview: `https://<pod-key>.l8ai.cn` (`/preview` only)
-- Mobile Worker entry: https://mobile.l8ai.cn
-- Marketplace Storefront: https://market.l8ai.cn
-- Marketplace API: https://market.l8ai.cn/api/marketplace/v1
-- Organization marketplace: https://dowork.l8ai.cn/dev-org/marketplace
-- Admin console: https://admin.l8ai.cn (separate host — no `/admin` basePath)
-- Pod preview gateway: `https://<pod-key>.l8ai.cn/preview`
-- Object storage (presigned URLs): https://minio.dowork.l8ai.cn
-- Test account: `admin@agentsmesh.local / Ab123456`
-
-DNS for `dowork.l8ai.cn` / `market.l8ai.cn` / `mobile.l8ai.cn` /
-`admin.l8ai.cn` / `*.l8ai.cn` / `minio.dowork.l8ai.cn` must point at the oilan node.
-Each Pod preview uses `<pod-key>.l8ai.cn`, covered by the existing
-`l8ai-wildcard-tls` Secret. Relay accepts `/preview` only when the request Host
-matches the Pod key in the path, so the wildcard Ingress does not create a
-shared preview origin. All public URLs share one domain family so relay/WebSocket URLs from
-`GetPodConnection` match the page origin (mixed `l8an.cn` / `l8ai.cn` hosts caused
-403 on terminal attach). Ingress-nginx may expose **NodePort 10007** (HTTP) so
-external `:10007` reaches the controller. One-time patch on the cluster (adjust
-namespace/service name if your install differs):
-
-```bash
-kubectl -n ingress-nginx patch svc ingress-nginx-controller -p \
-  '{"spec":{"ports":[{"name":"http","port":80,"targetPort":"http","nodePort":10007}]}}'
-```
+Public hostnames, DNS, wildcard preview, and ingress notes are in
+[`ENDPOINTS.md`](ENDPOINTS.md).
 
 TLS cert secret `l8ai-wildcard-tls` must exist in `agentsmesh`. On the first
 deployment, `deploy.sh` copies it from `default`; later deployments keep and
@@ -218,19 +172,17 @@ validate the existing `agentsmesh` Secret.
 |------|---------|
 | `00-namespace` `02-configmap` | namespace + shared non-secret env |
 | `10/11/12-*` `13-minio-setup-job` | Postgres / Redis / MinIO + bucket and temporary artifact TTL |
-| `20-migrate-job` | Digest-pinned embedded Backend migrations before workload rollout |
-| `21/22-seed*` | idempotent org/user/runner seed |
+| `21-seed-configmap` | seed SQL source material for the audited DoSql change plan |
 | `30-backend*` | backend Deployment/Service + SA/RBAC (kubectl via init container) |
 | `31/32/33/42-*` | relay / web / web-admin / mobile |
 | `34/35-runner-*` | standing runner pods |
-| `38-marketplace` | Marketplace API Deployment/Service + init migration |
+| `38-marketplace` | Marketplace API Deployment/Service |
 | `39-marketplace-web` | independent public Marketplace Storefront |
 | `release/kustomization` | immutable platform image digests |
 | `40-ingress` | ingress-nginx routes (app / admin host / relay rewrite / minio host) |
 | `44-preview-ingress` | isolated HTTPS pod preview gateway |
 | `60-prepull-daemonset` | warm agent-runtime image cache |
 
-Secrets (`agentsmesh-secrets`, `agentsmesh-pki-ca`, `agentsmesh-regcred`) and
-one-shot seed jobs are applied by `deploy.sh`, not kustomize. Existing values
-are read from the cluster for each release; generated `_gen/` material is
-removed locally on every exit.
+Secrets (`agentsmesh-secrets`, `agentsmesh-pki-ca`, `agentsmesh-regcred`) are
+applied by `deploy.sh`, not kustomize. Existing values are read from the cluster
+for each release; generated `_gen/` material is removed locally on every exit.

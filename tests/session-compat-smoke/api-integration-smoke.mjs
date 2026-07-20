@@ -1,5 +1,6 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { createE2EEchoSession } from "./e2e-echo-session-plan.mjs";
 
 const OUT = join(process.cwd(), "output", "browser-integration");
 mkdirSync(OUT, { recursive: true });
@@ -34,13 +35,9 @@ async function main() {
   const agents = await fetch(`${API}/v1/agents`, { headers }).then((r) => r.json());
   step("GET /v1/agents", (agents.data?.length ?? 0) > 0, `${agents.data?.length} agents in ${(performance.now() - t0).toFixed(0)}ms`);
 
-  const create = await fetch(`${API}/v1/sessions`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify({ agent_id: "e2e-echo", title: "API integration smoke" }),
-  }).then((r) => ({ status: r.status, body: r.json() })).then(async (x) => ({ status: x.status, body: await x.body }));
-  const sid = create.body.id;
-  step("POST /v1/sessions", create.status === 200, `${sid} status=${create.body.status}`);
+  const create = await createE2EEchoSession(token, { title: "API integration smoke" });
+  const sid = create.id;
+  step("POST /v1/sessions", true, `${sid} status=${create.status}`);
 
   const evt = await fetch(`${API}/v1/sessions/${sid}/events`, {
     method: "POST",
