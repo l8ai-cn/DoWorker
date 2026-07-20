@@ -46,6 +46,23 @@ func (p *parser) parseRepeat(nodeID string) RepeatNode {
 	repeat := RepeatNode{NodeID: nodeID, LocalID: localID, Max: maximum, Until: until}
 	var hasAgent, hasVerifier bool
 	for !p.failed() && p.current().kind != tokenRBrace && p.current().kind != tokenEOF {
+		if p.current().kind == tokenCustomBlock {
+			if repeat.CustomBlock != nil {
+				p.failCurrent("loop.custom-block.count", "at most one custom block reference is allowed", nodeID)
+				break
+			}
+			if hasAgent || hasVerifier {
+				p.failCurrent(
+					"loop.custom-block.position",
+					"custom block reference must precede the expanded nodes",
+					nodeID,
+				)
+				break
+			}
+			p.positions.customBlock = positionOf(p.current())
+			repeat.CustomBlock = p.parseCustomBlockRef()
+			continue
+		}
 		if p.current().kind != tokenAt {
 			switch p.current().kind {
 			case tokenAgent, tokenVerify:
@@ -86,6 +103,38 @@ func (p *parser) parseRepeat(nodeID string) RepeatNode {
 		}
 	}
 	return repeat
+}
+
+func (p *parser) parseCustomBlockRef() *CustomBlockRef {
+	p.expect(tokenCustomBlock)
+	p.expect(tokenLParen)
+	p.expect(tokenNodeID)
+	p.expect(tokenColon)
+	nodeID := p.takeIdentifier()
+	p.expect(tokenComma)
+	p.expect(tokenDefinitionID)
+	p.expect(tokenColon)
+	definitionID := p.takeString()
+	p.expect(tokenComma)
+	p.expect(tokenSlug)
+	p.expect(tokenColon)
+	slug := p.takeIdentifier()
+	p.expect(tokenComma)
+	p.expect(tokenVersion)
+	p.expect(tokenColon)
+	version := p.takeInteger(tokenNumber)
+	p.expect(tokenComma)
+	p.expect(tokenDigest)
+	p.expect(tokenColon)
+	digest := p.takeString()
+	p.expect(tokenRParen)
+	return &CustomBlockRef{
+		NodeID:           nodeID,
+		DefinitionID:     definitionID,
+		Slug:             slug,
+		Version:          version,
+		DefinitionDigest: digest,
+	}
 }
 
 func (p *parser) parseReference() Reference {

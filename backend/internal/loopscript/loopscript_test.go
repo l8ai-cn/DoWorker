@@ -18,6 +18,20 @@ loop checkout-fix {
   on_failure pause
 }`
 
+const customBlockSource = `@id(n-checkout-fix)
+loop checkout-fix {
+  limits(iterations: 5, tokens: 80000, timeout: 60m, no_progress: 3, same_error: 2)
+  @id(n-fix-cycle)
+  repeat fix-cycle(max: 5, until: ppt-step-check.passed) {
+    custom_block(node_id: n-ppt-step, definition_id: "e54112b4-6a22-4ec4-b14d-dc3ac7c527a4", slug: ppt-step, version: 2, digest: "a1b2c3d4e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef0")
+    @id(n-ppt-step-ppt-step-task)
+    agent ppt-step-task { prompt """制作季度复盘的专业 PPT""" }
+    @id(n-ppt-step-ppt-step-check)
+    verify ppt-step-check { command "test -f output.pptx" accept "output.pptx 存在且可打开" }
+  }
+  on_failure pause
+}`
+
 func TestParseCanonicalGoalLoopV1(t *testing.T) {
 	program, diagnostics := Parse(canonicalSource)
 	if len(diagnostics) != 0 {
@@ -117,6 +131,32 @@ func TestFormatRoundTripsPromptsEndingInQuotes(t *testing.T) {
 		if reparsed.Loop.Repeat.Agent.Prompt != prompt {
 			t.Fatalf("prompt = %q, want %q", reparsed.Loop.Repeat.Agent.Prompt, prompt)
 		}
+	}
+}
+
+func TestCustomBlockReferenceRoundTripsWithoutVersionDrift(t *testing.T) {
+	program := mustParse(t, customBlockSource)
+	custom := program.Loop.Repeat.CustomBlock
+	if custom == nil {
+		t.Fatal("custom block reference is missing")
+	}
+	if custom.DefinitionID != "e54112b4-6a22-4ec4-b14d-dc3ac7c527a4" ||
+		custom.Slug != "ppt-step" ||
+		custom.Version != 2 ||
+		custom.DefinitionDigest != "a1b2c3d4e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef0" {
+		t.Fatalf("custom block reference = %#v", custom)
+	}
+
+	formatted, diagnostics := Format(program)
+	if len(diagnostics) != 0 {
+		t.Fatalf("Format() diagnostics = %#v", diagnostics)
+	}
+	if formatted != customBlockSource {
+		t.Fatalf("Format() = %q, want %q", formatted, customBlockSource)
+	}
+	reparsed := mustParse(t, formatted)
+	if !reflect.DeepEqual(reparsed.Loop.Repeat.CustomBlock, custom) {
+		t.Fatalf("custom block changed after format\n got: %#v\nwant: %#v", reparsed.Loop.Repeat.CustomBlock, custom)
 	}
 }
 

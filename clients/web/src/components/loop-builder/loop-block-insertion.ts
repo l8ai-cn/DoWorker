@@ -3,14 +3,19 @@ import { LOOP_BLOCK_TYPES } from "./loop-block-catalog";
 import type { LoopBlockInsertPoint } from "./loop-block-insert-point";
 import {
   customBlockType,
-  type LoopCustomBlockDefinition,
+  type LoopResolvedCustomBlockDefinition,
 } from "./loop-custom-block-types";
+import { customBlockReference } from "./loop-custom-block-definition-digest";
+import {
+  ensureBlockNodeId,
+  setBlockCustomBlockReference,
+} from "./loop-node-identity";
 
 interface InsertLoopBlockInput {
   workspace: Blockly.Workspace;
   type: string;
   insertPoint: LoopBlockInsertPoint;
-  customDefinitions: readonly LoopCustomBlockDefinition[];
+  customDefinitions: readonly LoopResolvedCustomBlockDefinition[];
 }
 
 export function insertLoopBlock({
@@ -41,11 +46,20 @@ function renderAndSelect(block: Blockly.Block) {
 function connectCustomBlock(
   workspace: Blockly.Workspace,
   block: Blockly.Block,
-  definition: LoopCustomBlockDefinition,
+  definition: LoopResolvedCustomBlockDefinition,
 ) {
   const repeat = workspace.getBlocksByType(LOOP_BLOCK_TYPES.repeat, false)[0];
   const body = repeat?.getInput("BODY")?.connection;
   if (!body || !block.previousConnection) return false;
+  for (const parameter of definition.parameters) {
+    if (!block.getFieldValue(parameter)) {
+      block.setFieldValue(parameter, parameter);
+    }
+  }
+  setBlockCustomBlockReference(
+    block,
+    customBlockReference(definition, ensureBlockNodeId(block)),
+  );
   body.targetBlock()?.dispose(false);
   body.connect(block.previousConnection);
   repeat.setFieldValue(definition.expansion.verifierLocalId, "UNTIL_ID");

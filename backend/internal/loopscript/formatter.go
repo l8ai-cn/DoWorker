@@ -27,6 +27,17 @@ func Format(program *Program) (string, []Diagnostic) {
 		&output, "  repeat %s(max: %d, until: %s.%s) {\n",
 		repeat.LocalID, repeat.Max, repeat.Until.LocalID, repeat.Until.Field,
 	)
+	if custom := repeat.CustomBlock; custom != nil {
+		fmt.Fprintf(
+			&output,
+			"    custom_block(node_id: %s, definition_id: %s, slug: %s, version: %d, digest: %s)\n",
+			custom.NodeID,
+			strconv.Quote(custom.DefinitionID),
+			custom.Slug,
+			custom.Version,
+			strconv.Quote(custom.DefinitionDigest),
+		)
+	}
 	fmt.Fprintf(&output, "    @id(%s)\n", repeat.Agent.NodeID)
 	fmt.Fprintf(
 		&output, "    agent %s { prompt %s }\n",

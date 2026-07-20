@@ -21,6 +21,19 @@ export interface LoopCustomBlockDefinition {
   expansion: LoopCustomBlockExpansion;
 }
 
+export interface LoopCustomBlockReference {
+  nodeId: string;
+  definitionId: string;
+  slug: string;
+  version: number;
+  definitionDigest: string;
+}
+
+export interface LoopResolvedCustomBlockDefinition extends LoopCustomBlockDefinition {
+  definitionId: string;
+  definitionDigest: string;
+}
+
 export interface LoopCustomBlockDraft {
   slug: string;
   label: string;

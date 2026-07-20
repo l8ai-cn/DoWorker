@@ -109,9 +109,6 @@ func (generator *DraftGenerator) Generate(
 	if err != nil {
 		return DraftProposal{}, fmt.Errorf("%w: response envelope", ErrGeneratedDraftInvalid)
 	}
-	if secretguard.ContainsCredentialLiteral(source) {
-		return DraftProposal{}, fmt.Errorf("%w: secret-like output", ErrGeneratedDraftInvalid)
-	}
 	proposal, err := compileDraftProposal(source)
 	if err != nil {
 		return DraftProposal{}, err
@@ -138,8 +135,7 @@ func validateDraftGenerationInput(
 		len(input.Locale) > maxDraftLocaleBytes {
 		return DraftGenerationInput{}, ErrInvalidDraftGenerationInput
 	}
-	if secretguard.ContainsCredentialLiteral(input.Prompt) ||
-		secretguard.ContainsCredentialLiteral(input.CurrentSource) {
+	if secretguard.ContainsCredentialLiteral(input.Prompt) {
 		return DraftGenerationInput{}, ErrDraftContainsSecret
 	}
 	return input, nil
@@ -151,6 +147,11 @@ func parseCurrentDraft(source string) (*loopscript.Program, error) {
 	}
 	program, diagnostics := loopscript.Parse(source)
 	if len(diagnostics) != 0 || program == nil {
+		for _, diagnostic := range diagnostics {
+			if diagnostic.Code == "loop.secret.literal-forbidden" {
+				return nil, ErrDraftContainsSecret
+			}
+		}
 		return nil, ErrDraftSourceInvalid
 	}
 	return program, nil

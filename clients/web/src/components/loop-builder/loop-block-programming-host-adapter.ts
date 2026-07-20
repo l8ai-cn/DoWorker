@@ -4,7 +4,10 @@ import {
   createLoopBlockCatalog,
   registerLoopBlocks,
 } from "./loop-block-catalog";
-import { customBlockType, type LoopCustomBlockDefinition } from "./loop-custom-block-types";
+import {
+  customBlockType,
+  type LoopResolvedCustomBlockDefinition,
+} from "./loop-custom-block-types";
 import {
   nodeIdForBlock,
   projectProgramToWorkspace,
@@ -13,7 +16,7 @@ import {
 import type { LoopBlockCatalogMessages } from "./loop-workbench-messages";
 
 export const loopBlockProgrammingHostAdapter:
-  BlockProgrammingHostAdapter<LoopProgram, LoopBlockCatalogMessages, LoopCustomBlockDefinition> = {
+  BlockProgrammingHostAdapter<LoopProgram, LoopBlockCatalogMessages, LoopResolvedCustomBlockDefinition> = {
     namespace: "loop",
     customBlockType,
     createCatalog: createLoopBlockCatalog,

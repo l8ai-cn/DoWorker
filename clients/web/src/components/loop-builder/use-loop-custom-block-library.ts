@@ -5,10 +5,13 @@ import {
   createLoopCustomBlock,
   loadLoopCustomBlocks,
 } from "./loop-custom-block-library";
-import type { LoopCustomBlockDefinition } from "./loop-custom-block-types";
+import type {
+  LoopCustomBlockDefinition,
+  LoopResolvedCustomBlockDefinition,
+} from "./loop-custom-block-types";
 
 export function useLoopCustomBlockLibrary() {
-  const [definitions, setDefinitions] = useState<LoopCustomBlockDefinition[]>([]);
+  const [definitions, setDefinitions] = useState<LoopResolvedCustomBlockDefinition[]>([]);
   const [error, setError] = useState<string>();
   const [loading, setLoading] = useState(true);
 

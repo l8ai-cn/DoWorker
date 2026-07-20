@@ -1,7 +1,9 @@
 import type * as Blockly from "blockly";
+import type { LoopCustomBlockReference } from "./loop-custom-block-types";
 
 interface BlockMetadata {
   nodeId?: string;
+  customBlock?: LoopCustomBlockReference;
 }
 
 function metadata(block: Blockly.Block): BlockMetadata {
@@ -28,6 +30,19 @@ export function setBlockNodeId(block: Blockly.Block, nodeId: string): void {
 
 export function getBlockNodeId(block: Blockly.Block): string | undefined {
   return metadata(block).nodeId;
+}
+
+export function setBlockCustomBlockReference(
+  block: Blockly.Block,
+  customBlock: LoopCustomBlockReference,
+): void {
+  block.data = JSON.stringify({ ...metadata(block), customBlock });
+}
+
+export function getBlockCustomBlockReference(
+  block: Blockly.Block,
+): LoopCustomBlockReference | undefined {
+  return metadata(block).customBlock;
 }
 
 export function ensureBlockNodeId(block: Blockly.Block): string {

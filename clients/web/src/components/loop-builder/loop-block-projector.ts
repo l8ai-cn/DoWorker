@@ -1,12 +1,15 @@
 import * as Blockly from "blockly";
 import type { LoopProgram } from "@proto/goalloop/v1/goalloop_pb";
 import { LOOP_BLOCK_TYPES, registerLoopBlocks } from "./loop-block-catalog";
-import { matchCustomBlock } from "./loop-custom-block-expansion";
+import { resolvePinnedCustomBlock } from "./loop-custom-block-expansion";
 import {
   customBlockType,
-  type LoopCustomBlockDefinition,
+  type LoopResolvedCustomBlockDefinition,
 } from "./loop-custom-block-types";
-import { setBlockNodeId } from "./loop-node-identity";
+import {
+  setBlockCustomBlockReference,
+  setBlockNodeId,
+} from "./loop-node-identity";
 
 function block(workspace: Blockly.Workspace, type: string): Blockly.Block {
   const created = workspace.newBlock(type);
@@ -33,7 +36,7 @@ function statement(parent: Blockly.Block, input: string, child: Blockly.Block): 
 export function projectProgramToWorkspace(
   workspace: Blockly.Workspace,
   program: LoopProgram,
-  customDefinitions: readonly LoopCustomBlockDefinition[] = [],
+  customDefinitions: readonly LoopResolvedCustomBlockDefinition[] = [],
 ): Map<string, string> {
   const loop = program.loop;
   const limitsNode = program.limits;
@@ -49,7 +52,7 @@ export function projectProgramToWorkspace(
   Blockly.Events.disable();
   try {
     workspace.clear();
-    const custom = matchCustomBlock(program, customDefinitions);
+    const custom = resolvePinnedCustomBlock(program, customDefinitions);
     const root = block(workspace, LOOP_BLOCK_TYPES.loop);
     const limits = block(workspace, LOOP_BLOCK_TYPES.limits);
     const repeat = block(workspace, LOOP_BLOCK_TYPES.repeat);
@@ -88,7 +91,10 @@ export function projectProgramToWorkspace(
       setBlockNodeId(agent, agentNode.identity.nodeId);
       setBlockNodeId(verifier, verifierNode.identity.nodeId);
     }
-    if (customBlock && custom) setBlockNodeId(customBlock, custom.nodeId);
+    if (customBlock && custom && repeatNode.customBlock) {
+      setBlockNodeId(customBlock, custom.nodeId);
+      setBlockCustomBlockReference(customBlock, repeatNode.customBlock);
+    }
 
     value(root, "LIMITS", limits);
     statement(root, "BODY", repeat);

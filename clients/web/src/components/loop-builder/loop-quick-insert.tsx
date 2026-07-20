@@ -3,7 +3,7 @@ import { LOOP_BLOCK_TYPES } from "./loop-block-catalog";
 import {
   customBlockType,
   latestCustomBlockDefinitions,
-  type LoopCustomBlockDefinition,
+  type LoopResolvedCustomBlockDefinition,
 } from "./loop-custom-block-types";
 import type { LoopQuickInsertMessages } from "./loop-workbench-messages";
 
@@ -11,7 +11,7 @@ interface LoopQuickInsertProps {
   x: number;
   y: number;
   messages: LoopQuickInsertMessages;
-  customDefinitions: readonly LoopCustomBlockDefinition[];
+  customDefinitions: readonly LoopResolvedCustomBlockDefinition[];
   onInsert: (type: string) => void;
   onCreateCustom: () => void;
   onClose: () => void;

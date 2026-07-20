@@ -15,7 +15,9 @@ import {
 import {
   nextCustomBlockVersion,
   type LoopCustomBlockDefinition,
+  type LoopResolvedCustomBlockDefinition,
 } from "./loop-custom-block-types";
+import { resolveLoopCustomBlockDefinition } from "./loop-custom-block-definition-digest";
 
 export interface LoopCustomBlockLibrary {
   ensureDefaultWorkspace(): Promise<Workspace>;
@@ -24,7 +26,7 @@ export interface LoopCustomBlockLibrary {
 }
 
 export interface LoadedLoopCustomBlocks {
-  definitions: LoopCustomBlockDefinition[];
+  definitions: LoopResolvedCustomBlockDefinition[];
   workspace: Workspace;
 }
 
@@ -33,7 +35,7 @@ export async function loadLoopCustomBlocks(
 ): Promise<LoadedLoopCustomBlocks> {
   const workspace = await library.ensureDefaultWorkspace();
   const { blocks } = await library.listTypeDefs(workspace.id);
-  return { definitions: definitionsFromBlocks(blocks), workspace };
+  return { definitions: await definitionsFromBlocks(blocks), workspace };
 }
 
 export async function createLoopCustomBlock(
@@ -56,10 +58,10 @@ export async function createLoopCustomBlock(
   return loadLoopCustomBlocks(library);
 }
 
-export function definitionsFromBlocks(
+export async function definitionsFromBlocks(
   blocks: readonly Block[],
-): LoopCustomBlockDefinition[] {
-  const definitions = new Map<string, LoopCustomBlockDefinition>();
+): Promise<LoopResolvedCustomBlockDefinition[]> {
+  const definitions = new Map<string, LoopResolvedCustomBlockDefinition>();
   for (const block of blocks) {
     if (block.type !== BLOCK_TYPE_TYPEDEF) continue;
     const definition = customBlockDefinitionFromRecord(block.data);
@@ -71,7 +73,7 @@ export function definitionsFromBlocks(
     }
     const key = `${definition.slug}@${definition.version}`;
     if (definitions.has(key)) throw new Error(`duplicate custom block version: ${key}`);
-    definitions.set(key, definition);
+    definitions.set(key, await resolveLoopCustomBlockDefinition(definition, block.id));
   }
   return [...definitions.values()].sort(
     (left, right) => left.slug.localeCompare(right.slug) || left.version - right.version,

@@ -76,7 +76,11 @@ describe("Loop custom block library", () => {
     const loaded = await loadLoopCustomBlocks(library([block(definition()), invalid]));
 
     expect(loaded.workspace).toEqual(workspace);
-    expect(loaded.definitions).toEqual([definition()]);
+    expect(loaded.definitions).toEqual([expect.objectContaining({
+      ...definition(),
+      definitionId: "ppt-step-1",
+      definitionDigest: expect.stringMatching(/^[a-f0-9]{64}$/),
+    })]);
   });
 
   it("appends the next version as an audited Blockstore type definition", async () => {
@@ -98,16 +102,19 @@ describe("Loop custom block library", () => {
         }),
       })],
     }));
-    expect(created.definitions).toEqual([definition(), definition(2)]);
+    expect(created.definitions).toEqual([
+      expect.objectContaining({ ...definition(), definitionId: "ppt-step-1" }),
+      expect.objectContaining({ ...definition(2), definitionDigest: expect.stringMatching(/^[a-f0-9]{64}$/) }),
+    ]);
   });
 
   it("fails closed when a version is duplicated or stale", async () => {
-    expect(() => definitionsFromBlocks([block(definition()), block(definition())]))
-      .toThrow("duplicate custom block version: ppt-step@1");
-    expect(() => definitionsFromBlocks([{
+    await expect(definitionsFromBlocks([block(definition()), block(definition())]))
+      .rejects.toThrow("duplicate custom block version: ppt-step@1");
+    await expect(definitionsFromBlocks([{
       ...block(definition()),
       data: { loop_custom_definition: { schema_version: 1 } },
-    }])).toThrow("invalid custom block definition: ppt-step-1");
+    }])).rejects.toThrow("invalid custom block definition: ppt-step-1");
     await expect(createLoopCustomBlock(definition(1), library([block(definition())])))
       .rejects.toThrow("custom block version is stale: expected 2");
   });

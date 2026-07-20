@@ -8,7 +8,7 @@ import { insertPointFromDoubleClick, type LoopBlockInsertPoint } from "./loop-bl
 import { insertLoopBlock } from "./loop-block-insertion";
 import { loopBlockProgrammingHostAdapter } from "./loop-block-programming-host-adapter";
 import { loopBlocklyTheme } from "./loop-blockly-theme";
-import type { LoopCustomBlockDefinition } from "./loop-custom-block-types";
+import type { LoopResolvedCustomBlockDefinition } from "./loop-custom-block-types";
 import { LoopQuickInsert } from "./loop-quick-insert";
 import type { LoopBlockCatalogMessages, LoopQuickInsertMessages } from "./loop-workbench-messages";
 
@@ -16,7 +16,7 @@ interface LoopBlocklyCanvasProps {
   program?: LoopProgram;
   semanticRevision: number;
   readOnly: boolean;
-  customDefinitions: readonly LoopCustomBlockDefinition[];
+  customDefinitions: readonly LoopResolvedCustomBlockDefinition[];
   messages: { blockly: LoopBlockCatalogMessages; quickInsert: LoopQuickInsertMessages };
   onCreateCustom: () => void;
   onSourceChange: (source: string) => void;

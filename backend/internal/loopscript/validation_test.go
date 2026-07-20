@@ -65,6 +65,16 @@ func TestParseRejectsInvalidPrograms(t *testing.T) {
 			wantCode:   "loop.secret.literal-forbidden",
 			wantNodeID: "n-fix-tax",
 		},
+		{
+			name:     "custom block reference requires a SHA-256 digest",
+			source:   strings.Replace(customBlockSource, "a1b2c3d4e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef0", "missing", 1),
+			wantCode: "loop.custom-block.digest.invalid",
+		},
+		{
+			name:     "custom block reference requires a version",
+			source:   strings.Replace(customBlockSource, "version: 2", "version: 0", 1),
+			wantCode: "loop.custom-block.version.invalid",
+		},
 	}
 
 	for _, test := range tests {

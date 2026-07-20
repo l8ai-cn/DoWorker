@@ -20,7 +20,10 @@ import {
 } from "../loop-block-catalog";
 import { insertLoopBlock } from "../loop-block-insertion";
 import { loopBlockProgrammingHostAdapter } from "../loop-block-programming-host-adapter";
-import { customBlockType, type LoopCustomBlockDefinition } from "../loop-custom-block-types";
+import {
+  customBlockType,
+  type LoopResolvedCustomBlockDefinition,
+} from "../loop-custom-block-types";
 import {
   findBlockByNodeId,
   projectProgramToWorkspace,
@@ -56,8 +59,12 @@ function program(): LoopProgram {
   });
 }
 
-function pptCustomBlock(): LoopCustomBlockDefinition {
+const CUSTOM_BLOCK_DIGEST = "a1b2c3d4e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef0";
+
+function pptCustomBlock(): LoopResolvedCustomBlockDefinition {
   return {
+    definitionId: "e54112b4-6a22-4ec4-b14d-dc3ac7c527a4",
+    definitionDigest: CUSTOM_BLOCK_DIGEST,
     slug: "ppt-step",
     version: 1,
     label: "制作 PPT",
@@ -93,6 +100,13 @@ function customProgram(): LoopProgram {
         },
         command: "test -f output.pptx",
         accept: "output.pptx 存在且可打开",
+      },
+      customBlock: {
+        nodeId: "n-ppt-step",
+        definitionId: "e54112b4-6a22-4ec4-b14d-dc3ac7c527a4",
+        slug: "ppt-step",
+        version: 1,
+        definitionDigest: CUSTOM_BLOCK_DIGEST,
       },
     },
   });
@@ -236,6 +250,9 @@ loop checkout-fix {
     expect(result.complete).toBe(true);
     expect(result.nodeIndex.get("n-ppt-step-ppt-step-task")).toBe(custom.id);
     expect(result.source).toContain(
+      `custom_block(node_id: n-ppt-step, definition_id: "e54112b4-6a22-4ec4-b14d-dc3ac7c527a4", slug: ppt-step, version: 1, digest: "${CUSTOM_BLOCK_DIGEST}")`,
+    );
+    expect(result.source).toContain(
       'agent ppt-step-task { prompt """制作 季度复盘 的专业 PPT""" }',
     );
     expect(result.source).toContain(
@@ -245,7 +262,13 @@ loop checkout-fix {
 
   it("registers historical definitions but only exposes the latest revision for insertion", () => {
     const v1 = pptCustomBlock();
-    const v2 = { ...v1, version: 2, label: "制作 PPT v2" };
+    const v2 = {
+      ...v1,
+      definitionId: "c4da5391-1f35-4c9f-9340-f6d3746174b3",
+      definitionDigest: "b1b2c3d4e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef0",
+      version: 2,
+      label: "制作 PPT v2",
+    };
     const catalog = createLoopBlockCatalog(zhMessages.loopWorkbench.blockly, [v1, v2]);
 
     expect(catalog.definitions.map(({ type }) => type)).toEqual(
@@ -297,9 +320,21 @@ loop checkout-fix {
     expect(result.source).toContain(
       'agent ppt-step-task { prompt """制作 topic 的专业 PPT""" }',
     );
+    expect(result.source).toContain("custom_block(node_id:");
     expect(result.source).toContain(
       'verify ppt-step-check { command "test -f file" accept "file 存在且可打开" }',
     );
+  });
+
+  it("fails closed when a custom block pin does not match the loaded definition", () => {
+    const definition = pptCustomBlock();
+    const mismatched = { ...definition, definitionDigest: "c1b2c3d4e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef0" };
+    const workspace = new Blockly.Workspace();
+
+    registerLoopBlocks(zhMessages.loopWorkbench.blockly, [mismatched]);
+
+    expect(() => projectProgramToWorkspace(workspace, customProgram(), [mismatched]))
+      .toThrow("custom block definition pin cannot be resolved");
   });
 
   it("does not silently accept an incomplete block tree", () => {

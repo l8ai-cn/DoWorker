@@ -21,49 +21,61 @@ const (
 	tokenLBrace tokenKind = "{"
 	tokenRBrace tokenKind = "}"
 
-	tokenID         tokenKind = "id"
-	tokenLoop       tokenKind = "loop"
-	tokenLimits     tokenKind = "limits"
-	tokenIterations tokenKind = "iterations"
-	tokenTokens     tokenKind = "tokens"
-	tokenTimeout    tokenKind = "timeout"
-	tokenNoProgress tokenKind = "no_progress"
-	tokenSameError  tokenKind = "same_error"
-	tokenRepeat     tokenKind = "repeat"
-	tokenMax        tokenKind = "max"
-	tokenUntil      tokenKind = "until"
-	tokenAgent      tokenKind = "agent"
-	tokenPromptKey  tokenKind = "prompt"
-	tokenVerify     tokenKind = "verify"
-	tokenCommand    tokenKind = "command"
-	tokenAccept     tokenKind = "accept"
-	tokenOnFailure  tokenKind = "on_failure"
-	tokenPause      tokenKind = "pause"
-	tokenFail       tokenKind = "fail"
-	tokenSecret     tokenKind = "secret"
+	tokenID           tokenKind = "id"
+	tokenLoop         tokenKind = "loop"
+	tokenLimits       tokenKind = "limits"
+	tokenIterations   tokenKind = "iterations"
+	tokenTokens       tokenKind = "tokens"
+	tokenTimeout      tokenKind = "timeout"
+	tokenNoProgress   tokenKind = "no_progress"
+	tokenSameError    tokenKind = "same_error"
+	tokenRepeat       tokenKind = "repeat"
+	tokenMax          tokenKind = "max"
+	tokenUntil        tokenKind = "until"
+	tokenCustomBlock  tokenKind = "custom_block"
+	tokenNodeID       tokenKind = "node_id"
+	tokenDefinitionID tokenKind = "definition_id"
+	tokenSlug         tokenKind = "slug"
+	tokenVersion      tokenKind = "version"
+	tokenDigest       tokenKind = "digest"
+	tokenAgent        tokenKind = "agent"
+	tokenPromptKey    tokenKind = "prompt"
+	tokenVerify       tokenKind = "verify"
+	tokenCommand      tokenKind = "command"
+	tokenAccept       tokenKind = "accept"
+	tokenOnFailure    tokenKind = "on_failure"
+	tokenPause        tokenKind = "pause"
+	tokenFail         tokenKind = "fail"
+	tokenSecret       tokenKind = "secret"
 )
 
 var keywords = map[string]tokenKind{
-	"id":          tokenID,
-	"loop":        tokenLoop,
-	"limits":      tokenLimits,
-	"iterations":  tokenIterations,
-	"tokens":      tokenTokens,
-	"timeout":     tokenTimeout,
-	"no_progress": tokenNoProgress,
-	"same_error":  tokenSameError,
-	"repeat":      tokenRepeat,
-	"max":         tokenMax,
-	"until":       tokenUntil,
-	"agent":       tokenAgent,
-	"prompt":      tokenPromptKey,
-	"verify":      tokenVerify,
-	"command":     tokenCommand,
-	"accept":      tokenAccept,
-	"on_failure":  tokenOnFailure,
-	"pause":       tokenPause,
-	"fail":        tokenFail,
-	"secret":      tokenSecret,
+	"id":            tokenID,
+	"loop":          tokenLoop,
+	"limits":        tokenLimits,
+	"iterations":    tokenIterations,
+	"tokens":        tokenTokens,
+	"timeout":       tokenTimeout,
+	"no_progress":   tokenNoProgress,
+	"same_error":    tokenSameError,
+	"repeat":        tokenRepeat,
+	"max":           tokenMax,
+	"until":         tokenUntil,
+	"custom_block":  tokenCustomBlock,
+	"node_id":       tokenNodeID,
+	"definition_id": tokenDefinitionID,
+	"slug":          tokenSlug,
+	"version":       tokenVersion,
+	"digest":        tokenDigest,
+	"agent":         tokenAgent,
+	"prompt":        tokenPromptKey,
+	"verify":        tokenVerify,
+	"command":       tokenCommand,
+	"accept":        tokenAccept,
+	"on_failure":    tokenOnFailure,
+	"pause":         tokenPause,
+	"fail":          tokenFail,
+	"secret":        tokenSecret,
 }
 
 type token struct {

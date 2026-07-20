@@ -6,9 +6,14 @@ import {
 } from "./loop-custom-block-expansion";
 import {
   customBlockType,
-  type LoopCustomBlockDefinition,
+  type LoopResolvedCustomBlockDefinition,
 } from "./loop-custom-block-types";
-import { ensureBlockNodeId, getBlockNodeId } from "./loop-node-identity";
+import {
+  ensureBlockNodeId,
+  getBlockCustomBlockReference,
+  getBlockNodeId,
+} from "./loop-node-identity";
+import { referencePinsDefinition } from "./loop-custom-block-definition-digest";
 
 export interface LoopBlockSourceResult {
   source: string;
@@ -42,7 +47,7 @@ function indexNode(block: Blockly.Block | null, index: Map<string, string>): str
 
 export function workspaceToLoopSource(
   workspace: Blockly.Workspace,
-  customDefinitions: readonly LoopCustomBlockDefinition[] = [],
+  customDefinitions: readonly LoopResolvedCustomBlockDefinition[] = [],
 ): LoopBlockSourceResult {
   const issues: string[] = [];
   const nodeIndex = new Map<string, string>();
@@ -113,6 +118,16 @@ export function workspaceToLoopSource(
     if (customBody) {
       const customBlock = bodyBlocks[0];
       const customNodeId = indexNode(customBlock, nodeIndex);
+      const reference = getBlockCustomBlockReference(customBlock);
+      if (!reference || reference.nodeId !== customNodeId ||
+          !referencePinsDefinition(reference, customBody)) {
+        issues.push("自定义积木必须固定到一个完整的定义版本");
+      } else {
+        lines.push(
+          `    custom_block(node_id: ${reference.nodeId}, definition_id: ${JSON.stringify(reference.definitionId)}, ` +
+          `slug: ${reference.slug}, version: ${reference.version}, digest: ${JSON.stringify(reference.definitionDigest)})`,
+        );
+      }
       const expanded = expandCustomBlock(customBody, valuesForCustomBlock(customBlock));
       issues.push(...expanded.issues);
       const agentNodeId = `${customNodeId}-${expanded.agentLocalId}`;

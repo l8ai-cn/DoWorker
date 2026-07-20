@@ -22,12 +22,21 @@ type Limits struct {
 }
 
 type RepeatNode struct {
-	NodeID   string
-	LocalID  string
-	Max      int64
-	Until    Reference
-	Agent    AgentNode
-	Verifier VerifierNode
+	NodeID      string
+	LocalID     string
+	Max         int64
+	Until       Reference
+	CustomBlock *CustomBlockRef
+	Agent       AgentNode
+	Verifier    VerifierNode
+}
+
+type CustomBlockRef struct {
+	NodeID           string
+	DefinitionID     string
+	Slug             string
+	Version          int64
+	DefinitionDigest string
 }
 
 type Reference struct {
@@ -84,10 +93,11 @@ type sourcePosition struct {
 }
 
 type programPositions struct {
-	loop     sourcePosition
-	limits   sourcePosition
-	repeat   sourcePosition
-	agent    sourcePosition
-	verifier sourcePosition
-	failure  sourcePosition
+	loop        sourcePosition
+	limits      sourcePosition
+	repeat      sourcePosition
+	customBlock sourcePosition
+	agent       sourcePosition
+	verifier    sourcePosition
+	failure     sourcePosition
 }

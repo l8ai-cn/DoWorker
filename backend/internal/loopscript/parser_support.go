@@ -45,6 +45,16 @@ func (p *parser) takeInteger(kind tokenKind) int64 {
 	return value
 }
 
+func (p *parser) takeString() string {
+	item := p.current()
+	if item.kind != tokenString {
+		p.failCurrent("loop.syntax.unexpected-token", "expected string", "")
+		return ""
+	}
+	p.advance()
+	return item.literal
+}
+
 func (p *parser) takeGuardedText(
 	nodeID, expected string,
 	allowed ...tokenKind,

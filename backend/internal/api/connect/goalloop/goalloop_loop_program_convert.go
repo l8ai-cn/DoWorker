@@ -34,8 +34,22 @@ func loopProgramToProto(program *loopscript.Program) *goalloopv1.LoopProgram {
 				Command:  repeat.Verifier.Command,
 				Accept:   repeat.Verifier.Accept,
 			},
+			CustomBlock: customBlockRefToProto(repeat.CustomBlock),
 		},
 		FailurePolicy: string(loop.FailurePolicy),
+	}
+}
+
+func customBlockRefToProto(value *loopscript.CustomBlockRef) *goalloopv1.LoopCustomBlockRef {
+	if value == nil {
+		return nil
+	}
+	return &goalloopv1.LoopCustomBlockRef{
+		NodeId:           value.NodeID,
+		DefinitionId:     value.DefinitionID,
+		Slug:             value.Slug,
+		Version:          uint32(value.Version),
+		DefinitionDigest: value.DefinitionDigest,
 	}
 }
 

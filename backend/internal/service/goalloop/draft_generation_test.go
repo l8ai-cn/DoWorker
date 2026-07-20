@@ -198,6 +198,32 @@ func TestDraftGeneratorRejectsProtectedSemanticChanges(t *testing.T) {
 	}
 }
 
+func TestDraftGeneratorRejectsCustomBlockPinChanges(t *testing.T) {
+	currentSource := strings.Replace(
+		draftLoopSource,
+		"    @id(n-fix-tax)",
+		"    custom_block(node_id: n-ppt-step, definition_id: \"e54112b4-6a22-4ec4-b14d-dc3ac7c527a4\", slug: ppt-step, version: 1, digest: \"a1b2c3d4e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef0\")\n    @id(n-fix-tax)",
+		1,
+	)
+	raw, err := json.Marshal(loopGenerationEnvelope{Source: draftLoopSource})
+	require.NoError(t, err)
+	generator := NewDraftGenerator(
+		&draftResourceResolver{resolved: draftResolvedResource(t)},
+		&draftJSONGenerator{output: raw},
+	)
+
+	_, err = generator.Generate(
+		context.Background(),
+		DraftGenerationScope{OrganizationID: 7, UserID: 9},
+		DraftGenerationInput{
+			Prompt: "update the task", CurrentSource: currentSource,
+			ModelResourceID: 42, Locale: "zh-CN",
+		},
+	)
+
+	require.ErrorIs(t, err, ErrGeneratedDraftInvalid)
+}
+
 func TestDraftGeneratorRejectsExecutableVerifierForNewLoop(t *testing.T) {
 	source := strings.Replace(
 		draftLoopSource,

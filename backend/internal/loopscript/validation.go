@@ -2,9 +2,12 @@ package loopscript
 
 import (
 	"fmt"
+	"regexp"
 
 	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 )
+
+var customBlockDigestPattern = regexp.MustCompile(`^[a-f0-9]{64}$`)
 
 type nodeDescriptor struct {
 	nodeID   string
@@ -53,6 +56,7 @@ func validateProgram(
 		}
 		seenLocalIDs[node.localID] = struct{}{}
 	}
+	diagnostics = appendCustomBlockDiagnostics(diagnostics, program.Loop.Repeat.CustomBlock, seenNodeIDs, positions)
 
 	loop := program.Loop
 	diagnostics = appendRangeDiagnostics(diagnostics, loop, positions)
@@ -76,6 +80,65 @@ func validateProgram(
 		))
 	}
 	diagnostics = appendTextDiagnostics(diagnostics, loop, positions, redactions)
+	return diagnostics
+}
+
+func appendCustomBlockDiagnostics(
+	diagnostics []Diagnostic,
+	custom *CustomBlockRef,
+	seenNodeIDs map[string]struct{},
+	positions *programPositions,
+) []Diagnostic {
+	if custom == nil {
+		return diagnostics
+	}
+	position := customBlockPosition(positions)
+	if custom.NodeID == "" {
+		diagnostics = append(diagnostics, diagnosticFor(
+			"loop.custom-block.node-id.required",
+			"custom block node id is required",
+			"",
+			position,
+		))
+	} else {
+		diagnostics = appendInvalidIdentifier(diagnostics, custom.NodeID, custom.NodeID, position)
+		if _, exists := seenNodeIDs[custom.NodeID]; exists {
+			diagnostics = append(diagnostics, diagnosticFor(
+				"loop.node-id.duplicate",
+				fmt.Sprintf("duplicate node id %q", custom.NodeID),
+				custom.NodeID,
+				position,
+			))
+		}
+		seenNodeIDs[custom.NodeID] = struct{}{}
+	}
+	if custom.DefinitionID == "" {
+		diagnostics = append(diagnostics, diagnosticFor(
+			"loop.custom-block.definition-id.required",
+			"custom block definition id is required",
+			custom.NodeID,
+			position,
+		))
+	}
+	diagnostics = appendInvalidIdentifier(diagnostics, custom.Slug, custom.NodeID, position)
+	if custom.Version < 1 {
+		diagnostics = append(diagnostics, diagnosticForField(
+			"loop.custom-block.version.invalid",
+			"custom block version must be positive",
+			custom.NodeID,
+			"repeat.custom_block.version",
+			position,
+		))
+	}
+	if !customBlockDigestPattern.MatchString(custom.DefinitionDigest) {
+		diagnostics = append(diagnostics, diagnosticForField(
+			"loop.custom-block.digest.invalid",
+			"custom block definition digest must be a lowercase SHA-256 hex value",
+			custom.NodeID,
+			"repeat.custom_block.definition_digest",
+			position,
+		))
+	}
 	return diagnostics
 }
 

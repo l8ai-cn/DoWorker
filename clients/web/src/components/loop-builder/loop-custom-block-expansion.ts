@@ -2,8 +2,9 @@ import type * as Blockly from "blockly";
 import {
   expandTemplate,
   matchTemplate,
-  type LoopCustomBlockDefinition,
+  type LoopResolvedCustomBlockDefinition,
 } from "./loop-custom-block-types";
+import { referencePinsDefinition } from "./loop-custom-block-definition-digest";
 import type { LoopProgram } from "@proto/goalloop/v1/goalloop_pb";
 
 export interface CustomBlockExpansion {
@@ -16,7 +17,7 @@ export interface CustomBlockExpansion {
 }
 
 export interface CustomBlockMatch {
-  definition: LoopCustomBlockDefinition;
+  definition: LoopResolvedCustomBlockDefinition;
   nodeId: string;
   values: Record<string, string>;
 }
@@ -33,7 +34,7 @@ export function valuesForCustomBlock(block: Blockly.Block): Record<string, strin
 }
 
 export function expandCustomBlock(
-  definition: LoopCustomBlockDefinition,
+  definition: LoopResolvedCustomBlockDefinition,
   values: Record<string, string>,
 ): CustomBlockExpansion {
   const prompt = expandTemplate(definition.expansion.promptTemplate, values);
@@ -50,28 +51,40 @@ export function expandCustomBlock(
   };
 }
 
-export function matchCustomBlock(
+export function resolvePinnedCustomBlock(
   program: LoopProgram,
-  definitions: readonly LoopCustomBlockDefinition[],
+  definitions: readonly LoopResolvedCustomBlockDefinition[],
 ): CustomBlockMatch | undefined {
   const agent = program.repeat?.agent;
   const verifier = program.repeat?.verifier;
-  if (!agent || !verifier) return undefined;
-  for (const definition of definitions) {
-    const agentNodeId = agent.identity?.nodeId ?? "";
-    const verifierNodeId = verifier.identity?.nodeId ?? "";
-    const agentSuffix = `-${definition.expansion.agentLocalId}`;
-    if (!agentNodeId.endsWith(agentSuffix)) continue;
-    const nodeId = agentNodeId.slice(0, -agentSuffix.length);
-    if (verifierNodeId !== `${nodeId}-${definition.expansion.verifierLocalId}`) continue;
-    const prompt = matchTemplate(definition.expansion.promptTemplate, agent.prompt);
-    const command = matchTemplate(definition.expansion.commandTemplate, verifier.command);
-    const accept = matchTemplate(definition.expansion.acceptTemplate, verifier.accept);
-    if (!prompt || !command || !accept) continue;
-    const values = { ...prompt, ...command, ...accept };
-    if (Object.keys(values).length === definition.parameters.length) {
-      return { definition, nodeId, values };
-    }
+  const pin = program.repeat?.customBlock;
+  if (!pin) return undefined;
+  if (!agent || !verifier) {
+    throw new Error("custom block pin requires expanded agent and verifier nodes");
   }
-  return undefined;
+  const definition = definitions.find((candidate) =>
+    candidate.definitionId === pin.definitionId &&
+    candidate.slug === pin.slug &&
+    candidate.version === pin.version,
+  );
+  if (!definition || !referencePinsDefinition(pin, definition)) {
+    throw new Error("custom block definition pin cannot be resolved");
+  }
+  if (
+    agent.identity?.nodeId !== `${pin.nodeId}-${definition.expansion.agentLocalId}` ||
+    verifier.identity?.nodeId !== `${pin.nodeId}-${definition.expansion.verifierLocalId}`
+  ) {
+    throw new Error("custom block pin does not match expanded node identities");
+  }
+  const prompt = matchTemplate(definition.expansion.promptTemplate, agent.prompt);
+  const command = matchTemplate(definition.expansion.commandTemplate, verifier.command);
+  const accept = matchTemplate(definition.expansion.acceptTemplate, verifier.accept);
+  if (!prompt || !command || !accept) {
+    throw new Error("custom block pin does not match the pinned definition");
+  }
+  const values = { ...prompt, ...command, ...accept };
+  if (Object.keys(values).length !== definition.parameters.length) {
+    throw new Error("custom block pin has incomplete parameter values");
+  }
+  return { definition, nodeId: pin.nodeId, values };
 }

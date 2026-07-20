@@ -21,6 +21,13 @@ func repeatPosition(p *programPositions) sourcePosition {
 	return sourcePosition{}
 }
 
+func customBlockPosition(p *programPositions) sourcePosition {
+	if p != nil {
+		return p.customBlock
+	}
+	return sourcePosition{}
+}
+
 func agentPosition(p *programPositions) sourcePosition {
 	if p != nil {
 		return p.agent

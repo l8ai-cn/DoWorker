@@ -34,7 +34,22 @@ func sameDraftIdentity(current, proposed *loopscript.Program) bool {
 		left.Repeat.Agent.NodeID == right.Repeat.Agent.NodeID &&
 		left.Repeat.Agent.LocalID == right.Repeat.Agent.LocalID &&
 		left.Repeat.Verifier.NodeID == right.Repeat.Verifier.NodeID &&
-		left.Repeat.Verifier.LocalID == right.Repeat.Verifier.LocalID
+		left.Repeat.Verifier.LocalID == right.Repeat.Verifier.LocalID &&
+		sameCustomBlockReference(left.Repeat.CustomBlock, right.Repeat.CustomBlock)
+}
+
+func sameCustomBlockReference(
+	left *loopscript.CustomBlockRef,
+	right *loopscript.CustomBlockRef,
+) bool {
+	if left == nil || right == nil {
+		return left == right
+	}
+	return left.NodeID == right.NodeID &&
+		left.DefinitionID == right.DefinitionID &&
+		left.Slug == right.Slug &&
+		left.Version == right.Version &&
+		left.DefinitionDigest == right.DefinitionDigest
 }
 
 func sameDraftVerifier(current, proposed *loopscript.Program) bool {

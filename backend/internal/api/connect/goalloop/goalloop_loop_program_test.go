@@ -3,6 +3,7 @@ package goalloopconnect
 import (
 	"context"
 	"encoding/json"
+	"strings"
 	"testing"
 	"time"
 
@@ -47,6 +48,36 @@ func TestCompileLoopProgramReturnsCanonicalAST(t *testing.T) {
 	require.Equal(t, "fix checkout tax", response.Msg.Program.Repeat.Agent.Prompt)
 	require.Equal(t, uint64(7), response.Msg.Revision)
 	require.Zero(t, service.validateCalls)
+}
+
+func TestCompileLoopProgramPreservesCustomBlockPin(t *testing.T) {
+	server := NewServer(&loopGoalLoopService{}, loopOrgService{})
+	source := strings.Replace(
+		loopSource,
+		"    @id(n-fix-tax)",
+		"    custom_block(node_id: n-ppt-step, definition_id: \"e54112b4-6a22-4ec4-b14d-dc3ac7c527a4\", slug: ppt-step, version: 2, digest: \"a1b2c3d4e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef0\")\n    @id(n-fix-tax)",
+		1,
+	)
+
+	response, err := server.CompileLoopProgram(
+		loopContext(), connect.NewRequest(&goalloopv1.CompileLoopProgramRequest{
+			OrgSlug: "acme",
+			Source:  source,
+		}),
+	)
+
+	require.NoError(t, err)
+	require.Empty(t, response.Msg.Diagnostics)
+	require.NotNil(t, response.Msg.Program.Repeat.CustomBlock)
+	require.Equal(t, "n-ppt-step", response.Msg.Program.Repeat.CustomBlock.NodeId)
+	require.Equal(t, "e54112b4-6a22-4ec4-b14d-dc3ac7c527a4", response.Msg.Program.Repeat.CustomBlock.DefinitionId)
+	require.Equal(t, "ppt-step", response.Msg.Program.Repeat.CustomBlock.Slug)
+	require.Equal(t, uint32(2), response.Msg.Program.Repeat.CustomBlock.Version)
+	require.Equal(
+		t,
+		"a1b2c3d4e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef0",
+		response.Msg.Program.Repeat.CustomBlock.DefinitionDigest,
+	)
 }
 
 func TestCompileLoopProgramReturnsDiagnosticsForInvalidSource(t *testing.T) {
