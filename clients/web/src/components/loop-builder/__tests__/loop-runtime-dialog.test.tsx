@@ -23,7 +23,7 @@ const messages: LoopRuntimeMessages = {
   empty: "当前组织没有可用的运行环境",
   cancel: "取消",
   start: "启动循环",
-  snapshotLabel: (name, workerType, id) => `${name} · ${workerType} · 快照 ${id}`,
+  snapshotLabel: (name, workerType, id) => `${name} · ${workerType} · 模板 ${id}`,
 };
 
 describe("LoopRuntimeDialog", () => {

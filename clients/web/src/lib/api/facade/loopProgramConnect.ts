@@ -14,7 +14,7 @@ export {
   listLoopRuntimeSnapshots,
   readLoopSnapshot,
   requestLoopCompile,
-  runLoopProgram,
+  runLoopResourceProgram,
   setLoopActiveEditor,
   setLoopSource,
 } from "../connect/loopProgramConnect";

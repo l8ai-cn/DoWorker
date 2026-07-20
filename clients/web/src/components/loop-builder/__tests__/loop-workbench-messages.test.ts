@@ -67,7 +67,7 @@ describe("Loop workbench messages", () => {
     expect(messages.ai.explainMode).toBe("Explain current loop");
     expect(messages.ai.projection.limits).toBe("Execution budget");
     expect(messages.runtime.snapshotLabel("Review", "codex", "42")).toBe(
-      "Review · codex · Snapshot 42",
+      "Review · codex · Template 42",
     );
   });
 });

@@ -1,16 +1,22 @@
 import { create, fromBinary, toBinary } from "@bufbuild/protobuf";
 import {
   CompileLoopProgramRequestSchema,
-  ListWorkerSnapshotsRequestSchema,
-  ListWorkerSnapshotsResponseSchema,
+  GoalLoopActionRequestSchema,
   LoopDraftSnapshotSchema,
-  RunLoopProgramRequestSchema,
 } from "@proto/goalloop/v1/goalloop_pb";
+import { IssueSeverity } from "@proto/orchestration_resource/v1/orchestration_resource_types_pb";
 import {
   getGoalLoopService,
   getLoopBuilderState,
   initWasmCore,
 } from "@/lib/wasm-core";
+import type { ResourceDocument } from "./orchestrationResourceConnect";
+import {
+  listResources,
+  planResource,
+  validateResource,
+} from "./orchestrationResourceConnect";
+import { createGoalLoopFromPlan } from "./orchestrationResourceApplyConnect";
 import type {
   LoopEditor,
   LoopRuntimeSnapshot,
@@ -86,40 +92,49 @@ export async function applyLoopCompile(
 export async function listLoopRuntimeSnapshots(
   orgSlug: string,
 ): Promise<LoopRuntimeSnapshot[]> {
-  await initWasmCore();
-  const request = create(ListWorkerSnapshotsRequestSchema, { orgSlug });
-  const response = fromBinary(
-    ListWorkerSnapshotsResponseSchema,
-    new Uint8Array(
-      await getGoalLoopService().listWorkerSnapshotsConnect(
-        toBinary(ListWorkerSnapshotsRequestSchema, request),
-      ),
-    ),
-  );
-  return response.items.map((snapshot) => ({
-    id: snapshot.id.toString(),
-    alias: snapshot.alias,
-    workerType: snapshot.workerType,
-    createdAt: snapshot.createdAt,
+  const response = await listResources(orgSlug, {
+    kind: "WorkerTemplate",
+    limit: 100,
+  });
+  return response.items.map((resource) => ({
+    id: resource.identity?.target?.name ?? resource.id.toString(),
+    alias: resource.displayName || resource.identity?.target?.name ||
+      "WorkerTemplate",
+    workerType: "WorkerTemplate",
+    createdAt: resource.createdAt,
   }));
 }
 
-export async function runLoopProgram(
+export async function runLoopResourceProgram(
   orgSlug: string,
-  source: string,
-  workerSpecSnapshotId: string,
+  document: ResourceDocument,
 ): Promise<LoopWorkbenchSnapshot> {
   await initWasmCore();
-  const request = create(RunLoopProgramRequestSchema, {
-    orgSlug,
-    source,
-    workerSpecSnapshotId: BigInt(workerSpecSnapshotId),
-  });
+  const validation = await validateResource(orgSlug, document);
+  assertNoBlockingIssues(validation.issues);
+  const plan = await planResource(orgSlug, document);
+  assertNoBlockingIssues(plan.issues);
+  if (!plan.plan?.planId) {
+    throw new Error("Resource planning did not return an applicable GoalLoop plan.");
+  }
+  const applied = await createGoalLoopFromPlan(orgSlug, plan.plan.planId);
+  const loopSlug = applied.resource?.identity?.target?.name;
+  if (!loopSlug) throw new Error("Applied GoalLoop resource did not include a loop name.");
+  const request = create(GoalLoopActionRequestSchema, { orgSlug, loopSlug });
   const response = new Uint8Array(
-    await getGoalLoopService().runLoopProgramConnect(
-      toBinary(RunLoopProgramRequestSchema, request),
+    await getGoalLoopService().startGoalLoopConnect(
+      toBinary(GoalLoopActionRequestSchema, request),
     ),
   );
   getLoopBuilderState().apply_run_response(response);
   return toSnapshot();
+}
+
+function assertNoBlockingIssues(issues: { severity: IssueSeverity; message: string }[]) {
+  const blocking = issues.filter(
+    (issue) => issue.severity === IssueSeverity.BLOCKING,
+  );
+  if (blocking.length > 0) {
+    throw new Error(blocking.map((issue) => issue.message).join("\n"));
+  }
 }

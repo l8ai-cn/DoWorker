@@ -6,7 +6,7 @@ import {
   listLoopRuntimeSnapshots,
   readLoopSnapshot,
   requestLoopCompile,
-  runLoopProgram,
+  runLoopResourceProgram,
   setLoopActiveEditor,
   setLoopSource,
 } from "@/lib/api/facade/loopProgramConnect";
@@ -16,6 +16,7 @@ import {
   type LoopRuntimeSnapshot,
   type LoopWorkbenchSnapshot,
 } from "@/lib/viewModels/loop-program";
+import { createGoalLoopResourceDocument } from "./loop-resource-document";
 import type { LoopErrorMessages } from "./loop-workbench-messages";
 
 const EMPTY: LoopWorkbenchSnapshot = {
@@ -139,17 +140,22 @@ export function useLoopWorkbench(orgSlug: string, messages: LoopErrorMessages) {
     setSnapshot(next);
   }, []);
 
-  const run = useCallback(async (workerSnapshotId: string) => {
+  const run = useCallback(async (workerTemplateName: string) => {
     setRunning(true);
     setError(undefined);
     try {
-      setSnapshot(await runLoopProgram(orgSlug, snapshot.source, workerSnapshotId));
+      const document = createGoalLoopResourceDocument({
+        namespace: orgSlug,
+        program: snapshot.program,
+        workerTemplateName,
+      });
+      setSnapshot(await runLoopResourceProgram(orgSlug, document));
     } catch (cause) {
       setError(loopRunErrorMessage(cause, messages));
     } finally {
       setRunning(false);
     }
-  }, [messages, orgSlug, snapshot.source]);
+  }, [messages, orgSlug, snapshot.program]);
 
   return {
     snapshot,
@@ -170,7 +176,10 @@ export function useLoopWorkbench(orgSlug: string, messages: LoopErrorMessages) {
 
 function loopRunErrorMessage(cause: unknown, messages: LoopErrorMessages): string {
   const detail = cause instanceof Error ? cause.message : String(cause ?? "");
-  return detail.includes("validate-plan-apply")
-    ? messages.runRequiresPlanApply
+  if (detail.includes("validate-plan-apply")) {
+    return messages.runRequiresPlanApply;
+  }
+  return detail
+    ? detail
     : messages.runFailed;
 }

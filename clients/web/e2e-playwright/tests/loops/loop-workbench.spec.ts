@@ -218,16 +218,23 @@ test.describe("Loop workbench", () => {
     expect(failedRequests()).toEqual([]);
   });
 
-  test("requires resource apply before starting a GoalLoop", async ({
+  test("applies a GoalLoop resource before starting execution", async ({
     page,
     db,
-    monitor,
   }) => {
-    monitor.allow(/GoalLoopService\/RunLoopProgram/);
     const runtime = createLoopRuntimeFixture(db);
     try {
       await page.goto(`/${TEST_ORG_SLUG}/loops/workbench`);
       await resetLoopSource(page, ZH_LOOP_LABELS);
+      await page.getByRole("tab", { name: "代码" }).click();
+      const codeEditor = page.locator(".cm-content");
+      await expect(codeEditor).toBeEditable();
+      await codeEditor.fill(
+        (await codeEditor.innerText()).replaceAll(
+          "checkout-fix",
+          runtime.goalLoopName,
+        ),
+      );
 
       const runButton = page.getByRole("button", { name: "运行循环" });
       await expect(runButton).toBeEnabled();
@@ -248,12 +255,21 @@ test.describe("Loop workbench", () => {
 
       await expect(
         page.getByText("循环执行现在必须先通过资源编排 validate-plan-apply，再启动。"),
-      ).toBeVisible();
-      expect(db.queryValue(`
+      ).toHaveCount(0);
+      await expect.poll(() => db.queryValue(`
         SELECT count(*)
         FROM goal_loops
         WHERE worker_spec_snapshot_id = ${runtime.snapshotId}
-      `)).toBe("0");
+          AND orchestration_resource_id IS NOT NULL
+          AND orchestration_resource_revision = 1
+      `)).toBe("1");
+      expect(db.queryValue(`
+        SELECT count(*)
+        FROM orchestration_resources
+        WHERE kind = 'GoalLoop'
+          AND name = '${runtime.goalLoopName}'
+          AND namespace = '${TEST_ORG_SLUG}'
+      `)).toBe("1");
     } finally {
       cleanupLoopRuntimeFixture(db, runtime);
     }

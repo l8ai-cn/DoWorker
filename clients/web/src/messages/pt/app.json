@@ -613,7 +613,7 @@
       "empty": "Esta organização não tem ambiente disponível",
       "cancel": "Cancelar",
       "start": "Iniciar loop",
-      "snapshotLabel": "{name} · {workerType} · Snapshot {id}"
+      "snapshotLabel": "{name} · {workerType} · Template {id}"
     },
     "errors": {
       "compileFailed": "A validação do LoopScript falhou. Verifique a rede e tente novamente.",

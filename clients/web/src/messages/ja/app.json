@@ -619,7 +619,7 @@
       "empty": "この組織には利用可能な実行環境がありません",
       "cancel": "キャンセル",
       "start": "Loopを開始",
-      "snapshotLabel": "{name} · {workerType} · スナップショット {id}"
+      "snapshotLabel": "{name} · {workerType} · テンプレート {id}"
     },
     "errors": {
       "compileFailed": "LoopScript の検証に失敗しました。ネットワークを確認して再試行してください。",

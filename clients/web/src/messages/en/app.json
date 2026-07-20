@@ -1055,7 +1055,7 @@
       "empty": "This organization has no available runtime",
       "cancel": "Cancel",
       "start": "Start loop",
-      "snapshotLabel": "{name} · {workerType} · Snapshot {id}"
+      "snapshotLabel": "{name} · {workerType} · Template {id}"
     },
     "errors": {
       "compileFailed": "LoopScript validation failed. Check the network and try again.",
