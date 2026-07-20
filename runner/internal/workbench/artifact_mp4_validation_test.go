@@ -37,14 +37,15 @@ func TestVerifyMP4DecodeRejectsCorruptedTail(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "video.mp4")
 	writeCorruptedTailMP4(t, path)
 
-	require.NoError(t, decodeFirstMP4Frame(path))
 	require.Error(t, verifyMP4Decode(context.Background(), path))
 }
 
 func writeCorruptedTailMP4(t *testing.T, path string) {
 	t.Helper()
 	writeDecodableMP4(t, path)
-	corruptLaterMP4Packet(t, path)
+	truncateFinalMP4Packet(t, path)
+	require.NoError(t, decodeFirstMP4Frame(path))
+	require.Error(t, decodeFixtureMP4Fully(path))
 }
 
 func writeDecodableMP4(t *testing.T, path string) {
@@ -65,7 +66,7 @@ func writeDecodableMP4(t *testing.T, path string) {
 	require.NoErrorf(t, err, "generate MP4 fixture: %s", output)
 }
 
-func corruptLaterMP4Packet(t *testing.T, path string) {
+func truncateFinalMP4Packet(t *testing.T, path string) {
 	t.Helper()
 	output, err := exec.Command(
 		"ffprobe",
@@ -79,17 +80,16 @@ func corruptLaterMP4Packet(t *testing.T, path string) {
 	var report mp4PacketReport
 	require.NoError(t, json.Unmarshal(output, &report))
 	require.Greater(t, len(report.Packets), 2)
-	packet := report.Packets[len(report.Packets)*3/4]
+	packet := report.Packets[len(report.Packets)-1]
 	position, err := strconv.ParseInt(packet.Position, 10, 64)
 	require.NoError(t, err)
 	size, err := strconv.ParseInt(packet.Size, 10, 64)
 	require.NoError(t, err)
-	require.GreaterOrEqual(t, size, int64(4))
-	content, err := os.ReadFile(path)
+	require.GreaterOrEqual(t, size, int64(2))
+	info, err := os.Stat(path)
 	require.NoError(t, err)
-	require.GreaterOrEqual(t, int64(len(content))-position, int64(4))
-	copy(content[position:position+4], []byte{0x7f, 0xff, 0xff, 0xff})
-	require.NoError(t, os.WriteFile(path, content, 0o644))
+	require.LessOrEqual(t, position+size, info.Size())
+	require.NoError(t, os.Truncate(path, position+size/2))
 }
 
 type mp4PacketReport struct {
@@ -108,4 +108,16 @@ func decodeFirstMP4Frame(path string) error {
 		"-f", "null", os.DevNull,
 	)
 	return exec.Command("ffmpeg", args...).Run()
+}
+
+func decodeFixtureMP4Fully(path string) error {
+	return exec.Command(
+		"ffmpeg",
+		"-xerror",
+		"-v", "error",
+		"-i", path,
+		"-map", "0:v:0",
+		"-f", "null",
+		os.DevNull,
+	).Run()
 }
