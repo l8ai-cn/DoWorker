@@ -49,6 +49,19 @@ func TestPersistAndQueueWritesItemAndIdempotentCommand(t *testing.T) {
 	require.NoError(t, proto.Unmarshal([]byte(plaintext), &message))
 	require.Equal(t, item.ID, message.GetSendPrompt().GetCommandId())
 	require.Equal(t, "hello", message.GetSendPrompt().GetPrompt())
+
+	retry, err := UserItem("item_1", "session_1", "response_1", []map[string]string{
+		{"type": "input_text", "text": "hello"},
+	})
+	require.NoError(t, err)
+	require.NoError(t, NewPromptOutbox(db, queue).PersistAndQueue(context.Background(), PromptInput{
+		OrganizationID: 1, RunnerID: 2, PodKey: "pod_1", Item: retry, Prompt: "hello",
+	}))
+	var itemCount, commandCount int64
+	require.NoError(t, db.Model(&domainitem.Item{}).Count(&itemCount).Error)
+	require.NoError(t, db.Model(&agentpod.PendingCommand{}).Count(&commandCount).Error)
+	require.Equal(t, int64(1), itemCount)
+	require.Equal(t, int64(1), commandCount)
 }
 
 func TestPersistAndQueueRollsBackItemWhenCommandConflicts(t *testing.T) {
@@ -74,6 +87,32 @@ func TestPersistAndQueueRollsBackItemWhenCommandConflicts(t *testing.T) {
 	var count int64
 	require.NoError(t, db.Model(&domainitem.Item{}).Count(&count).Error)
 	require.Zero(t, count)
+}
+
+func TestPersistAndQueueRejectsChangedReplay(t *testing.T) {
+	db := newPromptOutboxDB(t)
+	queue := runnerservice.NewPendingCommandQueue(
+		infra.NewPendingCommandRepository(db), nil, 10, 0, true,
+		crypto.NewEncryptor("prompt-outbox-test-key"), nil,
+	)
+	first, err := UserItem("item_1", "session_1", "response_1", json.RawMessage(`[]`))
+	require.NoError(t, err)
+	outbox := NewPromptOutbox(db, queue)
+	require.NoError(t, outbox.PersistAndQueue(context.Background(), PromptInput{
+		OrganizationID: 1, RunnerID: 2, PodKey: "pod_1", Item: first, Prompt: "hello",
+	}))
+	changed, err := UserItem("item_1", "session_1", "response_1", json.RawMessage(`[]`))
+	require.NoError(t, err)
+
+	err = outbox.PersistAndQueue(context.Background(), PromptInput{
+		OrganizationID: 1, RunnerID: 2, PodKey: "pod_1", Item: changed, Prompt: "changed",
+	})
+	require.ErrorIs(t, err, ErrPromptCommandConflict)
+	var itemCount, commandCount int64
+	require.NoError(t, db.Model(&domainitem.Item{}).Count(&itemCount).Error)
+	require.NoError(t, db.Model(&agentpod.PendingCommand{}).Count(&commandCount).Error)
+	require.Equal(t, int64(1), itemCount)
+	require.Equal(t, int64(1), commandCount)
 }
 
 func TestPromptLockKeyIsStableAndNamespaced(t *testing.T) {
