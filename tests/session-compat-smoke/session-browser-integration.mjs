@@ -1,17 +1,18 @@
 import { chromium } from "@playwright/test";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { devUrl } from "./dev-runtime-env.mjs";
 
 const OUT = join(process.cwd(), "output", "browser-integration");
 mkdirSync(OUT, { recursive: true });
 
-const WEB = process.env.WEB_URL || "http://127.0.0.1:10007";
-const WEB_USER = process.env.WEB_USER_URL || "http://127.0.0.1:5173";
-const TRAEFIK_API = process.env.TRAEFIK_API_URL || "http://127.0.0.1:10000";
+const WEB = devUrl("WEB_URL", "http://127.0.0.1:10007");
+const WEB_USER = devUrl("WEB_USER_URL", "http://127.0.0.1:5173");
+const TRAEFIK_API = devUrl("TRAEFIK_API_URL", "http://127.0.0.1:10000");
 // web-user reads import.meta.env.VITE_AGENTSMESH_API_URL ?? "http://localhost:10000"
 // for localStorage key — must match hostname, not 127.0.0.1.
-const WEB_USER_AUTH_BASE = process.env.WEB_USER_AUTH_URL || "http://localhost:10000";
-const API_DIRECT = process.env.SESSION_COMPAT_API_URL || "http://localhost:10015";
+const WEB_USER_AUTH_BASE = devUrl("WEB_USER_AUTH_URL", "http://localhost:10000");
+const API_DIRECT = devUrl("SESSION_COMPAT_API_URL", "http://localhost:10015");
 const ORG = "dev-org";
 const USER = { username: "devuser", password: "AdminAb123456" };
 
@@ -34,6 +35,18 @@ async function setReactTextarea(page, testId, value) {
       el.dispatchEvent(new Event("input", { bubbles: true }));
     },
     { id: testId, text: value },
+  );
+}
+
+async function selectWebUserHost(page, name) {
+  await page.getByTestId("new-chat-landing-host-chip").dispatchEvent("pointerdown", { button: 0 });
+  const item = page.getByRole("menuitem").filter({ hasText: name }).first();
+  await item.waitFor({ state: "visible", timeout: 30_000 });
+  await item.click();
+  await page.waitForFunction(
+    (hostName) => document.querySelector('[data-testid="new-chat-landing-host-chip"]')?.textContent?.includes(hostName),
+    name,
+    { timeout: 30_000 },
   );
 }
 
@@ -105,11 +118,20 @@ async function part1AgentsMesh(browser, auth) {
   await page.waitForTimeout(5000);
   await page.screenshot({ path: join(OUT, "01-web-workspace.png"), fullPage: true });
 
-  const newPodBtn = page
-    .getByRole("button", { name: /new pod|create new pod|新建 pod|create pod|创建/i })
-    .first();
+  const newPodBtn = page.getByRole("button", { name: /new pod/i }).last();
   await newPodBtn.waitFor({ state: "visible", timeout: 30_000 });
   await newPodBtn.click();
+
+  await page.waitForTimeout(3000);
+  if (page.url().includes("/workers/new")) {
+    const body = await page.locator("body").innerText();
+    if (!/Create Worker|Worker template|Plan & diff/i.test(body)) {
+      throw new Error("Resource-native worker creation entry opened an unexpected page");
+    }
+    step("AgentsMesh: resource-native create entry opens", true);
+    await ctx.close();
+    return "e2e-echo";
+  }
 
   const dialog = page.locator('[role="dialog"]').first();
   await dialog.waitFor({ state: "visible", timeout: 30_000 });
@@ -178,10 +200,15 @@ async function part2WebUser(browser, auth, agent) {
 
   const agents = await listAgents(auth.token);
   if (agents.some((a) => a.id === "e2e-echo")) {
-    await page.getByTestId("new-chat-landing-agent-select").click();
+    await page.getByTestId("new-chat-landing-agent-select").dispatchEvent("pointerdown", { button: 0 });
+    await page.getByTestId("new-chat-landing-agent-e2e-echo").waitFor({ state: "visible", timeout: 30_000 });
     await page.getByTestId("new-chat-landing-agent-e2e-echo").click();
     await page.getByRole("heading", { name: "What should we do?" }).click();
-    await page.waitForTimeout(500);
+    await page.waitForFunction(
+      () => document.querySelector('[data-testid="new-chat-landing-agent-select"]')?.textContent?.includes("E2E Echo"),
+      { timeout: 30_000 },
+    );
+    await selectWebUserHost(page, "dev-runner-2");
   }
 
   const prompt = "Integration test: reply with one short greeting sentence.";

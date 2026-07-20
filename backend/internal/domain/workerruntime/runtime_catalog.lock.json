@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": "runtime-catalog-2026-07-18-854952254d5f",
+  "revision": "runtime-catalog-2026-07-20-077eb4511113",
   "images": [
     {
       "id": 1,
@@ -56,6 +56,17 @@
       "worker_type_slugs": [
         "do-agent",
         "seedance-expert"
+      ],
+      "enabled": true
+    },
+    {
+      "id": 9,
+      "slug": "e2e-echo-stable",
+      "name": "E2E Echo",
+      "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-e2e-echo@sha256:077eb4511113ddb80dd8e09d7b46ffe3668d6b69d1840c1cbe849e97595087fa",
+      "digest": "sha256:077eb4511113ddb80dd8e09d7b46ffe3668d6b69d1840c1cbe849e97595087fa",
+      "worker_type_slugs": [
+        "e2e-echo"
       ],
       "enabled": true
     }

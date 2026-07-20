@@ -7,7 +7,7 @@ tmp_dir = "deploy/dev/runtime/backend/air"
 [build]
 cmd = "bash deploy/dev/build-host-go-binary.sh ./backend/cmd/server ./deploy/dev/runtime/backend/air/main"
 bin = "./deploy/dev/runtime/backend/air/main"
-full_bin = "./deploy/dev/runtime/backend/air/main"
+full_bin = "bash deploy/dev/run-backend-with-runtime-env.sh"
 include_ext = ["go"]
 include_dir = ["backend"]
 exclude_dir = [

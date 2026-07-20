@@ -1,16 +1,21 @@
 import { chromium } from "@playwright/test";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { devUrl } from "./dev-runtime-env.mjs";
 
 const OUT = join(process.cwd(), "output", "browser-integration");
 mkdirSync(OUT, { recursive: true });
-const WEB_USER = "http://127.0.0.1:5173";
-const API = "http://localhost:10015";
+const WEB_USER = devUrl("WEB_USER_URL", "http://127.0.0.1:5173");
+const API = devUrl("SESSION_COMPAT_API_URL", "http://localhost:10015");
 const ORG = "dev-org";
 const SESSION = process.env.SESSION_ID ?? "conv_14f73d11ca94ddf2";
+const WEB_USER_AUTH_BASE = devUrl("WEB_USER_AUTH_URL", "http://localhost:10000");
 
 function authKey() {
-  return "agentsmesh-auth/http_localhost_10000/session";
+  const u = new URL(WEB_USER_AUTH_BASE);
+  const port = u.port ? `_${u.port}` : "";
+  const raw = `${u.protocol.replace(":", "")}_${u.hostname.toLowerCase()}${port}`;
+  return `do-worker-auth/${raw.replace(/[^a-zA-Z0-9]/g, "_").slice(0, 64)}/session`;
 }
 
 async function login() {
@@ -35,7 +40,7 @@ async function main() {
         access_token: auth.token,
         refresh_token: auth.refresh,
         expires_at: auth.exp,
-        base_url: "http://localhost:10000",
+        base_url: WEB_USER_AUTH_BASE,
         current_org_slug: ORG,
         schema_version: 1,
       },
@@ -47,6 +52,9 @@ async function main() {
   await page.screenshot({ path: join(OUT, "06-web-user-session-chat.png"), fullPage: true });
 
   const body = await page.locator("body").innerText();
+  if (page.url().includes("/login") || /Sign in|Welcome to Do Worker/i.test(body)) {
+    throw new Error("web-user session smoke reached login instead of the session page");
+  }
   const hasUserMsg = /Say hello in one sentence/i.test(body);
   console.log("user message visible:", hasUserMsg);
   console.log("page excerpt:", body.slice(0, 400).replace(/\n/g, " | "));
@@ -58,6 +66,9 @@ async function main() {
     await page.waitForTimeout(12000);
     await page.screenshot({ path: join(OUT, "07-web-user-followup.png"), fullPage: true });
     const body2 = await page.locator("body").innerText();
+    if (/401|unauthorized|failed to fetch|stream unavailable|couldn.t send/i.test(body2)) {
+      throw new Error(`web-user follow-up failed: ${body2.slice(0, 300)}`);
+    }
     console.log("follow-up excerpt:", body2.slice(0, 500).replace(/\n/g, " | "));
   }
 

@@ -2,12 +2,14 @@ package sessionapi
 
 import (
 	"errors"
+	"log/slog"
 	"net/http"
 
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	agentsessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
 	"github.com/anthropics/agentsmesh/backend/internal/service/airesource"
 	"github.com/anthropics/agentsmesh/backend/internal/service/billing"
+	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 	"github.com/gin-gonic/gin"
 )
 
@@ -29,9 +31,16 @@ func writeOrchestratorError(c *gin.Context, err error) {
 			"error": "selected model resource is disabled",
 			"code":  "model_resource_disabled",
 		})
+	case errors.Is(err, specservice.ErrInvalidDraft):
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+			"code":  "validation_failed",
+			"field": specservice.InvalidDraftField(err),
+		})
 	case errors.Is(err, billing.ErrQuotaExceeded):
 		c.JSON(http.StatusTooManyRequests, gin.H{"error": err.Error(), "code": "quota_exceeded"})
 	default:
+		slog.ErrorContext(c.Request.Context(), "session pod orchestration failed", "error", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create session", "code": "internal_error"})
 	}
 }
