@@ -103,6 +103,29 @@ func TestNewFreshPodDraftDefaultsIdleLifecycleTimeout(t *testing.T) {
 	assert.Equal(t, uint32(30), draft.WorkerSpec.Lifecycle.IdleTimeoutMinutes)
 }
 
+func TestNewFreshPodDraftCopiesToolModelResourceIDs(t *testing.T) {
+	service := NewService(newWorkerCreationServiceFixture().deps())
+	input := validFreshPodDraftInput()
+	input.ToolModelResourceIDs = map[string]int64{"seedance-video": 9}
+	input.ConfigDocumentBindings = []specdomain.ConfigDocumentBinding{{
+		DocumentID: "settings", ConfigBundleID: 10,
+	}}
+
+	draft, err := service.NewFreshPodDraft(
+		context.Background(),
+		validFreshScope(),
+		input,
+	)
+
+	require.NoError(t, err)
+	assert.Equal(t, map[string]int64{"seedance-video": 9}, draft.WorkerSpec.ToolModelResourceIDs)
+	assert.Equal(t, input.ConfigDocumentBindings, draft.WorkerSpec.Workspace.ConfigDocumentBindings)
+	input.ToolModelResourceIDs["seedance-video"] = 10
+	input.ConfigDocumentBindings[0].ConfigBundleID = 11
+	assert.Equal(t, int64(9), draft.WorkerSpec.ToolModelResourceIDs["seedance-video"])
+	assert.Equal(t, int64(10), draft.WorkerSpec.Workspace.ConfigDocumentBindings[0].ConfigBundleID)
+}
+
 func TestNewFreshPodDraftInitializesSecretRefsForWorkerWithoutCredentials(t *testing.T) {
 	fixture := newWorkerCreationServiceFixture()
 	source := "AGENT codex\nEXECUTABLE codex\nMODE pty\nMODE acp\n"

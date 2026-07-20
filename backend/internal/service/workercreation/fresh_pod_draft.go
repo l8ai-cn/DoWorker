@@ -3,6 +3,7 @@ package workercreation
 import (
 	"context"
 	"fmt"
+	"maps"
 	"strings"
 
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
@@ -11,17 +12,19 @@ import (
 )
 
 type FreshPodDraftInput struct {
-	OptionsRevision  string
-	OrganizationSlug string
-	WorkerTypeSlug   string
-	ModelResourceID  *int64
-	Runtime          specservice.RuntimeSelection
-	RepositoryID     *int64
-	Branch           string
-	Alias            string
-	AgentfileLayer   string
-	AutomationLevel  specdomain.AutomationLevel
-	Perpetual        bool
+	OptionsRevision        string
+	OrganizationSlug       string
+	WorkerTypeSlug         string
+	ModelResourceID        *int64
+	ToolModelResourceIDs   map[string]int64
+	ConfigDocumentBindings []specdomain.ConfigDocumentBinding
+	Runtime                specservice.RuntimeSelection
+	RepositoryID           *int64
+	Branch                 string
+	Alias                  string
+	AgentfileLayer         string
+	AutomationLevel        specdomain.AutomationLevel
+	Perpetual              bool
 }
 
 func (service *Service) NewFreshPodDraft(
@@ -75,9 +78,10 @@ func (service *Service) NewFreshPodDraft(
 		OptionsRevision:  service.revision,
 		OrganizationSlug: namespace,
 		WorkerSpec: specservice.Draft{
-			ModelResourceID: modelResourceIDValue(input.ModelResourceID),
-			WorkerTypeSlug:  workerType,
-			Runtime:         input.Runtime,
+			ModelResourceID:      modelResourceIDValue(input.ModelResourceID),
+			ToolModelResourceIDs: maps.Clone(input.ToolModelResourceIDs),
+			WorkerTypeSlug:       workerType,
+			Runtime:              input.Runtime,
 			TypeConfig: specdomain.TypeConfig{
 				SchemaVersion:   resolution.TypeSchema.Version,
 				Values:          layer.config,
@@ -88,7 +92,11 @@ func (service *Service) NewFreshPodDraft(
 			Workspace: specdomain.Workspace{
 				RepositoryID: input.RepositoryID,
 				Branch:       firstNonEmpty(input.Branch, layer.branch),
-				InitialTask:  layer.prompt,
+				ConfigDocumentBindings: append(
+					[]specdomain.ConfigDocumentBinding{},
+					input.ConfigDocumentBindings...,
+				),
+				InitialTask: layer.prompt,
 			},
 			Lifecycle: freshPodLifecycle(input.Perpetual),
 			Metadata:  specdomain.Metadata{Alias: strings.TrimSpace(input.Alias)},

@@ -11,12 +11,14 @@ import (
 )
 
 type sessionWorkerSpecBody struct {
-	OptionsRevision   string `json:"options_revision"`
-	RuntimeImageID    int64  `json:"runtime_image_id"`
-	PlacementPolicy   string `json:"placement_policy"`
-	ComputeTargetID   int64  `json:"compute_target_id"`
-	DeploymentMode    string `json:"deployment_mode"`
-	ResourceProfileID int64  `json:"resource_profile_id"`
+	OptionsRevision        string                             `json:"options_revision"`
+	RuntimeImageID         int64                              `json:"runtime_image_id"`
+	PlacementPolicy        string                             `json:"placement_policy"`
+	ComputeTargetID        int64                              `json:"compute_target_id"`
+	DeploymentMode         string                             `json:"deployment_mode"`
+	ResourceProfileID      int64                              `json:"resource_profile_id"`
+	ToolModelResourceIDs   map[string]int64                   `json:"tool_model_resource_ids"`
+	ConfigDocumentBindings []specdomain.ConfigDocumentBinding `json:"config_document_bindings"`
 }
 
 type sessionWorkerPlanInput struct {
@@ -51,10 +53,12 @@ func (d *Deps) buildFreshWorkerPlan(
 		ctx,
 		specservice.Scope{OrgID: orgID, UserID: userID},
 		workercreation.FreshPodDraftInput{
-			OptionsRevision:  input.WorkerSpec.OptionsRevision,
-			OrganizationSlug: orgSlug,
-			WorkerTypeSlug:   input.WorkerTypeSlug,
-			ModelResourceID:  input.ModelResourceID,
+			OptionsRevision:        input.WorkerSpec.OptionsRevision,
+			OrganizationSlug:       orgSlug,
+			WorkerTypeSlug:         input.WorkerTypeSlug,
+			ModelResourceID:        input.ModelResourceID,
+			ToolModelResourceIDs:   input.WorkerSpec.ToolModelResourceIDs,
+			ConfigDocumentBindings: input.WorkerSpec.ConfigDocumentBindings,
 			Runtime: specservice.RuntimeSelection{
 				RuntimeImageID:    input.WorkerSpec.RuntimeImageID,
 				PlacementPolicy:   specdomain.PlacementPolicy(input.WorkerSpec.PlacementPolicy),
