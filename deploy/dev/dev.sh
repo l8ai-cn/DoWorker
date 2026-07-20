@@ -81,8 +81,14 @@ main() {
     esac
 
     local backend_only=false
+    local persisted_runner_launcher=""
     local requested_runner_launcher
-    requested_runner_launcher="$(resolve_requested_runners_launcher "${RUNNERS_LAUNCHER:-}" "$@")"
+    local effective_runner_launcher
+    if [[ -f "$ENV_FILE" ]]; then
+        source "$ENV_FILE"
+        persisted_runner_launcher="${RUNNERS_LAUNCHER:-}"
+    fi
+    requested_runner_launcher="$(resolve_requested_runners_launcher "" "$@")"
     for arg in "$@"; do
         case "$arg" in
             --backend-only) backend_only=true ;;
@@ -100,6 +106,10 @@ main() {
     generate_ai_cli_configs
     generate_env
     source "$ENV_FILE"
+    effective_runner_launcher="$(resolve_effective_runners_launcher \
+        "$requested_runner_launcher" \
+        "$persisted_runner_launcher" \
+        "$(dev_lite_enabled && echo true || echo false)")"
     check_dev_doctor
     generate_traefik_config
     generate_web_env

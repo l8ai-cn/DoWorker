@@ -7,6 +7,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/config"
 	"github.com/anthropics/agentsmesh/backend/internal/infra"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	itemsvc "github.com/anthropics/agentsmesh/backend/internal/service/conversationitem"
 	expertsvc "github.com/anthropics/agentsmesh/backend/internal/service/expert"
 	"github.com/anthropics/agentsmesh/backend/internal/service/gitops"
 	skillsvc "github.com/anthropics/agentsmesh/backend/internal/service/skill"
@@ -57,6 +58,7 @@ func newExpertAndSkillServices(
 		Market:            infra.NewExpertMarketRepository(db),
 		Skills:            skillCatalog,
 		MarketSkills:      skillCatalog,
+		Items:             itemsvc.NewService(db),
 		Gitops:            expertGitops,
 		Logger:            logger,
 	})

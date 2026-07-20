@@ -124,6 +124,7 @@ func (bootstrapper *Bootstrapper) createExpert(
 		InteractionMode:      expertdom.InteractionModePTY,
 		AutomationLevel:      expertdom.AutomationLevelAutoEdit,
 		SkillSlugs:           definition.SkillSlugs,
+		ConfigOverrides:      videoExpertConfigOverrides(),
 		WorkerSpecSnapshotID: &snapshot.ID,
 		ExpertType:           stringPointer("video"),
 	})
@@ -165,7 +166,7 @@ func workerDraft(
 			},
 			TypeConfig: specdomain.TypeConfig{
 				SchemaVersion:   1,
-				Values:          map[string]any{},
+				Values:          videoExpertConfigOverrides(),
 				SecretRefs:      map[string]specdomain.SecretReference{},
 				InteractionMode: specdomain.InteractionModePTY,
 				AutomationLevel: specdomain.AutomationLevelAutoEdit,
@@ -180,6 +181,10 @@ func workerDraft(
 			Metadata: specdomain.Metadata{Alias: definition.Slug},
 		},
 	}
+}
+
+func videoExpertConfigOverrides() map[string]any {
+	return map[string]any{"approval_mode": "never"}
 }
 
 func stringPointer(value string) *string { return &value }

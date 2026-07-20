@@ -3,6 +3,7 @@ package operatorcatalog
 import (
 	"context"
 	"errors"
+	"reflect"
 	"slices"
 	"strings"
 
@@ -10,6 +11,7 @@ import (
 	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
 	specdom "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	"github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 	"gorm.io/gorm"
@@ -53,6 +55,15 @@ func (bootstrapper *Bootstrapper) validateExpertSnapshot(
 		!slices.Equal(spec.Workspace.SkillIDs, expectedSkillIDs) {
 		return ErrCatalogConflict
 	}
+	if !workerConfigMatchesCatalog(spec.TypeConfig) {
+		return bootstrapper.rebuildExpertSnapshotForDefinition(
+			ctx,
+			request,
+			definition,
+			expert,
+			expectedSkillIDs,
+		)
+	}
 	artifact, err := bootstrapper.artifacts.GetBySnapshotID(
 		ctx,
 		request.OrganizationID,
@@ -65,11 +76,77 @@ func (bootstrapper *Bootstrapper) validateExpertSnapshot(
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return err
 	}
-	workerType, err := slugkit.NewFromTrusted("video-studio")
+	return bootstrapper.rebuildOrBackfillExpertArtifact(
+		ctx,
+		request,
+		definition,
+		expert,
+		expectedSkillIDs,
+		artifactFound,
+		snapshot.ID,
+	)
+}
+
+func workerConfigMatchesCatalog(config specdom.TypeConfig) bool {
+	return config.InteractionMode == specdom.InteractionModePTY &&
+		config.AutomationLevel == specdom.AutomationLevelAutoEdit &&
+		reflect.DeepEqual(config.Values, videoExpertConfigOverrides())
+}
+
+func (bootstrapper *Bootstrapper) rebuildExpertSnapshotForDefinition(
+	ctx context.Context,
+	request BootstrapRequest,
+	definition ExpertDefinition,
+	expert *expertdom.Expert,
+	expectedSkillIDs []int64,
+) error {
+	prepared, err := bootstrapper.prepareExpertSnapshot(
+		ctx,
+		request,
+		definition,
+		expectedSkillIDs,
+	)
 	if err != nil {
 		return err
 	}
-	prepared, err := bootstrapper.workers.Prepare(
+	return bootstrapper.rebuildExpertSnapshot(ctx, request, expert, prepared)
+}
+
+func (bootstrapper *Bootstrapper) rebuildOrBackfillExpertArtifact(
+	ctx context.Context,
+	request BootstrapRequest,
+	definition ExpertDefinition,
+	expert *expertdom.Expert,
+	expectedSkillIDs []int64,
+	artifactFound bool,
+	snapshotID int64,
+) error {
+	prepared, err := bootstrapper.prepareExpertSnapshot(
+		ctx,
+		request,
+		definition,
+		expectedSkillIDs,
+	)
+	if err != nil {
+		return err
+	}
+	if artifactFound {
+		return bootstrapper.rebuildExpertSnapshot(ctx, request, expert, prepared)
+	}
+	return bootstrapper.createSnapshotArtifact(ctx, request, snapshotID, prepared)
+}
+
+func (bootstrapper *Bootstrapper) prepareExpertSnapshot(
+	ctx context.Context,
+	request BootstrapRequest,
+	definition ExpertDefinition,
+	expectedSkillIDs []int64,
+) (workercreation.Prepared, error) {
+	workerType, err := slugkit.NewFromTrusted("video-studio")
+	if err != nil {
+		return workercreation.Prepared{}, err
+	}
+	return bootstrapper.workers.Prepare(
 		ctx,
 		specservice.Scope{
 			OrgID:   request.OrganizationID,
@@ -84,18 +161,6 @@ func (bootstrapper *Bootstrapper) validateExpertSnapshot(
 			workerType,
 		),
 	)
-	if err != nil {
-		return err
-	}
-	if artifactFound {
-		return bootstrapper.rebuildExpertSnapshot(
-			ctx,
-			request,
-			expert,
-			prepared,
-		)
-	}
-	return bootstrapper.createSnapshotArtifact(ctx, request, snapshot.ID, prepared)
 }
 
 func artifactMatchesInstructionContract(document workerdependency.Document) bool {

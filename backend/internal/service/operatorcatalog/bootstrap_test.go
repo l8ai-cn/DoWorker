@@ -2,6 +2,7 @@ package operatorcatalog
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"testing"
 
@@ -44,6 +45,17 @@ func TestBootstrapVideoExpertsIsIdempotent(t *testing.T) {
 	require.Equal(t, 3, workers.calls)
 	require.Equal(t, 3, snapshots.createCalls)
 	require.Equal(t, 3, artifacts.createCalls)
+	expert := experts.experts["video-production-expert"]
+	require.JSONEq(
+		t,
+		`{"approval_mode":"never"}`,
+		string(expert.ConfigOverrides),
+	)
+	require.Equal(
+		t,
+		videoExpertConfigOverrides(),
+		snapshots.rows[*expert.WorkerSpecSnapshotID].Spec.TypeConfig.Values,
+	)
 
 	second, err := bootstrapper.Run(context.Background(), request)
 	require.NoError(t, err)
@@ -91,6 +103,41 @@ func TestBootstrapVideoExpertsRebuildsLegacyPromptArtifact(t *testing.T) {
 		artifactMatchesInstructionContract(
 			artifacts.rows[*expert.WorkerSpecSnapshotID],
 		),
+	)
+}
+
+func TestBootstrapVideoExpertsRebuildsLegacyApprovalSnapshot(t *testing.T) {
+	skills := &bootstrapSkillStore{}
+	experts := newBootstrapExpertStore()
+	workers := &bootstrapWorkerPreparer{}
+	snapshots := newBootstrapSnapshotStore()
+	artifacts := &bootstrapDependencyArtifactStore{}
+	bootstrapper := NewBootstrapper(skills, experts, workers, snapshots, artifacts)
+	request := BootstrapRequest{
+		OrganizationID:   7,
+		OrganizationSlug: slugkit.MustNewForTest("dev-org"),
+		PublisherUserID:  11,
+		ReviewerUserID:   13,
+		ModelResourceID:  17,
+		RuntimeImageID:   19,
+	}
+	_, err := bootstrapper.Run(context.Background(), request)
+	require.NoError(t, err)
+	expert := experts.experts["video-production-expert"]
+	legacySnapshotID := *expert.WorkerSpecSnapshotID
+	snapshot := snapshots.rows[legacySnapshotID]
+	snapshot.Spec.TypeConfig.Values = map[string]any{}
+	snapshots.rows[legacySnapshotID] = snapshot
+
+	result, err := bootstrapper.Run(context.Background(), request)
+	require.NoError(t, err)
+
+	require.Equal(t, BootstrapResult{}, result)
+	require.NotEqual(t, legacySnapshotID, *expert.WorkerSpecSnapshotID)
+	require.Equal(
+		t,
+		videoExpertConfigOverrides(),
+		snapshots.rows[*expert.WorkerSpecSnapshotID].Spec.TypeConfig.Values,
 	)
 }
 
@@ -256,6 +303,7 @@ func (store *bootstrapExpertStore) Create(
 		SkillSlugs:           pq.StringArray(request.SkillSlugs),
 		WorkerSpecSnapshotID: request.WorkerSpecSnapshotID,
 	}
+	row.ConfigOverrides, _ = json.Marshal(request.ConfigOverrides)
 	store.experts[row.Slug] = row
 	return row, nil
 }
