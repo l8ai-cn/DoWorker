@@ -139,10 +139,10 @@ func verifyMP4Decodes(ctx context.Context, path string) error {
 	return runMediaCommand(
 		verifyCtx,
 		"ffmpeg",
+		"-xerror",
 		"-v", "error",
 		"-i", path,
 		"-map", "0:v:0",
-		"-frames:v", "1",
 		"-f", "null",
 		os.DevNull,
 	)
