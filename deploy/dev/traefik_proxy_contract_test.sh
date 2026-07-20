@@ -34,5 +34,12 @@ node - "$temp_dir/traefik/dynamic/http.yml" <<'NODE'
 const fs = require("node:fs");
 const YAML = require("yaml");
 const config = YAML.parse(fs.readFileSync(process.argv[2], "utf8"));
-if (!config?.http?.routers?.["backend-api"]?.rule) process.exit(1);
+const rule = config?.http?.routers?.["backend-api"]?.rule;
+if (!rule) process.exit(1);
+if (!rule.includes("!HostRegexp(`^[a-z0-9-]+\\.preview\\.localhost$`)")) {
+  throw new Error("backend-api must exclude preview subdomains");
+}
+if (!rule.includes("PathPrefix(`/api`)")) {
+  throw new Error("backend-api rule lost API prefix");
+}
 NODE
