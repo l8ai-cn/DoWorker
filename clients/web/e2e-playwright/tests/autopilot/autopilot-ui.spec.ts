@@ -3,7 +3,7 @@ import type { Page } from "@playwright/test";
 import type { ApiFixture } from "../../fixtures/api.fixture";
 import type { ConsoleMonitor } from "../../helpers/console-monitor";
 import { clearAuthRateLimit } from "../../helpers/redis";
-import { terminateAllPods } from "../../helpers/pod-cleanup";
+import { terminateRegisteredE2EPods } from "../../helpers/pod-cleanup";
 import { workspaceUrlForPod } from "../../helpers/mock-agent";
 import { createReadyAutopilotTarget, createAutopilotForPod } from "../../helpers/autopilot";
 import { takeWorkerControl } from "../../helpers/worker-control-lease";
@@ -40,7 +40,7 @@ test.describe("Autopilot UI · status bar", () => {
     clearAuthRateLimit();
   });
   test.afterEach(async () => {
-    await terminateAllPods();
+    await terminateRegisteredE2EPods();
   });
 
   test("workspace renders the autopilot status bar with the live phase", async ({ page, api, monitor }) => {

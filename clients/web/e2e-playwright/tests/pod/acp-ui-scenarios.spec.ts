@@ -1,13 +1,13 @@
 import { test, expect } from "../../fixtures/index";
 import { clearAuthRateLimit } from "../../helpers/redis";
-import { terminateAllPods } from "../../helpers/pod-cleanup";
+import { terminateRegisteredE2EPods } from "../../helpers/pod-cleanup";
 import { setupAcpScenarioPage, takeWorkerControl } from "../../helpers/acp-spec-setup";
 
 // Scenario coverage for the universal mock agent through the shared
 // AgentWorkspace activity and approval surfaces.
 test.describe("ACP UI: mock agent scenario matrix", () => {
   test.beforeEach(async () => { clearAuthRateLimit(); });
-  test.afterEach(async () => { await terminateAllPods(); });
+  test.afterEach(async () => { await terminateRegisteredE2EPods(); });
 
   test("streaming_3 emits three chunks concatenated in the activity stream", async ({ page, api, monitor }) => {
     const ctx = await setupAcpScenarioPage(page, api, monitor, {

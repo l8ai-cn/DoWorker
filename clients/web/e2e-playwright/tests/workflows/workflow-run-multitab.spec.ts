@@ -7,7 +7,7 @@
 // spec exercises handler → fetchRuns → React render chain.
 import { test, expect } from "../../fixtures/index";
 import { clearAuthRateLimit } from "../../helpers/redis";
-import { terminateAllPods } from "../../helpers/pod-cleanup";
+import { terminateRegisteredE2EPods } from "../../helpers/pod-cleanup";
 import { TEST_ORG_SLUG } from "../../helpers/env";
 import {
   ensureResourceWorkflowFixture,
@@ -17,12 +17,12 @@ import {
 test.describe("Workflow run · multi-tab UI propagation", () => {
   test.beforeEach(async ({ db }) => {
     clearAuthRateLimit();
-    await terminateAllPods();
+    await terminateRegisteredE2EPods();
     ensureResourceWorkflowFixture(db);
     resetResourceWorkflowFixture(db);
   });
   test.afterEach(async ({ db }) => {
-    await terminateAllPods();
+    await terminateRegisteredE2EPods();
     resetResourceWorkflowFixture(db);
   });
 

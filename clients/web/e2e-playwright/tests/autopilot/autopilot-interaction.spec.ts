@@ -4,7 +4,7 @@
 // stop) and asserts the resulting phase transitions on the wire.
 import { test, expect } from "../../fixtures/index";
 import { clearAuthRateLimit } from "../../helpers/redis";
-import { terminateAllPods } from "../../helpers/pod-cleanup";
+import { terminateRegisteredE2EPods } from "../../helpers/pod-cleanup";
 import {
   createReadyAutopilotTarget,
   createAutopilotForPod,
@@ -32,7 +32,7 @@ test.describe("Autopilot interaction · mock control agent", () => {
     clearAuthRateLimit();
   });
   test.afterEach(async () => {
-    await terminateAllPods();
+    await terminateRegisteredE2EPods();
   });
 
   test("need_human_help: pauses for approval, approve resumes to completed", async ({ api }) => {

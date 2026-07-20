@@ -12,11 +12,11 @@ import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { withEventSubscription } from "../../helpers/eventbus-stream";
 import { createMockAgentPod } from "../../helpers/mock-agent";
-import { terminateAllPods } from "../../helpers/pod-cleanup";
+import { terminateRegisteredE2EPods } from "../../helpers/pod-cleanup";
 
 test.describe("Realtime · notification (wire)", () => {
   test.beforeEach(async () => { clearAuthRateLimit(); });
-  test.afterEach(async () => { await terminateAllPods(); });
+  test.afterEach(async () => { await terminateRegisteredE2EPods(); });
 
   test("notification arrives after task:completed dispatcher fires", async ({ api }) => {
     const cc = await api.connect();

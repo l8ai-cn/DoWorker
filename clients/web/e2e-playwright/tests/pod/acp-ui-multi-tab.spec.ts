@@ -1,6 +1,6 @@
 import { test, expect } from "../../fixtures/index";
 import { clearAuthRateLimit } from "../../helpers/redis";
-import { terminateAllPods } from "../../helpers/pod-cleanup";
+import { terminateRegisteredE2EPods } from "../../helpers/pod-cleanup";
 import {
   createMockAgentPod,
   workspaceUrlForPod,
@@ -12,7 +12,7 @@ import { takeWorkerControl } from "../../helpers/worker-control-lease";
 // a manual refresh.
 test.describe("ACP UI: multi-tab Selector synchronization", () => {
   test.beforeEach(async () => { clearAuthRateLimit(); });
-  test.afterEach(async () => { await terminateAllPods(); });
+  test.afterEach(async () => { await terminateRegisteredE2EPods(); });
 
   test("mode change in tab A appears in tab B without refresh", async ({ context, api }) => {
     const pod = await createMockAgentPod(api, {

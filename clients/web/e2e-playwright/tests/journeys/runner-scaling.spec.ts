@@ -2,7 +2,7 @@ import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { pollUntil } from "../../helpers/retry";
-import { terminateAllPods } from "../../helpers/pod-cleanup";
+import { terminateRegisteredE2EPods } from "../../helpers/pod-cleanup";
 import {
   buildE2EEchoWorkerSpec,
   type E2EWorkerSpecDraft,
@@ -22,7 +22,7 @@ type Pod = { podKey: string; runnerId: bigint };
 test.describe("Journey: Runner Scaling", () => {
   test.beforeEach(async () => {
     clearAuthRateLimit();
-    await terminateAllPods();
+    await terminateRegisteredE2EPods();
   });
 
   test("enforces capacity and schedules onto an enabled runner", async ({ api }) => {

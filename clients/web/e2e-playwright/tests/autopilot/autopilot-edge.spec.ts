@@ -3,7 +3,7 @@
 // backend status_changed phase=stopped).
 import { test, expect } from "../../fixtures/index";
 import { clearAuthRateLimit } from "../../helpers/redis";
-import { terminateAllPods } from "../../helpers/pod-cleanup";
+import { terminateRegisteredE2EPods } from "../../helpers/pod-cleanup";
 import {
   createReadyAutopilotTarget,
   createAutopilotForPod,
@@ -26,7 +26,7 @@ test.describe("Autopilot edge cases · mock control agent", () => {
     clearAuthRateLimit();
   });
   test.afterEach(async () => {
-    await terminateAllPods();
+    await terminateRegisteredE2EPods();
   });
 
   test("concurrent controllers complete independently", async ({ api }) => {

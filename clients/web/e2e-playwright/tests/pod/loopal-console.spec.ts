@@ -1,6 +1,6 @@
 import { test, expect } from "../../fixtures/index";
 import { clearAuthRateLimit } from "../../helpers/redis";
-import { terminateAllPods } from "../../helpers/pod-cleanup";
+import { terminateRegisteredE2EPods } from "../../helpers/pod-cleanup";
 import { createMockAgentPod, loopalConsoleUrlForPod } from "../../helpers/mock-agent";
 
 // Browser end-to-end coverage of the redesigned Loopal control console:
@@ -13,7 +13,7 @@ test.describe("Loopal console (ACP mode)", () => {
     clearAuthRateLimit();
   });
   test.afterEach(async () => {
-    await terminateAllPods();
+    await terminateRegisteredE2EPods();
   });
 
   test("renders status-bar truth, data dock, and topology from mock signals", async ({ page, api, monitor }) => {

@@ -3,7 +3,7 @@ import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { pollUntil } from "../../helpers/retry";
-import { terminateAllPods } from "../../helpers/pod-cleanup";
+import { terminateRegisteredE2EPods } from "../../helpers/pod-cleanup";
 import { createE2EEchoPod } from "../../helpers/e2e-worker-spec";
 
 type Repository = { id: bigint; defaultBranch: string };
@@ -20,7 +20,7 @@ test.describe("Journey: Git Workflow", () => {
   test.beforeEach(async () => { clearAuthRateLimit(); });
 
   test.afterAll(async () => {
-    await terminateAllPods();
+    await terminateRegisteredE2EPods();
   });
 
   test("repo → ticket → pod with repository context", async ({ api }) => {

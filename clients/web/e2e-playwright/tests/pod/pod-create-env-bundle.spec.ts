@@ -1,5 +1,5 @@
 import { test, expect } from "../../fixtures/index";
-import { terminateAllPods } from "../../helpers/pod-cleanup";
+import { terminateRegisteredE2EPods } from "../../helpers/pod-cleanup";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import {
   clearRunnerDumps,
@@ -16,11 +16,11 @@ test.describe("Pod create — EnvBundle binding", () => {
   test.beforeEach(async () => {
     clearAuthRateLimit();
     clearRunnerDumps();
-    await terminateAllPods();
+    await terminateRegisteredE2EPods();
   });
 
   test.afterEach(async () => {
-    await terminateAllPods();
+    await terminateRegisteredE2EPods();
     clearRunnerDumps();
   });
 

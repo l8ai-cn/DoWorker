@@ -9,11 +9,11 @@ import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { withEventSubscription } from "../../helpers/eventbus-stream";
 import { createMockAgentPod } from "../../helpers/mock-agent";
-import { terminateAllPods } from "../../helpers/pod-cleanup";
+import { terminateRegisteredE2EPods } from "../../helpers/pod-cleanup";
 
 test.describe("Realtime · autopilot events (wire)", () => {
   test.beforeEach(async () => { clearAuthRateLimit(); });
-  test.afterEach(async () => { await terminateAllPods(); });
+  test.afterEach(async () => { await terminateRegisteredE2EPods(); });
 
   test("autopilot:created arrives with autopilot_controller_key + pod_key", async ({ api }) => {
     const cc = await api.connect();

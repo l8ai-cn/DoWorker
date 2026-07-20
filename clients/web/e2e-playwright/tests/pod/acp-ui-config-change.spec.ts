@@ -1,6 +1,6 @@
 import { test, expect } from "../../fixtures/index";
 import { clearAuthRateLimit } from "../../helpers/redis";
-import { terminateAllPods } from "../../helpers/pod-cleanup";
+import { terminateRegisteredE2EPods } from "../../helpers/pod-cleanup";
 import {
   createMockAgentPod,
   workspaceUrlForPod,
@@ -12,7 +12,7 @@ import { takeWorkerControl } from "../../helpers/worker-control-lease";
 // rendered and that a selected mode returns through the control plane.
 test.describe("ACP UI: control plane round-trip", () => {
   test.beforeEach(async () => { clearAuthRateLimit(); });
-  test.afterEach(async () => { await terminateAllPods(); });
+  test.afterEach(async () => { await terminateRegisteredE2EPods(); });
 
   test("clicking an advertised permission mode updates the rendered label after server ack", async ({ page, api }) => {
     const pod = await createMockAgentPod(api, {

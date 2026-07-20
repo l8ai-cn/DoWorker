@@ -82,8 +82,8 @@ export async function createPodAndWaitRunning(args: {
  * create_pod RPC → PTY spawn → bash → `echo ready; env > /tmp/dump`,
  * which on a cold self-hosted runner with docker.io pulls + mTLS
  * cert exchange routinely takes 30-45s. PR #410's per-shard backend
- * isolation removed the cross-shard `terminateAllPods` race; what
- * remains is genuine cold-start latency, not a race.
+ * ownership-scoped cleanup never touches unregistered Pods; what remains is
+ * genuine cold-start latency, not a cleanup race.
  */
 export async function readEnvDumpFromRunner(timeoutMs = 60_000): Promise<string> {
   const deadline = Date.now() + timeoutMs;

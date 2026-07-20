@@ -1,6 +1,6 @@
 import { test, expect } from "../../fixtures/index";
 import { clearAuthRateLimit } from "../../helpers/redis";
-import { terminateAllPods } from "../../helpers/pod-cleanup";
+import { terminateRegisteredE2EPods } from "../../helpers/pod-cleanup";
 import { setupAcpScenarioPage } from "../../helpers/acp-spec-setup";
 
 // First real end-to-end coverage of the ACP UI path:
@@ -17,7 +17,7 @@ import { setupAcpScenarioPage } from "../../helpers/acp-spec-setup";
 // Guard added so same-org calls no longer clear the workspace.
 test.describe("ACP UI: e2e-echo agent (ACP mode)", () => {
   test.beforeEach(async () => { clearAuthRateLimit(); });
-  test.afterEach(async () => { await terminateAllPods(); });
+  test.afterEach(async () => { await terminateRegisteredE2EPods(); });
 
   test("ACP echo scenario surfaces prompt as assistant chunk in activity stream", async ({ page, api, monitor }) => {
     const ctx = await setupAcpScenarioPage(page, api, monitor, {

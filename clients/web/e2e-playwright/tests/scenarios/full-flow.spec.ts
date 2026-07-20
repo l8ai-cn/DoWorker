@@ -3,7 +3,6 @@ import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { pollUntil } from "../../helpers/retry";
-import { terminateAllPods } from "../../helpers/pod-cleanup";
 import { createE2EEchoPod } from "../../helpers/e2e-worker-spec";
 
 type Runner = { id: bigint; currentPods?: number };
@@ -15,7 +14,6 @@ type Pod = { podKey: string; status: string; runnerId: bigint };
  * TC-SCENARIO-001: Full flow — Git Credential → Repository → Ticket → Pod
  */
 test.describe("Full E2E Scenario", () => {
-  test.beforeAll(async () => { await terminateAllPods(); });
   test.beforeEach(async () => { clearAuthRateLimit(); });
 
   test("git credential → repository → ticket → pod lifecycle", async ({ api }) => {

@@ -11,7 +11,7 @@ import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { withEventSubscription, subscribeEvents } from "../../helpers/eventbus-stream";
-import { terminateAllPods } from "../../helpers/pod-cleanup";
+import { terminateRegisteredE2EPods } from "../../helpers/pod-cleanup";
 import {
   ensureResourceWorkflowFixture,
   resetResourceWorkflowFixture,
@@ -20,12 +20,12 @@ import {
 test.describe("Realtime · workflow_run events (wire)", () => {
   test.beforeEach(async ({ db }) => {
     clearAuthRateLimit();
-    await terminateAllPods();
+    await terminateRegisteredE2EPods();
     ensureResourceWorkflowFixture(db);
     resetResourceWorkflowFixture(db);
   });
   test.afterEach(async ({ db }) => {
-    await terminateAllPods();
+    await terminateRegisteredE2EPods();
     resetResourceWorkflowFixture(db);
   });
 

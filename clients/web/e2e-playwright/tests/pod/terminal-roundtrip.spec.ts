@@ -1,7 +1,7 @@
 import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
-import { terminateAllPods } from "../../helpers/pod-cleanup";
+import { terminateRegisteredE2EPods } from "../../helpers/pod-cleanup";
 import { createMockAgentPod, workspaceUrlForPod } from "../../helpers/mock-agent";
 import { takeWorkerControl } from "../../helpers/acp-spec-setup";
 
@@ -20,7 +20,7 @@ import { takeWorkerControl } from "../../helpers/acp-spec-setup";
 // one-shot spawn banner — see the round-trip note in the test body.
 test.describe("Terminal data-plane round-trip (relay SSOT)", () => {
   test.beforeEach(async () => { clearAuthRateLimit(); });
-  test.afterEach(async () => { await terminateAllPods(); });
+  test.afterEach(async () => { await terminateRegisteredE2EPods(); });
 
   test("attaches, streams pty output, and round-trips typed input through the relay", async ({ page, api, monitor }) => {
     // Realtime EventsService streams through the Next dev-server proxy in local

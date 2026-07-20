@@ -2,7 +2,6 @@
 import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
-import { terminateAllPods } from "../../helpers/pod-cleanup";
 import { createE2EEchoPod } from "../../helpers/e2e-worker-spec";
 
 type Pod = { podKey: string };
@@ -12,7 +11,6 @@ type PodConnectionInfo = { relayUrl: string; token: string; podKey: string };
  * Terminal connection test.
  */
 test.describe("Terminal Connection", () => {
-  test.beforeAll(async () => { await terminateAllPods(); });
   test.beforeEach(async () => { clearAuthRateLimit(); });
 
   /**

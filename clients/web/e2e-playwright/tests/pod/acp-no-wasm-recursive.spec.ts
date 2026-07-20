@@ -2,7 +2,7 @@
 import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
-import { terminateAllPods } from "../../helpers/pod-cleanup";
+import { terminateRegisteredE2EPods } from "../../helpers/pod-cleanup";
 import { assertNoWasmRecursiveBorrow } from "../../helpers/console-monitor";
 import { createE2EEchoPod } from "../../helpers/e2e-worker-spec";
 
@@ -20,7 +20,7 @@ type Pod = { podKey: string };
  */
 test.describe("ACP terminal: no wasm recursive borrow", () => {
   test.beforeEach(async () => { clearAuthRateLimit(); });
-  test.afterEach(async () => { await terminateAllPods(); });
+  test.afterEach(async () => { await terminateRegisteredE2EPods(); });
 
   test("workspace page load does not trigger wasm recursive borrow", async ({ page, monitor }) => {
     await page.goto(`/${TEST_ORG_SLUG}/workspace`);

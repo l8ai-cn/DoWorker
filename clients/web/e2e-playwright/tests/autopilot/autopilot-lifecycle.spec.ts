@@ -3,7 +3,7 @@
 // wire enum (CONTINUE / TASK_COMPLETED / NEED_HUMAN_HELP / GIVE_UP).
 import { test, expect } from "../../fixtures/index";
 import { clearAuthRateLimit } from "../../helpers/redis";
-import { terminateAllPods } from "../../helpers/pod-cleanup";
+import { terminateRegisteredE2EPods } from "../../helpers/pod-cleanup";
 import { pollUntil } from "../../helpers/retry";
 import {
   createReadyAutopilotTarget,
@@ -26,7 +26,7 @@ test.describe("Autopilot lifecycle · mock control agent", () => {
     clearAuthRateLimit();
   });
   test.afterEach(async () => {
-    await terminateAllPods();
+    await terminateRegisteredE2EPods();
   });
 
   test("completed: decision loop drives the pod then terminates", async ({ api }) => {

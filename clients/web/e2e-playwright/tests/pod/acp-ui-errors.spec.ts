@@ -1,6 +1,6 @@
 import { test, expect } from "../../fixtures/index";
 import { clearAuthRateLimit } from "../../helpers/redis";
-import { terminateAllPods } from "../../helpers/pod-cleanup";
+import { terminateRegisteredE2EPods } from "../../helpers/pod-cleanup";
 import { setupAcpScenarioPage, takeWorkerControl } from "../../helpers/acp-spec-setup";
 
 // Defensive-path coverage: every scenario here exercises an unhappy
@@ -9,7 +9,7 @@ import { setupAcpScenarioPage, takeWorkerControl } from "../../helpers/acp-spec-
 // See acp-ui-echo.spec.ts header — same r6 fix applies.
 test.describe("ACP UI: error and degradation paths", () => {
   test.beforeEach(async () => { clearAuthRateLimit(); });
-  test.afterEach(async () => { await terminateAllPods(); });
+  test.afterEach(async () => { await terminateRegisteredE2EPods(); });
 
   test("tool_call_failed renders the failed status without crashing UI", async ({ page, api, monitor }) => {
     const ctx = await setupAcpScenarioPage(page, api, monitor, {

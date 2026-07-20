@@ -12,13 +12,13 @@
 // wire-level pod-events-wire.spec.ts can catch.
 import { test, expect } from "../../fixtures/index";
 import { clearAuthRateLimit } from "../../helpers/redis";
-import { terminateAllPods } from "../../helpers/pod-cleanup";
+import { terminateRegisteredE2EPods } from "../../helpers/pod-cleanup";
 import { createMockAgentPod } from "../../helpers/mock-agent";
 import { TEST_ORG_SLUG } from "../../helpers/env";
 
 test.describe("Pod events · multi-tab UI propagation", () => {
   test.beforeEach(async () => { clearAuthRateLimit(); });
-  test.afterEach(async () => { await terminateAllPods(); });
+  test.afterEach(async () => { await terminateRegisteredE2EPods(); });
 
   test("tab A terminate → tab B sidebar removes the pod", async ({ context, api }) => {
     const cc = await api.connect();

@@ -1,7 +1,7 @@
 import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
-import { terminateAllPods } from "../../helpers/pod-cleanup";
+import { terminateRegisteredE2EPods } from "../../helpers/pod-cleanup";
 import { uniqueSuffix } from "../../helpers/test-data";
 import { SettingsNavPage } from "../../pages/settings/settings-nav.page";
 import {
@@ -83,14 +83,14 @@ async function createBundleViaSettingsUI(args: {
 test.describe("EnvBundle end-to-end (Settings UI → Pod → child env)", () => {
   test.beforeEach(async () => {
     clearAuthRateLimit();
-    await terminateAllPods();
+    await terminateRegisteredE2EPods();
   });
 
   test.afterEach(async ({ db }) => {
-    // Only terminateAllPods is async; the other two cleanups are sync and
+    // Only terminateRegisteredE2EPods is async; the other two cleanups are sync and
     // gain nothing from Promise.all wrapping. Order: pods first (drops
     // dump files via their own teardown), then SQL + dump rm.
-    await terminateAllPods();
+    await terminateRegisteredE2EPods();
     db.cleanup(`DELETE FROM env_bundles WHERE name LIKE '${BUNDLE_PREFIX}%'`);
     clearRunnerDumps();
   });

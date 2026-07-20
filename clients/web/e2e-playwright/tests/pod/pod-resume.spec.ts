@@ -4,14 +4,12 @@ import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { pollUntil } from "../../helpers/retry";
 
-import { terminateAllPods } from "../../helpers/pod-cleanup";
 import { createE2EEchoPod } from "../../helpers/e2e-worker-spec";
 
 type Pod = { podKey: string; status: string };
 type ConnectClient = Awaited<ReturnType<import("../../fixtures/api.fixture").ApiFixture["connect"]>>;
 
 test.describe("Pod Resume", () => {
-  test.beforeAll(async () => { await terminateAllPods(); });
   test.beforeEach(async () => { clearAuthRateLimit(); });
 
   /** Helper: get a running pod key. Asserts prerequisites instead of skipping. */

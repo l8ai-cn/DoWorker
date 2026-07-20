@@ -1,6 +1,7 @@
 import type { ConnectClient } from "./connect-client";
 import { E2E_ECHO_AGENT_SLUG } from "./e2e-echo-runner";
 import { TEST_ORG_SLUG } from "./env";
+import { createE2EPodAlias, registerE2ECreatedPod } from "./pod-cleanup";
 type InteractionMode = "pty" | "acp";
 type AutomationLevel = "interactive" | "auto_edit" | "autonomous";
 interface WorkerTypeOption {
@@ -149,7 +150,7 @@ export async function buildE2EEchoWorkerSpec(
     initialTask: options.prompt ?? "",
     terminationPolicy: "manual",
     idleTimeoutMinutes: 0,
-    alias: options.alias ?? "E2E Echo Worker",
+    alias: createE2EPodAlias(options.alias),
     optionsRevision: catalog.revision,
   };
 }
@@ -159,13 +160,17 @@ export async function createE2EEchoPod(
   options: E2ECreatePodOptions = {},
 ) {
   const workerSpec = await buildE2EEchoWorkerSpec(client, options);
-  return client.pod.createPod({
+  const created = await client.pod.createPod({
     orgSlug: TEST_ORG_SLUG,
     ticketSlug: options.ticketSlug,
     cols: options.cols ?? 80,
     rows: options.rows ?? 24,
     workerSpec,
   });
+  const podKey = (created as { pod?: { podKey?: string } }).pod?.podKey;
+  if (!podKey) throw new Error("CreatePod returned no pod key for E2E cleanup registration");
+  registerE2ECreatedPod(podKey, workerSpec.alias);
+  return created;
 }
 
 function workerTypeConfig(raw: string, scenario?: string) {

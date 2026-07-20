@@ -6,14 +6,14 @@
 import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
-import { terminateAllPods } from "../../helpers/pod-cleanup";
+import { terminateRegisteredE2EPods } from "../../helpers/pod-cleanup";
 import { pollUntil } from "../../helpers/retry";
 import { setupAcpScenarioPage } from "../../helpers/acp-spec-setup";
 import { withEventSubscription } from "../../helpers/eventbus-stream";
 
 test.describe("Pod sidebar · agent_status_changed keeps the running pod", () => {
   test.beforeEach(async () => { clearAuthRateLimit(); });
-  test.afterEach(async () => { await terminateAllPods(); });
+  test.afterEach(async () => { await terminateRegisteredE2EPods(); });
 
   test("an empty-status agent event must not drop the pod from the sidebar", async ({ page, api, monitor }) => {
     const cc = await api.connect();

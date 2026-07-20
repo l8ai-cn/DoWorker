@@ -18,12 +18,12 @@ import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { withEventSubscription } from "../../helpers/eventbus-stream";
 import { createMockAgentPod } from "../../helpers/mock-agent";
-import { terminateAllPods } from "../../helpers/pod-cleanup";
+import { terminateRegisteredE2EPods } from "../../helpers/pod-cleanup";
 import { createE2EEchoPod } from "../../helpers/e2e-worker-spec";
 
 test.describe("Realtime · pod events (wire)", () => {
   test.beforeEach(async () => { clearAuthRateLimit(); });
-  test.afterEach(async () => { await terminateAllPods(); });
+  test.afterEach(async () => { await terminateRegisteredE2EPods(); });
 
   test("pod:created arrives with pod_key + runner_id + ticket fields", async ({ api }) => {
     const cc = await api.connect();
