@@ -46,6 +46,15 @@ export function unregisterE2ECreatedPod(podKey: string): void {
   registeredPods.delete(podKey);
 }
 
+export function updateE2ECreatedPodAlias(podKey: string, alias: string): void {
+  const registered = registeredPods.get(podKey);
+  if (!registered) throw new Error(`E2E pod ${podKey} is not registered`);
+  if (!alias.startsWith(`[${E2E_RUN_MARKER}]`)) {
+    throw new Error("E2E pod alias updates require the current run marker");
+  }
+  registeredPods.set(podKey, { ...registered, alias });
+}
+
 export async function terminateRegisteredE2EPods(): Promise<number> {
   const pending = [...registeredPods.entries()];
   if (pending.length === 0) return 0;

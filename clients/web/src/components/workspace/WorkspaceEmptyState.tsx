@@ -74,7 +74,7 @@ export function WorkspaceEmptyState({ onCreatePod }: WorkspaceEmptyStateProps) {
   }, [onCreatePod]);
 
   return (
-    <div className="flex h-full flex-col bg-background">
+    <div data-testid="workspace-empty-state" className="flex h-full flex-col bg-background">
       {showBanner && (
         <div className="flex items-center gap-2.5 bg-[color-mix(in_srgb,var(--primary)_7%,var(--background))] px-6 py-2.5 text-[13px] shadow-[inset_0_-1px_0_color-mix(in_srgb,var(--border)_36%,transparent)]">
           <Sparkles className="h-3.5 w-3.5 text-primary" />
@@ -109,6 +109,7 @@ export function WorkspaceEmptyState({ onCreatePod }: WorkspaceEmptyStateProps) {
             <button
               type="button"
               onClick={() => onCreatePod()}
+              data-testid="workspace-create-pod"
               className="flex h-10 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-[0_8px_20px_color-mix(in_srgb,var(--primary)_18%,transparent)] hover:bg-primary-hover"
             >
               <span className="text-base leading-none">+</span>

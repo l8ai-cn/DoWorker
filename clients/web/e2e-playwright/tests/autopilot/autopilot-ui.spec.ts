@@ -6,7 +6,6 @@ import { clearAuthRateLimit } from "../../helpers/redis";
 import { terminateRegisteredE2EPods } from "../../helpers/pod-cleanup";
 import { workspaceUrlForPod } from "../../helpers/mock-agent";
 import { createReadyAutopilotTarget, createAutopilotForPod } from "../../helpers/autopilot";
-import { takeWorkerControl } from "../../helpers/worker-control-lease";
 
 // Opens the workspace, attaches a running controller after the page is live on
 // realtime (the autopilot:created edge is what hydrates the store), and returns
@@ -56,7 +55,6 @@ test.describe("Autopilot UI · status bar", () => {
     test.setTimeout(120_000);
     const statusBar = await openWorkspaceWithAutopilot(page, api, monitor);
     await expect(statusBar).toHaveAttribute("data-phase", "running", { timeout: 30_000 });
-    await takeWorkerControl(page);
 
     // Button click → control RPC → runner → status_changed → store → DOM.
     await statusBar.getByTitle("Pause").click();
@@ -69,7 +67,6 @@ test.describe("Autopilot UI · status bar", () => {
   test("view-details opens the autopilot bottom panel", async ({ page, api, monitor }) => {
     test.setTimeout(120_000);
     const statusBar = await openWorkspaceWithAutopilot(page, api, monitor);
-    await takeWorkerControl(page);
     await statusBar.getByTitle("View Details").click();
     await expect(page.getByTestId("autopilot-panel")).toBeVisible({ timeout: 15_000 });
   });

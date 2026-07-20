@@ -18,7 +18,11 @@ import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { withEventSubscription } from "../../helpers/eventbus-stream";
 import { createMockAgentPod } from "../../helpers/mock-agent";
-import { terminateRegisteredE2EPods } from "../../helpers/pod-cleanup";
+import {
+  createE2EPodAlias,
+  terminateRegisteredE2EPods,
+  updateE2ECreatedPodAlias,
+} from "../../helpers/pod-cleanup";
 import { createE2EEchoPod } from "../../helpers/e2e-worker-spec";
 
 test.describe("Realtime · pod events (wire)", () => {
@@ -91,7 +95,7 @@ test.describe("Realtime · pod events (wire)", () => {
     if (!token) throw new Error("api fixture missing token");
 
     const pod = await createMockAgentPod(api, { mode: "pty", scenario: "echo" });
-    const newAlias = `e2e-alias-${Date.now().toString(36)}`;
+    const newAlias = createE2EPodAlias(`alias-${Date.now().toString(36)}`);
 
     const { event } = await withEventSubscription<unknown, { pod_key?: string; alias?: string }>(
       {
@@ -101,6 +105,7 @@ test.describe("Realtime · pod events (wire)", () => {
       },
       async () => {
         await cc.pod.updatePodAlias({ orgSlug: TEST_ORG_SLUG, podKey: pod.podKey, alias: newAlias });
+        updateE2ECreatedPodAlias(pod.podKey, newAlias);
       },
     );
 

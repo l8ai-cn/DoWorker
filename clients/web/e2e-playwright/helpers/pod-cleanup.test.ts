@@ -5,6 +5,7 @@ import {
   resetRegisteredE2EPodsForTest,
   terminateRegisteredE2EPods,
   terminateStaleMarkedE2EPods,
+  updateE2ECreatedPodAlias,
 } from "./pod-cleanup";
 import { E2E_ECHO_AGENT_SLUG } from "./e2e-echo-runner";
 
@@ -79,6 +80,35 @@ describe("registered E2E pod cleanup", () => {
 
     await expect(terminateRegisteredE2EPods()).rejects.toThrow(
       "registered cleanup login returned HTTP 503",
+    );
+  });
+
+  it("tracks a marker-preserving alias update before cleanup", async () => {
+    const originalAlias = createE2EPodAlias("contract pod");
+    const updatedAlias = createE2EPodAlias("renamed contract pod");
+    registerE2ECreatedPod("pod-e2e-1", originalAlias);
+    updateE2ECreatedPodAlias("pod-e2e-1", updatedAlias);
+    globalThis.fetch = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(jsonResponse({ token: "test-token" }))
+      .mockResolvedValueOnce(jsonResponse({
+        podKey: "pod-e2e-1",
+        alias: updatedAlias,
+        agentSlug: E2E_ECHO_AGENT_SLUG,
+        status: "running",
+      }))
+      .mockResolvedValueOnce(jsonResponse({ message: "terminated" }));
+
+    await expect(terminateRegisteredE2EPods()).resolves.toBe(1);
+  });
+
+  it("rejects aliases outside the current E2E run", () => {
+    registerE2ECreatedPod("pod-e2e-1", createE2EPodAlias("contract pod"));
+
+    expect(() => updateE2ECreatedPodAlias("pod-e2e-1", "renamed")).toThrow(
+      "current run marker",
+    );
+    expect(() => updateE2ECreatedPodAlias("missing", createE2EPodAlias("renamed"))).toThrow(
+      "is not registered",
     );
   });
 

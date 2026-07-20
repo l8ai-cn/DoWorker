@@ -11,14 +11,10 @@ export class WorkspacePage {
 
   constructor(
     private page: Page,
-    private orgSlug: string
+    private orgSlug: string,
   ) {
-    this.createPodButton = page.getByRole("button", {
-      name: /create.*pod|创建.*pod|新建.*pod/i,
-    }).first();
-    this.emptyState = page.locator(
-      '[data-testid="empty-state"], .text-muted-foreground'
-    ).first();
+    this.createPodButton = page.getByTestId("workspace-create-pod");
+    this.emptyState = page.getByTestId("workspace-empty-state");
   }
 
   async goto(): Promise<void> {
@@ -43,8 +39,7 @@ export class WorkspacePage {
 
   /** Check if empty state is visible. */
   async isEmptyState(): Promise<boolean> {
-    const body = await this.page.textContent("body");
-    return /no terminal|暂无|empty/i.test(body ?? "");
+    return this.emptyState.isVisible().catch(() => false);
   }
 
   /** Open the create pod modal. */
