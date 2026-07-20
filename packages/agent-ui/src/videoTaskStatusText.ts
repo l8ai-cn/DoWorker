@@ -2,6 +2,8 @@ export type VideoTaskStatusText = Record<
   | "failed"
   | "partial"
   | "processing"
+  | "provider_auth_failed"
+  | "provider_unavailable"
   | "task_failed"
   | "verified"
   | "verification_failed",
@@ -20,6 +22,14 @@ export const englishVideoTaskStatus: VideoTaskStatusText = {
   processing: {
     title: "Creating video",
     detail: "The result will appear after generation and file verification.",
+  },
+  provider_auth_failed: {
+    title: "Video service credentials failed",
+    detail: "The provider rejected the video credentials, so no video file was generated.",
+  },
+  provider_unavailable: {
+    title: "Video service temporarily unavailable",
+    detail: "The third-party video account pool has no available account, so no video file was generated.",
   },
   task_failed: {
     title: "Task failed",
@@ -47,6 +57,14 @@ export const chineseVideoTaskStatus: VideoTaskStatusText = {
   processing: {
     title: "正在生成视频",
     detail: "生成完成并通过文件校验后，成果会显示在右侧。",
+  },
+  provider_auth_failed: {
+    title: "视频服务凭据无效",
+    detail: "供应商拒绝了当前视频生成凭据，未生成视频文件。",
+  },
+  provider_unavailable: {
+    title: "视频服务暂不可用",
+    detail: "第三方视频账号池当前没有可用账号，未生成视频文件。",
   },
   task_failed: {
     title: "任务执行失败",

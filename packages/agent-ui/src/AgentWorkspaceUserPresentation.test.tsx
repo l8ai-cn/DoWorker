@@ -100,6 +100,65 @@ describe("AgentWorkspace user presentation", () => {
     expect(screen.queryByText(/credential path/)).not.toBeInTheDocument();
   });
 
+  it.each([
+    {
+      detail: "第三方视频账号池当前没有可用账号，未生成视频文件。",
+      error:
+        "[CREATIVE_NO_ACCOUNT_AVAILABLE] pool exhausted account_id=internal-7",
+      hidden: /CREATIVE_NO_ACCOUNT_AVAILABLE|account_id/,
+      title: "视频服务暂不可用",
+      trace: "视频服务当前没有可用账号",
+    },
+    {
+      detail: "供应商拒绝了当前视频生成凭据，未生成视频文件。",
+      error: "[INVALID_API_KEY] provider rejected key path=/internal/secret",
+      hidden: /INVALID_API_KEY|internal\/secret/,
+      title: "视频服务凭据无效",
+      trace: "视频服务凭据校验失败",
+    },
+  ])(
+    "projects provider failures without raw technical details: $title",
+    async ({ detail, error, hidden, title, trace }) => {
+      const snapshot = sessionSnapshot();
+      snapshot.status = "failed";
+      snapshot.error = error;
+      snapshot.latestUserCommandId = "command-current";
+      snapshot.items = [
+        {
+          id: "user-1",
+          kind: "message",
+          role: "user",
+          text: "生成一个湖面灯笼视频",
+          status: "completed",
+        },
+      ];
+      snapshot.plan = [];
+      snapshot.permissions = [];
+      const { agentRuntime } = runtime(snapshot);
+
+      render(
+        <AgentWorkspace
+          locale="zh-CN"
+          presentation="user"
+          runtime={agentRuntime}
+          sessionId={snapshot.sessionId}
+        />,
+      );
+
+      expect(await screen.findByText(title)).toBeVisible();
+      expect(screen.getByText(detail)).toBeVisible();
+      expect(screen.getByLabelText("视频创作进度")).toBeVisible();
+      expect(screen.getByText("接收创作请求")).toBeVisible();
+      expect(screen.getByText("生成视频画面")).toBeVisible();
+      expect(screen.getByText(trace)).toBeVisible();
+      expect(screen.queryByText(hidden)).not.toBeInTheDocument();
+      expect(screen.queryByRole("tab", { name: "成果" })).not.toBeInTheDocument();
+      expect(
+        screen.queryByText("视频文件已发布并通过完整性校验"),
+      ).not.toBeInTheDocument();
+    },
+  );
+
   it("labels a verified video from a failed session as partial", async () => {
     const snapshot = sessionSnapshot();
     snapshot.status = "failed";

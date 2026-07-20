@@ -35,6 +35,8 @@ export type UserVideoTaskState =
   | "failed"
   | "partial"
   | "processing"
+  | "provider_auth_failed"
+  | "provider_unavailable"
   | "task_failed"
   | "verified"
   | "verification_failed";
@@ -65,7 +67,8 @@ export function userVideoTaskState(
     ) {
       return "verification_failed";
     }
-    return snapshot.status === "failed" ? "task_failed" : null;
+    if (snapshot.status !== "failed") return null;
+    return userVideoProviderFailure(snapshot.error) ?? "task_failed";
   }
   const verified = videos.some(isVerifiedReadyVideoArtifact);
   if (snapshot.status === "failed" && verified) return "partial";
@@ -83,4 +86,24 @@ export function userVideoTaskState(
   if (videos.some((artifact) => artifact.status === "failed")) return "failed";
   if (snapshot.status === "completed") return "verification_failed";
   return "processing";
+}
+
+export function userVideoProviderFailure(
+  error: string | null,
+): Extract<UserVideoTaskState, "provider_auth_failed" | "provider_unavailable"> | null {
+  const normalized = error?.toLowerCase() ?? "";
+  if (!normalized) return null;
+  if (
+    normalized.includes("creative_no_account_available") ||
+    normalized.includes("no_account_available")
+  ) {
+    return "provider_unavailable";
+  }
+  if (
+    normalized.includes("invalid_api_key") ||
+    normalized.includes("invalid api key")
+  ) {
+    return "provider_auth_failed";
+  }
+  return null;
 }

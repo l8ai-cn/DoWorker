@@ -21,6 +21,8 @@ export type UserVideoExecutionDetail =
   | "preview_failed"
   | "preview_ready"
   | "preparing_preview"
+  | "provider_auth_failed"
+  | "provider_unavailable"
   | "published"
   | "queued"
   | "rendering"
@@ -43,14 +45,14 @@ export function userVideoExecutionSteps(
 ): UserVideoExecutionStep[] {
   const state = userVideoTaskState(snapshot, artifacts);
   const video = latestVideo(userVideoTaskArtifacts(snapshot, artifacts), state);
-  if (!state || !video || video.manifest?.kind !== "video") return [];
+  if (!state) return [];
+  if (!video || video.manifest?.kind !== "video") {
+    return snapshot.status === "failed" && snapshot.latestUserCommandId
+      ? failedBeforeArtifact(state)
+      : [];
+  }
 
-  const steps = [
-    step("request", "completed", "request_received"),
-    step("generation", "pending", "waiting"),
-    step("preview", "pending", "waiting"),
-    step("verification", "pending", "waiting"),
-  ];
+  const steps = baseSteps();
   const phase = video.manifest.stage;
   const active = sessionActive(snapshot.status);
   if (phase === "failed") return failedGeneration(steps);
@@ -106,6 +108,25 @@ function failedGeneration(
   steps: UserVideoExecutionStep[],
 ): UserVideoExecutionStep[] {
   return setStep(steps, "generation", "failed", "generation_failed");
+}
+
+function failedBeforeArtifact(
+  state: UserVideoTaskState,
+): UserVideoExecutionStep[] {
+  const detail =
+    state === "provider_auth_failed" || state === "provider_unavailable"
+      ? state
+      : "generation_failed";
+  return setStep(baseSteps(), "generation", "failed", detail);
+}
+
+function baseSteps(): UserVideoExecutionStep[] {
+  return [
+    step("request", "completed", "request_received"),
+    step("generation", "pending", "waiting"),
+    step("preview", "pending", "waiting"),
+    step("verification", "pending", "waiting"),
+  ];
 }
 
 function latestVideo(

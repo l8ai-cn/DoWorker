@@ -21,11 +21,7 @@ export function UserTaskStatus({
   const state = userVideoTaskState(snapshot, artifacts);
   const text = useAgentWorkspaceText();
   if (!state) return null;
-  const failed =
-    state === "failed" ||
-    state === "partial" ||
-    state === "task_failed" ||
-    state === "verification_failed";
+  const failed = state !== "processing" && state !== "verified";
   const Icon =
     state === "processing"
       ? LoaderCircle

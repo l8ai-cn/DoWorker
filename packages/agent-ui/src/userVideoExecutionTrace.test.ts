@@ -72,6 +72,27 @@ describe("userVideoExecutionSteps", () => {
 
     expect(userVideoExecutionSteps(snapshot, [artifact])).toEqual([]);
   });
+
+  it.each([
+    ["[CREATIVE_NO_ACCOUNT_AVAILABLE] pool empty", "provider_unavailable"],
+    ["[INVALID_API_KEY] rejected", "provider_auth_failed"],
+  ] as const)(
+    "shows a failed generation trace before any artifact exists for %s",
+    (error, detail) => {
+      const snapshot = processingSnapshot();
+      snapshot.status = "failed";
+      snapshot.latestUserCommandId = "current-command";
+      snapshot.error = error;
+      const steps = userVideoExecutionSteps(snapshot, []);
+
+      expect(step(steps, "generation")).toMatchObject({
+        detail,
+        status: "failed",
+      });
+      expect(step(steps, "preview")).toMatchObject({ status: "pending" });
+      expect(step(steps, "verification")).toMatchObject({ status: "pending" });
+    },
+  );
 });
 
 function step(
