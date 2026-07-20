@@ -11,6 +11,8 @@ vi.mock("@do-worker/agent-ui", () => ({
     return <div>Shared Agent Workspace</div>;
   },
   createBuiltinContentRenderers: () => "builtin-renderers",
+  createBuiltinToolRenderers: () => "builtin-tool-renderers",
+  ImageLightboxProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 
 vi.mock("./createEmbeddedAgentWorkbenchRuntime", () => ({
@@ -49,6 +51,7 @@ describe("EmbeddedAgentWorkspace", () => {
       runtime,
       sessionId: "session-1",
       terminalRuntime,
+      toolRenderers: "builtin-tool-renderers",
     });
 
     view.unmount();

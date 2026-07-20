@@ -5,6 +5,8 @@ import type { AgentSessionRuntime } from "./contracts";
 import type { AgentToolRendererRegistration } from "./react/rendererTypes";
 import { ToolRendererRegistry } from "./registry/ToolRendererRegistry";
 import { ActivityTimeline } from "./ActivityTimeline";
+import { AgentWorkspaceLocaleProvider } from "./AgentWorkspaceLocaleContext";
+import { createBuiltinToolRenderers } from "./builtinToolRenderers";
 
 describe("ActivityTimeline", () => {
   it("collapses consecutive tool activity and reveals individual steps on demand", () => {
@@ -160,6 +162,53 @@ describe("ActivityTimeline", () => {
     );
 
     expect(screen.getByText("Used Exact shell 1 time")).toBeVisible();
+  });
+
+  it.each([
+    ["en-US", "Changed 1 file"],
+    ["zh-CN", "修改了 1 个文件"],
+  ] as const)("localizes builtin file changes in %s", (locale, summary) => {
+    render(
+      <AgentWorkspaceLocaleProvider locale={locale}>
+        <ActivityTimeline
+          items={[{
+            ...toolContract("filesystem.edit"),
+            id: "tool-edit",
+            kind: "tool",
+            status: "completed",
+            title: "Edit",
+          }]}
+          runtime={{} as AgentSessionRuntime}
+          sessionId="session-1"
+          toolRenderers={createBuiltinToolRenderers()}
+        />
+      </AgentWorkspaceLocaleProvider>,
+    );
+
+    expect(screen.getByText(summary)).toBeVisible();
+  });
+
+  it("shows failed builtin file-change output after expanding the group", () => {
+    render(
+      <ActivityTimeline
+        items={[{
+          ...toolContract("filesystem.edit"),
+          id: "tool-edit-failed",
+          kind: "tool",
+          output: "file not found",
+          status: "failed",
+          title: "Edit",
+        }]}
+        runtime={{} as AgentSessionRuntime}
+        sessionId="session-1"
+        toolRenderers={createBuiltinToolRenderers()}
+      />,
+    );
+
+    const group = screen.getByText("Changed 1 file").closest("details");
+    fireEvent.click(within(group!).getByText("Changed 1 file"));
+
+    expect(screen.getByText("file not found")).toBeVisible();
   });
 
   it("wraps long user paths inside narrow embedded workspaces", () => {

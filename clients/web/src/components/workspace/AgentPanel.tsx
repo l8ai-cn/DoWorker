@@ -4,6 +4,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import {
   AgentWorkspace,
   createBuiltinContentRenderers,
+  createBuiltinToolRenderers,
 } from "@do-worker/agent-ui";
 import { useLocale } from "next-intl";
 import { cn } from "@/lib/utils";
@@ -26,6 +27,7 @@ import { useAgentPanelRuntime } from "./agent-ui/useAgentPanelRuntime";
 import { usePodWorkspaceArtifacts } from "./agent-ui/usePodWorkspaceArtifacts";
 
 const AGENT_CONTENT_RENDERERS = createBuiltinContentRenderers();
+const AGENT_TOOL_RENDERERS = createBuiltinToolRenderers();
 
 interface AgentPanelProps {
   paneId: string;
@@ -162,10 +164,11 @@ export function AgentPanel({
           clientLabel={controlClientLabel}
           contentRenderers={AGENT_CONTENT_RENDERERS}
           locale={locale === "zh" ? "zh-CN" : "en-US"}
-          presentation="user"
+          presentation="developer"
           readOnly={!liveSession || controlLease.status !== "granted"}
           runtime={runtime}
           sessionId={sessionId}
+          toolRenderers={AGENT_TOOL_RENDERERS}
           workspaceArtifacts={workspaceArtifacts.artifacts}
         />
       )}

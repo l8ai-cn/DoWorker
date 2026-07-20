@@ -3,6 +3,7 @@ import { render, screen } from "@/test/test-utils";
 
 const mocks = vi.hoisted(() => ({
   lastRuntimeInput: null as null | Record<string, unknown>,
+  presentation: "",
   podStatus: "initializing",
   sessionEnabled: [] as boolean[],
   workspaceArtifacts: [{
@@ -70,19 +71,25 @@ vi.mock("@/stores/workspace", () => ({
 
 vi.mock("@do-worker/agent-ui", () => ({
   AgentWorkspace: ({
+    presentation,
     readOnly,
     workspaceArtifacts,
   }: {
+    presentation: string;
     readOnly: boolean;
     workspaceArtifacts: unknown[];
-  }) => (
-    <div
-      data-readonly={String(readOnly)}
-      data-testid="agent-workspace"
-      data-workspace-artifacts={String(workspaceArtifacts.length)}
-    />
-  ),
+  }) => {
+    mocks.presentation = presentation;
+    return (
+      <div
+        data-readonly={String(readOnly)}
+        data-testid="agent-workspace"
+        data-workspace-artifacts={String(workspaceArtifacts.length)}
+      />
+    );
+  },
   createBuiltinContentRenderers: () => ({}),
+  createBuiltinToolRenderers: () => ({}),
 }));
 
 vi.mock("../agent-ui/useAgentPanelRuntime", () => ({
@@ -116,6 +123,7 @@ import { AgentPanel } from "../AgentPanel";
 describe("AgentPanel artifact access", () => {
   beforeEach(() => {
     mocks.lastRuntimeInput = null;
+    mocks.presentation = "";
     mocks.podStatus = "initializing";
     mocks.sessionEnabled = [];
   });
@@ -144,6 +152,7 @@ describe("AgentPanel artifact access", () => {
         "data-workspace-artifacts",
         "1",
       );
+      expect(mocks.presentation).toBe("developer");
       expect(screen.queryByTestId("control-overlay")).not.toBeInTheDocument();
     },
   );
@@ -165,6 +174,7 @@ describe("AgentPanel artifact access", () => {
       "data-readonly",
       "true",
     );
+    expect(mocks.presentation).toBe("developer");
     expect(screen.getByTestId("control-overlay")).toBeInTheDocument();
   });
 

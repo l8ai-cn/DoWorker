@@ -10,6 +10,11 @@ export function useAcpRelay(podKey: string, paneId: string, active: boolean): vo
     if (!active) return;
 
     const subscriptionId = `acp-${paneId}`;
+    const unsubAcp = relayPool.onAcpMessage(podKey, (msgType, payload) => {
+      dispatchDoAgentRelayEvent(podKey, msgType, payload);
+      if (dispatchLoopalRelayEvent(podKey, msgType, payload)) return;
+      dispatchAcpRelayEvent(podKey, msgType, payload);
+    });
 
     // Subscribe to share the WebSocket; terminal output is irrelevant for ACP.
     // subscribe() is async — handle its rejection (mirrors useTerminalConnection)
@@ -20,12 +25,6 @@ export function useAcpRelay(podKey: string, paneId: string, active: boolean): vo
     relayPool.subscribe(podKey, subscriptionId, () => {}).catch((error: unknown) => {
       if (isResourceNotFound(error) || isPodNotConnectable(error)) return;
       console.error("ACP relay subscribe failed:", error);
-    });
-
-    const unsubAcp = relayPool.onAcpMessage(podKey, (msgType, payload) => {
-      dispatchDoAgentRelayEvent(podKey, msgType, payload);
-      if (dispatchLoopalRelayEvent(podKey, msgType, payload)) return;
-      dispatchAcpRelayEvent(podKey, msgType, payload);
     });
 
     return () => {

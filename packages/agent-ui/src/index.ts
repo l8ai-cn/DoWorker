@@ -1,5 +1,6 @@
 export { AgentWorkspace, type AgentWorkspaceProps } from "./AgentWorkspace";
 export { ActivityTimeline } from "./ActivityTimeline";
+export { createBuiltinToolRenderers } from "./builtinToolRenderers";
 export {
   artifactPresentation,
   type ArtifactKind,

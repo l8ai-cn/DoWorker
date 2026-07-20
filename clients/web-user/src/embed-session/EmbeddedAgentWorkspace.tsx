@@ -1,6 +1,7 @@
 import {
   AgentWorkspace,
   createBuiltinContentRenderers,
+  createBuiltinToolRenderers,
   type AgentContentRendererRegistration,
   type AgentToolRendererRegistration,
   type AgentWorkspaceLocale,
@@ -74,6 +75,7 @@ function EmbeddedAgentWorkspaceContent({
   const [workbench, setWorkbench] = useState<EmbeddedAgentWorkbenchRuntime | null>(null);
   const [error, setError] = useState<string | null>(null);
   const builtinContentRenderers = useMemo(() => createBuiltinContentRenderers(), []);
+  const builtinToolRenderers = useMemo(() => createBuiltinToolRenderers(), []);
 
   useEffect(() => {
     let active = true;
@@ -121,7 +123,7 @@ function EmbeddedAgentWorkspaceContent({
         runtime={workbench.runtime}
         sessionId={sessionId}
         terminalRuntime={workbench.terminalRuntime}
-        toolRenderers={toolRenderers}
+        toolRenderers={toolRenderers ?? builtinToolRenderers}
       />
     </div>
   );
