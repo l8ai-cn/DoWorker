@@ -266,7 +266,7 @@ test.describe("Loop workbench", () => {
       await expect(startButton).toBeDisabled();
       await dialog.getByRole("button", { name: "选择运行环境" }).click();
       await dialog
-        .getByRole("option", { name: runtime.alias, exact: true })
+        .getByRole("option", { name: runtime.optionLabel, exact: true })
         .click();
       await expect(startButton).toBeEnabled();
       await startButton.click();
