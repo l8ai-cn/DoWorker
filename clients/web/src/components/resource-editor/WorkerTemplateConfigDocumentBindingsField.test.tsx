@@ -6,6 +6,27 @@ import type { WorkerTemplateConfigDocumentBinding } from "./resource-editor-type
 import { WorkerTemplateConfigDocumentBindingsField } from "./WorkerTemplateConfigDocumentBindingsField";
 
 describe("WorkerTemplateConfigDocumentBindingsField", () => {
+  it("keeps the configuration bundle entry visible without type requirements", () => {
+    render(
+      <WorkerTemplateConfigDocumentBindingsField
+        requirements={[]}
+        value={[]}
+        catalog={{
+          loading: false,
+          error: null,
+          errorsByKind: {},
+          byKind: {},
+        }}
+        onChange={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("Configuration bundles")).toBeInTheDocument();
+    expect(screen.getByText(
+      "The selected Worker type has no declared configuration requirements.",
+    )).toBeInTheDocument();
+  });
+
   it("keeps unresolved config references visible and read-only", () => {
     render(
       <WorkerTemplateConfigDocumentBindingsField

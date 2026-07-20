@@ -3,24 +3,28 @@ import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import {
   ensureResourceWorkflowFixture,
-  resetResourceWorkflowFixture,
 } from "../../helpers/resource-workflow-fixture";
+import { cleanupResourceWorkflowFixture } from "../../helpers/resource-workflow-run-cleanup";
 
 test.describe("Workflow Operations", () => {
-  test.beforeEach(async ({ db }) => {
+  test.beforeEach(async ({ db, api }) => {
     clearAuthRateLimit();
-    ensureResourceWorkflowFixture(db);
-    resetResourceWorkflowFixture(db);
+    await cleanupResourceWorkflowFixture(db, api);
+    await ensureResourceWorkflowFixture(db, api);
+  });
+  test.afterEach(async ({ db, api }) => {
+    await cleanupResourceWorkflowFixture(db, api);
   });
 
   test("workflows: opens a new immutable revision editor", async ({
     page,
     db,
+    api,
   }) => {
-    const fixture = ensureResourceWorkflowFixture(db);
+    const fixture = await ensureResourceWorkflowFixture(db, api);
     await page.goto(`/${TEST_ORG_SLUG}/workflows/${fixture.slug}`);
     await page.getByRole("button", {
-      name: /New revision|新建修订/i,
+      name: /^New revision$|^新建修订$/,
     }).click();
 
     await expect(page.getByTestId("resource-editor")).toBeVisible();
@@ -31,8 +35,9 @@ test.describe("Workflow Operations", () => {
   test("workflows: sidebar opens a resource-managed detail", async ({
     page,
     db,
+    api,
   }) => {
-    const fixture = ensureResourceWorkflowFixture(db);
+    const fixture = await ensureResourceWorkflowFixture(db, api);
     await page.goto(`/${TEST_ORG_SLUG}/workflows`);
 
     await page.locator(

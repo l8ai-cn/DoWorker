@@ -11,22 +11,19 @@ import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { withEventSubscription, subscribeEvents } from "../../helpers/eventbus-stream";
-import { terminateRegisteredE2EPods } from "../../helpers/pod-cleanup";
 import {
   ensureResourceWorkflowFixture,
-  resetResourceWorkflowFixture,
 } from "../../helpers/resource-workflow-fixture";
+import { cleanupResourceWorkflowFixture } from "../../helpers/resource-workflow-run-cleanup";
 
 test.describe("Realtime · workflow_run events (wire)", () => {
-  test.beforeEach(async ({ db }) => {
+  test.beforeEach(async ({ db, api }) => {
     clearAuthRateLimit();
-    await terminateRegisteredE2EPods();
-    ensureResourceWorkflowFixture(db);
-    resetResourceWorkflowFixture(db);
+    await cleanupResourceWorkflowFixture(db, api);
+    await ensureResourceWorkflowFixture(db, api);
   });
-  test.afterEach(async ({ db }) => {
-    await terminateRegisteredE2EPods();
-    resetResourceWorkflowFixture(db);
+  test.afterEach(async ({ db, api }) => {
+    await cleanupResourceWorkflowFixture(db, api);
   });
 
   test("workflow_run:started arrives after TriggerWorkflow", async ({
@@ -36,7 +33,7 @@ test.describe("Realtime · workflow_run events (wire)", () => {
     const cc = await api.connect();
     const token = api.getToken();
     if (!token) throw new Error("api fixture missing token");
-    const workflow = ensureResourceWorkflowFixture(db);
+    const workflow = await ensureResourceWorkflowFixture(db, api);
 
     const { event } = await withEventSubscription<unknown, { workflow_id?: number | string; run_id?: number | string }>(
       {
@@ -63,7 +60,7 @@ test.describe("Realtime · workflow_run events (wire)", () => {
     const cc = await api.connect();
     const token = api.getToken();
     if (!token) throw new Error("api fixture missing token");
-    const workflow = ensureResourceWorkflowFixture(db);
+    const workflow = await ensureResourceWorkflowFixture(db, api);
 
     // Backend publishes workflow_run:started twice: once at TriggerWorkflow time
     // (before pod creation; pod_key empty) and once after SetRunPodKey

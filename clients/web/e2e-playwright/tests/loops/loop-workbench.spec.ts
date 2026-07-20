@@ -238,8 +238,9 @@ test.describe("Loop workbench", () => {
   test("applies a GoalLoop resource before starting execution", async ({
     page,
     db,
+    api,
   }) => {
-    const runtime = createLoopRuntimeFixture(db);
+    const runtime = await createLoopRuntimeFixture(db, api);
     try {
       await page.goto(`/${TEST_ORG_SLUG}/loops/workbench`);
       await resetLoopSource(page, ZH_LOOP_LABELS);
@@ -265,7 +266,7 @@ test.describe("Loop workbench", () => {
       await expect(startButton).toBeDisabled();
       await dialog.getByRole("button", { name: "选择运行环境" }).click();
       await dialog
-        .getByRole("option", { name: new RegExp(runtime.alias) })
+        .getByRole("option", { name: runtime.alias, exact: true })
         .click();
       await expect(startButton).toBeEnabled();
       await startButton.click();
@@ -288,7 +289,7 @@ test.describe("Loop workbench", () => {
           AND namespace = '${TEST_ORG_SLUG}'
       `)).toBe("1");
     } finally {
-      cleanupLoopRuntimeFixture(db, runtime);
+      await cleanupLoopRuntimeFixture(db, runtime);
     }
   });
 });

@@ -7,23 +7,20 @@
 // spec exercises handler → fetchRuns → React render chain.
 import { test, expect } from "../../fixtures/index";
 import { clearAuthRateLimit } from "../../helpers/redis";
-import { terminateRegisteredE2EPods } from "../../helpers/pod-cleanup";
 import { TEST_ORG_SLUG } from "../../helpers/env";
 import {
   ensureResourceWorkflowFixture,
-  resetResourceWorkflowFixture,
 } from "../../helpers/resource-workflow-fixture";
+import { cleanupResourceWorkflowFixture } from "../../helpers/resource-workflow-run-cleanup";
 
 test.describe("Workflow run · multi-tab UI propagation", () => {
-  test.beforeEach(async ({ db }) => {
+  test.beforeEach(async ({ db, api }) => {
     clearAuthRateLimit();
-    await terminateRegisteredE2EPods();
-    ensureResourceWorkflowFixture(db);
-    resetResourceWorkflowFixture(db);
+    await cleanupResourceWorkflowFixture(db, api);
+    await ensureResourceWorkflowFixture(db, api);
   });
-  test.afterEach(async ({ db }) => {
-    await terminateRegisteredE2EPods();
-    resetResourceWorkflowFixture(db);
+  test.afterEach(async ({ db, api }) => {
+    await cleanupResourceWorkflowFixture(db, api);
   });
 
   test("tab A trigger run → tab B run-history list adds card", async ({
@@ -32,7 +29,7 @@ test.describe("Workflow run · multi-tab UI propagation", () => {
     db,
   }) => {
     const cc = await api.connect();
-    const workflow = ensureResourceWorkflowFixture(db);
+    const workflow = await ensureResourceWorkflowFixture(db, api);
 
     const tabA = await context.newPage();
     const tabB = await context.newPage();

@@ -495,7 +495,7 @@
       "knowledgeBase": "Knowledge base",
       "mountMode": "Mount mode",
       "environmentBundleRefs": "Environment bundles",
-      "configDocumentBindings": "Configuration documents",
+      "configDocumentBindings": "Configuration bundles",
       "instructions": "Instructions",
       "terminationPolicy": "Termination policy",
       "idleTimeoutMinutes": "Idle timeout (minutes)"
@@ -531,7 +531,8 @@
       "available": "{count} resources available.",
       "required": "Select a credential bundle for {field}.",
       "requiredAnyOf": "Select at least one credential bundle for: {fields}.",
-      "requiredConfigurationDocument": "Select a configuration bundle for {document}."
+      "requiredConfigurationDocument": "Select a configuration bundle for {document}.",
+      "configurationBundlesUnavailable": "The selected Worker type has no declared configuration requirements."
     },
     "collections": {
       "add": "Add",

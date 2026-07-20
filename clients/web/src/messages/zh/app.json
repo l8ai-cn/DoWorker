@@ -520,7 +520,7 @@
       "knowledgeBase": "知识库",
       "mountMode": "挂载模式",
       "environmentBundleRefs": "环境变量包",
-      "configDocumentBindings": "配置文档",
+      "configDocumentBindings": "配置包",
       "instructions": "工作指令",
       "terminationPolicy": "终止策略",
       "idleTimeoutMinutes": "空闲超时（分钟）"
@@ -556,7 +556,8 @@
       "available": "可引用 {count} 个资源。",
       "required": "请为 {field} 选择凭据包。",
       "requiredAnyOf": "请至少为以下一项选择凭据包：{fields}。",
-      "requiredConfigurationDocument": "请为配置文档 {document} 选择配置包。"
+      "requiredConfigurationDocument": "请为配置文档 {document} 选择配置包。",
+      "configurationBundlesUnavailable": "所选 Worker 类型未声明可配置项。"
     },
     "collections": {
       "add": "添加",

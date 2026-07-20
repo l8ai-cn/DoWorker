@@ -30,13 +30,18 @@ export function WorkerTemplateConfigDocumentBindingsField({
       binding.configBundleRef.name &&
       !requirementIds.has(binding.documentId),
   );
-  if (requirements.length === 0 && unresolvedBindings.length === 0) return null;
+  const hasBindings = requirements.length > 0 || unresolvedBindings.length > 0;
 
   return (
     <section className="space-y-3">
       <h4 className="text-sm font-medium">
         {t("fields.configDocumentBindings")}
       </h4>
+      {!hasBindings && (
+        <p className="text-xs text-muted-foreground">
+          {t("references.configurationBundlesUnavailable")}
+        </p>
+      )}
       {requirements.map((requirement) => {
         const binding = value.find(
           (item) => item.documentId === requirement.document_id,
