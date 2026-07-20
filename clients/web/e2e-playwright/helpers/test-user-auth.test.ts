@@ -18,6 +18,9 @@ describe("E2E test-user authentication", () => {
           { podKey: "production-video", alias: "Video", agentSlug: "video-studio" },
           { podKey: "production-pattern", alias: "[e2e:bad] Pattern", agentSlug: E2E_ECHO_AGENT_SLUG },
         ],
+        total: "2",
+        limit: 100,
+        offset: 0,
       }))
       .mockResolvedValueOnce(jsonResponse({
         token: "test-token",

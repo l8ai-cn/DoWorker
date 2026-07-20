@@ -12,8 +12,15 @@ export interface E2EPodIdentity {
   status?: string;
 }
 
+export interface E2EPodListPage {
+  items?: E2EPodIdentity[];
+  total?: number | string;
+  limit?: number;
+  offset?: number;
+}
+
 export interface E2ECleanupSession {
-  listPods(status: string): Promise<{ items?: E2EPodIdentity[] }>;
+  listPods(status: string, limit: number, offset: number): Promise<E2EPodListPage>;
   baseUrl: string;
   headers: Record<string, string>;
 }
@@ -36,9 +43,9 @@ export async function createE2ECleanupSession(
   return {
     baseUrl,
     headers,
-    listPods: (status) => requestJson(
+    listPods: (status, limit, offset) => requestJson(
       `${baseUrl}/proto.pod.v1.PodService/ListPods`,
-      { method: "POST", headers, body: JSON.stringify({ orgSlug: TEST_ORG_SLUG, status }) },
+      { method: "POST", headers, body: JSON.stringify({ orgSlug: TEST_ORG_SLUG, status, limit, offset }) },
       "list stale E2E pods",
     ),
   };

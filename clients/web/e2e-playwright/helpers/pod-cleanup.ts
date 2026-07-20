@@ -12,6 +12,7 @@ import { TEST_ORG_SLUG } from "./env";
 const E2E_RUN_MARKER = `e2e:${randomUUID().slice(0, 12)}`;
 const E2E_POD_ALIAS_PATTERN = /^\[e2e:[0-9a-f]{12}\] /;
 const TERMINABLE_STATUSES = ["queued", "initializing", "running", "paused", "disconnected"];
+const STALE_POD_PAGE_SIZE = 100;
 const registeredPods = new Map<string, RegisteredE2EPod>();
 
 interface RegisteredE2EPod {
@@ -75,9 +76,8 @@ export async function terminateRegisteredE2EPods(): Promise<number> {
 // marker-tagged e2e-echo Pods so unrelated workloads are never selected.
 export async function terminateStaleMarkedE2EPods(): Promise<number> {
   const session = await createE2ECleanupSession("stale");
-  const listed = await session.listPods(TERMINABLE_STATUSES.join(","));
   let count = 0;
-  for (const candidate of listed.items ?? []) {
+  for (const candidate of await listActiveStalePods(session)) {
     if (!isTerminableMarkedE2EPod(candidate) || !candidate.podKey) continue;
     const pod = await getE2ECleanupPod(session, TEST_ORG_SLUG, candidate.podKey, "stale");
     if (!isMarkedE2EPod(pod) || pod.podKey !== candidate.podKey) {
@@ -90,6 +90,29 @@ export async function terminateStaleMarkedE2EPods(): Promise<number> {
     count++;
   }
   return count;
+}
+
+async function listActiveStalePods(
+  session: Awaited<ReturnType<typeof createE2ECleanupSession>>,
+): Promise<E2EPodIdentity[]> {
+  const pods: E2EPodIdentity[] = [];
+  let offset = 0;
+  while (true) {
+    const page = await session.listPods(
+      TERMINABLE_STATUSES.join(","),
+      STALE_POD_PAGE_SIZE,
+      offset,
+    );
+    const total = Number(page.total);
+    if (!Number.isSafeInteger(total) || total < 0 || page.offset !== offset) {
+      throw e2ECleanupError("stale E2E pod list returned an invalid page");
+    }
+    const items = page.items ?? [];
+    pods.push(...items);
+    if (offset + items.length >= total) return pods;
+    if (items.length === 0) throw e2ECleanupError("stale E2E pod list did not advance");
+    offset += items.length;
+  }
 }
 
 function matchesRegisteredE2EPod(

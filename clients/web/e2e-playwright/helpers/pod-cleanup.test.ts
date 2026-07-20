@@ -87,31 +87,54 @@ describe("registered E2E pod cleanup", () => {
       .mockResolvedValueOnce(jsonResponse({ token: "test-token" }))
       .mockResolvedValueOnce(jsonResponse({
         items: [
-          { podKey: "pod-stale", alias: "[e2e:deadbeefcafe] stale", agentSlug: E2E_ECHO_AGENT_SLUG, status: "running" },
+          { podKey: "pod-stale-one", alias: "[e2e:deadbeefcafe] stale", agentSlug: E2E_ECHO_AGENT_SLUG, status: "running" },
           { podKey: "pod-video", alias: "[e2e:deadbeefcafe] video", agentSlug: "video-studio", status: "running" },
           { podKey: "pod-seedance", alias: "Seedance production", agentSlug: E2E_ECHO_AGENT_SLUG, status: "running" },
+        ],
+        total: "6",
+        limit: 100,
+        offset: 0,
+      }))
+      .mockResolvedValueOnce(jsonResponse({
+        items: [
+          { podKey: "pod-stale-two", alias: "[e2e:deadbeefcafe] stale two", agentSlug: E2E_ECHO_AGENT_SLUG, status: "paused" },
           { podKey: "pod-pattern", alias: "[e2e:bad] pattern", agentSlug: E2E_ECHO_AGENT_SLUG, status: "running" },
           { podKey: "pod-completed", alias: "[e2e:deadbeefcafe] completed", agentSlug: E2E_ECHO_AGENT_SLUG, status: "completed" },
           { podKey: "pod-terminated", alias: "[e2e:deadbeefcafe] terminated", agentSlug: E2E_ECHO_AGENT_SLUG, status: "terminated" },
         ],
+        total: "6",
+        limit: 100,
+        offset: 3,
       }))
       .mockResolvedValueOnce(jsonResponse({
-        podKey: "pod-stale",
+        podKey: "pod-stale-one",
         alias: "[e2e:deadbeefcafe] stale",
         agentSlug: E2E_ECHO_AGENT_SLUG,
         status: "running",
       }))
       .mockResolvedValueOnce(jsonResponse({ message: "terminated" }));
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse({
+        podKey: "pod-stale-two",
+        alias: "[e2e:deadbeefcafe] stale two",
+        agentSlug: E2E_ECHO_AGENT_SLUG,
+        status: "paused",
+      }))
+      .mockResolvedValueOnce(jsonResponse({ message: "terminated" }));
     globalThis.fetch = fetchMock;
 
-    await expect(terminateStaleMarkedE2EPods()).resolves.toBe(1);
-    expect(fetchMock).toHaveBeenCalledTimes(4);
+    await expect(terminateStaleMarkedE2EPods()).resolves.toBe(2);
+    expect(fetchMock).toHaveBeenCalledTimes(7);
     expect(String(fetchMock.mock.calls[1]?.[0])).toContain("PodService/ListPods");
     expect(String(fetchMock.mock.calls[1]?.[1]?.body)).toContain(
       '"status":"queued,initializing,running,paused,disconnected"',
     );
-    expect(String(fetchMock.mock.calls[2]?.[1]?.body)).toContain("pod-stale");
-    expect(String(fetchMock.mock.calls[3]?.[1]?.body)).toContain("pod-stale");
+    expect(String(fetchMock.mock.calls[1]?.[1]?.body)).toContain('"offset":0');
+    expect(String(fetchMock.mock.calls[2]?.[1]?.body)).toContain('"offset":3');
+    expect(String(fetchMock.mock.calls[3]?.[1]?.body)).toContain("pod-stale-one");
+    expect(String(fetchMock.mock.calls[4]?.[1]?.body)).toContain("pod-stale-one");
+    expect(String(fetchMock.mock.calls[5]?.[1]?.body)).toContain("pod-stale-two");
+    expect(String(fetchMock.mock.calls[6]?.[1]?.body)).toContain("pod-stale-two");
     expect(fetchMock.mock.calls.some(([, init]) =>
       String(init?.body).includes("pod-video") ||
       String(init?.body).includes("pod-seedance") ||
