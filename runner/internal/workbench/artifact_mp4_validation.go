@@ -71,17 +71,23 @@ func verifyMP4Decode(ctx context.Context, path string) error {
 	output, err := exec.CommandContext(
 		ctx,
 		"ffmpeg",
+		mp4DecodeArgs(path)...,
+	).CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("ffmpeg decode failed: %s", strings.TrimSpace(string(output)))
+	}
+	return nil
+}
+
+func mp4DecodeArgs(path string) []string {
+	return []string{
 		"-xerror",
 		"-v", "error",
 		"-i", path,
 		"-map", "0:v:0",
 		"-f", "null",
 		os.DevNull,
-	).CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("ffmpeg decode failed: %s", strings.TrimSpace(string(output)))
 	}
-	return nil
 }
 
 func invalidMP4Error(display string, cause error) error {
