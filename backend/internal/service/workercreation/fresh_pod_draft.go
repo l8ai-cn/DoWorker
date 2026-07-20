@@ -16,6 +16,7 @@ type FreshPodDraftInput struct {
 	OrganizationSlug       string
 	WorkerTypeSlug         string
 	ModelResourceID        *int64
+	SkillIDs               []int64
 	ToolModelResourceIDs   map[string]int64
 	ConfigDocumentBindings []specdomain.ConfigDocumentBinding
 	Runtime                specservice.RuntimeSelection
@@ -92,6 +93,7 @@ func (service *Service) NewFreshPodDraft(
 			Workspace: specdomain.Workspace{
 				RepositoryID: input.RepositoryID,
 				Branch:       firstNonEmpty(input.Branch, layer.branch),
+				SkillIDs:     append([]int64{}, input.SkillIDs...),
 				ConfigDocumentBindings: append(
 					[]specdomain.ConfigDocumentBinding{},
 					input.ConfigDocumentBindings...,

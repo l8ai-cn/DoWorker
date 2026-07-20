@@ -20,6 +20,7 @@ func TestCreateSessionBodyAcceptsModelBindings(t *testing.T) {
 		"agent_id":"seedance-expert",
 		"model_resource_id":42,
 		"worker_spec":{
+			"skill_ids":[8],
 			"tool_model_resource_ids":{"seedance-video":9},
 			"config_document_bindings":[{"document_id":"settings","config_bundle_id":10}]
 		}
@@ -29,6 +30,7 @@ func TestCreateSessionBodyAcceptsModelBindings(t *testing.T) {
 	require.NotNil(t, body.ModelResourceID)
 	assert.Equal(t, int64(42), *body.ModelResourceID)
 	require.NotNil(t, body.WorkerSpec)
+	assert.Equal(t, []int64{8}, body.WorkerSpec.SkillIDs)
 	assert.Equal(t, map[string]int64{"seedance-video": 9}, body.WorkerSpec.ToolModelResourceIDs)
 	assert.Equal(t, []specdomain.ConfigDocumentBinding{{
 		DocumentID: "settings", ConfigBundleID: 10,
@@ -53,6 +55,7 @@ func TestLegacySessionCreateModelFieldsAreRejected(t *testing.T) {
 
 func TestSessionCreatePodRequestBuildsPlanSource(t *testing.T) {
 	resourceID := int64(42)
+	skillIDs := []int64{8}
 	toolResources := map[string]int64{"seedance-video": 9}
 	configBindings := []specdomain.ConfigDocumentBinding{{
 		DocumentID: "settings", ConfigBundleID: 10,
@@ -80,6 +83,7 @@ func TestSessionCreatePodRequestBuildsPlanSource(t *testing.T) {
 			ComputeTargetID:        8,
 			DeploymentMode:         "pooled",
 			ResourceProfileID:      9,
+			SkillIDs:               skillIDs,
 			ToolModelResourceIDs:   toolResources,
 			ConfigDocumentBindings: configBindings,
 		},
@@ -96,6 +100,7 @@ func TestSessionCreatePodRequestBuildsPlanSource(t *testing.T) {
 	assert.Equal(t, "/tmp/workspace", req.LocalPath)
 	assert.Equal(t, "do-agent", factory.input.WorkerTypeSlug)
 	assert.Equal(t, int64(4), factory.input.Runtime.RuntimeImageID)
+	assert.Equal(t, skillIDs, factory.input.SkillIDs)
 	assert.Equal(t, toolResources, factory.input.ToolModelResourceIDs)
 	assert.Equal(t, configBindings, factory.input.ConfigDocumentBindings)
 	assert.Equal(t, specdomain.DeploymentModePooled, factory.input.Runtime.DeploymentMode)

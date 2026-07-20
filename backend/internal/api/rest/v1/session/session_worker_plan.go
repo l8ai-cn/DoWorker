@@ -17,6 +17,7 @@ type sessionWorkerSpecBody struct {
 	ComputeTargetID        int64                              `json:"compute_target_id"`
 	DeploymentMode         string                             `json:"deployment_mode"`
 	ResourceProfileID      int64                              `json:"resource_profile_id"`
+	SkillIDs               []int64                            `json:"skill_ids"`
 	ToolModelResourceIDs   map[string]int64                   `json:"tool_model_resource_ids"`
 	ConfigDocumentBindings []specdomain.ConfigDocumentBinding `json:"config_document_bindings"`
 }
@@ -57,6 +58,7 @@ func (d *Deps) buildFreshWorkerPlan(
 			OrganizationSlug:       orgSlug,
 			WorkerTypeSlug:         input.WorkerTypeSlug,
 			ModelResourceID:        input.ModelResourceID,
+			SkillIDs:               input.WorkerSpec.SkillIDs,
 			ToolModelResourceIDs:   input.WorkerSpec.ToolModelResourceIDs,
 			ConfigDocumentBindings: input.WorkerSpec.ConfigDocumentBindings,
 			Runtime: specservice.RuntimeSelection{

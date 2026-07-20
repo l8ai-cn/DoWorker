@@ -106,6 +106,7 @@ func TestNewFreshPodDraftDefaultsIdleLifecycleTimeout(t *testing.T) {
 func TestNewFreshPodDraftCopiesToolModelResourceIDs(t *testing.T) {
 	service := NewService(newWorkerCreationServiceFixture().deps())
 	input := validFreshPodDraftInput()
+	input.SkillIDs = []int64{3}
 	input.ToolModelResourceIDs = map[string]int64{"seedance-video": 9}
 	input.ConfigDocumentBindings = []specdomain.ConfigDocumentBinding{{
 		DocumentID: "settings", ConfigBundleID: 10,
@@ -118,10 +119,13 @@ func TestNewFreshPodDraftCopiesToolModelResourceIDs(t *testing.T) {
 	)
 
 	require.NoError(t, err)
+	assert.Equal(t, []int64{3}, draft.WorkerSpec.Workspace.SkillIDs)
 	assert.Equal(t, map[string]int64{"seedance-video": 9}, draft.WorkerSpec.ToolModelResourceIDs)
 	assert.Equal(t, input.ConfigDocumentBindings, draft.WorkerSpec.Workspace.ConfigDocumentBindings)
+	input.SkillIDs[0] = 4
 	input.ToolModelResourceIDs["seedance-video"] = 10
 	input.ConfigDocumentBindings[0].ConfigBundleID = 11
+	assert.Equal(t, []int64{3}, draft.WorkerSpec.Workspace.SkillIDs)
 	assert.Equal(t, int64(9), draft.WorkerSpec.ToolModelResourceIDs["seedance-video"])
 	assert.Equal(t, int64(10), draft.WorkerSpec.Workspace.ConfigDocumentBindings[0].ConfigBundleID)
 }
