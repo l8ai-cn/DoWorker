@@ -14,6 +14,7 @@ use crate::loop_builder_state::LoopBuilderState;
 use crate::loopal_session::LoopalSessionManager;
 use crate::mesh_state::MeshState;
 pub use crate::notification_specs::{NotificationSpec, ToastSpec};
+use crate::pod_query_snapshots::PodQuerySnapshots;
 use crate::pod_state::PodState;
 use crate::repo_state::RepoState;
 use crate::runner_state::RunnerState;
@@ -22,6 +23,7 @@ use crate::workflow_state::WorkflowState;
 
 pub struct AppState {
     pub pods: PodState,
+    pub pod_query_snapshots: PodQuerySnapshots,
     pub channels: ChannelState,
     pub runners: RunnerState,
     pub tickets: TicketState,
@@ -61,6 +63,7 @@ impl AppState {
     pub fn new() -> Self {
         Self {
             pods: PodState::new(),
+            pod_query_snapshots: PodQuerySnapshots::default(),
             channels: ChannelState::new(),
             runners: RunnerState::new(),
             tickets: TicketState::new(),
@@ -85,6 +88,7 @@ impl AppState {
     pub fn with_storage(backend: Arc<dyn StorageBackend>) -> Self {
         Self {
             pods: PodState::with_storage(backend.clone()),
+            pod_query_snapshots: PodQuerySnapshots::default(),
             channels: ChannelState::with_storage(backend.clone()),
             runners: RunnerState::with_storage(backend.clone()),
             tickets: TicketState::with_storage(backend.clone()),
@@ -143,6 +147,7 @@ impl AppState {
     /// the live EventSubscriptionManager connection and its callbacks.
     pub fn reset_for_org_switch(&mut self) {
         self.pods = PodState::new();
+        self.pod_query_snapshots = PodQuerySnapshots::default();
         self.channels = ChannelState::new();
         self.runners = RunnerState::new();
         self.tickets = TicketState::new();

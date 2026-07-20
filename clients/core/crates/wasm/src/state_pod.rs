@@ -6,7 +6,7 @@ use agentsmesh_types::proto_pod_state_v1::{
     ApplyPodTitleEventRequest, InsertCreatedPodRequest, MarkPodTerminatedRequest,
     PatchPodPerpetualRequest, ReplaceCachedPodsRequest,
 };
-use agentsmesh_types::proto_pod_v1::{ListPodsResponse, Pod};
+use agentsmesh_types::proto_pod_v1::ListPodsResponse;
 use parking_lot::RwLock;
 use prost::Message;
 use wasm_bindgen::prelude::*;
@@ -17,7 +17,7 @@ use wasm_bindgen::prelude::*;
 /// writes through any path are visible to readers through any path.
 #[wasm_bindgen]
 pub struct WasmPodState {
-    state: Arc<RwLock<AppState>>,
+    pub(crate) state: Arc<RwLock<AppState>>,
 }
 
 fn decode_err<E: std::fmt::Display>(e: E) -> JsValue {

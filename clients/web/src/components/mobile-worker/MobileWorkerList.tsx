@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
@@ -16,10 +16,11 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { getPodDisplayName } from "@/lib/pod-display-name";
 import { cn } from "@/lib/utils";
-import { usePods, usePodStore, type Pod } from "@/stores/pod";
-
-const MOBILE_WORKER_STATUSES =
-  "running,initializing,paused,disconnected,orphaned";
+import type { Pod } from "@/stores/pod";
+import {
+  fetchMobileWorkerPods,
+  useMobileWorkerPods,
+} from "./mobileWorkerPodQuery";
 
 const STATUS_TONE: Record<string, string> = {
   running: "bg-success",
@@ -27,6 +28,7 @@ const STATUS_TONE: Record<string, string> = {
   paused: "bg-muted-foreground",
   disconnected: "bg-danger",
   orphaned: "bg-warning",
+  completed: "bg-success",
 };
 
 function isAcpWorker(pod: Pod): boolean {
@@ -35,10 +37,11 @@ function isAcpWorker(pod: Pod): boolean {
 
 export function MobileWorkerList() {
   const t = useTranslations("mobile.workers");
+  const statusT = useTranslations("pods.status");
   const params = useParams<{ org: string }>();
   const orgSlug = typeof params.org === "string" ? params.org : "";
-  const pods = usePods();
-  const fetchPods = usePodStore((state) => state.fetchPods);
+  const pods = useMobileWorkerPods(orgSlug);
+  const loadSequence = useRef(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [online, setOnline] = useState(
@@ -46,24 +49,26 @@ export function MobileWorkerList() {
   );
 
   const load = useCallback(async () => {
+    const sequence = ++loadSequence.current;
     setLoading(true);
     setError(null);
-    await fetchPods({ status: MOBILE_WORKER_STATUSES });
-    setError(usePodStore.getState().error);
-    setLoading(false);
-  }, [fetchPods]);
+    try {
+      await fetchMobileWorkerPods(orgSlug);
+    } catch (fetchError) {
+      if (sequence === loadSequence.current) {
+        setError(fetchError instanceof Error ? fetchError.message : "Failed to fetch pods");
+      }
+    } finally {
+      if (sequence === loadSequence.current) setLoading(false);
+    }
+  }, [orgSlug]);
 
   useEffect(() => {
-    let active = true;
-    void fetchPods({ status: MOBILE_WORKER_STATUSES }).then(() => {
-      if (!active) return;
-      setError(usePodStore.getState().error);
-      setLoading(false);
-    });
+    void load();
     return () => {
-      active = false;
+      loadSequence.current += 1;
     };
-  }, [fetchPods]);
+  }, [load]);
 
   useEffect(() => {
     const sync = () => setOnline(navigator.onLine);
@@ -141,7 +146,7 @@ export function MobileWorkerList() {
                           STATUS_TONE[pod.status] ?? "bg-muted-foreground",
                         )}
                       />
-                      <span>{t(`status.${pod.status}`)}</span>
+                      <span>{statusT(pod.status)}</span>
                       <span aria-hidden="true">·</span>
                       <span>{acp ? t("acp") : t("terminal")}</span>
                     </div>

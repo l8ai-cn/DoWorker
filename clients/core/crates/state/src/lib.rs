@@ -27,6 +27,7 @@ pub mod loopal_types;
 pub mod mesh_state;
 pub mod notification_specs;
 mod persist_helpers;
+pub mod pod_query_snapshots;
 pub mod pod_state;
 pub mod repo_state;
 pub mod runner_state;
@@ -180,6 +181,8 @@ mod loopal_fold_contract_tests;
 mod mesh_state_tests;
 #[cfg(test)]
 mod pod_state_tests;
+#[cfg(test)]
+mod pod_query_snapshots_tests;
 #[cfg(test)]
 mod repo_state_tests;
 #[cfg(test)]

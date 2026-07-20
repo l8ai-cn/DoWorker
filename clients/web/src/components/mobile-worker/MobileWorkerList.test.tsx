@@ -3,9 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MobileWorkerList } from "./MobileWorkerList";
 
 const mocks = vi.hoisted(() => ({
-  fetchPods: vi.fn(),
+  fetchMobileWorkerPods: vi.fn(),
   pods: [] as Record<string, unknown>[],
-  error: null as string | null,
 }));
 
 vi.mock("next/navigation", () => ({
@@ -16,31 +15,23 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
 
-vi.mock("@/stores/pod", () => {
-  const usePodStore = Object.assign(
-    (selector: (state: Record<string, unknown>) => unknown) =>
-      selector({ fetchPods: mocks.fetchPods }),
-    { getState: () => ({ error: mocks.error }) },
-  );
-  return {
-    usePods: () => mocks.pods,
-    usePodStore,
-  };
-});
+vi.mock("./mobileWorkerPodQuery", () => ({
+  fetchMobileWorkerPods: mocks.fetchMobileWorkerPods,
+  useMobileWorkerPods: () => mocks.pods,
+}));
 
 describe("MobileWorkerList", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.pods = [];
-    mocks.error = null;
-    mocks.fetchPods.mockResolvedValue(undefined);
+    mocks.fetchMobileWorkerPods.mockResolvedValue(undefined);
     Object.defineProperty(navigator, "onLine", {
       configurable: true,
       value: true,
     });
   });
 
-  it("loads active Workers and links to the canonical mobile route", async () => {
+  it("loads readable Workers and links to the canonical mobile route", async () => {
     mocks.pods = [{
       pod_key: "pod-1",
       status: "running",
@@ -51,15 +42,32 @@ describe("MobileWorkerList", () => {
     render(<MobileWorkerList />);
 
     expect(await screen.findByText("Build Worker")).toBeInTheDocument();
-    expect(mocks.fetchPods).toHaveBeenCalledWith({
-      status: "running,initializing,paused,disconnected,orphaned",
-    });
+    expect(mocks.fetchMobileWorkerPods).toHaveBeenCalledWith("acme");
     expect(screen.getByRole("link")).toHaveAttribute(
       "href",
       "/acme/mobile/workers/pod-1",
     );
-    expect(screen.getByText("status.running")).toBeInTheDocument();
+    expect(screen.getByText("running")).toBeInTheDocument();
     expect(screen.getByText("terminal")).toBeInTheDocument();
+  });
+
+  it("keeps a completed ACP Worker reachable from the mobile list", async () => {
+    mocks.pods = [{
+      pod_key: "pod-complete",
+      status: "completed",
+      interaction_mode: "acp",
+      title: "Pattern Seamless Run R3",
+    }];
+
+    render(<MobileWorkerList />);
+
+    expect(await screen.findByText("Pattern Seamless Run R3")).toBeInTheDocument();
+    expect(screen.getByText("completed")).toBeInTheDocument();
+    expect(screen.getByText("acp")).toBeInTheDocument();
+    expect(screen.getByRole("link")).toHaveAttribute(
+      "href",
+      "/acme/mobile/workers/pod-complete",
+    );
   });
 
   it("renders the empty state after a successful load", async () => {
@@ -70,14 +78,14 @@ describe("MobileWorkerList", () => {
   });
 
   it("shows an error and retries the same request", async () => {
-    mocks.error = "relay unavailable";
+    mocks.fetchMobileWorkerPods.mockRejectedValueOnce(new Error("relay unavailable"));
 
     render(<MobileWorkerList />);
 
     expect(await screen.findByText("relay unavailable")).toBeInTheDocument();
-    mocks.error = null;
+    mocks.fetchMobileWorkerPods.mockResolvedValueOnce(undefined);
     fireEvent.click(screen.getByRole("button", { name: "retry" }));
 
-    await waitFor(() => expect(mocks.fetchPods).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(mocks.fetchMobileWorkerPods).toHaveBeenCalledTimes(2));
   });
 });

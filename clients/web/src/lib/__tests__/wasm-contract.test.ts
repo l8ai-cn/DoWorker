@@ -49,6 +49,7 @@ type _Sig<F extends (...args: never[]) => unknown> = F;
 // providers/realtimePodHandlers.ts. Method group A is reads; B is
 // proto-bytes mutators.
 type _PodState_pods_json           = _Sig<WasmPodState["pods_json"]>;
+type _PodState_query_pods          = _Sig<WasmPodState["query_pods_bytes"]>;
 type _PodState_current_pod_json    = _Sig<WasmPodState["current_pod_json"]>;
 type _PodState_get_pod_json        = _Sig<WasmPodState["get_pod_json"]>;
 type _PodState_insert_created_pod  = _Sig<WasmPodState["insert_created_pod"]>;
@@ -57,6 +58,7 @@ type _PodState_apply_status        = _Sig<WasmPodState["apply_pod_status_event"]
 type _PodState_apply_title         = _Sig<WasmPodState["apply_pod_title_event"]>;
 type _PodState_apply_alias         = _Sig<WasmPodState["apply_pod_alias_event"]>;
 type _PodState_apply_agent_status  = _Sig<WasmPodState["apply_agent_status_event"]>;
+type _PodState_apply_query         = _Sig<WasmPodState["apply_fetched_pod_query"]>;
 type _PodState_replace_cached_pods = _Sig<WasmPodState["replace_cached_pods"]>;
 type _PodState_append_cached_pods  = _Sig<WasmPodState["append_cached_pods"]>;
 type _PodState_mark_terminated     = _Sig<WasmPodState["mark_pod_terminated"]>;
