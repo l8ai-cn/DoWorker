@@ -67,7 +67,7 @@ func (m *Manager) applySSHGitConfig(
 
 func tokenCredentialURL(repoURL string, options *WorktreeOptions) (string, error) {
 	if options == nil || options.GitToken == "" || options.GitUsername == "" {
-		return "", fmt.Errorf("Git username and token are required")
+		return "", fmt.Errorf("git username and token are required")
 	}
 	if err := validateRepositoryURL(repoURL); err != nil {
 		return "", err
