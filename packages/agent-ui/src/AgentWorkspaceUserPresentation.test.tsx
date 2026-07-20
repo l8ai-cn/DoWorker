@@ -277,6 +277,30 @@ describe("AgentWorkspace user presentation", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("does not claim the current task succeeded from an unbound historical video", async () => {
+    const snapshot = sessionSnapshot();
+    snapshot.latestUserCommandId = "command-current";
+    snapshot.status = "completed";
+    snapshot.items = [verifiedVideoArtifact()];
+    snapshot.plan = [];
+    snapshot.permissions = [];
+    const { agentRuntime } = runtime(snapshot);
+
+    render(
+      <AgentWorkspace
+        locale="zh-CN"
+        presentation="user"
+        runtime={agentRuntime}
+        sessionId={snapshot.sessionId}
+      />,
+    );
+
+    expect(await screen.findByText("视频成果校验未通过")).toBeVisible();
+    expect(
+      screen.queryByText("视频文件已发布并通过完整性校验"),
+    ).not.toBeInTheDocument();
+  });
+
   it("accepts a verified video from the latest user command", async () => {
     const snapshot = sessionSnapshot();
     const currentVideo = verifiedVideoArtifact();
