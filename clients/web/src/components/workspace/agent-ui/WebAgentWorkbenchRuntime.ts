@@ -20,6 +20,7 @@ import {
   decodeWebAgentWorkbenchSnapshot,
   projectWebAgentWorkbenchSnapshot,
 } from "./webAgentWorkbenchProjection";
+import { mergeWorkspaceArtifactDiscoveryError } from "./webAgentWorkbenchWorkspaceArtifacts";
 import type {
   WebAgentWorkbenchRuntimeDeps,
   WebAgentWorkbenchRuntimeInput,
@@ -107,25 +108,12 @@ export class WebAgentWorkbenchRuntime implements AgentSessionRuntime {
     return this.execute(sessionId, commandId, interruptPayload(turnId));
   }
 
-  resolvePermission(
-    sessionId: string,
-    commandId: string,
-    permissionId: string,
-    result: AgentPermissionResolution,
-  ): Promise<void> {
-    return this.execute(
-      sessionId,
-      commandId,
-      permissionPayload(permissionId, result),
-    );
+  resolvePermission(sessionId: string, commandId: string, permissionId: string, result: AgentPermissionResolution): Promise<void> {
+    return this.execute(sessionId, commandId, permissionPayload(permissionId, result));
   }
 
   updateConfiguration(sessionId: string, commandId: string, patch: Record<string, unknown>): Promise<void> {
-    return this.execute(
-      sessionId,
-      commandId,
-      configurationPayload(patch),
-    );
+    return this.execute(sessionId, commandId, configurationPayload(patch));
   }
 
   executeArtifactAction(
@@ -179,12 +167,13 @@ export class WebAgentWorkbenchRuntime implements AgentSessionRuntime {
   }
 
   private project(): AgentSessionSnapshot {
-    return projectWebAgentWorkbenchSnapshot(
+    const snapshot = projectWebAgentWorkbenchSnapshot(
       this.rawSnapshot(),
       this.input,
       this.connection,
       this.error,
     );
+    return mergeWorkspaceArtifactDiscoveryError(snapshot, this.input.workspaceArtifactError ?? null);
   }
 
   private refresh(): void {

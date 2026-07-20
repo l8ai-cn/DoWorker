@@ -10,6 +10,12 @@ import { SessionSnapshotSchema } from "@proto/agent_workbench/v2/session_pb";
 import { loadSessionArtifactRepresentation } from "@/lib/api/sessionWorkspaceArtifactApi";
 import { createWebAgentWorkbenchArtifactLoader } from "./webAgentWorkbenchArtifactLoader";
 
+vi.mock("@/lib/api/podWorkspaceArtifactApi", () => ({
+  loadPodWorkspaceArtifact: vi.fn(async () => new Blob(["workspace-video"], {
+    type: "video/mp4",
+  })),
+}));
+
 vi.mock("@/lib/api/sessionWorkspaceArtifactApi", () => ({
   loadSessionArtifactRepresentation: vi.fn(async (input: { resourceId: string }) => {
     if (!input.resourceId.startsWith("session-file:")) {
@@ -18,6 +24,8 @@ vi.mock("@/lib/api/sessionWorkspaceArtifactApi", () => ({
     return new Blob(["video"], { type: "video/mp4" });
   }),
 }));
+
+import { loadPodWorkspaceArtifact } from "@/lib/api/podWorkspaceArtifactApi";
 
 describe("createWebAgentWorkbenchArtifactLoader", () => {
   it("loads an immutable session file against the exact artifact identity", async () => {
@@ -118,5 +126,41 @@ describe("createWebAgentWorkbenchArtifactLoader", () => {
       representationId: "pdf",
       sessionId: "session-real-1",
     })).rejects.toThrow("artifact_resource_unsupported:workspace:preview.pdf");
+  });
+
+  it("loads a workspace video through the Pod filesystem resource", async () => {
+    const loader = createWebAgentWorkbenchArtifactLoader({
+      projectionStatus: vi.fn(),
+      resyncReason: vi.fn(),
+      revision: vi.fn(),
+      snapshotBytes: vi.fn(),
+    }, { podKey: "pod-video-1" });
+
+    const blob = await loader({
+      artifactId: "workspace:output/final.mp4",
+      representationId: "workspace-file",
+      sessionId: "session-real-1",
+    });
+
+    expect(blob.type).toBe("video/mp4");
+    expect(loadPodWorkspaceArtifact).toHaveBeenCalledWith(
+      "pod-video-1",
+      "output/final.mp4",
+    );
+  });
+
+  it("rejects an unregistered workspace representation", async () => {
+    const loader = createWebAgentWorkbenchArtifactLoader({
+      projectionStatus: vi.fn(),
+      resyncReason: vi.fn(),
+      revision: vi.fn(),
+      snapshotBytes: vi.fn(),
+    }, { podKey: "pod-video-1" });
+
+    await expect(loader({
+      artifactId: "workspace:output/final.mp4",
+      representationId: "original",
+      sessionId: "session-real-1",
+    })).rejects.toThrow("workspace_artifact_representation_invalid");
   });
 });

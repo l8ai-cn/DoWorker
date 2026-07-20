@@ -3,15 +3,23 @@ import {
   type AgentArtifactLoadRequest,
 } from "@do-worker/agent-ui";
 
+import { loadPodWorkspaceArtifact } from "@/lib/api/podWorkspaceArtifactApi";
 import { loadSessionArtifactRepresentation } from "@/lib/api/sessionWorkspaceArtifactApi";
 import { decodeWebAgentWorkbenchSnapshot } from "./webAgentWorkbenchProjection";
 import type { WebAgentWorkbenchState } from "./webAgentWorkbenchRuntimeTypes";
+import { workspaceArtifactPath } from "./webAgentWorkbenchWorkspaceArtifacts";
+
+interface ArtifactLoaderOptions {
+  fetcher?: typeof globalThis.fetch;
+  podKey?: string;
+}
 
 export function createWebAgentWorkbenchArtifactLoader(
   state: WebAgentWorkbenchState,
-  fetcher: typeof globalThis.fetch = globalThis.fetch,
+  options: ArtifactLoaderOptions = {},
 ): (request: AgentArtifactLoadRequest) => Promise<Blob> {
-  return createAgentArtifactLoader({
+  const fetcher = options.fetcher ?? globalThis.fetch;
+  const loadSessionArtifact = createAgentArtifactLoader({
     getArtifacts: (sessionId) =>
       decodeWebAgentWorkbenchSnapshot(state.snapshotBytes(sessionId), sessionId)
         ?.artifacts ?? [],
@@ -35,4 +43,15 @@ export function createWebAgentWorkbenchArtifactLoader(
         sessionId: context.sessionId,
       }),
   });
+  return async (request) => {
+    const path = workspaceArtifactPath(request.artifactId);
+    if (path) {
+      if (request.representationId !== "workspace-file") {
+        throw new Error("workspace_artifact_representation_invalid");
+      }
+      if (!options.podKey) throw new Error("workspace_artifact_pod_missing");
+      return loadPodWorkspaceArtifact(options.podKey, path);
+    }
+    return loadSessionArtifact(request);
+  };
 }

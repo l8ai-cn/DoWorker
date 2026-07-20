@@ -74,6 +74,7 @@ export interface WebAgentWorkbenchRuntimeInput {
   live?: boolean;
   sessionId: string;
   title: string;
+  workspaceArtifactError?: string | null;
 }
 
 export type WebAgentWorkbenchLoadArtifact =

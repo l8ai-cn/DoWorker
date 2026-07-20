@@ -27,9 +27,19 @@ export function collectWorkbenchResults(
   tools: readonly AgentToolActivityItem[],
   toolRenderers?: ToolRendererRegistry<AgentToolRendererRegistration>,
   verifiedArtifactsOnly = false,
+  workspaceArtifacts: readonly AgentArtifactItem[] = [],
 ): WorkbenchResult[] {
-  const results: WorkbenchResult[] = artifacts
+  const visibleArtifacts = artifacts
     .filter((item) => !verifiedArtifactsOnly || isUserVisibleArtifact(item))
+  const existingArtifactIDs = new Set(
+    visibleArtifacts.map((item) => item.artifactId),
+  );
+  const results: WorkbenchResult[] = [
+    ...visibleArtifacts,
+    ...workspaceArtifacts.filter(
+      (item) => !existingArtifactIDs.has(item.artifactId),
+    ),
+  ]
     .map((item) => ({
       id: `artifact:${item.id}`,
       item,

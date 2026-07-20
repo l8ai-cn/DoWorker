@@ -5,7 +5,7 @@ import { AgentConversationSurface } from "./AgentConversationSurface";
 import { AgentWorkspaceLocaleProvider } from "./AgentWorkspaceLocaleContext";
 import { PlanStrip } from "./PlanStrip";
 import { TerminalSurface } from "./TerminalSurface";
-import type { AgentSessionRuntime, TerminalRuntime } from "./contracts";
+import type { AgentArtifactItem, AgentSessionRuntime, TerminalRuntime } from "./contracts";
 import type { AgentToolRendererRegistration } from "./react/rendererTypes";
 import type { AgentContentRendererRegistration } from "./react/contentRendererTypes";
 import type { ContentRendererRegistry } from "./registry/ContentRendererRegistry";
@@ -38,6 +38,7 @@ export interface AgentWorkspaceProps {
   presentation?: AgentWorkspacePresentation;
   readOnly?: boolean;
   toolRenderers?: ToolRendererRegistry<AgentToolRendererRegistration>;
+  workspaceArtifacts?: readonly AgentArtifactItem[];
 }
 
 export function AgentWorkspace({
@@ -51,6 +52,7 @@ export function AgentWorkspace({
   presentation = "developer",
   readOnly = false,
   toolRenderers,
+  workspaceArtifacts = [],
 }: AgentWorkspaceProps) {
   const activeRuntime = useMemo(
     () => (readOnly ? new ReadOnlyAgentSessionRuntime(runtime) : runtime),
@@ -90,7 +92,6 @@ export function AgentWorkspace({
     snapshot.capabilities.terminal &&
     terminalRuntime !== undefined &&
     terminal !== undefined;
-
   return (
     <AgentWorkspaceLocaleProvider locale={locale}>
       <div
@@ -189,6 +190,7 @@ export function AgentWorkspace({
                 : []
             }
             verifiedArtifactsOnly={presentation === "user"}
+            workspaceArtifacts={workspaceArtifacts}
           />
         </section>
       )}

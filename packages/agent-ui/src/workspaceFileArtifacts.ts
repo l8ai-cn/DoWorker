@@ -50,7 +50,12 @@ function changedStatus(value: unknown): string | null {
 function hasIgnoredPathSegment(path: string): boolean {
   return path
     .split("/")
-    .some((segment) => segment.startsWith(".") || segment === "node_modules");
+    .some(
+      (segment) =>
+        segment.startsWith(".") ||
+        segment === "node_modules" ||
+        segment === "AGENTS.md",
+    );
 }
 
 function fileExtension(path: string): string {
@@ -80,8 +85,10 @@ const deliverableTypes: Record<string, string> = {
   html: "text/html",
   jpeg: "image/jpeg",
   jpg: "image/jpeg",
+  json: "application/json",
   m4a: "audio/mp4",
   m4v: "video/x-m4v",
+  md: "text/markdown",
   mov: "video/quicktime",
   mp3: "audio/mpeg",
   mp4: "video/mp4",

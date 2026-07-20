@@ -12,7 +12,6 @@ import { usePod, usePodStore } from "@/stores/pod";
 import { usePodStatus } from "@/hooks";
 import { useAcpRelay } from "@/hooks/useAcpRelay";
 import { useAgentSessionLink } from "@/hooks/useAgentSessionLink";
-import { getAgentWorkbenchState } from "@/lib/wasm-core";
 import { AgentPanelHeader } from "./AgentPanelHeader";
 import { AgentSessionLinkState } from "./AgentSessionLinkState";
 import {
@@ -23,10 +22,8 @@ import {
 import { PodSelectorModal } from "./PodSelectorModal";
 import { WorkerControlOverlay } from "@/components/mobile-worker/WorkerControlOverlay";
 import { useWorkerControlLease } from "@/hooks/useWorkerControlLease";
-import { WebAgentWorkbenchRuntime } from "./agent-ui/WebAgentWorkbenchRuntime";
-import {
-  createWebAgentWorkbenchArtifactLoader,
-} from "./agent-ui/webAgentWorkbenchArtifactLoader";
+import { useAgentPanelRuntime } from "./agent-ui/useAgentPanelRuntime";
+import { usePodWorkspaceArtifacts } from "./agent-ui/usePodWorkspaceArtifacts";
 
 const AGENT_CONTENT_RENDERERS = createBuiltinContentRenderers();
 
@@ -72,35 +69,22 @@ export function AgentPanel({
   const canReadSession = liveSession ||
     podStatus === "completed" ||
     podStatus === "orphaned";
+  const workspaceArtifacts = usePodWorkspaceArtifacts(podKey, canReadSession);
   useAcpRelay(podKey, paneId, liveSession);
   const {
     error: sessionLinkError,
     loading: sessionLinkLoading,
     sessionId,
   } = useAgentSessionLink(podKey, canReadSession);
-  const runtime = useMemo(
-    () => {
-      if (!sessionId) return null;
-      const workbenchState = getAgentWorkbenchState();
-      return new WebAgentWorkbenchRuntime({
-        agentLabel: pod?.agent?.name ?? "Agent",
-        interactionMode: pod?.interaction_mode ?? "acp",
-        loadArtifact: createWebAgentWorkbenchArtifactLoader(workbenchState),
-        live: liveSession,
-        sessionId,
-        title: pod?.title ?? pod?.alias ?? podKey,
-      });
-    },
-    [
-      pod?.agent?.name,
-      pod?.alias,
-      pod?.interaction_mode,
-      pod?.title,
-      podKey,
-      liveSession,
-      sessionId,
-    ],
-  );
+  const runtime = useAgentPanelRuntime({
+    agentLabel: pod?.agent?.name,
+    interactionMode: pod?.interaction_mode,
+    live: liveSession,
+    podKey,
+    sessionId,
+    title: pod?.title ?? pod?.alias ?? podKey,
+    workspaceArtifactError: workspaceArtifacts.error,
+  });
   const handleFocus = useCallback(() => {
     setActivePane(paneId);
   }, [paneId, setActivePane]);
@@ -182,6 +166,7 @@ export function AgentPanel({
           readOnly={!liveSession || controlLease.status !== "granted"}
           runtime={runtime}
           sessionId={sessionId}
+          workspaceArtifacts={workspaceArtifacts.artifacts}
         />
       )}
       {liveSession && (

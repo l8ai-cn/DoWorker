@@ -24,6 +24,7 @@ export interface ResultWorkbenchProps {
   presentation?: "developer" | "user";
   runtime: AgentSessionRuntime;
   sessionId: string;
+  workspaceArtifacts?: readonly AgentArtifactItem[];
   toolRenderers?: ToolRendererRegistry<AgentToolRendererRegistration>;
   tools?: AgentToolActivityItem[];
   verifiedArtifactsOnly?: boolean;
@@ -37,6 +38,7 @@ export function ResultWorkbench({
   presentation = "developer",
   runtime,
   sessionId,
+  workspaceArtifacts = [],
   toolRenderers,
   tools = [],
   verifiedArtifactsOnly = false,
@@ -56,6 +58,7 @@ export function ResultWorkbench({
     tools,
     toolRenderers,
     verifiedArtifactsOnly,
+    workspaceArtifacts,
   );
   const selected = selectedResult(workbenchResults, selectedId);
 

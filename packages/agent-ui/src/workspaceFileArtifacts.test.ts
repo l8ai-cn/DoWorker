@@ -11,6 +11,9 @@ describe("workspaceFileArtifacts", () => {
         { path: "outputs/data.xlsx" },
         { path: "outputs/results.csv" },
         { path: "outputs/briefing.mp3" },
+        { path: "seam-report.json" },
+        { path: "seam-report.md" },
+        { path: "AGENTS.md" },
         { path: "deliverables/generate-assets.mjs" },
         { path: "deliverables/README.md" },
         { path: "src/main.ts" },
@@ -45,6 +48,14 @@ describe("workspaceFileArtifacts", () => {
       expect.objectContaining({
         artifactId: "workspace:outputs/briefing.mp3",
         mimeType: "audio/mpeg",
+      }),
+      expect.objectContaining({
+        artifactId: "workspace:seam-report.json",
+        mimeType: "application/json",
+      }),
+      expect.objectContaining({
+        artifactId: "workspace:seam-report.md",
+        mimeType: "text/markdown",
       }),
       expect.objectContaining({
         artifactId: "workspace:deliverables/generate-assets.mjs",

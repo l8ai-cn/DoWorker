@@ -5,6 +5,10 @@ const mocks = vi.hoisted(() => ({
   lastRuntimeInput: null as null | Record<string, unknown>,
   podStatus: "initializing",
   sessionEnabled: [] as boolean[],
+  workspaceArtifacts: [{
+    artifactId: "workspace:output/final.mp4",
+    filename: "final.mp4",
+  }],
 }));
 
 vi.mock("@/hooks", () => ({
@@ -38,10 +42,6 @@ vi.mock("@/hooks/useWorkerControlLease", () => ({
   }),
 }));
 
-vi.mock("@/lib/wasm-core", () => ({
-  getAgentWorkbenchState: () => ({}),
-}));
-
 vi.mock("@/stores/pod", () => ({
   usePod: () => ({
     agent: { name: "Pattern Designer" },
@@ -69,24 +69,34 @@ vi.mock("@/stores/workspace", () => ({
 }));
 
 vi.mock("@do-worker/agent-ui", () => ({
-  AgentWorkspace: ({ readOnly }: { readOnly: boolean }) => (
-    <div data-readonly={String(readOnly)} data-testid="agent-workspace" />
+  AgentWorkspace: ({
+    readOnly,
+    workspaceArtifacts,
+  }: {
+    readOnly: boolean;
+    workspaceArtifacts: unknown[];
+  }) => (
+    <div
+      data-readonly={String(readOnly)}
+      data-testid="agent-workspace"
+      data-workspace-artifacts={String(workspaceArtifacts.length)}
+    />
   ),
   createBuiltinContentRenderers: () => ({}),
 }));
 
-vi.mock("../agent-ui/WebAgentWorkbenchRuntime", () => ({
-  WebAgentWorkbenchRuntime: class {
-    sessionId: string;
-    constructor(input: Record<string, unknown>) {
-      mocks.lastRuntimeInput = input;
-      this.sessionId = String(input.sessionId);
-    }
+vi.mock("../agent-ui/useAgentPanelRuntime", () => ({
+  useAgentPanelRuntime: (input: Record<string, unknown>) => {
+    mocks.lastRuntimeInput = input;
+    return input.sessionId ? { sessionId: input.sessionId } : null;
   },
 }));
 
-vi.mock("../agent-ui/webAgentWorkbenchArtifactLoader", () => ({
-  createWebAgentWorkbenchArtifactLoader: () => vi.fn(),
+vi.mock("../agent-ui/usePodWorkspaceArtifacts", () => ({
+  usePodWorkspaceArtifacts: () => ({
+    artifacts: mocks.workspaceArtifacts,
+    error: null,
+  }),
 }));
 
 vi.mock("../AgentPanelHeader", () => ({
@@ -129,6 +139,10 @@ describe("AgentPanel artifact access", () => {
       expect(screen.getByTestId("agent-workspace")).toHaveAttribute(
         "data-readonly",
         "true",
+      );
+      expect(screen.getByTestId("agent-workspace")).toHaveAttribute(
+        "data-workspace-artifacts",
+        "1",
       );
       expect(screen.queryByTestId("control-overlay")).not.toBeInTheDocument();
     },
