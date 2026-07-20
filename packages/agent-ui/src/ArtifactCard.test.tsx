@@ -327,7 +327,7 @@ describe("ArtifactCard", () => {
 
     expect(await screen.findByText("PowerPoint")).toBeVisible();
     expect(
-      screen.getByRole("link", { name: "Open release-review.pptx" }),
+      await screen.findByRole("link", { name: "Open release-review.pptx" }),
     ).toHaveAttribute("href", "blob:artifact-preview");
     expect(
       screen.getByRole("link", { name: "Download release-review.pptx" }),
