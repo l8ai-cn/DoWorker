@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   applyLoopCompile,
-  listLoopRuntimeSnapshots,
+  listLoopRuntimeTemplates,
   readLoopSnapshot,
   requestLoopCompile,
   runLoopResourceProgram,
@@ -13,7 +13,7 @@ import {
 import {
   createDefaultLoopSource,
   type LoopEditor,
-  type LoopRuntimeSnapshot,
+  type LoopRuntimeTemplate,
   type LoopWorkbenchSnapshot,
 } from "@/lib/viewModels/loop-program";
 import { createGoalLoopResourceDocument } from "./loop-resource-document";
@@ -34,7 +34,7 @@ export function useLoopWorkbench(orgSlug: string, messages: LoopErrorMessages) {
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string>();
-  const [runtimeSnapshots, setRuntimeSnapshots] = useState<LoopRuntimeSnapshot[]>([]);
+  const [runtimeTemplates, setRuntimeTemplates] = useState<LoopRuntimeTemplate[]>([]);
   const [runtimeLoading, setRuntimeLoading] = useState(true);
   const [runtimeError, setRuntimeError] = useState<string>();
   const [runtimeLoadAttempt, setRuntimeLoadAttempt] = useState(0);
@@ -98,10 +98,10 @@ export function useLoopWorkbench(orgSlug: string, messages: LoopErrorMessages) {
     let cancelled = false;
     setRuntimeLoading(true);
     setRuntimeError(undefined);
-    setRuntimeSnapshots([]);
-    listLoopRuntimeSnapshots(orgSlug)
-      .then((snapshots) => {
-        if (!cancelled) setRuntimeSnapshots(snapshots);
+    setRuntimeTemplates([]);
+    listLoopRuntimeTemplates(orgSlug)
+      .then((templates) => {
+        if (!cancelled) setRuntimeTemplates(templates);
       })
       .catch(() => {
         if (!cancelled) setRuntimeError(messages.runtimeLoadFailed);
@@ -162,7 +162,7 @@ export function useLoopWorkbench(orgSlug: string, messages: LoopErrorMessages) {
     loading,
     running,
     error,
-    runtimeSnapshots,
+    runtimeTemplates,
     runtimeLoading,
     runtimeError,
     retryRuntimeLoad,

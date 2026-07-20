@@ -71,7 +71,7 @@ export interface LoopRuntimeMessages {
   empty: string;
   cancel: string;
   start: string;
-  snapshotLabel: (name: string, workerType: string, id: string) => string;
+  templateLabel: (name: string, workerType: string, id: string) => string;
 }
 
 export interface LoopErrorMessages {

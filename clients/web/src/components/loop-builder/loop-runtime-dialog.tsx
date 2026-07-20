@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { LoopRuntimeSnapshot } from "@/lib/viewModels/loop-program";
+import type { LoopRuntimeTemplate } from "@/lib/viewModels/loop-program";
 import type { LoopRuntimeMessages } from "./loop-workbench-messages";
 
 interface LoopRuntimeDialogProps {
@@ -24,21 +24,21 @@ interface LoopRuntimeDialogProps {
   loading: boolean;
   open: boolean;
   running: boolean;
-  snapshots: LoopRuntimeSnapshot[];
+  templates: LoopRuntimeTemplate[];
   messages: LoopRuntimeMessages;
   onOpenChange: (open: boolean) => void;
   onRetry: () => void;
-  onRun: (snapshotId: string) => void;
+  onRun: (templateName: string) => void;
 }
 
 function runtimeLabel(
-  snapshot: LoopRuntimeSnapshot,
+  template: LoopRuntimeTemplate,
   messages: LoopRuntimeMessages,
 ): string {
-  return messages.snapshotLabel(
-    snapshot.alias || messages.unnamed,
-    snapshot.workerType,
-    snapshot.id,
+  return messages.templateLabel(
+    template.alias || messages.unnamed,
+    template.workerType,
+    template.id,
   );
 }
 
@@ -47,14 +47,14 @@ export function LoopRuntimeDialog({
   loading,
   open,
   running,
-  snapshots,
+  templates,
   messages,
   onOpenChange,
   onRetry,
   onRun,
 }: LoopRuntimeDialogProps) {
   const [selectedId, setSelectedId] = useState("");
-  const selected = snapshots.find(({ id }) => id === selectedId);
+  const selected = templates.find(({ id }) => id === selectedId);
 
   function changeOpen(nextOpen: boolean) {
     if (!nextOpen) setSelectedId("");
@@ -71,7 +71,7 @@ export function LoopRuntimeDialog({
         <DialogBody className="space-y-3">
           <Label>{messages.field}</Label>
           <Select
-            disabled={loading || snapshots.length === 0 || running}
+            disabled={loading || templates.length === 0 || running}
             value={selectedId}
             onValueChange={setSelectedId}
           >
@@ -83,9 +83,9 @@ export function LoopRuntimeDialog({
               )}
             </SelectTrigger>
             <SelectContent>
-              {snapshots.map((snapshot) => (
-                <SelectItem key={snapshot.id} value={snapshot.id}>
-                  {runtimeLabel(snapshot, messages)}
+              {templates.map((template) => (
+                <SelectItem key={template.id} value={template.id}>
+                  {runtimeLabel(template, messages)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -101,7 +101,7 @@ export function LoopRuntimeDialog({
               </Button>
             </div>
           )}
-          {!loading && !error && snapshots.length === 0 && (
+          {!loading && !error && templates.length === 0 && (
             <p className="text-sm text-destructive">{messages.empty}</p>
           )}
         </DialogBody>

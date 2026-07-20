@@ -613,7 +613,7 @@
       "empty": "이 조직에는 사용 가능한 실행 환경이 없습니다",
       "cancel": "취소",
       "start": "Loop 시작",
-      "snapshotLabel": "{name} · {workerType} · 템플릿 {id}"
+      "templateLabel": "{name} · {workerType} · 템플릿 {id}"
     },
     "errors": {
       "compileFailed": "LoopScript 검증에 실패했습니다. 네트워크를 확인하고 다시 시도하세요.",

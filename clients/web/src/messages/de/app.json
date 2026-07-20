@@ -613,7 +613,7 @@
       "empty": "Diese Organisation hat keine verfügbare Runtime",
       "cancel": "Abbrechen",
       "start": "Loop starten",
-      "snapshotLabel": "{name} · {workerType} · Vorlage {id}"
+      "templateLabel": "{name} · {workerType} · Vorlage {id}"
     },
     "errors": {
       "compileFailed": "LoopScript-Validierung fehlgeschlagen. Prüfen Sie das Netzwerk und versuchen Sie es erneut.",

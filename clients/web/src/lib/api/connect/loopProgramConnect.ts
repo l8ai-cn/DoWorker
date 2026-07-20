@@ -19,7 +19,7 @@ import {
 import { createGoalLoopFromPlan } from "./orchestrationResourceApplyConnect";
 import type {
   LoopEditor,
-  LoopRuntimeSnapshot,
+  LoopRuntimeTemplate,
   LoopWorkbenchSnapshot,
 } from "@/lib/viewModels/loop-program";
 
@@ -89,9 +89,9 @@ export async function applyLoopCompile(
   return toSnapshot();
 }
 
-export async function listLoopRuntimeSnapshots(
+export async function listLoopRuntimeTemplates(
   orgSlug: string,
-): Promise<LoopRuntimeSnapshot[]> {
+): Promise<LoopRuntimeTemplate[]> {
   const response = await listResources(orgSlug, {
     kind: "WorkerTemplate",
     limit: 100,

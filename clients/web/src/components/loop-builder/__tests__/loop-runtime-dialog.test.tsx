@@ -3,7 +3,7 @@ import { fireEvent, render, screen } from "@/test/test-utils";
 import { LoopRuntimeDialog } from "../loop-runtime-dialog";
 import type { LoopRuntimeMessages } from "../loop-workbench-messages";
 
-const snapshots = [
+const templates = [
   { id: "31", alias: "结算环境", workerType: "codex", createdAt: "2026-07-15T00:00:00Z" },
   {
     id: "9007199254740993",
@@ -23,7 +23,7 @@ const messages: LoopRuntimeMessages = {
   empty: "当前组织没有可用的运行环境",
   cancel: "取消",
   start: "启动循环",
-  snapshotLabel: (name, workerType, id) => `${name} · ${workerType} · 模板 ${id}`,
+  templateLabel: (name, workerType, id) => `${name} · ${workerType} · 模板 ${id}`,
 };
 
 describe("LoopRuntimeDialog", () => {
@@ -34,7 +34,7 @@ describe("LoopRuntimeDialog", () => {
         messages={messages}
         open
         running={false}
-        snapshots={snapshots}
+        templates={templates}
         onOpenChange={vi.fn()}
         onRetry={vi.fn()}
         onRun={vi.fn()}
@@ -44,7 +44,7 @@ describe("LoopRuntimeDialog", () => {
     expect(document.querySelector("[data-dialog-overlay]")).toHaveClass("z-[100001]");
   });
 
-  it("submits the explicitly selected runtime snapshot", () => {
+  it("submits the explicitly selected runtime template", () => {
     const onRun = vi.fn();
     render(
       <LoopRuntimeDialog
@@ -52,7 +52,7 @@ describe("LoopRuntimeDialog", () => {
         messages={messages}
         open
         running={false}
-        snapshots={snapshots}
+        templates={templates}
         onOpenChange={vi.fn()}
         onRetry={vi.fn()}
         onRun={onRun}
@@ -73,7 +73,7 @@ describe("LoopRuntimeDialog", () => {
         messages={messages}
         open
         running={false}
-        snapshots={[]}
+        templates={[]}
         onOpenChange={vi.fn()}
         onRetry={vi.fn()}
         onRun={vi.fn()}
@@ -91,7 +91,7 @@ describe("LoopRuntimeDialog", () => {
         messages={messages}
         open
         running={false}
-        snapshots={[]}
+        templates={[]}
         onOpenChange={vi.fn()}
         onRetry={vi.fn()}
         onRun={vi.fn()}
@@ -111,7 +111,7 @@ describe("LoopRuntimeDialog", () => {
         messages={messages}
         open
         running={false}
-        snapshots={[]}
+        templates={[]}
         onOpenChange={vi.fn()}
         onRetry={onRetry}
         onRun={vi.fn()}

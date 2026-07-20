@@ -144,8 +144,8 @@ export function createLoopWorkbenchMessages(t: LoopMessageTranslator): LoopWorkb
       unnamed: t("runtime.unnamed"), loading: t("runtime.loading"),
       retry: t("runtime.retry"), empty: t("runtime.empty"),
       cancel: t("runtime.cancel"), start: t("runtime.start"),
-      snapshotLabel: (name, workerType, id) =>
-        t("runtime.snapshotLabel", { name, workerType, id }),
+      templateLabel: (name, workerType, id) =>
+        t("runtime.templateLabel", { name, workerType, id }),
     },
     errors: {
       compileFailed: t("errors.compileFailed"),

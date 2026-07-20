@@ -11,7 +11,7 @@ export type {
 } from "../connect/loopAIConnect";
 export {
   applyLoopCompile,
-  listLoopRuntimeSnapshots,
+  listLoopRuntimeTemplates,
   readLoopSnapshot,
   requestLoopCompile,
   runLoopResourceProgram,

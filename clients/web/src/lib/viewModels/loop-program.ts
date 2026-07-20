@@ -18,7 +18,7 @@ export interface LoopWorkbenchSnapshot {
   run?: LoopDraftSnapshot["run"];
 }
 
-export interface LoopRuntimeSnapshot {
+export interface LoopRuntimeTemplate {
   id: string;
   alias: string;
   workerType: string;

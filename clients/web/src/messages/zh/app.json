@@ -1080,7 +1080,7 @@
       "empty": "当前组织没有可用的运行环境",
       "cancel": "取消",
       "start": "启动循环",
-      "snapshotLabel": "{name} · {workerType} · 模板 {id}"
+      "templateLabel": "{name} · {workerType} · 模板 {id}"
     },
     "errors": {
       "compileFailed": "循环脚本校验失败，请检查网络或稍后重试",

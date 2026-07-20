@@ -120,12 +120,12 @@ export function LoopWorkbench({ orgSlug }: { orgSlug: string }) {
         messages={messages.runtime}
         open={runtimeDialogOpen}
         running={model.running}
-        snapshots={model.runtimeSnapshots}
+        templates={model.runtimeTemplates}
         onOpenChange={setRuntimeDialogOpen}
         onRetry={model.retryRuntimeLoad}
-        onRun={(snapshotId) => {
+        onRun={(templateName) => {
           setRuntimeDialogOpen(false);
-          void model.run(snapshotId);
+          void model.run(templateName);
         }}
       />
       <LoopCustomBlockDialog

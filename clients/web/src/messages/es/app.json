@@ -619,7 +619,7 @@
       "empty": "Esta organización no tiene runtime disponible",
       "cancel": "Cancelar",
       "start": "Iniciar loop",
-      "snapshotLabel": "{name} · {workerType} · Plantilla {id}"
+      "templateLabel": "{name} · {workerType} · Plantilla {id}"
     },
     "errors": {
       "compileFailed": "La validación de LoopScript falló. Revisa la red e inténtalo de nuevo.",

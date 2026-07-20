@@ -619,7 +619,7 @@
       "empty": "Cette organisation n’a aucun environnement disponible",
       "cancel": "Annuler",
       "start": "Démarrer le loop",
-      "snapshotLabel": "{name} · {workerType} · Modèle {id}"
+      "templateLabel": "{name} · {workerType} · Modèle {id}"
     },
     "errors": {
       "compileFailed": "La validation LoopScript a échoué. Vérifiez le réseau et réessayez.",
