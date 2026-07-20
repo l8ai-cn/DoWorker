@@ -22,3 +22,11 @@ func TestKnowledgeBaseConfigEnabledRequiresPinnedSSHConfiguration(t *testing.T) 
 	config.SSHCloneBaseURL = ""
 	assert.False(t, config.Enabled())
 }
+
+func TestLoadKnowledgeBaseConfigReadsTrustedRepositoryOrigins(t *testing.T) {
+	t.Setenv("KB_GITEA_REPOSITORY_BASE_URLS", "http://gitea:3000, http://gitea.internal")
+
+	config := loadKnowledgeBaseConfig()
+
+	assert.Equal(t, []string{"http://gitea:3000", "http://gitea.internal"}, config.RepositoryBaseURLs)
+}

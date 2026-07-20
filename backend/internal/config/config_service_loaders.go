@@ -12,13 +12,14 @@ func loadMarketplaceConfig() MarketplaceConfig {
 
 func loadKnowledgeBaseConfig() KnowledgeBaseConfig {
 	return KnowledgeBaseConfig{
-		GiteaURL:        getEnv("KB_GITEA_URL", ""),
-		GiteaToken:      getEnv("KB_GITEA_TOKEN", ""),
-		GiteaOrg:        getEnv("KB_GITEA_ORG", "am-kb"),
-		CloneBaseURL:    getEnv("KB_GITEA_CLONE_URL", ""),
-		SSHCloneBaseURL: getEnv("KB_GITEA_SSH_URL", ""),
-		SSHKnownHosts:   getEnv("KB_GITEA_KNOWN_HOSTS", ""),
-		SyncInterval:    getEnvDuration("KB_SYNC_INTERVAL", time.Hour),
+		GiteaURL:           getEnv("KB_GITEA_URL", ""),
+		GiteaToken:         getEnv("KB_GITEA_TOKEN", ""),
+		GiteaOrg:           getEnv("KB_GITEA_ORG", "am-kb"),
+		CloneBaseURL:       getEnv("KB_GITEA_CLONE_URL", ""),
+		RepositoryBaseURLs: getEnvList("KB_GITEA_REPOSITORY_BASE_URLS", nil),
+		SSHCloneBaseURL:    getEnv("KB_GITEA_SSH_URL", ""),
+		SSHKnownHosts:      getEnv("KB_GITEA_KNOWN_HOSTS", ""),
+		SyncInterval:       getEnvDuration("KB_SYNC_INTERVAL", time.Hour),
 	}
 }
 

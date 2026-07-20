@@ -33,6 +33,7 @@ func initializeWorkerServices(
 	models *airesourceservice.Service,
 	repositories *repository.Service,
 	runners workercreation.RunnerAvailabilityResolver,
+	providerTokens workercreation.ProviderTokenLookup,
 ) (workerServices, error) {
 	definitions, err := workerdefinition.Load(cfg.WorkerDefinitionsDir)
 	if err != nil {
@@ -50,6 +51,11 @@ func initializeWorkerServices(
 		repositories,
 		catalog,
 		runners,
+		workercreation.NewProductionWorkspaceCommitResolver(
+			providerTokens,
+			newGiteaClientForNamespace(cfg, cfg.KnowledgeBase.GiteaOrg),
+			workerRepositoryBaseURLs(cfg)...,
+		),
 	)
 	generator := workercreation.NewProviderDraftGenerator(
 		airesourceservice.NewSafeHTTPClient(
@@ -68,6 +74,11 @@ func initializeWorkerServices(
 	}, nil
 }
 
+func workerRepositoryBaseURLs(cfg *config.Config) []string {
+	origins := []string{cfg.KnowledgeBase.GiteaURL, cfg.KnowledgeBase.CloneBaseURL}
+	return append(origins, cfg.KnowledgeBase.RepositoryBaseURLs...)
+}
+
 func initializeWorkerCreationService(
 	db *gorm.DB,
 	definitions *workerdefinition.Catalog,
@@ -76,6 +87,7 @@ func initializeWorkerCreationService(
 	repositories *repository.Service,
 	catalog workerruntime.Catalog,
 	runners workercreation.RunnerAvailabilityResolver,
+	commits workercreation.WorkspaceCommitResolver,
 ) *workercreation.Service {
 	return workercreation.NewService(workercreation.Deps{
 		Catalog:      catalog,
@@ -87,5 +99,6 @@ func initializeWorkerCreationService(
 		Skills:       infra.NewSkillCatalogRepository(db),
 		Knowledge:    infra.NewKnowledgeBaseRepository(db),
 		EnvBundles:   infra.NewEnvBundleRepository(db),
+		Commits:      commits,
 	})
 }

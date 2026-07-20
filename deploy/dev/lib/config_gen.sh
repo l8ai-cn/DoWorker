@@ -404,6 +404,11 @@ generate_env() {
             export MCP_REGISTRY_ENABLED=false
             info "开发环境已关闭 MCP Registry 全量同步"
         fi
+        if ! grep -q "^KB_GITEA_REPOSITORY_BASE_URLS=" "$ENV_FILE"; then
+            echo "KB_GITEA_REPOSITORY_BASE_URLS=http://gitea:3000" >> "$ENV_FILE"
+            export KB_GITEA_REPOSITORY_BASE_URLS="http://gitea:3000"
+            info "开发环境已声明内部 Gitea repository origin"
+        fi
         success "保留现有端口配置 (worktree: $worktree_name, PRIMARY_DOMAIN: localhost:$HTTP_PORT)"
         return 0
     fi
@@ -476,6 +481,7 @@ RUNNER_2_MCP_PORT=$((10019 + offset * 50))
 # End-user workbench (clients/web-user, Vite — proxies /v1 to traefik)
 WEB_USER_PORT=$((10020 + offset * 50))
 MOBILE_LOVABLE_PORT=$((10021 + offset * 50))
+KB_GITEA_REPOSITORY_BASE_URLS=http://gitea:3000
 
 # =============================================================================
 # Credentials

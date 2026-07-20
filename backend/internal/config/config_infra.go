@@ -50,12 +50,13 @@ type EmailConfig struct {
 // repositories. The KB mount service requires both the control-plane API
 // credentials and pinned SSH clone configuration.
 type KnowledgeBaseConfig struct {
-	GiteaURL        string // Gitea base URL as reachable from the backend
-	GiteaToken      string // admin-scoped service token for repo provisioning
-	GiteaOrg        string // Gitea org namespace owning all KB repos
-	CloneBaseURL    string // HTTP clone base URL as reachable from runners
-	SSHCloneBaseURL string // SSH clone base URL as reachable from runners
-	SSHKnownHosts   string // pinned internal Gitea SSH host key
+	GiteaURL           string   // Gitea base URL as reachable from the backend
+	GiteaToken         string   // admin-scoped service token for repo provisioning
+	GiteaOrg           string   // Gitea org namespace owning all KB repos
+	CloneBaseURL       string   // HTTP clone base URL as reachable from runners
+	RepositoryBaseURLs []string // additional trusted origins for repositories hosted by this Gitea
+	SSHCloneBaseURL    string   // SSH clone base URL as reachable from runners
+	SSHKnownHosts      string   // pinned internal Gitea SSH host key
 
 	SyncInterval time.Duration // external-source (feishu/dingtalk/google) sync cadence
 }

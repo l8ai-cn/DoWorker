@@ -13,7 +13,7 @@ func TestInitializeWorkerServicesValidatesDefinitionCatalog(t *testing.T) {
 	t.Run("rejects an incomplete catalog", func(t *testing.T) {
 		_, err := initializeWorkerServices(
 			&config.Config{WorkerDefinitionsDir: t.TempDir()},
-			nil, nil, nil, nil, nil,
+			nil, nil, nil, nil, nil, nil,
 		)
 
 		require.Error(t, err)
@@ -26,7 +26,7 @@ func TestInitializeWorkerServicesValidatesDefinitionCatalog(t *testing.T) {
 
 		services, err := initializeWorkerServices(
 			&config.Config{WorkerDefinitionsDir: root},
-			nil, nil, nil, nil, nil,
+			nil, nil, nil, nil, nil, nil,
 		)
 
 		require.NoError(t, err)

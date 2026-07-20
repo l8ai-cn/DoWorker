@@ -20,6 +20,7 @@ DECLARE
     v_user2_id BIGINT;
     v_admin_id BIGINT;
     v_org_id BIGINT;
+    v_admin_workspace_id BIGINT;
     v_local_cluster_id BIGINT;
     v_online_cluster_id BIGINT;
     v_token_id BIGINT;
@@ -81,6 +82,26 @@ BEGIN
     END IF;
 
     RAISE NOTICE 'Organization ID: %', v_org_id;
+
+    INSERT INTO organizations (name, slug, subscription_plan, subscription_status)
+    SELECT 'Admin Workspace', 'admin-workspace', 'pro', 'active'
+    WHERE NOT EXISTS (
+        SELECT 1 FROM organizations WHERE slug = 'admin-workspace'
+    )
+    RETURNING id INTO v_admin_workspace_id;
+
+    IF v_admin_workspace_id IS NULL THEN
+        SELECT id INTO v_admin_workspace_id
+        FROM organizations
+        WHERE slug = 'admin-workspace';
+    END IF;
+
+    INSERT INTO organization_members (organization_id, user_id, role)
+    SELECT v_admin_workspace_id, v_admin_id, 'owner'
+    WHERE NOT EXISTS (
+        SELECT 1 FROM organization_members
+        WHERE organization_id = v_admin_workspace_id AND user_id = v_admin_id
+    );
 
     INSERT INTO execution_clusters (organization_id, slug, name, kind, status)
     VALUES (v_org_id, 'online', 'Online cluster', 'online', 'pending')
@@ -295,7 +316,7 @@ BEGIN
         WHERE organization_id = v_org_id AND node_id = r.node_id
     );
 
-    -- admin-workspace: system-admin personal org (may not exist on first seed run)
+    -- admin-workspace: system-admin personal org
     INSERT INTO execution_clusters (organization_id, slug, name, kind, status)
     SELECT o.id, cluster.slug, cluster.name, cluster.kind, cluster.status
     FROM organizations o
@@ -427,7 +448,7 @@ BEGIN
            '1',
            'Demo WebApp',
            'dev-org/demo-webapp',
-           'git@gitea:dev-org/demo-webapp.git',
+           'http://gitea:3000/dev-org/demo-webapp.git',
            'main',
            'WEB',
            'organization',
@@ -437,6 +458,10 @@ BEGIN
         SELECT 1 FROM repositories
         WHERE organization_id = v_org_id AND slug = 'dev-org/demo-webapp'
     );
+
+    UPDATE repositories
+    SET http_clone_url = 'http://gitea:3000/dev-org/demo-webapp.git'
+    WHERE organization_id = v_org_id AND slug = 'dev-org/demo-webapp';
 
     -- 8.2 Demo API (Go API 项目)
     INSERT INTO repositories (
@@ -451,7 +476,7 @@ BEGIN
            '2',
            'Demo API',
            'dev-org/demo-api',
-           'git@gitea:dev-org/demo-api.git',
+           'http://gitea:3000/dev-org/demo-api.git',
            'main',
            'API',
            'organization',
@@ -461,6 +486,10 @@ BEGIN
         SELECT 1 FROM repositories
         WHERE organization_id = v_org_id AND slug = 'dev-org/demo-api'
     );
+
+    UPDATE repositories
+    SET http_clone_url = 'http://gitea:3000/dev-org/demo-api.git'
+    WHERE organization_id = v_org_id AND slug = 'dev-org/demo-api';
 
     RAISE NOTICE 'Seed data created successfully!';
     RAISE NOTICE '  - User: dev@agentsmesh.local / AdminAb123456';

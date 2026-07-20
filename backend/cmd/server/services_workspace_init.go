@@ -71,7 +71,7 @@ func initializeWorkspaceServices(services *serviceContainer, cfg *config.Config,
 	services.virtualKey = virtualkeysvc.NewService(infra.NewVirtualAPIKeyRepository(db), services.aiResource)
 	services.tokenQuota = tokenquotasvc.NewService(infra.NewTokenQuotaRepository(db), db)
 	workerServices, err := initializeWorkerServices(
-		cfg, db, services.agentSvc, services.aiResource, services.repository, services.runner,
+		cfg, db, services.agentSvc, services.aiResource, services.repository, services.runner, services.user,
 	)
 	if err != nil {
 		return err

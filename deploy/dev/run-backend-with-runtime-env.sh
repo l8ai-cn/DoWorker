@@ -15,8 +15,10 @@ load_env_file() {
     set +a
 }
 
+load_env_file "$DEV_ENV" || true
+
 if ! load_env_file "$RUNTIME_ENV"; then
-    load_env_file "$DEV_ENV" || {
+    [[ -f "$DEV_ENV" ]] || {
         echo "backend runtime env not found: $RUNTIME_ENV or $DEV_ENV" >&2
         exit 1
     }
