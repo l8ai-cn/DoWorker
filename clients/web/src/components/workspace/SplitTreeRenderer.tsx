@@ -6,13 +6,20 @@ import { cn } from "@/lib/utils";
 import { useWorkspaceStore } from "@/stores/workspace";
 import type { SplitTreeNode } from "@/stores/workspace";
 import { usePod } from "@/stores/pod";
-import { POD_MODE_ACP } from "@/lib/pod-modes";
+import { POD_MODE_ACP, type PodMode } from "@/lib/pod-modes";
 import { TerminalPane } from "./TerminalPane";
 import { AgentPanel } from "./AgentPanel";
 
 interface SplitTreeRendererProps {
   node: SplitTreeNode;
   onPopout?: (paneId: string) => void;
+}
+
+export function shouldRenderAgentPanel(
+  interactionMode: PodMode | undefined,
+  agentSlug: string | undefined,
+): boolean {
+  return interactionMode === POD_MODE_ACP || agentSlug === "video-studio";
 }
 
 function ResizeHandle({ direction }: { direction: "horizontal" | "vertical" }) {
@@ -100,7 +107,7 @@ function LeafPane({
     showHeader: true,
   };
 
-  if (interactionMode === POD_MODE_ACP) {
+  if (shouldRenderAgentPanel(interactionMode, pod?.agent?.slug)) {
     return <AgentPanel {...sharedProps} />;
   }
   return <TerminalPane {...sharedProps} />;
