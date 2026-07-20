@@ -32,15 +32,37 @@ esac
 EOF
 chmod +x "$TMP/bin/doops"
 
+if env \
+  PATH="$TMP/bin:$PATH" \
+  DOOPS_LOG="$LOG" \
+  DOOPS_SESSION="ses-contract" \
+  DOOPS_TARGET="contract-target" \
+  DOSQL_RELEASE_DB_TARGET="oilan-postgres" \
+  DOSQL_RELEASE_DB_MODE="production" \
+  DOSQL_RELEASE_DB_SESSION="dosql-contract" \
+  DOSQL_RELEASE_MIGRATION_VERSION="$(find "$ROOT/../../../backend/migrations" -name '*.up.sql' -exec basename {} \; | awk -F_ '{ print $1 }' | sort -n | tail -1)" \
+  DOSQL_RELEASE_CHANGE_ID="change-contract" \
+  DOSQL_RELEASE_OPERATION_ID="dbop-contract" \
+  "$ROOT/deploy-mobile-access.sh" >/dev/null 2>&1; then
+  echo "mobile deploy accepted missing canonical DoSql evidence" >&2
+  exit 1
+fi
+
+if [[ -e "$LOG" ]] && grep -F ' push ' "$LOG" >/dev/null; then
+  echo "mobile deploy pushed manifests before canonical DoSql evidence passed" >&2
+  exit 1
+fi
+
 PATH="$TMP/bin:$PATH" \
 DOOPS_LOG="$LOG" \
 DOOPS_SESSION="ses-contract" \
 DOOPS_TARGET="contract-target" \
-DOSQL_RELEASE_DB_TARGET="oilan-postgres" \
-DOSQL_RELEASE_DB_SESSION="dosql-contract" \
-DOSQL_RELEASE_MIGRATION_VERSION="$(find "$ROOT/../../../backend/migrations" -name '*.up.sql' -exec basename {} \; | awk -F_ '{ print $1 }' | sort -n | tail -1)" \
-DOSQL_RELEASE_CHANGE_ID="change-contract" \
-"$ROOT/deploy-mobile-access.sh"
+bash -c '
+  set -euo pipefail
+  source "$1/deploy-mobile-access.sh"
+  require_dosql_database_evidence() { :; }
+  main
+' bash "$ROOT"
 
 require_command() {
   grep -F "$1" "$LOG" >/dev/null || {

@@ -137,11 +137,14 @@ Each run is a **full reconcile**, not a DB-only reset:
 
 1. **Secrets** — restore existing cluster secrets or generate first-deploy values.
 2. **Immutable release** — reject any platform image not pinned by registry digest.
-3. **DoSql database gate** — require `DOSQL_RELEASE_DB_TARGET`,
+3. **DoSql database gate** — the repository verifier requires a real append-only
+   DoSql journal and immutable evidence artifact for
+   `DOSQL_RELEASE_DB_TARGET`, `DOSQL_RELEASE_DB_MODE`,
    `DOSQL_RELEASE_DB_SESSION`, `DOSQL_RELEASE_CHANGE_ID`, and
-   `DOSQL_RELEASE_MIGRATION_VERSION` to identify the audited DoSql change that
-   already applied schema and seed changes. Normal deploy does not run DDL/DML,
-   does not create a migration Job, and does not query PostgreSQL directly.
+   `DOSQL_RELEASE_OPERATION_ID`. The current DoSql control plane has no
+   production audit-query binding, so normal Oilan deploy remains blocked rather
+   than trusting caller-supplied evidence strings. It never runs DDL/DML,
+   creates no migration Job, and does not query PostgreSQL directly.
 4. **`kubectl apply -f /tmp/agentsmesh-release.yaml`** — after the audited
    database gate, re-apply every Deployment/ConfigMap/Ingress from git.
    Live hotfixes (`kubectl set env …`) are **overwritten** on the next deploy.

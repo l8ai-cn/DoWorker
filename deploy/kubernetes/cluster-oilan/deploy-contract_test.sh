@@ -73,10 +73,6 @@ HOME="$TMP/home" \
 DOOPS_LOG="$LOG" \
 DOOPS_SESSION="ses-contract" \
 DOOPS_TARGET="contract-target" \
-DOSQL_RELEASE_DB_TARGET="oilan-postgres" \
-DOSQL_RELEASE_DB_SESSION="dosql-contract" \
-DOSQL_RELEASE_MIGRATION_VERSION="$(find "$ROOT/../../../backend/migrations" -name '*.up.sql' -exec basename {} \; | awk -F_ '{ print $1 }' | sort -n | tail -1)" \
-DOSQL_RELEASE_CHANGE_ID="change-contract" \
 bash -c '
   set -euo pipefail
   source "$1/deploy.sh"
@@ -84,6 +80,7 @@ bash -c '
   release_verify_source_metadata() { :; }
   release_verify_image_provenance() { :; }
   release_verify_gitea_provenance() { :; }
+  require_dosql_database_evidence() { :; }
   generate_cluster_secrets() {
     mkdir -p "${SEC}"
     for name in "${SECRET_MANIFESTS[@]}"; do
