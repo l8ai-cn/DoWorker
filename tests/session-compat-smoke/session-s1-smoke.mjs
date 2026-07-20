@@ -2,6 +2,10 @@ import { chromium } from "@playwright/test";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { createE2EEchoSession } from "./e2e-echo-session-plan.mjs";
+import {
+  cleanupSmokeSessions,
+  trackSmokeSession,
+} from "./session-fixture-cleanup.mjs";
 
 const OUT = join(process.cwd(), "output", "s1-smoke");
 mkdirSync(OUT, { recursive: true });
@@ -36,9 +40,9 @@ function headers(token) {
   };
 }
 
-async function createSession(token, body) {
+async function createSession(token, sessionIDs, body) {
   if (body.agent_id === "e2e-echo") {
-    return createE2EEchoSession(token, body);
+    return trackSmokeSession(sessionIDs, await createE2EEchoSession(token, body));
   }
   const res = await fetch(`${API}/v1/sessions`, {
     method: "POST",
@@ -46,7 +50,7 @@ async function createSession(token, body) {
     body: JSON.stringify(body),
   });
   if (!res.ok) throw new Error(`create session ${res.status}: ${await res.text()}`);
-  return res.json();
+  return trackSmokeSession(sessionIDs, await res.json());
 }
 
 async function postEvent(token, sid, text) {
@@ -72,10 +76,10 @@ async function pollItems(token, sid, min, tries = 30) {
   return [];
 }
 
-async function testListWire(token) {
+async function testListWire(token, sessionID) {
   const res = await fetch(`${API}/v1/sessions?limit=5`, { headers: headers(token) });
   const body = await res.json();
-  const row = body.data?.[0];
+  const row = body.data?.find((item) => item.id === sessionID);
   const ok =
     res.ok &&
     body.data?.length > 0 &&
@@ -120,8 +124,8 @@ async function testSessionUpdatesWS(token) {
   return ok;
 }
 
-async function testElicitation(token) {
-  const session = await createSession(token, {
+async function testElicitation(token, sessionIDs) {
+  const session = await createSession(token, sessionIDs, {
     agent_id: "e2e-echo",
     title: "S1 elicitation smoke",
     scenario: "permission_request_edit",
@@ -160,8 +164,12 @@ async function testElicitation(token) {
   return resolved;
 }
 
-async function testTerminalResources(token) {
-  const session = await createSession(token, { agent_id: "e2e-echo", title: "S1 terminal smoke", pty_only: true });
+async function testTerminalResources(token, sessionIDs) {
+  const session = await createSession(
+    token,
+    sessionIDs,
+    { agent_id: "e2e-echo", title: "S1 terminal smoke", pty_only: true },
+  );
   await postEvent(token, session.id, "hello terminal");
   await new Promise((r) => setTimeout(r, 5000));
   const res = await fetch(`${API}/v1/sessions/${session.id}/resources/terminals`, {
@@ -205,19 +213,33 @@ async function testTerminalResources(token) {
 }
 
 async function main() {
+  const sessionIDs = new Set();
+  let token;
   try {
-    const token = await login();
+    token = await login();
     step("API login", true);
-    await testListWire(token);
+    const listFixture = await createSession(token, sessionIDs, {
+      agent_id: "e2e-echo",
+      title: "S1 list fixture",
+    });
+    await testListWire(token, listFixture.id);
     await testSessionUpdatesWS(token);
-    await testElicitation(token);
-    await testTerminalResources(token);
+    await testElicitation(token, sessionIDs);
+    await testTerminalResources(token, sessionIDs);
   } catch (err) {
     report.errors.push(String(err?.stack ?? err));
     step("S1 smoke run", false, String(err));
+  } finally {
+    if (token) {
+      try {
+        step("S1 fixture cleanup", true, `deleted=${await cleanupSmokeSessions(token, sessionIDs)}`);
+      } catch (error) {
+        step("S1 fixture cleanup", false, String(error));
+      }
+    }
   }
   writeFileSync(join(OUT, "report.json"), JSON.stringify(report, null, 2));
-  if (report.steps.some((s) => !s.ok)) process.exit(1);
+  if (report.steps.some((s) => !s.ok)) process.exitCode = 1;
 }
 
-main();
+await main();

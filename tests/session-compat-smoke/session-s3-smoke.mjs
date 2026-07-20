@@ -1,4 +1,8 @@
 import { createE2EEchoSession } from "./e2e-echo-session-plan.mjs";
+import {
+  cleanupSmokeSessions,
+  trackSmokeSession,
+} from "./session-fixture-cleanup.mjs";
 
 const API = process.env.SESSION_COMPAT_API_URL || "http://localhost:10015";
 const ORG = "dev-org";
@@ -30,9 +34,9 @@ function headers(token, extra = {}) {
   };
 }
 
-async function createSession(token, body) {
+async function createSession(token, sessionIDs, body) {
   if (body.agent_id === "e2e-echo") {
-    return createE2EEchoSession(token, body);
+    return trackSmokeSession(sessionIDs, await createE2EEchoSession(token, body));
   }
   const res = await fetch(`${API}/v1/sessions`, {
     method: "POST",
@@ -40,7 +44,7 @@ async function createSession(token, body) {
     body: JSON.stringify(body),
   });
   if (!res.ok) throw new Error(`create session ${res.status}: ${await res.text()}`);
-  return res.json();
+  return trackSmokeSession(sessionIDs, await res.json());
 }
 
 async function postEvent(token, sid, text) {
@@ -83,8 +87,8 @@ async function pollUsage(token, sid, tries = 45) {
   return null;
 }
 
-async function testUsageReporting(token) {
-  const session = await createSession(token, {
+async function testUsageReporting(token, sessionIDs) {
+  const session = await createSession(token, sessionIDs, {
     agent_id: "e2e-echo",
     title: "S3 usage smoke",
   });
@@ -141,8 +145,8 @@ async function testPolicyHotPush(token, activeSessionId) {
 // must make the runner auto-deny the mock's Edit permission request — no
 // elicitation surfaces, yet the turn still completes (mock emits a failed
 // tool call and ends the turn).
-async function testPolicyDenyBehavior(token) {
-  const session = await createSession(token, {
+async function testPolicyDenyBehavior(token, sessionIDs) {
+  const session = await createSession(token, sessionIDs, {
     agent_id: "e2e-echo",
     title: "S3 deny behavior",
     scenario: "permission_request_edit",
@@ -202,7 +206,7 @@ async function testPolicyDenyBehavior(token) {
   return !sawElicitation;
 }
 
-async function testForkSession(token, sourceSessionId) {
+async function testForkSession(token, sessionIDs, sourceSessionId) {
   await postEvent(token, sourceSessionId, "fork me");
   const sourceItems = await pollItems(token, sourceSessionId, 2, 40);
   step("S3.4 source conversation", sourceItems.length >= 2, `items=${sourceItems.length}`);
@@ -217,6 +221,7 @@ async function testForkSession(token, sourceSessionId) {
   step("S3.4 POST fork", forkOk, forkBody.id ?? `HTTP ${forkRes.status}`);
 
   if (!forkOk) return false;
+  trackSmokeSession(sessionIDs, forkBody);
 
   const forkItems = await fetch(`${API}/v1/sessions/${forkBody.id}/items`, {
     headers: headers(token),
@@ -231,23 +236,35 @@ async function testForkSession(token, sourceSessionId) {
 }
 
 async function main() {
-  const token = await login();
-  step("API login", true);
+  const sessionIDs = new Set();
+  let token;
+  try {
+    token = await login();
+    step("API login", true);
 
-  const usage = await testUsageReporting(token);
-  await testPolicyHotPush(token, usage.sessionId);
-  await testPolicyDenyBehavior(token);
-  await testForkSession(token, usage.sessionId);
-
+    const usage = await testUsageReporting(token, sessionIDs);
+    await testPolicyHotPush(token, usage.sessionId);
+    await testPolicyDenyBehavior(token, sessionIDs);
+    await testForkSession(token, sessionIDs, usage.sessionId);
+  } catch (error) {
+    report.errors.push(String(error?.stack ?? error));
+    step("S3 smoke run", false, String(error));
+  } finally {
+    if (token) {
+      try {
+        step("S3 fixture cleanup", true, `deleted=${await cleanupSmokeSessions(token, sessionIDs)}`);
+      } catch (error) {
+        step("S3 fixture cleanup", false, String(error));
+      }
+    }
+  }
   const failed = report.steps.filter((s) => !s.ok);
   if (failed.length) {
     console.error("\nFAILED:", failed);
-    process.exit(1);
+    process.exitCode = 1;
+  } else {
+    console.log("\nS3 smoke: all steps passed");
   }
-  console.log("\nS3 smoke: all steps passed");
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+await main();

@@ -1,6 +1,10 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { createE2EEchoSession } from "./e2e-echo-session-plan.mjs";
+import {
+  cleanupSmokeSessions,
+  trackSmokeSession,
+} from "./session-fixture-cleanup.mjs";
 
 const OUT = join(process.cwd(), "output", "browser-integration");
 mkdirSync(OUT, { recursive: true });
@@ -24,49 +28,65 @@ function step(name, ok, detail = "") {
 }
 
 async function main() {
-  const token = await login();
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    "X-Organization-Slug": ORG,
-    "Content-Type": "application/json",
-  };
+  const sessionIDs = new Set();
+  let token;
+  try {
+    token = await login();
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      "X-Organization-Slug": ORG,
+      "Content-Type": "application/json",
+    };
 
-  const t0 = performance.now();
-  const agents = await fetch(`${API}/v1/agents`, { headers }).then((r) => r.json());
-  step("GET /v1/agents", (agents.data?.length ?? 0) > 0, `${agents.data?.length} agents in ${(performance.now() - t0).toFixed(0)}ms`);
+    const t0 = performance.now();
+    const agents = await fetch(`${API}/v1/agents`, { headers }).then((r) => r.json());
+    step("GET /v1/agents", (agents.data?.length ?? 0) > 0, `${agents.data?.length} agents in ${(performance.now() - t0).toFixed(0)}ms`);
 
-  const create = await createE2EEchoSession(token, { title: "API integration smoke" });
-  const sid = create.id;
-  step("POST /v1/sessions", true, `${sid} status=${create.status}`);
+    const create = trackSmokeSession(
+      sessionIDs,
+      await createE2EEchoSession(token, { title: "API integration smoke" }),
+    );
+    const sid = create.id;
+    step("POST /v1/sessions", true, `${sid} status=${create.status}`);
 
-  const evt = await fetch(`${API}/v1/sessions/${sid}/events`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify({
-      type: "message",
-      data: { role: "user", content: [{ type: "text", text: "Reply with exactly: pong" }] },
-    }),
-  }).then((r) => r.json());
-  step("POST /v1/sessions/.../events", evt.queued === true, `item=${evt.item_id}`);
+    const evt = await fetch(`${API}/v1/sessions/${sid}/events`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        type: "message",
+        data: { role: "user", content: [{ type: "text", text: "Reply with exactly: pong" }] },
+      }),
+    }).then((r) => r.json());
+    step("POST /v1/sessions/.../events", evt.queued === true, `item=${evt.item_id}`);
 
-  for (let i = 0; i < 20; i++) {
-    await new Promise((r) => setTimeout(r, 2000));
-    const items = await fetch(`${API}/v1/sessions/${sid}/items`, { headers }).then((r) => r.json());
-    const assistant = (items.data ?? []).find((it) => it.role === "assistant");
-    if (assistant) {
-      const text = assistant.content?.map((c) => c.text).join(" ") ?? "";
-      step("GET /v1/sessions/.../items assistant", true, text.slice(0, 80));
-      break;
+    for (let i = 0; i < 20; i++) {
+      await new Promise((r) => setTimeout(r, 2000));
+      const items = await fetch(`${API}/v1/sessions/${sid}/items`, { headers }).then((r) => r.json());
+      const assistant = (items.data ?? []).find((it) => it.role === "assistant");
+      if (assistant) {
+        const text = assistant.content?.map((c) => c.text).join(" ") ?? "";
+        step("GET /v1/sessions/.../items assistant", true, text.slice(0, 80));
+        break;
+      }
+      if (i === 19) step("GET /v1/sessions/.../items assistant", false, `only ${items.data?.length ?? 0} items after 40s`);
     }
-    if (i === 19) step("GET /v1/sessions/.../items assistant", false, `only ${items.data?.length ?? 0} items after 40s`);
+
+    const health = await fetch(`${API}/health?session_ids=${encodeURIComponent(sid)}`, { headers }).then((r) => r.json());
+    const live = health.sessions?.[sid]?.runner_online;
+    step("GET /health?session_ids=", live === true, `runner_online=${live}`);
+  } catch (error) {
+    step("S0 smoke run", false, String(error));
+  } finally {
+    if (token) {
+      try {
+        step("S0 fixture cleanup", true, `deleted=${await cleanupSmokeSessions(token, sessionIDs)}`);
+      } catch (error) {
+        step("S0 fixture cleanup", false, String(error));
+      }
+    }
+    writeFileSync(join(OUT, "api-smoke-report.json"), JSON.stringify(report, null, 2));
   }
-
-  const health = await fetch(`${API}/health?session_ids=${encodeURIComponent(sid)}`, { headers }).then((r) => r.json());
-  const live = health.sessions?.[sid]?.runner_online;
-  step("GET /health?session_ids=", live === true, `runner_online=${live}`);
-
-  writeFileSync(join(OUT, "api-smoke-report.json"), JSON.stringify(report, null, 2));
-  if (report.steps.some((s) => !s.ok)) process.exit(1);
+  if (report.steps.some((s) => !s.ok)) process.exitCode = 1;
 }
 
-main();
+await main();

@@ -1,4 +1,8 @@
 import { createE2EEchoSession } from "./e2e-echo-session-plan.mjs";
+import {
+  cleanupSmokeSessions,
+  trackSmokeSession,
+} from "./session-fixture-cleanup.mjs";
 
 const API = process.env.SESSION_COMPAT_API_URL || "http://localhost:10015";
 const ORG = "dev-org";
@@ -30,15 +34,12 @@ function headers(token, extra = {}) {
   };
 }
 
-async function ensureSession(token) {
-  const listRes = await fetch(`${API}/v1/sessions?limit=1`, { headers: headers(token) });
-  const listBody = await listRes.json();
-  if (listBody.data?.[0]?.id) return listBody.data[0].id;
-  return (await createE2EEchoSession(token, { title: "S4 fixture" })).id;
+async function createSession(token, sessionIDs, title) {
+  return trackSmokeSession(sessionIDs, await createE2EEchoSession(token, { title }));
 }
 
-async function testReadStatePersist(token) {
-  const sid = await ensureSession(token);
+async function testReadStatePersist(token, sessionIDs) {
+  const sid = (await createSession(token, sessionIDs, "S4 read-state fixture")).id;
   const marker = Math.floor(Date.now() / 1000);
   const putRes = await fetch(`${API}/v1/sessions/${sid}/read-state`, {
     method: "PUT",
@@ -69,8 +70,8 @@ async function testOrgUsageSummary(token) {
   return ok;
 }
 
-async function testCostBudgetGate(token) {
-  const session = await createE2EEchoSession(token, { title: "S4 cost budget" });
+async function testCostBudgetGate(token, sessionIDs) {
+  const session = await createSession(token, sessionIDs, "S4 cost budget");
   step("S4.2 session created", true, session.id);
 
   await fetch(`${API}/v1/sessions/${session.id}/events`, {
@@ -139,8 +140,8 @@ async function testCostBudgetRegistry(token) {
   return ok;
 }
 
-async function testResumeExternalSession(token) {
-  const source = await createE2EEchoSession(token, { title: "S4 resume source" });
+async function testResumeExternalSession(token, sessionIDs) {
+  const source = await createSession(token, sessionIDs, "S4 resume source");
   step("S4.5 source session", true, source.id);
 
   await fetch(`${API}/v1/sessions/${source.id}/events`, {
@@ -161,6 +162,8 @@ async function testResumeExternalSession(token) {
   });
   const fork = await forkRes.json();
   step("S4.5 fork created", forkRes.ok && fork.id, fork.id);
+  if (!forkRes.ok || !fork.id) return false;
+  trackSmokeSession(sessionIDs, fork);
 
   for (let i = 0; i < 25; i++) {
     const sRes = await fetch(`${API}/v1/sessions/${fork.id}`, { headers: headers(token) });
@@ -205,24 +208,35 @@ async function pollItems(token, sid, min, tries = 40) {
 }
 
 async function main() {
-  const token = await login();
-  step("API login", true);
+  const sessionIDs = new Set();
+  let token;
+  try {
+    token = await login();
+    step("API login", true);
 
-  await testReadStatePersist(token);
-  await testCostBudgetRegistry(token);
-  await testOrgUsageSummary(token);
-  await testCostBudgetGate(token);
-  await testResumeExternalSession(token);
-
+    await testReadStatePersist(token, sessionIDs);
+    await testCostBudgetRegistry(token);
+    await testOrgUsageSummary(token);
+    await testCostBudgetGate(token, sessionIDs);
+    await testResumeExternalSession(token, sessionIDs);
+  } catch (error) {
+    step("S4 smoke run", false, String(error));
+  } finally {
+    if (token) {
+      try {
+        step("S4 fixture cleanup", true, `deleted=${await cleanupSmokeSessions(token, sessionIDs)}`);
+      } catch (error) {
+        step("S4 fixture cleanup", false, String(error));
+      }
+    }
+  }
   const failed = report.steps.filter((s) => !s.ok);
   if (failed.length) {
     console.error("\nFAILED:", failed);
-    process.exit(1);
+    process.exitCode = 1;
+  } else {
+    console.log("\nS4 smoke: all steps passed");
   }
-  console.log("\nS4 smoke: all steps passed");
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+await main();

@@ -10,17 +10,6 @@ fi
 
 API="${SESSION_COMPAT_API_URL:-http://localhost:10015}"
 
-preflight_cleanup_pods() {
-  node "${REPO_ROOT}/tests/session-compat-smoke/terminate-all-pods.mjs"
-}
-
-preflight_check_migrations() {
-  return 0
-}
-
-preflight_cleanup_pods
-preflight_check_migrations
-
 if ! curl -sf "${API}/health" >/dev/null 2>&1; then
   echo "session compatibility smoke: backend not reachable at ${API}"
   echo "Start dev stack: ./deploy/dev/dev.sh --backend-only"
