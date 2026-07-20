@@ -106,6 +106,33 @@ describe("Loop custom block library", () => {
       expect.objectContaining({ ...definition(), definitionId: "ppt-step-1" }),
       expect.objectContaining({ ...definition(2), definitionDigest: expect.stringMatching(/^[a-f0-9]{64}$/) }),
     ]);
+    expect(created.createdDefinition).toEqual(expect.objectContaining({
+      ...definition(2),
+      definitionId: expect.any(String),
+      definitionDigest: expect.stringMatching(/^[a-f0-9]{64}$/),
+    }));
+  });
+
+  it("returns the exact created definition instead of inferring it from sorted definitions", async () => {
+    const zebra = {
+      ...definition(),
+      slug: "zebra-step",
+      label: "Zebra",
+      expansion: {
+        ...definition().expansion,
+        agentLocalId: "zebra-step-task",
+        verifierLocalId: "zebra-step-check",
+      },
+    };
+    const blocks = [block(zebra)];
+    const created = await createLoopCustomBlock(definition(), library(blocks));
+
+    expect(created.definitions.map((item) => item.slug)).toEqual(["ppt-step", "zebra-step"]);
+    expect(created.createdDefinition).toEqual(expect.objectContaining({
+      definitionId: expect.any(String),
+      slug: "ppt-step",
+      version: 1,
+    }));
   });
 
   it("fails closed when a version is duplicated or stale", async () => {

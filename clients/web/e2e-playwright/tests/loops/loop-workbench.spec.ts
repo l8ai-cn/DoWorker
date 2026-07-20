@@ -142,16 +142,25 @@ test.describe("Loop workbench", () => {
       hasText: "我的积木",
     }).click();
     await expect(
-      page.locator(".blocklyToolboxFlyout .blocklyDraggable"),
+      page.locator(".blocklyToolboxFlyout .blocklyDraggable").filter({ hasText: label }),
     ).toBeVisible();
 
     await expect(page.getByText("有效").first()).toBeVisible();
-    await expect(workspace.getByText("topic", { exact: true })).toBeVisible();
-    await expect(workspace.getByText("file", { exact: true })).toBeVisible();
-    await workspace.getByText("topic", { exact: true }).click();
+    await page.keyboard.press("Escape");
+    const customBlock = page.locator(
+      `svg.blocklySvg > .blocklyWorkspace > .blocklyBlockCanvas .loop_custom_${slug.replaceAll("-", "_")}_v1`,
+    );
+    await expect(customBlock).toBeVisible();
+    const topicField = customBlock.locator(".blocklyText").filter({ hasText: "topic" });
+    const fileField = customBlock.locator(".blocklyText").filter({ hasText: "file" });
+    await expect(topicField).toBeVisible();
+    await expect(fileField).toBeVisible();
+    await topicField.dblclick();
     await page.locator(".blocklyHtmlInput").fill("季度复盘");
-    await workspace.getByText("file", { exact: true }).click();
+    await page.locator(".blocklyHtmlInput").press("Enter");
+    await fileField.dblclick();
     await page.locator(".blocklyHtmlInput").fill("output.pptx");
+    await page.locator(".blocklyHtmlInput").press("Enter");
 
     await expect(codeEditor).toContainText("制作 季度复盘 的专业 PPT");
     await expect(codeEditor).toContainText("test -f output.pptx");

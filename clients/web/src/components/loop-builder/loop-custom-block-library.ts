@@ -30,6 +30,10 @@ export interface LoadedLoopCustomBlocks {
   workspace: Workspace;
 }
 
+export interface CreatedLoopCustomBlock extends LoadedLoopCustomBlocks {
+  createdDefinition: LoopResolvedCustomBlockDefinition;
+}
+
 export async function loadLoopCustomBlocks(
   library: LoopCustomBlockLibrary = blockstoreApi,
 ): Promise<LoadedLoopCustomBlocks> {
@@ -41,21 +45,28 @@ export async function loadLoopCustomBlocks(
 export async function createLoopCustomBlock(
   definition: LoopCustomBlockDefinition,
   library: LoopCustomBlockLibrary = blockstoreApi,
-): Promise<LoadedLoopCustomBlocks> {
+): Promise<CreatedLoopCustomBlock> {
   const current = await loadLoopCustomBlocks(library);
   const expectedVersion = nextCustomBlockVersion(current.definitions, definition.slug);
   if (definition.version !== expectedVersion) {
     throw new Error(`custom block version is stale: expected ${expectedVersion}`);
   }
+  const operation = createBlockOp({
+    type: BLOCK_TYPE_TYPEDEF,
+    data: customBlockDefinitionRecord(definition),
+  });
+  const definitionId = String(operation.payload.id);
   await library.applyOps({
     workspace_id: current.workspace.id,
     idempotency_key: randomUUID(),
-    ops: [createBlockOp({
-      type: BLOCK_TYPE_TYPEDEF,
-      data: customBlockDefinitionRecord(definition),
-    })],
+    ops: [operation],
   });
-  return loadLoopCustomBlocks(library);
+  const loaded = await loadLoopCustomBlocks(library);
+  const createdDefinition = loaded.definitions.find((item) => item.definitionId === definitionId);
+  if (!createdDefinition) {
+    throw new Error(`custom block definition was not returned after creation: ${definitionId}`);
+  }
+  return { ...loaded, createdDefinition };
 }
 
 export async function definitionsFromBlocks(

@@ -39,6 +39,7 @@ export function useLoopCustomBlockLibrary() {
     try {
       const loaded = await createLoopCustomBlock(definition);
       setDefinitions(loaded.definitions);
+      return loaded.createdDefinition;
     } catch (cause) {
       const message = cause instanceof Error ? cause.message : "Unable to create custom block";
       setError(message);

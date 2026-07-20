@@ -1,5 +1,4 @@
 "use client";
-
 import * as Blockly from "blockly";
 import { useEffect, useRef, useState } from "react";
 import type { LoopProgram } from "@proto/goalloop/v1/goalloop_pb";
@@ -17,26 +16,27 @@ interface LoopBlocklyCanvasProps {
   semanticRevision: number;
   readOnly: boolean;
   customDefinitions: readonly LoopResolvedCustomBlockDefinition[];
+  customDefinitionToInsert?: LoopResolvedCustomBlockDefinition;
+  customInsertPoint?: LoopBlockInsertPoint;
   messages: { blockly: LoopBlockCatalogMessages; quickInsert: LoopQuickInsertMessages };
-  onCreateCustom: () => void;
+  onCreateCustom: (insertPoint: LoopBlockInsertPoint) => void;
+  onCustomDefinitionInserted: () => void;
   onSourceChange: (source: string) => void;
   onSelectNode: (nodeId?: string) => void;
 }
 
 export function LoopBlocklyCanvas(props: LoopBlocklyCanvasProps) {
   const {
-    program, semanticRevision, readOnly, customDefinitions, onSourceChange, onCreateCustom, onSelectNode, messages,
+    program, semanticRevision, readOnly, customDefinitions, customDefinitionToInsert, customInsertPoint,
+    onSourceChange, onCreateCustom, onCustomDefinitionInserted, onSelectNode, messages,
   } = props;
   const hostRef = useRef<HTMLDivElement>(null);
   const workspaceRef = useRef<Blockly.WorkspaceSvg | undefined>(undefined);
   const programRef = useRef(program);
   const readOnlyRef = useRef(readOnly);
   const customDefinitionsRef = useRef(customDefinitions);
-  const customInsertPointRef = useRef<LoopBlockInsertPoint | undefined>(undefined);
-  const customCountRef = useRef(customDefinitions.length);
   const callbackRef = useRef({ onSourceChange, onSelectNode });
   const [insertPoint, setInsertPoint] = useState<LoopBlockInsertPoint>();
-
   useEffect(() => {
     callbackRef.current = { onSourceChange, onSelectNode };
     programRef.current = program;
@@ -125,23 +125,32 @@ export function LoopBlocklyCanvas(props: LoopBlocklyCanvasProps) {
     workspace.updateToolbox(
       loopBlockProgrammingHostAdapter.createCatalog(messages.blockly, customDefinitions).toolbox,
     );
-    const createdDefinition =
-      customDefinitions.length > customCountRef.current ? customDefinitions.at(-1) : undefined;
-    customCountRef.current = customDefinitions.length;
-    const customInsertPoint = customInsertPointRef.current;
-    if (createdDefinition && customInsertPoint) {
-      insertLoopBlock({
-        workspace,
-        type: loopBlockProgrammingHostAdapter.customBlockType(createdDefinition),
-        insertPoint: customInsertPoint,
-        customDefinitions,
-      });
-      customInsertPointRef.current = undefined;
-    }
     callbackRef.current.onSourceChange(
       loopBlockProgrammingHostAdapter.workspaceToSource(workspace, customDefinitions).source,
     );
   }, [customDefinitions, messages.blockly]);
+
+  useEffect(() => {
+    const workspace = workspaceRef.current;
+    if (!workspace || !customDefinitionToInsert || !customInsertPoint) return;
+    const definition = customDefinitions.find((item) =>
+      item.definitionId === customDefinitionToInsert.definitionId &&
+      item.definitionDigest === customDefinitionToInsert.definitionDigest,
+    );
+    if (!definition) return;
+    insertLoopBlock({
+      workspace,
+      type: loopBlockProgrammingHostAdapter.customBlockType(definition),
+      insertPoint: customInsertPoint,
+      customDefinitions,
+    });
+    onCustomDefinitionInserted();
+  }, [
+    customDefinitionToInsert,
+    customDefinitions,
+    customInsertPoint,
+    onCustomDefinitionInserted,
+  ]);
 
   useEffect(() => {
     const workspace = workspaceRef.current;
@@ -179,9 +188,8 @@ export function LoopBlocklyCanvas(props: LoopBlocklyCanvasProps) {
           y={insertPoint.menuY}
           onClose={() => setInsertPoint(undefined)}
           onCreateCustom={() => {
-            customInsertPointRef.current = insertPoint;
             setInsertPoint(undefined);
-            onCreateCustom();
+            onCreateCustom(insertPoint);
           }}
           onInsert={insert}
         />

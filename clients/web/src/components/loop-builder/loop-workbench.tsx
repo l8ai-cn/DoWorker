@@ -5,9 +5,11 @@ import { useState } from "react";
 import { BlockProgrammingWorkbench } from "@/components/block-programming/BlockProgrammingWorkbench";
 import { Spinner } from "@/components/ui/spinner";
 import { LoopBlocklyCanvas } from "./loop-blockly-canvas";
+import type { LoopBlockInsertPoint } from "./loop-block-insert-point";
 import { LoopAIAssistantDialog } from "./loop-ai-assistant-dialog";
 import { LoopCodeEditor } from "./loop-code-editor";
 import { LoopCustomBlockDialog } from "./loop-custom-block-dialog";
+import type { LoopResolvedCustomBlockDefinition } from "./loop-custom-block-types";
 import { LoopRuntimeDialog } from "./loop-runtime-dialog";
 import { LoopStatusPanel } from "./loop-status-panel";
 import { LoopWorkbenchToolbar } from "./loop-workbench-toolbar";
@@ -30,6 +32,9 @@ export function LoopWorkbench({ orgSlug }: { orgSlug: string }) {
   const [selectedNodeId, setSelectedNodeId] = useState<string>();
   const customBlocks = useLoopCustomBlockLibrary();
   const [customDialogOpen, setCustomDialogOpen] = useState(false);
+  const [customInsertPoint, setCustomInsertPoint] = useState<LoopBlockInsertPoint>();
+  const [createdCustomDefinition, setCreatedCustomDefinition] =
+    useState<LoopResolvedCustomBlockDefinition>();
   const [runtimeDialogOpen, setRuntimeDialogOpen] = useState(false);
   const blocksWritable =
     model.snapshot.activeEditor === "blocks" &&
@@ -44,8 +49,17 @@ export function LoopWorkbench({ orgSlug }: { orgSlug: string }) {
         canvas={(
           <LoopBlocklyCanvas
             customDefinitions={customBlocks.definitions}
+            customDefinitionToInsert={createdCustomDefinition}
+            customInsertPoint={customInsertPoint}
             messages={{ blockly: messages.blockly, quickInsert: messages.quickInsert }}
-            onCreateCustom={() => setCustomDialogOpen(true)}
+            onCreateCustom={(insertPoint) => {
+              setCustomInsertPoint(insertPoint);
+              setCustomDialogOpen(true);
+            }}
+            onCustomDefinitionInserted={() => {
+              setCreatedCustomDefinition(undefined);
+              setCustomInsertPoint(undefined);
+            }}
             onSelectNode={setSelectedNodeId}
             onSourceChange={model.updateBlocks}
             program={model.snapshot.program}
@@ -118,7 +132,9 @@ export function LoopWorkbench({ orgSlug }: { orgSlug: string }) {
         definitions={customBlocks.definitions}
         messages={messages.customBlock}
         open={customDialogOpen}
-        onCreate={customBlocks.create}
+        onCreate={async (definition) => {
+          setCreatedCustomDefinition(await customBlocks.create(definition));
+        }}
         onOpenChange={setCustomDialogOpen}
       />
       <LoopAIAssistantDialog
