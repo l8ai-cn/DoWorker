@@ -40,6 +40,25 @@ func TestExtractRepoNameHTTPS(t *testing.T) {
 	}
 }
 
+func TestExtractRepoNameLocalPaths(t *testing.T) {
+	testCases := []struct {
+		path     string
+		expected string
+	}{
+		{"/tmp/owner/repo.git", "owner-repo"},
+		{`C:\Users\runner\origin.git`, "runner-origin"},
+		{"C:/Users/runner/origin.git", "runner-origin"},
+		{`\\server\share\origin.git`, "share-origin"},
+	}
+
+	for _, tc := range testCases {
+		result := extractRepoName(tc.path)
+		if result != tc.expected {
+			t.Errorf("extractRepoName(%s): got %v, want %v", tc.path, result, tc.expected)
+		}
+	}
+}
+
 func TestExtractRepoNameInvalid(t *testing.T) {
 	result := extractRepoName("")
 	if result != "" {

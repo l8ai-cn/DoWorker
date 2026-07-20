@@ -59,9 +59,9 @@ func TestApplySSHGitConfigPersistsExplicitIdentityOnly(t *testing.T) {
 	require.NoError(t, manager.applySSHGitConfig(context.Background(), worktreePath, options))
 
 	command := gitWorktreeConfig(t, worktreePath, "core.sshCommand")
+	assert.Equal(t, sshKeyCommand(keyPath, false), command)
 	assert.Contains(t, command, "-F ")
 	assert.Contains(t, command, "IdentityFile=none")
-	assert.Contains(t, command, keyPath)
 	assert.Contains(t, command, "IdentityAgent=none")
 	assert.Equal(t, "true", gitBareRepositoryState(t, bareRepoPath))
 	_, err := gitBareConfigError(bareRepoPath, "core.sshCommand")

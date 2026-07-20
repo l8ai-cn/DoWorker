@@ -3,7 +3,6 @@ package workspace
 import (
 	"context"
 	"encoding/base64"
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -105,12 +104,13 @@ func TestSSHKeyAuthEnvDisablesRunnerCredentials(t *testing.T) {
 	assert.Contains(t, env["GIT_SSH_COMMAND"], "IdentityAgent=none")
 	assert.Contains(t, env["GIT_SSH_COMMAND"], "-F ")
 	assert.Contains(t, env["GIT_SSH_COMMAND"], "IdentityFile=none")
-	assert.Contains(t, env["GIT_SSH_COMMAND"], opts.SSHKeyPath)
+	assert.Contains(t, env["GIT_SSH_COMMAND"], "-i "+gitSSHQuote(opts.SSHKeyPath))
 }
 
 func TestAnonymousAuthCannotUseRunnerLocalCredentials(t *testing.T) {
 	mgr, err := NewManager(t.TempDir(), "")
 	require.NoError(t, err)
+	t.Setenv("GIT_CONFIG_NOSYSTEM", "")
 	installProbeGitHarness(t)
 
 	_, err = mgr.probeRepositoryAccess(context.Background(), "https://private.test/repo.git", "", &WorktreeOptions{})
@@ -148,33 +148,33 @@ func envValues(env []string) map[string]string {
 }
 
 func probeGitHarnessUnix() string {
-	return fmt.Sprintf(`#!/bin/sh
+	return `#!/bin/sh
 if [ "${1:-}" = "ls-remote" ]; then
-	if [ "${GIT_CONFIG_GLOBAL:-}" = %q ]; then
+	if [ "${GIT_CONFIG_NOSYSTEM:-}" = "1" ]; then
 		printf 'runner local credentials unavailable\n' >&2
 		exit 23
 	fi
 	printf '0123456789abcdef0123456789abcdef01234567	HEAD\n'
 	exit 0
 fi
-printf 'unexpected git command: %%s\n' "$*" >&2
+printf 'unexpected git command: %s\n' "$*" >&2
 exit 99
-`, os.DevNull)
+`
 }
 
 func probeGitHarnessWindows() string {
-	return fmt.Sprintf(`@echo off
-if "%%1"=="ls-remote" (
-	if "%%GIT_CONFIG_GLOBAL%%"=="%s" (
+	return `@echo off
+if "%1"=="ls-remote" (
+	if "%GIT_CONFIG_NOSYSTEM%"=="1" (
 		echo runner local credentials unavailable 1>&2
 		exit /b 23
 	)
 	echo 0123456789abcdef0123456789abcdef01234567	HEAD
 	exit /b 0
 )
-echo unexpected git command: %%* 1>&2
+echo unexpected git command: %* 1>&2
 exit /b 99
-`, os.DevNull)
+`
 }
 
 func installEchoFailGitHarness(t *testing.T) {

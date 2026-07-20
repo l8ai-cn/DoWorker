@@ -77,8 +77,8 @@ func extractRepoName(repoURL string) string {
 		}
 	}
 
-	// Handle HTTPS URLs: https://github.com/user/repo.git
-	parts := strings.Split(repoURL, "/")
+	normalizedPath := strings.ReplaceAll(repoURL, `\`, "/")
+	parts := strings.Split(strings.TrimSuffix(normalizedPath, "/"), "/")
 	if len(parts) >= 2 {
 		name := parts[len(parts)-1]
 		name = strings.TrimSuffix(name, ".git")
