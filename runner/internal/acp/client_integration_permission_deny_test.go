@@ -71,11 +71,6 @@ func TestACPClient_PermissionRequest_Deny(t *testing.T) {
 		t.Fatalf("RespondToPermission(deny): %v", err)
 	}
 
-	// After denial, state should transition to processing (mock agent continues).
-	if client.State() != StateProcessing {
-		t.Errorf("post-deny state = %s, want %s", client.State(), StateProcessing)
-	}
-
 	// Wait for content (mock agent sends content regardless of deny).
 	deadline2 := time.After(5 * time.Second)
 	for {
@@ -102,7 +97,8 @@ func TestACPClient_PermissionRequest_Deny(t *testing.T) {
 		}
 	}
 
-	// Verify state transitions: idle → processing → waiting_permission → processing → idle.
+	// The agent can complete the turn before RespondToPermission returns, so
+	// assert the emitted transition sequence rather than a transient snapshot.
 	mu.Lock()
 	defer mu.Unlock()
 
