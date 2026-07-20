@@ -33,6 +33,7 @@ export function userVisibleArtifacts(
 
 export type UserVideoTaskState =
   | "failed"
+  | "model_quota_exhausted"
   | "partial"
   | "processing"
   | "provider_auth_failed"
@@ -68,7 +69,7 @@ export function userVideoTaskState(
       return "verification_failed";
     }
     if (snapshot.status !== "failed") return null;
-    return userVideoProviderFailure(snapshot.error) ?? "task_failed";
+    return userVideoFailureState(snapshot.error) ?? "task_failed";
   }
   const verified = videos.some(isVerifiedReadyVideoArtifact);
   if (snapshot.status === "failed" && verified) return "partial";
@@ -88,9 +89,12 @@ export function userVideoTaskState(
   return "processing";
 }
 
-export function userVideoProviderFailure(
+export function userVideoFailureState(
   error: string | null,
-): Extract<UserVideoTaskState, "provider_auth_failed" | "provider_unavailable"> | null {
+): Extract<
+  UserVideoTaskState,
+  "model_quota_exhausted" | "provider_auth_failed" | "provider_unavailable"
+> | null {
   const normalized = error?.toLowerCase() ?? "";
   if (!normalized) return null;
   if (
@@ -104,6 +108,9 @@ export function userVideoProviderFailure(
     normalized.includes("invalid api key")
   ) {
     return "provider_auth_failed";
+  }
+  if (normalized.includes("api_key_quota_exhausted")) {
+    return "model_quota_exhausted";
   }
   return null;
 }

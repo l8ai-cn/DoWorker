@@ -76,6 +76,7 @@ describe("userVideoExecutionSteps", () => {
   it.each([
     ["[CREATIVE_NO_ACCOUNT_AVAILABLE] pool empty", "provider_unavailable"],
     ["[INVALID_API_KEY] rejected", "provider_auth_failed"],
+    ["[API_KEY_QUOTA_EXHAUSTED] completion review failed", "model_quota_exhausted"],
   ] as const)(
     "shows a failed generation trace before any artifact exists for %s",
     (error, detail) => {

@@ -21,6 +21,8 @@ export const englishVideoExecutionTrace: VideoExecutionTraceText = {
   detail: {
     generation_failed: "Video generation did not finish",
     generation_ready: "Video frames are ready",
+    model_quota_exhausted:
+      "Agent primary-model quota exhausted; no verified video file is available",
     preview_failed: "Preview preparation did not finish",
     preview_ready: "Playable file is ready",
     preparing_preview: "Preparing a playable file",
@@ -51,6 +53,7 @@ export const chineseVideoExecutionTrace: VideoExecutionTraceText = {
   detail: {
     generation_failed: "视频生成未完成",
     generation_ready: "视频画面已生成",
+    model_quota_exhausted: "智能体主模型额度不足；未取得可验证视频文件",
     preview_failed: "播放文件准备未完成",
     preview_ready: "可播放文件已准备",
     preparing_preview: "正在准备可播放文件",

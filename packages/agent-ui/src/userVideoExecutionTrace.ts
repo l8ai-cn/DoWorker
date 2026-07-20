@@ -18,6 +18,7 @@ export type UserVideoExecutionStepId =
 export type UserVideoExecutionDetail =
   | "generation_failed"
   | "generation_ready"
+  | "model_quota_exhausted"
   | "preview_failed"
   | "preview_ready"
   | "preparing_preview"
@@ -114,7 +115,9 @@ function failedBeforeArtifact(
   state: UserVideoTaskState,
 ): UserVideoExecutionStep[] {
   const detail =
-    state === "provider_auth_failed" || state === "provider_unavailable"
+    state === "model_quota_exhausted" ||
+    state === "provider_auth_failed" ||
+    state === "provider_unavailable"
       ? state
       : "generation_failed";
   return setStep(baseSteps(), "generation", "failed", detail);

@@ -66,6 +66,10 @@ export {
   type WorkbenchContainerMode,
 } from "./react/useWorkbenchContainerMode";
 export { TerminalSurface } from "./TerminalSurface";
+export {
+  UserVideoTaskPresentation,
+  type UserVideoTaskPresentationProps,
+} from "./UserVideoTaskPresentation";
 export { workspaceFileArtifacts } from "./workspaceFileArtifacts";
 export { WorkspaceHeader } from "./WorkspaceHeader";
 export {
@@ -121,4 +125,5 @@ export {
   type VideoArtifactViewerProps,
 } from "./viewers/video/VideoArtifactViewer";
 export type { AgentWorkspaceLocale } from "./agentWorkspaceText";
+export { userVideoFailureState } from "./userWorkspacePresentation";
 export type * from "./contracts";

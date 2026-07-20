@@ -169,6 +169,11 @@ import { isCodexNativeSession } from "@/lib/codexPlanMode";
 import { getCliServerUrl } from "@/lib/host";
 import { SessionImage } from "@/components/SessionImage";
 import {
+  projectSeedanceTaskFailure,
+  SeedanceTaskFailurePresentation,
+  type SeedanceTaskFailureProjection,
+} from "@/components/SeedanceTaskFailurePresentation";
+import {
   CodexGoalControl,
   CodexGoalStatusPill,
   useCodexGoalState,
@@ -839,6 +844,23 @@ export function ChatPage() {
 
   // Hoisted above the early-return guards so the title-update effect can read them.
   const activeConv = urlConvId ? conversations?.find((c) => c.id === urlConvId) : null;
+  const seedanceTaskFailure = useMemo(
+    () =>
+      projectSeedanceTaskFailure({
+        agentId: activeSession?.agentId ?? boundAgentId,
+        agentLabel: activeSession?.agentName ?? boundAgentName,
+        bubbles,
+        sessionId: urlConvId ?? null,
+      }),
+    [
+      activeSession?.agentId,
+      activeSession?.agentName,
+      boundAgentId,
+      boundAgentName,
+      bubbles,
+      urlConvId,
+    ],
+  );
 
   // `isWorking` gates the parent's OWN turn (Stop/Interrupt) and must NOT
   // include child-session activity. `showsWorking` is display-only (tab title
@@ -1042,11 +1064,11 @@ export function ChatPage() {
         ? [{ id: boundAgentId, name: boundAgentName } as Agent]
         : agents?.filter((a) => a.id === boundAgentId)
     : agents;
-
   const mainAgent = (
     <MainAgentSurface
       conversationId={urlConvId ?? null}
       bubbles={bubbles}
+      seedanceTaskFailure={seedanceTaskFailure}
       status={status}
       isWorking={isWorking}
       showsWorking={showsWorking}
@@ -1256,6 +1278,7 @@ interface MainAgentSurfaceProps {
    */
   conversationId: string | null;
   bubbles: Bubble[];
+  seedanceTaskFailure: SeedanceTaskFailureProjection | null;
   status: "idle" | "streaming";
   /** Local stream OR cross-client `session.status: running`. Gates the
    *  composer's Stop/Interrupt button — the parent's OWN turn only. */
@@ -1355,6 +1378,7 @@ export function shouldShowTerminalSurface(
 function MainAgentSurface({
   conversationId,
   bubbles,
+  seedanceTaskFailure,
   status,
   isWorking,
   showsWorking,
@@ -1406,14 +1430,15 @@ function MainAgentSurface({
   // System-message bubbles (`[System: ...]` notifications rendered via
   // SystemMessageView) are excluded — the hotkey is for navigating real
   // user turns, not runtime markers.
+  const visibleBubbles = seedanceTaskFailure?.bubbles ?? bubbles;
   const userMessageIds = useMemo(
     () =>
-      bubbles
+      visibleBubbles
         .filter(
           (b): b is Extract<Bubble, { kind: "user" }> => b.kind === "user" && !isSystemBubble(b),
         )
         .map((b) => b.itemId),
-    [bubbles],
+    [visibleBubbles],
   );
   const nav = useUserMessageNav(userMessageIds);
 
@@ -1424,10 +1449,16 @@ function MainAgentSurface({
   // Answered cards stay inline at their natural spot. `streamBubbles` keeps
   // `bubbles`' reference when nothing is pending, so the common case allocates
   // nothing.
-  const pendingElicitations = useMemo(() => collectPendingElicitations(bubbles), [bubbles]);
+  const pendingElicitations = useMemo(
+    () => collectPendingElicitations(visibleBubbles),
+    [visibleBubbles],
+  );
   const streamBubbles = useMemo(
-    () => (pendingElicitations.length === 0 ? bubbles : stripPendingElicitations(bubbles)),
-    [bubbles, pendingElicitations.length],
+    () =>
+      pendingElicitations.length === 0
+        ? visibleBubbles
+        : stripPendingElicitations(visibleBubbles),
+    [visibleBubbles, pendingElicitations.length],
   );
 
   // Cmd+Alt+↑/↓ (Ctrl+Alt on win/linux) — guarded so the composer's
@@ -1606,7 +1637,7 @@ function MainAgentSurface({
               hasMoreHistory={hasMoreHistory}
               loadingMoreHistory={loadingMoreHistory}
             />
-            {bubbles.length === 0 && !showWorkingIndicator ? (
+            {visibleBubbles.length === 0 && !showWorkingIndicator ? (
               // Cold launch: a centered spinner instead of the "ready to
               // type" empty state (the create-then-send path uses the
               // "row" variant). Two launch shapes land here: a
@@ -1633,6 +1664,7 @@ function MainAgentSurface({
               )
             ) : (
               <>
+                <SeedanceTaskFailurePresentation projection={seedanceTaskFailure} />
                 {streamBubbles.map((bubble) => (
                   <BubbleView key={bubbleKey(bubble)} bubble={bubble} />
                 ))}

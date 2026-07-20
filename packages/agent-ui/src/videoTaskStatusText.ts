@@ -1,5 +1,6 @@
 export type VideoTaskStatusText = Record<
   | "failed"
+  | "model_quota_exhausted"
   | "partial"
   | "processing"
   | "provider_auth_failed"
@@ -14,6 +15,10 @@ export const englishVideoTaskStatus: VideoTaskStatusText = {
   failed: {
     title: "Video generation failed",
     detail: "No verified playable video was produced.",
+  },
+  model_quota_exhausted: {
+    title: "Agent primary-model quota exhausted",
+    detail: "No verified video file is available.",
   },
   partial: {
     title: "Video file available, but the task did not finish cleanly",
@@ -49,6 +54,10 @@ export const chineseVideoTaskStatus: VideoTaskStatusText = {
   failed: {
     title: "视频生成失败",
     detail: "没有生成通过校验的可播放视频。",
+  },
+  model_quota_exhausted: {
+    title: "智能体主模型额度耗尽",
+    detail: "未取得可验证视频文件。",
   },
   partial: {
     title: "视频文件可用，但任务未完整结束",

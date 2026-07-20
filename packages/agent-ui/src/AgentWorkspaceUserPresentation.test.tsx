@@ -116,8 +116,15 @@ describe("AgentWorkspace user presentation", () => {
       title: "视频服务凭据无效",
       trace: "视频服务凭据校验失败",
     },
+    {
+      detail: "未取得可验证视频文件。",
+      error: "[API_KEY_QUOTA_EXHAUSTED] completion review failed token=secret",
+      hidden: /API_KEY_QUOTA_EXHAUSTED|token=secret/,
+      title: "智能体主模型额度耗尽",
+      trace: "智能体主模型额度不足；未取得可验证视频文件",
+    },
   ])(
-    "projects provider failures without raw technical details: $title",
+    "projects task failures without raw technical details: $title",
     async ({ detail, error, hidden, title, trace }) => {
       const snapshot = sessionSnapshot();
       snapshot.status = "failed";
