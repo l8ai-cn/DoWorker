@@ -14,6 +14,7 @@ export {
   listLoopRuntimeTemplates,
   readLoopSnapshot,
   requestLoopCompile,
+  restoreLoopResourceProgram,
   runLoopResourceProgram,
   setLoopActiveEditor,
   setLoopSource,

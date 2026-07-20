@@ -16,7 +16,7 @@ func buildGoalLoopApplyMutation(
 		state.Plan.ArtifactKind != resource.KindGoalLoop+"Apply" {
 		return GoalLoopApplyMutation{}, control.ErrInvalid
 	}
-	artifact, err := decodeDefinitionApplyArtifact(state.Plan.ArtifactJSON)
+	artifact, err := decodeGoalLoopApplyArtifact(state.Plan.ArtifactJSON)
 	if err != nil {
 		return GoalLoopApplyMutation{}, err
 	}
@@ -31,6 +31,9 @@ func buildGoalLoopApplyMutation(
 	spec, ok := value.(*resource.GoalLoopResourceSpec)
 	if !ok || spec == nil {
 		return GoalLoopApplyMutation{}, control.ErrCorrupt
+	}
+	if err := validateGoalLoopApplyArtifact(spec, artifact); err != nil {
+		return GoalLoopApplyMutation{}, err
 	}
 	mutation, err := buildApplyMutation(
 		registry,

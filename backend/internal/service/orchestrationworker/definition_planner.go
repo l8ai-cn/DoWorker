@@ -2,7 +2,6 @@ package orchestrationworker
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
@@ -134,9 +133,11 @@ func (planner *DefinitionPlanner) Plan(
 	if err != nil {
 		return controlservice.TargetPlanOutput{}, err
 	}
-	artifact, err := json.Marshal(DefinitionApplyArtifact{
-		WorkerSpecSnapshotID: snapshotID,
-	})
+	artifact, err := definitionApplyArtifact(
+		planner.meta.Kind,
+		snapshotID,
+		input.TypedSpec,
+	)
 	if err != nil {
 		return controlservice.TargetPlanOutput{}, control.ErrCorrupt
 	}

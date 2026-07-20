@@ -4,7 +4,10 @@ import {
   GoalLoopActionRequestSchema,
   LoopDraftSnapshotSchema,
 } from "@proto/goalloop/v1/goalloop_pb";
-import { IssueSeverity } from "@proto/orchestration_resource/v1/orchestration_resource_types_pb";
+import {
+  IssueSeverity,
+  SourceFormat,
+} from "@proto/orchestration_resource/v1/orchestration_resource_types_pb";
 import {
   getGoalLoopService,
   getLoopBuilderState,
@@ -12,6 +15,7 @@ import {
 } from "@/lib/wasm-core";
 import type { ResourceDocument } from "./orchestrationResourceConnect";
 import {
+  exportResource,
   listResources,
   planResource,
   validateResource,
@@ -22,6 +26,15 @@ import type {
   LoopRuntimeTemplate,
   LoopWorkbenchSnapshot,
 } from "@/lib/viewModels/loop-program";
+import {
+  assertGoalLoopProgramSnapshot,
+  parseGoalLoopProgramSnapshot,
+} from "@/components/loop-builder/loop-resource-snapshot";
+
+export interface StartedLoopResource {
+  loopSlug: string;
+  snapshot: LoopWorkbenchSnapshot;
+}
 
 function toSnapshot(): LoopWorkbenchSnapshot {
   const snapshot = fromBinary(
@@ -108,7 +121,7 @@ export async function listLoopRuntimeTemplates(
 export async function runLoopResourceProgram(
   orgSlug: string,
   document: ResourceDocument,
-): Promise<LoopWorkbenchSnapshot> {
+): Promise<StartedLoopResource> {
   await initWasmCore();
   const validation = await validateResource(orgSlug, document);
   assertNoBlockingIssues(validation.issues);
@@ -127,7 +140,29 @@ export async function runLoopResourceProgram(
     ),
   );
   getLoopBuilderState().apply_run_response(response);
-  return toSnapshot();
+  return { loopSlug, snapshot: toSnapshot() };
+}
+
+export async function restoreLoopResourceProgram(
+  orgSlug: string,
+  loopSlug: string,
+): Promise<LoopWorkbenchSnapshot> {
+  const content = await exportResource(orgSlug, {
+    apiVersion: "agentsmesh.io/v1alpha1",
+    kind: "GoalLoop",
+    namespace: orgSlug,
+    name: loopSlug,
+  }, SourceFormat.JSON);
+  const stored = parseGoalLoopProgramSnapshot(content);
+  const draft = await setLoopSource(stored.canonicalSource, "blocks");
+  const response = await requestLoopCompile(
+    orgSlug,
+    stored.canonicalSource,
+    draft.revision,
+  );
+  const snapshot = await applyLoopCompile(response);
+  assertGoalLoopProgramSnapshot(snapshot.program, stored);
+  return snapshot;
 }
 
 function assertNoBlockingIssues(issues: { severity: IssueSeverity; message: string }[]) {

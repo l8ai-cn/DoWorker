@@ -51,6 +51,19 @@ export type WorkflowDraft = ResourceManifest<WorkflowSpec> & {
 
 export type GoalLoopIntegerDraft = number | string;
 
+export interface GoalLoopCustomBlockPin {
+  nodeId: string;
+  definitionId: string;
+  slug: string;
+  version: number;
+  definitionDigest: string;
+}
+
+export interface GoalLoopProgramSnapshot {
+  canonicalSource: string;
+  customBlock?: GoalLoopCustomBlockPin;
+}
+
 export interface GoalLoopSpec {
   workerTemplateRef: ResourceReference;
   description: string;
@@ -63,6 +76,7 @@ export interface GoalLoopSpec {
   noProgressLimit: GoalLoopIntegerDraft;
   sameErrorLimit: GoalLoopIntegerDraft;
   escalationPolicy: "pause" | "fail";
+  loopProgram?: GoalLoopProgramSnapshot;
 }
 
 export type GoalLoopDraft = ResourceManifest<GoalLoopSpec> & {

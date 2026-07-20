@@ -1,23 +1,23 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   applyLoopCompile,
   listLoopRuntimeTemplates,
-  readLoopSnapshot,
   requestLoopCompile,
   runLoopResourceProgram,
   setLoopActiveEditor,
   setLoopSource,
 } from "@/lib/api/facade/loopProgramConnect";
 import {
-  createDefaultLoopSource,
   type LoopEditor,
   type LoopRuntimeTemplate,
   type LoopWorkbenchSnapshot,
 } from "@/lib/viewModels/loop-program";
 import { createGoalLoopResourceDocument } from "./loop-resource-document";
 import type { LoopErrorMessages } from "./loop-workbench-messages";
+import { useLoopWorkbenchInitialization } from "./use-loop-workbench-initialization";
 
 const EMPTY: LoopWorkbenchSnapshot = {
   source: "",
@@ -30,6 +30,7 @@ const EMPTY: LoopWorkbenchSnapshot = {
 };
 
 export function useLoopWorkbench(orgSlug: string, messages: LoopErrorMessages) {
+  const resourceName = useSearchParams().get("resource") ?? undefined;
   const [snapshot, setSnapshot] = useState<LoopWorkbenchSnapshot>(EMPTY);
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
@@ -65,34 +66,20 @@ export function useLoopWorkbench(orgSlug: string, messages: LoopErrorMessages) {
     }, delay);
   }, [messages.compileFailed, orgSlug]);
 
-  useEffect(() => {
-    let cancelled = false;
-    async function initialize() {
-      try {
-        const current = await readLoopSnapshot();
-        if (cancelled) return;
-        activeEditorRef.current = current.activeEditor;
-        if (current.source) {
-          setSnapshot(current);
-          return;
-        }
-        const source = createDefaultLoopSource();
-        await compile(source, "blocks");
-      } catch (cause) {
-        if (!cancelled) {
-          setError(cause instanceof Error ? cause.message : messages.initFailed);
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-    void initialize();
-    return () => {
-      cancelled = true;
-      compileSequence.current += 1;
-      if (compileTimer.current) clearTimeout(compileTimer.current);
-    };
-  }, [compile, messages.initFailed, orgSlug]);
+  useLoopWorkbenchInitialization({
+    orgSlug,
+    resourceName,
+    activeEditorRef,
+    compile,
+    setError,
+    setLoading,
+    setSnapshot,
+  });
+
+  useEffect(() => () => {
+    compileSequence.current += 1;
+    if (compileTimer.current) clearTimeout(compileTimer.current);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -146,10 +133,13 @@ export function useLoopWorkbench(orgSlug: string, messages: LoopErrorMessages) {
     try {
       const document = createGoalLoopResourceDocument({
         namespace: orgSlug,
+        canonicalSource: snapshot.canonicalSource,
         program: snapshot.program,
         workerTemplateName,
       });
-      setSnapshot(await runLoopResourceProgram(orgSlug, document));
+      const applied = await runLoopResourceProgram(orgSlug, document);
+      setSnapshot(applied.snapshot);
+      replaceLoopResourceLocation(applied.loopSlug);
     } catch (cause) {
       setError(loopRunErrorMessage(cause, messages));
     } finally {
@@ -172,6 +162,12 @@ export function useLoopWorkbench(orgSlug: string, messages: LoopErrorMessages) {
     updateCode,
     run,
   };
+}
+
+function replaceLoopResourceLocation(loopSlug: string) {
+  const location = new URL(window.location.href);
+  location.searchParams.set("resource", loopSlug);
+  window.history.replaceState(window.history.state, "", location);
 }
 
 function loopRunErrorMessage(cause: unknown, messages: LoopErrorMessages): string {

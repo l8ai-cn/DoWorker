@@ -146,7 +146,17 @@ export const canonicalResourceSpecShapes = {
     noProgressLimit: "integer",
     sameErrorLimit: "integer",
     escalationPolicy: "string",
-  }, ["tokenBudget"]),
+    loopProgram: object({
+      canonicalSource: "string",
+      customBlock: object({
+        nodeId: "string",
+        definitionId: "string",
+        slug: "string",
+        version: "integer",
+        definitionDigest: "string",
+      }, []),
+    }, ["customBlock"]),
+  }, ["tokenBudget", "loopProgram"]),
   ModelBinding: object({ resourceId: "integer" }),
   Repository: object({ repositoryId: "integer" }),
   Skill: object({ skillId: "integer" }),

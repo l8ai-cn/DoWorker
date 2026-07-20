@@ -3,17 +3,18 @@ package orchestrationresource
 import "fmt"
 
 type GoalLoopResourceSpec struct {
-	WorkerTemplateRef   Reference `json:"workerTemplateRef" yaml:"workerTemplateRef"`
-	Description         string    `json:"description" yaml:"description"`
-	Objective           string    `json:"objective" yaml:"objective"`
-	AcceptanceCriteria  []string  `json:"acceptanceCriteria" yaml:"acceptanceCriteria"`
-	VerificationCommand string    `json:"verificationCommand" yaml:"verificationCommand"`
-	MaxIterations       int       `json:"maxIterations" yaml:"maxIterations"`
-	TokenBudget         *int64    `json:"tokenBudget,omitempty" yaml:"tokenBudget,omitempty"`
-	TimeoutMinutes      int       `json:"timeoutMinutes" yaml:"timeoutMinutes"`
-	NoProgressLimit     int       `json:"noProgressLimit" yaml:"noProgressLimit"`
-	SameErrorLimit      int       `json:"sameErrorLimit" yaml:"sameErrorLimit"`
-	EscalationPolicy    string    `json:"escalationPolicy" yaml:"escalationPolicy"`
+	WorkerTemplateRef   Reference                `json:"workerTemplateRef" yaml:"workerTemplateRef"`
+	Description         string                   `json:"description" yaml:"description"`
+	Objective           string                   `json:"objective" yaml:"objective"`
+	AcceptanceCriteria  []string                 `json:"acceptanceCriteria" yaml:"acceptanceCriteria"`
+	VerificationCommand string                   `json:"verificationCommand" yaml:"verificationCommand"`
+	MaxIterations       int                      `json:"maxIterations" yaml:"maxIterations"`
+	TokenBudget         *int64                   `json:"tokenBudget,omitempty" yaml:"tokenBudget,omitempty"`
+	TimeoutMinutes      int                      `json:"timeoutMinutes" yaml:"timeoutMinutes"`
+	NoProgressLimit     int                      `json:"noProgressLimit" yaml:"noProgressLimit"`
+	SameErrorLimit      int                      `json:"sameErrorLimit" yaml:"sameErrorLimit"`
+	EscalationPolicy    string                   `json:"escalationPolicy" yaml:"escalationPolicy"`
+	LoopProgram         *GoalLoopProgramSnapshot `json:"loopProgram,omitempty" yaml:"loopProgram,omitempty"`
 }
 
 func goalLoopResourceSchema() Schema {
@@ -93,5 +94,5 @@ func validateGoalLoopResource(
 	if spec.EscalationPolicy != "pause" && spec.EscalationPolicy != "fail" {
 		return fmt.Errorf("escalationPolicy must be pause or fail")
 	}
-	return nil
+	return validateGoalLoopProgramSnapshot(metadata, spec)
 }

@@ -4,12 +4,14 @@ import type { ResourceDocument } from "@/lib/api/facade/orchestrationResource";
 import { RESOURCE_API_VERSION } from "@/components/resource-editor/resource-editor-types";
 
 interface LoopResourceDocumentInput {
+  canonicalSource: string;
   program?: LoopProgram;
   workerTemplateName: string;
   namespace: string;
 }
 
 export function createGoalLoopResourceDocument({
+  canonicalSource,
   program,
   workerTemplateName,
   namespace,
@@ -21,8 +23,28 @@ export function createGoalLoopResourceDocument({
   const repeat = program.repeat;
   const agent = requiredNode(repeat.agent, "agent task");
   const verifier = requiredNode(repeat.verifier, "verification step");
+  const until = requiredNode(repeat.until, "repeat condition");
   const limits = program.limits;
+  const iterations = positiveInteger(limits.iterations);
+  if (positiveInteger(repeat.max) !== iterations) {
+    throw new Error("Loop repeat max must match the resource iteration limit.");
+  }
+  if (until.localId !== verifier.identity?.localId || until.field !== "passed") {
+    throw new Error("Loop repeat condition must target the verification step.");
+  }
   const tokenBudget = positiveInteger(limits.tokens);
+  const customBlock = repeat.customBlock
+    ? {
+      nodeId: required(repeat.customBlock.nodeId, "custom block node"),
+      definitionId: required(repeat.customBlock.definitionId, "custom block definition"),
+      slug: required(repeat.customBlock.slug, "custom block slug"),
+      version: positiveInteger(repeat.customBlock.version),
+      definitionDigest: required(
+        repeat.customBlock.definitionDigest,
+        "custom block definition digest",
+      ),
+    }
+    : undefined;
   return {
     format: SourceFormat.JSON,
     content: JSON.stringify({
@@ -43,12 +65,16 @@ export function createGoalLoopResourceDocument({
         objective: required(agent.prompt, "agent prompt"),
         acceptanceCriteria: [required(verifier.accept, "acceptance criterion")],
         verificationCommand: required(verifier.command, "verification command"),
-        maxIterations: positiveInteger(limits.iterations),
+        maxIterations: iterations,
         tokenBudget,
         timeoutMinutes: positiveInteger(limits.timeoutMinutes),
         noProgressLimit: positiveInteger(limits.noProgress),
         sameErrorLimit: positiveInteger(limits.sameError),
         escalationPolicy: program.failurePolicy === "fail" ? "fail" : "pause",
+        loopProgram: {
+          canonicalSource: required(canonicalSource, "canonical source"),
+          ...(customBlock ? { customBlock } : {}),
+        },
       },
     }),
   };
