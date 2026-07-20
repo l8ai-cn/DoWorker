@@ -624,7 +624,7 @@
     },
     "customBlock": {
       "title": "Benutzerdefinierten Block erstellen",
-      "description": "Erstellt ein benutzerdefiniertes Makro für diesen Editorentwurf, das in die aktuelle Loop-Aufgabe und Verifizierung expandiert.",
+      "description": "Erstellt ein organisationsweites benutzerdefiniertes Makro. Jede Speicherung erzeugt eine unveränderliche Version, die in die aktuelle Loop-Aufgabe und Verifizierung expandiert.",
       "label": "Blockname",
       "slug": "Block-Slug",
       "promptTemplate": "Vorlage für Task-Prompt",

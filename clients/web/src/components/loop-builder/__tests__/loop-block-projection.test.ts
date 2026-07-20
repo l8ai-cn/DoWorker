@@ -243,6 +243,18 @@ loop checkout-fix {
     );
   });
 
+  it("registers historical definitions but only exposes the latest revision for insertion", () => {
+    const v1 = pptCustomBlock();
+    const v2 = { ...v1, version: 2, label: "制作 PPT v2" };
+    const catalog = createLoopBlockCatalog(zhMessages.loopWorkbench.blockly, [v1, v2]);
+
+    expect(catalog.definitions.map(({ type }) => type)).toEqual(
+      expect.arrayContaining([customBlockType(v1), customBlockType(v2)]),
+    );
+    expect(JSON.stringify(catalog.toolbox)).toContain(customBlockType(v2));
+    expect(JSON.stringify(catalog.toolbox)).not.toContain(customBlockType(v1));
+  });
+
   it("exposes Loop through the reusable host adapter contract", () => {
     const definition = pptCustomBlock();
     const workspace = new Blockly.Workspace();

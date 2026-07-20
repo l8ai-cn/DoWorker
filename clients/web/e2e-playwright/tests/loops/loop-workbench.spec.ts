@@ -115,20 +115,28 @@ test.describe("Loop workbench", () => {
 
     await doubleClickBlocklyBackground(page);
     await page.getByRole("button", { name: "创建自定义积木" }).click();
+    const slug = `ppt-e2e-${Date.now()}`;
+    const label = `专业 PPT ${slug.slice(-6)}`;
     const dialog = page.getByRole("dialog", { name: "创建自定义积木" });
-    await dialog.getByLabel("积木名称").fill("专业 PPT");
-    await dialog.getByLabel("积木标识").fill("ppt-step");
+    await dialog.getByLabel("积木名称").fill(label);
+    await dialog.getByLabel("积木标识").fill(slug);
     await dialog.getByLabel("任务模板").fill("制作 {{topic}} 的专业 PPT");
     await dialog.getByLabel("验证命令模板").fill("test -f {{file}}");
     await dialog.getByLabel("验收说明模板").fill("{{file}} 存在且可打开");
+    const created = page.waitForResponse((response) =>
+      response.url().includes("BlockstoreService/ApplyOps") &&
+      response.request().method() === "POST" &&
+      response.ok(),
+    );
     await dialog.getByRole("button", { name: "创建积木" }).click();
+    await created;
 
     await expect(page.getByText("有效").first()).toBeVisible();
-    expect(page.url()).toContain("loopCustomBlocks=");
+    expect(page.url()).not.toContain("loopCustomBlocks=");
     const codeEditor = page.locator(".cm-content");
     const workspace = page.getByLabel("Blockly Workspace");
-    await expect(codeEditor).toContainText("agent ppt-step-task");
-    await expect(workspace.getByText("专业 PPT", { exact: true })).toBeVisible();
+    await expect(codeEditor).toContainText(`agent ${slug}-task`);
+    await expect(workspace.getByText(label, { exact: true })).toBeVisible();
     const toolbox = page.locator(".blocklyToolbox");
     await toolbox.locator(".blocklyToolboxCategory", {
       hasText: "我的积木",
@@ -150,8 +158,8 @@ test.describe("Loop workbench", () => {
     const source = await codeEditor.innerText();
     expect(source.toLowerCase()).not.toContain("worker");
     expect(source).not.toContain("invalid-block-structure");
-    expect(source).toContain("agent ppt-step-task");
-    expect(source).toContain("verify ppt-step-check");
+    expect(source).toContain(`agent ${slug}-task`);
+    expect(source).toContain(`verify ${slug}-check`);
 
     await page.reload({ waitUntil: "domcontentloaded" });
     await expect(
@@ -159,9 +167,9 @@ test.describe("Loop workbench", () => {
     ).toBeVisible();
     await resetLoopSource(page, ZH_LOOP_LABELS);
     await doubleClickBlocklyBackground(page);
-    await expect(page.getByRole("button", { name: "专业 PPT" })).toBeVisible();
-    await page.getByRole("button", { name: "专业 PPT" }).click();
-    await expect(codeEditor).toContainText("agent ppt-step-task");
+    await expect(page.getByRole("button", { name: label })).toBeVisible();
+    await page.getByRole("button", { name: label }).click();
+    await expect(codeEditor).toContainText(`agent ${slug}-task`);
   });
 
   test("keeps Loop projection equivalent across Chinese and English workbenches", async ({

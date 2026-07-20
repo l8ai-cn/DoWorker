@@ -1,6 +1,10 @@
 import { Plus } from "lucide-react";
 import { LOOP_BLOCK_TYPES } from "./loop-block-catalog";
-import { customBlockType, type LoopCustomBlockDefinition } from "./loop-custom-block-types";
+import {
+  customBlockType,
+  latestCustomBlockDefinitions,
+  type LoopCustomBlockDefinition,
+} from "./loop-custom-block-types";
 import type { LoopQuickInsertMessages } from "./loop-workbench-messages";
 
 interface LoopQuickInsertProps {
@@ -67,7 +71,7 @@ export function LoopQuickInsert({
             {messages.customEmpty}
           </div>
         )}
-        {customDefinitions.map((definition) => (
+        {latestCustomBlockDefinitions(customDefinitions).map((definition) => (
           <button
             className="flex w-full items-start gap-2 px-3 py-2 text-left text-sm hover:bg-accent"
             key={`${definition.slug}@${definition.version}`}

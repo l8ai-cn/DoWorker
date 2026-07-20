@@ -630,7 +630,7 @@
     },
     "customBlock": {
       "title": "Créer un bloc personnalisé",
-      "description": "Crée une macro personnalisée pour ce brouillon d’éditeur qui s’étend en tâche et vérification du loop actuel.",
+      "description": "Crée une macro personnalisée pour l’organisation. Chaque enregistrement crée une version immuable qui s’étend en tâche et vérification du loop actuel.",
       "label": "Libellé du bloc",
       "slug": "Slug du bloc",
       "promptTemplate": "Modèle de prompt de tâche",

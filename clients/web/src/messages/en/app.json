@@ -1066,7 +1066,7 @@
     },
     "customBlock": {
       "title": "Create custom block",
-      "description": "Create a custom macro for this editor draft. It expands into the current loop task and verifier.",
+      "description": "Create an organization custom macro. Each save creates an immutable version that expands into the current loop task and verifier.",
       "label": "Block label",
       "slug": "Block slug",
       "promptTemplate": "Task prompt template",

@@ -624,7 +624,7 @@
     },
     "customBlock": {
       "title": "Criar bloco personalizado",
-      "description": "Cria uma macro personalizada para este rascunho do editor que se expande na tarefa e na verificação do loop atual.",
+      "description": "Cria uma macro personalizada da organização. Cada gravação cria uma versão imutável que se expande na tarefa e na verificação do loop atual.",
       "label": "Rótulo do bloco",
       "slug": "Slug do bloco",
       "promptTemplate": "Modelo do prompt da tarefa",

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@/test/test-utils";
+import { fireEvent, render, screen, waitFor } from "@/test/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import zhMessages from "@/messages/zh/app.json";
 import { LoopCustomBlockDialog } from "../loop-custom-block-dialog";
@@ -19,7 +19,7 @@ const messages = createLoopWorkbenchMessages(
 ).customBlock;
 
 describe("LoopCustomBlockDialog", () => {
-  it("creates a versioned custom block definition from editable templates", () => {
+  it("creates a versioned custom block definition from editable templates", async () => {
     const onCreate = vi.fn();
     render(
       <LoopCustomBlockDialog
@@ -48,12 +48,12 @@ describe("LoopCustomBlockDialog", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "创建积木" }));
 
-    expect(onCreate).toHaveBeenCalledWith(expect.objectContaining({
+    await waitFor(() => expect(onCreate).toHaveBeenCalledWith(expect.objectContaining({
       label: "专业 PPT",
       parameters: ["topic", "file"],
       slug: "ppt-step",
       version: 1,
-    }));
+    })));
   });
 
   it("rejects invalid identifiers before creating the block", () => {
@@ -80,7 +80,7 @@ describe("LoopCustomBlockDialog", () => {
     expect(onCreate).not.toHaveBeenCalled();
   });
 
-  it("rejects an existing block slug instead of replacing its templates", () => {
+  it("creates the next immutable version for an existing block slug", async () => {
     const onCreate = vi.fn();
     render(
       <LoopCustomBlockDialog
@@ -109,7 +109,10 @@ describe("LoopCustomBlockDialog", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "创建积木" }));
 
-    expect(screen.getByText("积木标识已存在，请使用新的标识")).toBeInTheDocument();
-    expect(onCreate).not.toHaveBeenCalled();
+    await waitFor(() => expect(onCreate).toHaveBeenCalledWith(expect.objectContaining({
+      label: "新版 PPT",
+      slug: "ppt-step",
+      version: 2,
+    })));
   });
 });

@@ -22,7 +22,7 @@ interface LoopCustomBlockDialogProps {
   definitions: readonly LoopCustomBlockDefinition[];
   messages: LoopCustomBlockMessages;
   open: boolean;
-  onCreate: (definition: LoopCustomBlockDefinition) => void;
+  onCreate: (definition: LoopCustomBlockDefinition) => Promise<void>;
   onOpenChange: (open: boolean) => void;
 }
 
@@ -44,6 +44,8 @@ export function LoopCustomBlockDialog({
   const id = useId();
   const [draft, setDraft] = useState(EMPTY_DRAFT);
   const [submitted, setSubmitted] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string>();
   const result = useMemo(
     () => buildCustomBlockDefinition(draft, definitions),
     [definitions, draft],
@@ -54,11 +56,11 @@ export function LoopCustomBlockDialog({
     const issue = result.issues.find((item) => item.field === field);
     if (!issue) return undefined;
     if (issue.code === "identifier") return messages.identifier;
-    if (issue.code === "duplicate") return messages.duplicate;
     return messages.required;
   }
 
   function update(field: keyof LoopCustomBlockDraft, value: string) {
+    setSaveError(undefined);
     setDraft((current) => ({ ...current, [field]: value }));
   }
 
@@ -66,8 +68,24 @@ export function LoopCustomBlockDialog({
     if (!nextOpen) {
       setDraft(EMPTY_DRAFT);
       setSubmitted(false);
+      setSaveError(undefined);
     }
     onOpenChange(nextOpen);
+  }
+
+  async function create() {
+    setSubmitted(true);
+    if (!result.definition) return;
+    setSaving(true);
+    setSaveError(undefined);
+    try {
+      await onCreate(result.definition);
+      changeOpen(false);
+    } catch (cause) {
+      setSaveError(cause instanceof Error ? cause.message : String(cause));
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -127,19 +145,13 @@ export function LoopCustomBlockDialog({
               onChange={(event) => update("acceptTemplate", event.target.value)}
             />
           </div>
+          {saveError && <p className="text-sm text-destructive" role="alert">{saveError}</p>}
         </DialogBody>
         <DialogFooter>
-          <Button onClick={() => changeOpen(false)} variant="outline">
+          <Button disabled={saving} onClick={() => changeOpen(false)} variant="outline">
             {messages.cancel}
           </Button>
-          <Button
-            onClick={() => {
-              setSubmitted(true);
-              if (!result.definition) return;
-              onCreate(result.definition);
-              changeOpen(false);
-            }}
-          >
+          <Button disabled={saving} onClick={() => void create()}>
             {messages.create}
           </Button>
         </DialogFooter>

@@ -1,5 +1,9 @@
 import * as Blockly from "blockly";
-import { customBlockType, type LoopCustomBlockDefinition } from "./loop-custom-block-types";
+import {
+  customBlockType,
+  latestCustomBlockDefinitions,
+  type LoopCustomBlockDefinition,
+} from "./loop-custom-block-types";
 import type { LoopBlockCatalogMessages } from "./loop-workbench-messages";
 
 export const LOOP_BLOCK_TYPES = {
@@ -128,7 +132,7 @@ export function createLoopBlockCatalog(
         kind: "category",
         name: messages.toolbox.custom,
         colour: "180",
-        contents: customDefinitions.map((definition) => ({
+        contents: latestCustomBlockDefinitions(customDefinitions).map((definition) => ({
           kind: "block",
           type: customBlockType(definition),
         })),

@@ -630,7 +630,7 @@
     },
     "customBlock": {
       "title": "Crear bloque personalizado",
-      "description": "Crea una macro personalizada para este borrador del editor que se expande en la tarea y la verificación del loop actual.",
+      "description": "Crea una macro personalizada de la organización. Cada guardado crea una versión inmutable que se expande en la tarea y la verificación del loop actual.",
       "label": "Nombre del bloque",
       "slug": "Slug del bloque",
       "promptTemplate": "Plantilla del prompt de tarea",

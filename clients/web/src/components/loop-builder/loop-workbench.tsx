@@ -1,24 +1,19 @@
 "use client";
 
 import { useLocale } from "next-intl";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { BlockProgrammingWorkbench } from "@/components/block-programming/BlockProgrammingWorkbench";
-import { registerBlockCustomDefinition } from "@/components/block-programming/block-custom-definition-registry";
 import { Spinner } from "@/components/ui/spinner";
 import { LoopBlocklyCanvas } from "./loop-blockly-canvas";
 import { LoopAIAssistantDialog } from "./loop-ai-assistant-dialog";
 import { LoopCodeEditor } from "./loop-code-editor";
 import { LoopCustomBlockDialog } from "./loop-custom-block-dialog";
-import {
-  readLoopCustomBlocksFromHash,
-  writeLoopCustomBlocksToHash,
-} from "./loop-custom-block-url-state";
 import { LoopRuntimeDialog } from "./loop-runtime-dialog";
 import { LoopStatusPanel } from "./loop-status-panel";
 import { LoopWorkbenchToolbar } from "./loop-workbench-toolbar";
-import type { LoopCustomBlockDefinition } from "./loop-custom-block-types";
 import { useLoopWorkbenchMessages } from "./loop-workbench-messages";
 import { useLoopAIAssistant } from "./use-loop-ai-assistant";
+import { useLoopCustomBlockLibrary } from "./use-loop-custom-block-library";
 import { useLoopWorkbench } from "./use-loop-workbench";
 
 export function LoopWorkbench({ orgSlug }: { orgSlug: string }) {
@@ -33,9 +28,7 @@ export function LoopWorkbench({ orgSlug }: { orgSlug: string }) {
     onApplied: model.applySnapshot,
   });
   const [selectedNodeId, setSelectedNodeId] = useState<string>();
-  const [customDefinitions, setCustomDefinitions] = useState<LoopCustomBlockDefinition[]>(
-    () => (typeof window === "undefined" ? [] : readLoopCustomBlocksFromHash(window.location.hash)),
-  );
+  const customBlocks = useLoopCustomBlockLibrary();
   const [customDialogOpen, setCustomDialogOpen] = useState(false);
   const [runtimeDialogOpen, setRuntimeDialogOpen] = useState(false);
   const blocksWritable =
@@ -45,19 +38,12 @@ export function LoopWorkbench({ orgSlug }: { orgSlug: string }) {
   const codeWritable =
     model.snapshot.activeEditor === "code" && !model.running;
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const nextHash = writeLoopCustomBlocksToHash(window.location.hash, customDefinitions);
-    const nextUrl = `${window.location.pathname}${window.location.search}${nextHash}`;
-    window.history.replaceState(null, "", nextUrl);
-  }, [customDefinitions]);
-
   return (
     <>
       <BlockProgrammingWorkbench
         canvas={(
           <LoopBlocklyCanvas
-            customDefinitions={customDefinitions}
+            customDefinitions={customBlocks.definitions}
             messages={{ blockly: messages.blockly, quickInsert: messages.quickInsert }}
             onCreateCustom={() => setCustomDialogOpen(true)}
             onSelectNode={setSelectedNodeId}
@@ -87,7 +73,7 @@ export function LoopWorkbench({ orgSlug }: { orgSlug: string }) {
         }}
         status={(
           <LoopStatusPanel
-            error={model.error}
+            error={model.error ?? customBlocks.error}
             messages={messages.status}
             onRepairDiagnostic={(diagnostic) => ai.openRepair({
               diagnosticCode: diagnostic.code,
@@ -129,14 +115,10 @@ export function LoopWorkbench({ orgSlug }: { orgSlug: string }) {
         }}
       />
       <LoopCustomBlockDialog
-        definitions={customDefinitions}
+        definitions={customBlocks.definitions}
         messages={messages.customBlock}
         open={customDialogOpen}
-        onCreate={(definition) => {
-          setCustomDefinitions((current) =>
-            [...registerBlockCustomDefinition(current, definition).definitions],
-          );
-        }}
+        onCreate={customBlocks.create}
         onOpenChange={setCustomDialogOpen}
       />
       <LoopAIAssistantDialog
