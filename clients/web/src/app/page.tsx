@@ -11,7 +11,6 @@ export default function Home() {
     operatingSystem: "Web, Linux, macOS, Windows",
     description:
       "Do Worker builds, governs, distributes, and operates reusable Agents for enterprise teams, OPC founders, and higher-education digital employee pilots.",
-    alternateName: ["AgentMesh", "Agents Mesh"],
     url: "https://agentsmesh.ai",
     keywords:
       "enterprise Agent supply, OPC incubation, higher-education digital employees, internal Agent marketplace, AI partners, self-hosted AI agents",
