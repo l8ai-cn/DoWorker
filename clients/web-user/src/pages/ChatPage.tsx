@@ -60,7 +60,7 @@ import { parseSystemMessage } from "@/lib/systemMessage";
 import { Button } from "@/components/ui/button";
 import { DoWorkerLogo } from "@/components/icons/DoWorkerLogo";
 import { cn } from "@/lib/utils";
-import { validateAttachments } from "@/lib/attachments";
+import { ATTACHMENT_FILE_INPUT_ACCEPT, validateAttachments } from "@/lib/attachments";
 import { useSurfaceFrontmost } from "@/hooks/useNativeServerSwitcher";
 import {
   isIOSShell,
@@ -4313,7 +4313,7 @@ export function Composer({
         ref={fileInputRef}
         type="file"
         multiple
-        accept="image/*,application/pdf,text/*,application/json"
+        accept={ATTACHMENT_FILE_INPUT_ACCEPT}
         className="hidden"
         onChange={(e) => {
           if (e.target.files) {

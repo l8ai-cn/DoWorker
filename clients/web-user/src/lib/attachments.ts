@@ -18,6 +18,14 @@ export const ATTACHMENT_SIZE_LIMITS_MB = {
   document: 10,
 } as const;
 
+export const ATTACHMENT_FILE_INPUT_ACCEPT = [
+  "image/*",
+  "application/pdf",
+  "text/*",
+  "application/json",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+].join(",");
+
 export type AttachmentCategory = keyof typeof ATTACHMENT_SIZE_LIMITS_MB;
 
 // Text-bearing application/* MIME types (the rest of the text-like surface

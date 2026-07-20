@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { ATTACHMENT_FILE_INPUT_ACCEPT } from "@/lib/attachments";
 import { NewChatAttachmentChips } from "./NewChatAttachmentChips";
 import { NewChatComposerFooter } from "./NewChatComposerFooter";
 import { NewChatPromptArea } from "./NewChatPromptArea";
@@ -61,7 +62,7 @@ export function NewChatComposerCard({ state }: { state: NewChatLandingController
         ref={files.fileInputRef}
         type="file"
         multiple
-        accept="image/*,application/pdf,text/*,application/json,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        accept={ATTACHMENT_FILE_INPUT_ACCEPT}
         className="hidden"
         data-testid="new-chat-landing-file-input"
         onChange={(event) => {

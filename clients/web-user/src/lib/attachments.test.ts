@@ -1,11 +1,24 @@
 import { describe, expect, it } from "vitest";
-import { ATTACHMENT_SIZE_LIMITS_MB, classifyAttachment, validateAttachments } from "./attachments";
+import {
+  ATTACHMENT_FILE_INPUT_ACCEPT,
+  ATTACHMENT_SIZE_LIMITS_MB,
+  classifyAttachment,
+  validateAttachments,
+} from "./attachments";
 
 function makeFile(name: string, type: string, bytes = 10): File {
   return new File([new Uint8Array(bytes)], name, { type });
 }
 
 const MB = 1024 * 1024;
+
+describe("attachment file input", () => {
+  it("offers every MIME family accepted by attachment validation", () => {
+    expect(ATTACHMENT_FILE_INPUT_ACCEPT).toBe(
+      "image/*,application/pdf,text/*,application/json,application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    );
+  });
+});
 
 describe("classifyAttachment", () => {
   it("classifies images by MIME", () => {
