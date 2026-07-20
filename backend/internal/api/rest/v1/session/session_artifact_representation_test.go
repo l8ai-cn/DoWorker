@@ -2,6 +2,7 @@ package sessionapi
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -69,9 +70,10 @@ func TestArtifactDownloadGrantScope(t *testing.T) {
 func TestArtifactRepresentationServesRangeFromSessionFile(t *testing.T) {
 	deps, db := ownerArtifactRepresentationDeps(t)
 	objects := storage.NewMockStorage()
+	counted := &artifactRangeStorage{Storage: objects}
 	deps.SessionFiles = sessionfilesvc.NewService(
 		db,
-		filesvc.NewService(objects, config.StorageConfig{}),
+		filesvc.NewService(counted, config.StorageConfig{}),
 	)
 	deps.WorkbenchRepo = artifactRepresentationRepo(t)
 	require.NoError(t, db.AutoMigrate(&sessionfiledomain.File{}))
@@ -87,6 +89,8 @@ func TestArtifactRepresentationServesRangeFromSessionFile(t *testing.T) {
 	assert.Equal(t, "bytes 2-5/10", response.Header().Get("Content-Range"))
 	assert.Equal(t, "bytes", response.Header().Get("Accept-Ranges"))
 	assert.Equal(t, "2345", response.Body.String())
+	assert.Zero(t, counted.downloads)
+	assert.Equal(t, 1, counted.ranges)
 }
 
 func TestArtifactRepresentationRejectsUnsatisfiableRange(t *testing.T) {
@@ -167,6 +171,30 @@ func ownerArtifactRepresentationDeps(t *testing.T) (*Deps, *gorm.DB) {
 
 type artifactRepresentationSnapshotRepo struct {
 	state *workbenchdomain.SessionState
+}
+
+type artifactRangeStorage struct {
+	storage.Storage
+	downloads int
+	ranges    int
+}
+
+func (s *artifactRangeStorage) Download(
+	ctx context.Context,
+	key string,
+) (io.ReadCloser, int64, error) {
+	s.downloads++
+	return s.Storage.Download(ctx, key)
+}
+
+func (s *artifactRangeStorage) DownloadRange(
+	ctx context.Context,
+	key string,
+	start int64,
+	end int64,
+) (io.ReadCloser, int64, error) {
+	s.ranges++
+	return s.Storage.DownloadRange(ctx, key, start, end)
 }
 
 func (repo artifactRepresentationSnapshotRepo) Append(
