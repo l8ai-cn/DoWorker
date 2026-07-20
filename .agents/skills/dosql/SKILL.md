@@ -34,6 +34,8 @@ executed.
 - Explain each mutating change in user-readable language before execution.
 - Scan database health, extract SQL logs and detect SQL injection indicators
   through read-only commands.
+- Run the fixed Oilan PostgreSQL asset probe and allow-listed read queries only
+  through the `gw-oilan-node` DoOps target.
 
 ## Safety Rules
 
@@ -52,6 +54,12 @@ executed.
   not confirm raw SQL as the primary approval surface.
 - If a database name resolves to multiple assets, ask the user to choose the
   environment or database. Do not guess.
+- The Oilan PostgreSQL adapter accepts only a unique DoOps session and an
+  allow-listed query name. It never accepts a connection URI, raw SQL,
+  caller-provided evidence, or a mutable target override.
+- A failed or offline `gw-oilan-node` target is a hard failure. Do not use a
+  local `psql`, local `kubectl` path, or an alternate database path. The
+  adapter's fixed remote command is submitted only through DoOps.
 - 不允许用兼容分支或静默降级掩盖真实失败。
 
 ## Local Resource Bootstrap

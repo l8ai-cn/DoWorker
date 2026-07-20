@@ -72,6 +72,16 @@ dosql-agent <command> --input request.json --output response.json
 Every command must receive an `operationId` created by DoSql Server before
 execution.
 
+### Fixed Oilan PostgreSQL Read-Only Entry Point
+
+`scripts/oilan-postgres-doops-readonly.mjs` is a separate fixed adapter for
+the registered `db_agentsmesh_prod_postgres` asset. It supports `probe` and
+`query`, but only accepts `operationId`, a unique DoOps `session`, and the
+allow-listed `queryName` `migration-version` for `query`. It invokes the fixed
+`gw-oilan-node` target, writes hash-verifiable redacted evidence, and rejects
+raw SQL, connection URIs, caller-supplied evidence paths, target overrides,
+and all mutation requests.
+
 ## Commands
 
 | Command | Status | Purpose |
