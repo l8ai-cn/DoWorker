@@ -3,6 +3,7 @@ package workspace
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -125,11 +126,13 @@ func TestAnonymousAuthCannotUseRunnerLocalCredentials(t *testing.T) {
 func installProbeGitHarness(t *testing.T) {
 	t.Helper()
 	dir := t.TempDir()
+	executable, err := os.Executable()
+	require.NoError(t, err)
 	name := "git"
-	content := probeGitHarnessUnix()
+	content := probeGitHarnessUnix(executable)
 	if runtime.GOOS == "windows" {
 		name = "git.bat"
-		content = probeGitHarnessWindows()
+		content = probeGitHarnessWindows(executable)
 	}
 	script := filepath.Join(dir, name)
 	require.NoError(t, os.WriteFile(script, []byte(content), 0755))
@@ -147,34 +150,48 @@ func envValues(env []string) map[string]string {
 	return values
 }
 
-func probeGitHarnessUnix() string {
-	return `#!/bin/sh
-if [ "${1:-}" = "ls-remote" ]; then
-	if [ "${GIT_CONFIG_NOSYSTEM:-}" = "1" ]; then
-		printf 'runner local credentials unavailable\n' >&2
-		exit 23
-	fi
-	printf '0123456789abcdef0123456789abcdef01234567	HEAD\n'
-	exit 0
-fi
-printf 'unexpected git command: %s\n' "$*" >&2
-exit 99
-`
+func probeGitHarnessUnix(executable string) string {
+	return fmt.Sprintf(`#!/bin/sh
+exec %s -test.run=TestGitProbeHelperProcess -- agentsmesh-git-probe-helper "$@"
+`, shellSingleQuote(executable))
 }
 
-func probeGitHarnessWindows() string {
-	return `@echo off
-if "%1"=="ls-remote" (
-	if "%GIT_CONFIG_NOSYSTEM%"=="1" (
-		echo runner local credentials unavailable 1>&2
-		exit /b 23
-	)
-	echo 0123456789abcdef0123456789abcdef01234567	HEAD
-	exit /b 0
-)
-echo unexpected git command: %* 1>&2
-exit /b 99
-`
+func probeGitHarnessWindows(executable string) string {
+	return fmt.Sprintf(`@echo off
+"%s" -test.run=TestGitProbeHelperProcess -- agentsmesh-git-probe-helper %%*
+exit /b %%ERRORLEVEL%%
+`, strings.ReplaceAll(executable, `"`, `""`))
+}
+
+func TestGitProbeHelperProcess(t *testing.T) {
+	args := testHelperArgs(os.Args)
+	if len(args) == 0 || args[0] != "agentsmesh-git-probe-helper" {
+		return
+	}
+	gitArgs := args[1:]
+	if len(gitArgs) == 0 || gitArgs[0] != "ls-remote" {
+		fmt.Fprintf(os.Stderr, "unexpected git command: %s\n", strings.Join(gitArgs, " "))
+		os.Exit(99)
+	}
+	if os.Getenv("GIT_CONFIG_NOSYSTEM") == "1" {
+		fmt.Fprintln(os.Stderr, "runner local credentials unavailable")
+		os.Exit(23)
+	}
+	fmt.Println("0123456789abcdef0123456789abcdef01234567\tHEAD")
+	os.Exit(0)
+}
+
+func shellSingleQuote(value string) string {
+	return "'" + strings.ReplaceAll(value, "'", `'"'"'`) + "'"
+}
+
+func testHelperArgs(args []string) []string {
+	for index, arg := range args {
+		if arg == "--" {
+			return args[index+1:]
+		}
+	}
+	return nil
 }
 
 func installEchoFailGitHarness(t *testing.T) {
