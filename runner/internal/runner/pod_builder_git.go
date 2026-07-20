@@ -3,11 +3,7 @@ package runner
 import (
 	"context"
 	"fmt"
-	"os"
-	"os/exec"
-	"os/user"
 	"path/filepath"
-	"runtime"
 	"strings"
 
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
@@ -38,64 +34,20 @@ func (b *PodBuilder) setupGitWorktree(ctx context.Context, sandboxRoot string, c
 			Message: "workspace manager not available for git operations",
 		}
 	}
+	sourceCommitSHA, err := workspace.RequireCommitSHA("source_commit_sha", cfg.GetSourceCommitSha())
+	if err != nil {
+		return "", "", &client.PodError{
+			Code:    client.ErrCodeGitWorktree,
+			Message: err.Error(),
+		}
+	}
 
 	// Report cloning progress
 	b.sendProgress("cloning", 30, "Cloning repository...")
 
-	// Build worktree options based on credential type
-	opts := []workspace.WorktreeOption{}
-	logger.Pod().DebugContext(ctx, "Setting up git credentials", "pod_key", b.cmd.PodKey, "credential_type", cfg.CredentialType)
-
-	switch cfg.CredentialType {
-	case "runner_local":
-		// Use Runner's local git configuration, no credentials needed
-		logger.Pod().DebugContext(ctx, "Using runner local git config", "pod_key", b.cmd.PodKey)
-	case "oauth", "pat":
-		// HTTPS + token authentication
-		logger.Pod().DebugContext(ctx, "Using token authentication", "pod_key", b.cmd.PodKey, "type", cfg.CredentialType)
-		if cfg.GitToken != "" {
-			opts = append(opts, workspace.WithGitToken(cfg.GitToken))
-		}
-	case "ssh_key":
-		// SSH private key authentication
-		if cfg.SshPrivateKey != "" {
-			// Write SSH private key to temporary file in sandbox
-			keyFile := filepath.Join(sandboxRoot, ".ssh_key")
-			if err := os.WriteFile(keyFile, []byte(cfg.SshPrivateKey), 0600); err != nil {
-				return "", "", &client.PodError{
-					Code:    client.ErrCodeFileCreate,
-					Message: fmt.Sprintf("failed to write SSH key: %v", err),
-				}
-			}
-			// On Windows, os.FileMode(0600) is not enforced by the filesystem.
-			// SSH clients require strict permissions, so use icacls to remove
-			// inherited ACLs and grant read-only access to the current user.
-			if runtime.GOOS == "windows" {
-				username := os.Getenv("USERNAME")
-				if username == "" {
-					// Fallback for Windows Service or container environments
-					// where USERNAME may not be set.
-					if u, err := user.Current(); err == nil {
-						username = u.Username
-					}
-				}
-				if username != "" {
-					if err := exec.Command("icacls", keyFile, "/inheritance:r",
-						"/grant:r", username+":R").Run(); err != nil {
-						logger.Pod().WarnContext(ctx, "Failed to set SSH key ACL (SSH may reject key if permissions are too open)",
-							"error", err, "key_file", keyFile)
-					}
-				}
-			}
-			opts = append(opts, workspace.WithSSHKeyPath(keyFile))
-			logger.Pod().DebugContext(ctx, "SSH key written to sandbox", "pod_key", b.cmd.PodKey, "key_file", keyFile)
-		}
-	default:
-		// Unknown type - fallback to runner_local behavior
-		if cfg.CredentialType != "" {
-			logger.Pod().WarnContext(ctx, "Unknown credential type, using runner local",
-				"credential_type", cfg.CredentialType, "pod_key", b.cmd.PodKey)
-		}
+	opts, err := b.gitCredentialOptions(ctx, sandboxRoot, cfg)
+	if err != nil {
+		return "", "", err
 	}
 
 	// Pass new clone URLs for smart probing
@@ -105,6 +57,7 @@ func (b *PodBuilder) setupGitWorktree(ctx context.Context, sandboxRoot string, c
 	if cfg.SshCloneUrl != "" {
 		opts = append(opts, workspace.WithSshCloneURL(cfg.SshCloneUrl))
 	}
+	opts = append(opts, workspace.WithSourceCommitSHA(sourceCommitSHA))
 
 	// Create git worktree inside sandbox directory: sandboxes/{podKey}/workspace
 	workspaceTarget := filepath.Join(sandboxRoot, "workspace")
@@ -128,8 +81,9 @@ func (b *PodBuilder) setupGitWorktree(ctx context.Context, sandboxRoot string, c
 			Code:    errCode,
 			Message: fmt.Sprintf("failed to create workspace: %v", err),
 			Details: map[string]string{
-				"repository": repoURL,
-				"branch":     cfg.SourceBranch,
+				"repository":        workspace.RepositoryURLForDisplay(repoURL),
+				"branch":            cfg.SourceBranch,
+				"source_commit_sha": sourceCommitSHA,
 			},
 		}
 	}

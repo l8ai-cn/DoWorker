@@ -29,10 +29,10 @@ func TestListWorktreesWithDirectories(t *testing.T) {
 	manager, _ := NewManager(tmpDir, "")
 
 	// Create sandboxes with worktree subdirectories
-	// New structure: sandboxes/{podKey}/worktree
+	// New structure: sandboxes/{podKey}/workspace
 	sandboxesDir := filepath.Join(tmpDir, "sandboxes")
-	os.MkdirAll(filepath.Join(sandboxesDir, "pod1", "worktree"), 0755)
-	os.MkdirAll(filepath.Join(sandboxesDir, "pod2", "worktree"), 0755)
+	os.MkdirAll(filepath.Join(sandboxesDir, "pod1", "workspace"), 0755)
+	os.MkdirAll(filepath.Join(sandboxesDir, "pod2", "workspace"), 0755)
 
 	worktrees, err := manager.ListWorktrees()
 	if err != nil {

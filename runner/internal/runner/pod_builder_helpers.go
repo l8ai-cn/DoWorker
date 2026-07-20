@@ -22,6 +22,7 @@ func (b *PodBuilder) mergeEnvVars(sandboxRoot string) map[string]string {
 		for k, v := range b.cmd.EnvVars {
 			result[k] = v
 		}
+		enforceGitProcessIsolation(result, b.cmd.GetSandboxConfig().GetCredentialType())
 	}
 
 	return result

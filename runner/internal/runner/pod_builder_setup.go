@@ -41,10 +41,7 @@ func (b *PodBuilder) setup(ctx context.Context) (string, string, string, error) 
 	result, err := strategy.Setup(ctx, sandboxRoot, cfg)
 	if err != nil {
 		logger.Pod().ErrorContext(ctx, "Setup strategy failed", "pod_key", b.cmd.PodKey, "strategy", strategy.Name(), "error", err)
-		if rmErr := fsutil.RemoveAll(sandboxRoot); rmErr != nil {
-			slog.WarnContext(ctx, "Failed to clean up sandbox after setup error", "path", sandboxRoot, "error", rmErr)
-		}
-		return "", "", "", err
+		return "", "", "", errors.Join(err, b.cleanupSandbox(ctx, sandboxRoot, "setup strategy error"))
 	}
 
 	sandboxOwned := true
@@ -58,18 +55,14 @@ func (b *PodBuilder) setup(ctx context.Context) (string, string, string, error) 
 
 	if err := b.setupKnowledgeMounts(ctx, sandboxRoot); err != nil {
 		if sandboxOwned {
-			if rmErr := fsutil.RemoveAll(sandboxRoot); rmErr != nil {
-				slog.WarnContext(ctx, "Failed to clean up sandbox after knowledge mount error", "path", sandboxRoot, "error", rmErr)
-			}
+			err = errors.Join(err, b.cleanupSandbox(ctx, sandboxRoot, "knowledge mount error"))
 		}
 		return "", "", "", err
 	}
 
 	if err := b.prepareAgentHome(sandboxRoot, result.WorkingDir); err != nil {
 		if sandboxOwned {
-			if rmErr := fsutil.RemoveAll(sandboxRoot); rmErr != nil {
-				slog.WarnContext(ctx, "Failed to clean up sandbox after agent home error", "path", sandboxRoot, "error", rmErr)
-			}
+			err = errors.Join(err, b.cleanupSandbox(ctx, sandboxRoot, "agent home error"))
 		}
 		return "", "", "", err
 	}
@@ -79,21 +72,18 @@ func (b *PodBuilder) setup(ctx context.Context) (string, string, string, error) 
 	}
 	if err := b.createFiles(sandboxRoot, result.WorkingDir); err != nil {
 		if sandboxOwned {
-			if rmErr := fsutil.RemoveAll(sandboxRoot); rmErr != nil {
-				slog.WarnContext(ctx, "Failed to clean up sandbox after file creation error", "path", sandboxRoot, "error", rmErr)
-			}
+			err = errors.Join(err, b.cleanupSandbox(ctx, sandboxRoot, "file creation error"))
 		}
 		return "", "", "", err
 	}
 
 	// Download skill packages
 	if err := b.downloadResources(ctx, sandboxRoot, result.WorkingDir); err != nil {
+		err = fmt.Errorf("failed to download resources: %w", err)
 		if sandboxOwned {
-			if rmErr := fsutil.RemoveAll(sandboxRoot); rmErr != nil {
-				slog.WarnContext(ctx, "Failed to clean up sandbox after download error", "path", sandboxRoot, "error", rmErr)
-			}
+			err = errors.Join(err, b.cleanupSandbox(ctx, sandboxRoot, "resource download error"))
 		}
-		return "", "", "", fmt.Errorf("failed to download resources: %w", err)
+		return "", "", "", err
 	}
 	if reusesWorkspace {
 		if err := persistWorkspaceAlias(b.deps.Config.WorkspaceRoot, podSandboxRoot, result.WorkingDir); err != nil {
@@ -147,6 +137,8 @@ func (b *PodBuilder) runPreparationScript(ctx context.Context, cfg *runnerv1.San
 		TicketSlug:   cfg.GetTicketSlug(),
 		BranchName:   branchName,
 		WorkspaceDir: workspacePath,
+		BaseEnvVars:  gitProcessIsolationEnv(cfg.GetCredentialType()),
+		UnsetEnvVars: gitProcessIsolationUnsetEnv(cfg.GetCredentialType()),
 	}
 
 	if err := preparer.Prepare(ctx, prepCtx); err != nil {

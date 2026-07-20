@@ -38,9 +38,9 @@ func TestNewPodBuilder(t *testing.T) {
 func TestPodBuilderWithCommand(t *testing.T) {
 	runner := &Runner{cfg: &config.Config{}}
 	cmd := &runnerv1.CreatePodCommand{
-		PodKey:        "test-key",
-		LaunchCommand: "echo",
-		LaunchArgs:    []string{"hello"},
+		PodKey:          "test-key",
+		LaunchCommand:   "echo",
+		LaunchArgs:      []string{"hello"},
 		AgentfileSource: "AGENT echo\nPROMPT_POSITION prepend\n",
 		EnvVars: map[string]string{
 			"VAR1": "value1",
@@ -96,8 +96,8 @@ func TestPodBuilderWithPtySizeZeroValues(t *testing.T) {
 func TestPodBuilderWithSandboxConfig(t *testing.T) {
 	runner := &Runner{cfg: &config.Config{}}
 	cmd := &runnerv1.CreatePodCommand{
-		PodKey:        "test-pod",
-		LaunchCommand: "echo",
+		PodKey:          "test-pod",
+		LaunchCommand:   "echo",
 		AgentfileSource: "AGENT echo\nPROMPT_POSITION prepend\n",
 		SandboxConfig: &runnerv1.SandboxConfig{
 			HttpCloneUrl:   "https://github.com/test/repo.git",
@@ -122,8 +122,8 @@ func TestPodBuilderWithSandboxConfig(t *testing.T) {
 func TestPodBuilderWithFilesToCreateMultiple(t *testing.T) {
 	runner := &Runner{cfg: &config.Config{}}
 	cmd := &runnerv1.CreatePodCommand{
-		PodKey:        "test-pod",
-		LaunchCommand: "echo",
+		PodKey:          "test-pod",
+		LaunchCommand:   "echo",
 		AgentfileSource: "AGENT echo\nPROMPT_POSITION prepend\n",
 		FilesToCreate: []*runnerv1.FileToCreate{
 			{Path: "{{.sandbox.root_path}}/config.json", Content: "{}", Mode: 0644},
@@ -144,9 +144,9 @@ func TestPodBuilderWithFilesToCreateMultiple(t *testing.T) {
 func TestPodBuilderCommandWithAllFields(t *testing.T) {
 	runner := &Runner{cfg: &config.Config{}}
 	cmd := &runnerv1.CreatePodCommand{
-		PodKey:        "pod-1",
-		LaunchCommand: "claude",
-		LaunchArgs:    []string{"--headless"},
+		PodKey:          "pod-1",
+		LaunchCommand:   "claude",
+		LaunchArgs:      []string{"--headless"},
 		AgentfileSource: "AGENT claude\nPROMPT_POSITION prepend\n",
 		EnvVars: map[string]string{
 			"API_KEY": "secret",
@@ -214,7 +214,7 @@ func TestPodBuilderBuildNilCommand(t *testing.T) {
 func TestPodBuilderBuildEmptyPodKey(t *testing.T) {
 	runner := &Runner{cfg: &config.Config{}}
 	cmd := &runnerv1.CreatePodCommand{
-		LaunchCommand: "echo",
+		LaunchCommand:   "echo",
 		AgentfileSource: "AGENT echo\nPROMPT_POSITION prepend\n",
 		// PodKey is empty
 	}

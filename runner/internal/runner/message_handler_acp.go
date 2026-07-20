@@ -2,6 +2,7 @@ package runner
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
@@ -10,8 +11,6 @@ import (
 	"github.com/anthropics/agentsmesh/runner/internal/policy"
 )
 
-// wireAndStartACPPod creates the ACPClient with Relay-forwarding callbacks,
-// wires it into the pod, and starts the subprocess.
 func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.CreatePodCommand, cols, rows int) error {
 	log := logger.Pod()
 	podKey := cmd.PodKey
@@ -24,12 +23,12 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 		conn,
 	)
 	if err != nil {
-		h.abortACPPodStartup(cmd.PodKey, nil, pod.SandboxPath)
+		cleanupErr := h.abortACPPodStartup(cmd.PodKey, nil, pod.SandboxPath)
 		h.sendPodError(
 			cmd.PodKey,
 			fmt.Sprintf("failed to initialize workbench artifacts: %v", err),
 		)
-		return fmt.Errorf("initialize workbench artifacts: %w", err)
+		return errors.Join(fmt.Errorf("initialize workbench artifacts: %w", err), cleanupErr)
 	}
 	pod.workbenchForwarder = workbenchForwarder
 
@@ -148,9 +147,9 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 
 	// Start the ACP client (launches subprocess, performs initialize handshake)
 	if err := acpClient.Start(); err != nil {
-		h.abortACPPodStartup(cmd.PodKey, acpClient, pod.SandboxPath)
+		cleanupErr := h.abortACPPodStartup(cmd.PodKey, acpClient, pod.SandboxPath)
 		h.sendPodError(cmd.PodKey, fmt.Sprintf("failed to start ACP agent: %v", err))
-		return fmt.Errorf("failed to start ACP agent: %w", err)
+		return errors.Join(fmt.Errorf("failed to start ACP agent: %w", err), cleanupErr)
 	}
 	if len(cmd.DeclaredCapabilities) > 0 {
 		acpClient.CalibrateDeclaredCapabilities(podKey, cmd.DeclaredCapabilities)
@@ -172,9 +171,9 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 	mcpPort := h.runner.GetConfig().GetMCPPort()
 	mcpServers := acp.BuildMCPServersConfig(mcpPort, podKey)
 	if err := acpClient.NewSession(mcpServers); err != nil {
-		h.abortACPPodStartup(cmd.PodKey, acpClient, pod.SandboxPath)
+		cleanupErr := h.abortACPPodStartup(cmd.PodKey, acpClient, pod.SandboxPath)
 		h.sendPodError(cmd.PodKey, fmt.Sprintf("failed to create ACP session: %v", err))
-		return fmt.Errorf("failed to create ACP session: %w", err)
+		return errors.Join(fmt.Errorf("failed to create ACP session: %w", err), cleanupErr)
 	}
 	if sid := acpClient.SessionID(); sid != "" {
 		_ = conn.SendExternalSessionCaptured(podKey, sid)

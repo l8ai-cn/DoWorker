@@ -72,7 +72,9 @@ func TestAbortACPPodStartup_RemovesPodFromStore(t *testing.T) {
 	handler := NewRunnerMessageHandler(&Runner{cfg: &config.Config{}}, store, client.NewMockConnection())
 	store.Put("acp-fail", &Pod{PodKey: "acp-fail"})
 
-	handler.abortACPPodStartup("acp-fail", nil, "")
+	if err := handler.abortACPPodStartup("acp-fail", nil, ""); err != nil {
+		t.Fatalf("abortACPPodStartup failed: %v", err)
+	}
 
 	if _, ok := store.Get("acp-fail"); ok {
 		t.Error("pod should be removed after failed ACP startup")

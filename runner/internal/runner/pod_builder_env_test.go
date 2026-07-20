@@ -20,8 +20,8 @@ func TestPodBuilderMergeEnvVars(t *testing.T) {
 	}
 
 	cmd := &runnerv1.CreatePodCommand{
-		PodKey:        "test-pod",
-		LaunchCommand: "echo",
+		PodKey:          "test-pod",
+		LaunchCommand:   "echo",
 		AgentfileSource: "AGENT echo\nPROMPT_POSITION prepend\n",
 		EnvVars: map[string]string{
 			"BUILDER_VAR": "builder_value",
@@ -52,8 +52,8 @@ func TestPodBuilderMergeEnvVarsNilConfig(t *testing.T) {
 	}
 
 	cmd := &runnerv1.CreatePodCommand{
-		PodKey:        "test-pod",
-		LaunchCommand: "echo",
+		PodKey:          "test-pod",
+		LaunchCommand:   "echo",
 		AgentfileSource: "AGENT echo\nPROMPT_POSITION prepend\n",
 		EnvVars: map[string]string{
 			"BUILDER_VAR": "builder_value",
@@ -80,9 +80,9 @@ func TestPodBuilderWithAllOptions(t *testing.T) {
 	}
 
 	cmd := &runnerv1.CreatePodCommand{
-		PodKey:        "pod-key",
-		LaunchCommand: "claude",
-		LaunchArgs:    []string{"--headless"},
+		PodKey:          "pod-key",
+		LaunchCommand:   "claude",
+		LaunchArgs:      []string{"--headless"},
 		AgentfileSource: "AGENT claude\nPROMPT_POSITION prepend\n",
 		EnvVars: map[string]string{
 			"ENV1": "value1",
@@ -142,11 +142,11 @@ func BenchmarkPodBuilderFluentAPI(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		cmd := &runnerv1.CreatePodCommand{
-			PodKey:        "pod-1",
-			LaunchCommand: "claude",
-			LaunchArgs:    []string{"--headless"},
+			PodKey:          "pod-1",
+			LaunchCommand:   "claude",
+			LaunchArgs:      []string{"--headless"},
 			AgentfileSource: "AGENT claude\nPROMPT_POSITION prepend\n",
-			EnvVars:       map[string]string{"KEY": "VALUE"},
+			EnvVars:         map[string]string{"KEY": "VALUE"},
 		}
 		NewPodBuilderFromRunner(runner).
 			WithCommand(cmd).
@@ -165,8 +165,8 @@ func BenchmarkPodBuilderMergeEnvVars(b *testing.B) {
 	}
 
 	cmd := &runnerv1.CreatePodCommand{
-		PodKey:        "test-pod",
-		LaunchCommand: "echo",
+		PodKey:          "test-pod",
+		LaunchCommand:   "echo",
 		AgentfileSource: "AGENT echo\nPROMPT_POSITION prepend\n",
 		EnvVars: map[string]string{
 			"POD_VAR1": "pod_value1",

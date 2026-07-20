@@ -39,7 +39,7 @@ func TestPodBuilderBuildWithEmptyPodKey(t *testing.T) {
 	}
 
 	cmd := &runnerv1.CreatePodCommand{
-		LaunchCommand: "echo",
+		LaunchCommand:   "echo",
 		AgentfileSource: "AGENT echo\nPROMPT_POSITION prepend\n",
 		// PodKey is empty
 	}
@@ -73,9 +73,9 @@ func TestPodBuilderBuildWithAllOptions(t *testing.T) {
 	}
 
 	cmd := &runnerv1.CreatePodCommand{
-		PodKey:        "all-options-pod",
-		LaunchCommand: "echo",
-		LaunchArgs:    []string{"hello", "world"},
+		PodKey:          "all-options-pod",
+		LaunchCommand:   "echo",
+		LaunchArgs:      []string{"hello", "world"},
 		AgentfileSource: "AGENT echo\nPROMPT_POSITION prepend\n",
 		EnvVars: map[string]string{
 			"VAR1": "value1",
@@ -110,8 +110,8 @@ func TestPodBuilderMergeEnvVarsWithNilConfig(t *testing.T) {
 	}
 
 	cmd := &runnerv1.CreatePodCommand{
-		PodKey:        "test-pod",
-		LaunchCommand: "echo",
+		PodKey:          "test-pod",
+		LaunchCommand:   "echo",
 		AgentfileSource: "AGENT echo\nPROMPT_POSITION prepend\n",
 		EnvVars: map[string]string{
 			"POD_VAR": "pod_value",
@@ -141,8 +141,8 @@ func TestPodBuilderMergeEnvVarsOverride(t *testing.T) {
 	}
 
 	cmd := &runnerv1.CreatePodCommand{
-		PodKey:        "test-pod",
-		LaunchCommand: "echo",
+		PodKey:          "test-pod",
+		LaunchCommand:   "echo",
 		AgentfileSource: "AGENT echo\nPROMPT_POSITION prepend\n",
 		EnvVars: map[string]string{
 			"SHARED_VAR": "pod_value",
@@ -194,9 +194,9 @@ func TestPodBuilderWithLocalPath(t *testing.T) {
 	}
 
 	cmd := &runnerv1.CreatePodCommand{
-		PodKey:        "local-path-pod",
-		LaunchCommand: "echo",
-		LaunchArgs:    []string{"test"},
+		PodKey:          "local-path-pod",
+		LaunchCommand:   "echo",
+		LaunchArgs:      []string{"test"},
 		AgentfileSource: "AGENT echo\nPROMPT_POSITION prepend\n",
 		SandboxConfig: &runnerv1.SandboxConfig{
 			LocalPath: tempDir,
@@ -229,9 +229,9 @@ func TestPodBuilderWithFilesToCreate(t *testing.T) {
 	}
 
 	cmd := &runnerv1.CreatePodCommand{
-		PodKey:        "files-pod",
-		LaunchCommand: "echo",
-		LaunchArgs:    []string{"test"},
+		PodKey:          "files-pod",
+		LaunchCommand:   "echo",
+		LaunchArgs:      []string{"test"},
 		AgentfileSource: "AGENT echo\nPROMPT_POSITION prepend\n",
 		FilesToCreate: []*runnerv1.FileToCreate{
 			{
@@ -266,11 +266,11 @@ func TestPodBuilderWithEmptySandboxConfig(t *testing.T) {
 	}
 
 	cmd := &runnerv1.CreatePodCommand{
-		PodKey:        "empty-sandbox-pod",
-		LaunchCommand: "echo",
-		LaunchArgs:    []string{"test"},
+		PodKey:          "empty-sandbox-pod",
+		LaunchCommand:   "echo",
+		LaunchArgs:      []string{"test"},
 		AgentfileSource: "AGENT echo\nPROMPT_POSITION prepend\n",
-		SandboxConfig: &runnerv1.SandboxConfig{
+		SandboxConfig:   &runnerv1.SandboxConfig{
 			// Empty sandbox config - creates empty workspace
 		},
 	}
@@ -297,9 +297,9 @@ func TestPodBuilderCommandFields(t *testing.T) {
 	}
 
 	cmd := &runnerv1.CreatePodCommand{
-		PodKey:        "command-fields-pod",
-		LaunchCommand: "test",
-		LaunchArgs:    []string{"arg1"},
+		PodKey:          "command-fields-pod",
+		LaunchCommand:   "test",
+		LaunchArgs:      []string{"arg1"},
 		AgentfileSource: "AGENT test\nPROMPT_POSITION prepend\n",
 		EnvVars: map[string]string{
 			"VAR1": "val1",

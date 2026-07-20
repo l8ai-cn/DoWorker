@@ -2,8 +2,8 @@ package runner
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"os"
 	"time"
 
 	"go.opentelemetry.io/otel"
@@ -57,26 +57,23 @@ func (b *PodBuilder) Build(ctx context.Context) (*Pod, error) {
 	// Resolve path placeholders in args, env vars, and files
 	resolvedArgs := resolveStringSlice(b.cmd.LaunchArgs, sandboxRoot, workingDir)
 	if err := b.createFilesFromProto(b.cmd.FilesToCreate, sandboxRoot, workingDir); err != nil {
-		return nil, err
+		return nil, errors.Join(err, b.cleanupSandbox(ctx, sandboxRoot, "resolved file creation error"))
 	}
 
 	envVars := b.mergeEnvVars(sandboxRoot)
 	for k, v := range b.cmd.EnvVars {
 		envVars[k] = resolvePathPlaceholders(v, sandboxRoot, workingDir)
 	}
+	enforceGitProcessIsolation(envVars, b.cmd.GetSandboxConfig().GetCredentialType())
 	workspace, err := openSandboxWorkspace(workingDir)
 	if err != nil {
-		if sandboxRoot != "" {
-			_ = os.RemoveAll(sandboxRoot)
-		}
-		return nil, fmt.Errorf("open pod workspace: %w", err)
+		err = fmt.Errorf("open pod workspace: %w", err)
+		return nil, errors.Join(err, b.cleanupSandbox(ctx, sandboxRoot, "workspace open error"))
 	}
 	if err := workspace.pinForPod(nil); err != nil {
 		workspace.Close()
-		if sandboxRoot != "" {
-			_ = os.RemoveAll(sandboxRoot)
-		}
-		return nil, fmt.Errorf("pin pod workspace: %w", err)
+		err = fmt.Errorf("pin pod workspace: %w", err)
+		return nil, errors.Join(err, b.cleanupSandbox(ctx, sandboxRoot, "workspace pin error"))
 	}
 
 	interactionMode := b.cmd.InteractionMode

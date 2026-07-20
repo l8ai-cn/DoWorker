@@ -18,10 +18,13 @@ type Manager struct {
 
 // WorktreeOptions contains options for creating a worktree
 type WorktreeOptions struct {
-	GitToken     string // Git token for HTTPS authentication
-	SSHKeyPath   string // Path to SSH key for SSH authentication
-	HttpCloneURL string // HTTPS clone URL
-	SshCloneURL  string // SSH clone URL
+	GitToken        string // Git token for HTTPS authentication
+	GitUsername     string // Git HTTPS username paired with GitToken
+	SSHKeyPath      string // Path to SSH key for SSH authentication
+	HttpCloneURL    string // HTTPS clone URL
+	SshCloneURL     string // SSH clone URL
+	SourceCommitSHA string // Immutable source commit to checkout
+	AnonymousAuth   bool   // Disable runner-local credentials
 }
 
 // WorktreeOption is a function that modifies WorktreeOptions
@@ -29,7 +32,12 @@ type WorktreeOption func(*WorktreeOptions)
 
 // WithGitToken sets the git token for HTTPS authentication
 func WithGitToken(token string) WorktreeOption {
+	return WithGitTokenCredentials("x-access-token", token)
+}
+
+func WithGitTokenCredentials(username, token string) WorktreeOption {
 	return func(opts *WorktreeOptions) {
+		opts.GitUsername = username
 		opts.GitToken = token
 	}
 }
@@ -52,6 +60,18 @@ func WithHttpCloneURL(url string) WorktreeOption {
 func WithSshCloneURL(url string) WorktreeOption {
 	return func(opts *WorktreeOptions) {
 		opts.SshCloneURL = url
+	}
+}
+
+func WithSourceCommitSHA(sha string) WorktreeOption {
+	return func(opts *WorktreeOptions) {
+		opts.SourceCommitSHA = sha
+	}
+}
+
+func WithAnonymousAuth() WorktreeOption {
+	return func(opts *WorktreeOptions) {
+		opts.AnonymousAuth = true
 	}
 }
 

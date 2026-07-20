@@ -43,7 +43,7 @@ func TestSetupKnowledgeMounts_CloneAndSkipExisting(t *testing.T) {
 		PodKey: "pod-1",
 		SandboxConfig: &runnerv1.SandboxConfig{
 			KnowledgeMounts: []*runnerv1.KnowledgeMount{
-				{Slug: "docs", HttpCloneUrl: origin, Branch: "main", MountPath: "kb/docs", Mode: "ro"},
+				{Slug: "docs", HttpCloneUrl: origin, Branch: "main", CommitSha: kbHead(t, origin), MountPath: "kb/docs", Mode: "ro"},
 			},
 		},
 	}}
@@ -61,7 +61,7 @@ func TestCloneKnowledgeMount_PublicHTTPCloneKeepsRemote(t *testing.T) {
 
 	b := &PodBuilder{cmd: &runnerv1.CreatePodCommand{PodKey: "pod-1"}}
 	m := &runnerv1.KnowledgeMount{
-		Slug: "docs", HttpCloneUrl: origin, Branch: "main", Mode: "ro",
+		Slug: "docs", HttpCloneUrl: origin, Branch: "main", CommitSha: kbHead(t, origin), Mode: "ro",
 	}
 	require.NoError(t, b.cloneKnowledgeMount(context.Background(), sandbox, m))
 
@@ -80,7 +80,7 @@ func TestCloneKnowledgeMount_SSHReadOnlyDeletesKeyAndRetainsNoCredential(t *test
 	httpURL := "https://gitea.test/am-kb/docs.git"
 	m := &runnerv1.KnowledgeMount{
 		Slug: "docs", HttpCloneUrl: httpURL, SshCloneUrl: sshURL,
-		GitPrivateKey: privateKey, GitKnownHosts: kbKnownHosts, Branch: "main", Mode: "ro",
+		GitPrivateKey: privateKey, GitKnownHosts: kbKnownHosts, Branch: "main", CommitSha: kbHead(t, origin), Mode: "ro",
 	}
 
 	b := &PodBuilder{cmd: &runnerv1.CreatePodCommand{PodKey: "pod-1"}}
@@ -114,7 +114,7 @@ func TestCloneKnowledgeMount_SSHReadWritePersistsKeyAndLocalPushConfig(t *testin
 	sshURL := "git@gitea.test:am-kb/docs.git"
 	m := &runnerv1.KnowledgeMount{
 		Slug: "docs", HttpCloneUrl: "https://gitea.test/am-kb/docs.git", SshCloneUrl: sshURL,
-		GitPrivateKey: privateKey, GitKnownHosts: kbKnownHosts, Branch: "main", Mode: "rw",
+		GitPrivateKey: privateKey, GitKnownHosts: kbKnownHosts, Branch: "main", CommitSha: kbHead(t, origin), Mode: "rw",
 	}
 
 	b := &PodBuilder{cmd: &runnerv1.CreatePodCommand{PodKey: "pod-1"}}
@@ -156,7 +156,7 @@ func TestCloneKnowledgeMount_SSHFailureCleansAndRedactsPrivateKey(t *testing.T) 
 	privateKey := "failure-private-key-secret"
 	m := &runnerv1.KnowledgeMount{
 		Slug: "docs", HttpCloneUrl: origin, SshCloneUrl: "ssh://git@gitea.test/am-kb/docs.git",
-		GitPrivateKey: privateKey, GitKnownHosts: kbKnownHosts, Branch: "main", Mode: "ro",
+		GitPrivateKey: privateKey, GitKnownHosts: kbKnownHosts, Branch: "main", CommitSha: kbHead(t, origin), Mode: "ro",
 	}
 
 	b := &PodBuilder{cmd: &runnerv1.CreatePodCommand{PodKey: "pod-1"}}
@@ -179,7 +179,7 @@ func TestCloneKnowledgeMount_PrivateKeyRequiresSSHURL(t *testing.T) {
 	sandbox := t.TempDir()
 	privateKey := "must-not-leak"
 	m := &runnerv1.KnowledgeMount{
-		Slug: "docs", HttpCloneUrl: initKBOriginRepo(t), GitPrivateKey: privateKey, Mode: "ro",
+		Slug: "docs", HttpCloneUrl: initKBOriginRepo(t), CommitSha: testCommitSHA, GitPrivateKey: privateKey, Mode: "ro",
 	}
 
 	b := &PodBuilder{cmd: &runnerv1.CreatePodCommand{PodKey: "pod-1"}}
@@ -199,7 +199,7 @@ func TestSetupKnowledgeMounts_ReconcilesResumeCredentialModes(t *testing.T) {
 	mount := &runnerv1.KnowledgeMount{
 		Slug: "docs", HttpCloneUrl: httpURL, SshCloneUrl: sshURL,
 		GitPrivateKey: "rw-key-one", GitKnownHosts: kbKnownHosts,
-		Branch: "main", Mode: "rw",
+		Branch: "main", CommitSha: kbHead(t, origin), Mode: "rw",
 	}
 	builder := &PodBuilder{cmd: &runnerv1.CreatePodCommand{
 		PodKey: "resume-pod",
@@ -244,7 +244,7 @@ func TestSetupKnowledgeMounts_RejectsSymlinkedGitDirectoryOnResume(t *testing.T)
 		PodKey: "resume-pod",
 		SandboxConfig: &runnerv1.SandboxConfig{
 			KnowledgeMounts: []*runnerv1.KnowledgeMount{{
-				Slug: "docs", HttpCloneUrl: origin, Branch: "main", Mode: "ro",
+				Slug: "docs", HttpCloneUrl: origin, Branch: "main", CommitSha: kbHead(t, origin), Mode: "ro",
 			}},
 		},
 	}}
@@ -276,7 +276,7 @@ func TestSetupKnowledgeMounts_RejectsSymlinkedDestinationParent(t *testing.T) {
 		PodKey: "new-pod",
 		SandboxConfig: &runnerv1.SandboxConfig{
 			KnowledgeMounts: []*runnerv1.KnowledgeMount{{
-				Slug: "docs", HttpCloneUrl: initKBOriginRepo(t), Branch: "main", Mode: "ro",
+				Slug: "docs", HttpCloneUrl: initKBOriginRepo(t), Branch: "main", CommitSha: testCommitSHA, Mode: "ro",
 			}},
 		},
 	}}
@@ -310,6 +310,7 @@ func installKBGitHarness(t *testing.T, origin, sandbox string) (string, string, 
 	t.Setenv("KB_GIT_LOG", logPath)
 	t.Setenv("GIT_CONFIG_GLOBAL", globalConfig)
 	t.Setenv("GIT_ASKPASS", "forbidden-global-askpass")
+	t.Setenv("GIT_SSH_COMMAND", "ssh -i /runner/key")
 	t.Setenv("PATH", dir+string(os.PathListSeparator)+os.Getenv("PATH"))
 	return realGit, logPath, globalConfig
 }
@@ -357,6 +358,17 @@ set -eu
 } >> "$KB_GIT_LOG"
 
 if [ "${1:-}" != "clone" ]; then
+	if [ "${1:-}" = "fetch" ]; then
+		rebuilt=
+		for arg in "$@"; do
+			if [ "$arg" = "origin" ]; then
+				rebuilt="$rebuilt '$KB_ORIGIN'"
+			else
+				rebuilt="$rebuilt '$arg'"
+			fi
+		done
+		eval "exec \"$KB_REAL_GIT\" $rebuilt"
+	fi
 	exec "$KB_REAL_GIT" "$@"
 fi
 

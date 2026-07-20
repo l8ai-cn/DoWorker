@@ -8,7 +8,9 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 
@@ -99,4 +101,21 @@ func shortWorkspace(t *testing.T, name string) (string, string) {
 	sandbox := filepath.Join(workspace, name)
 	require.NoError(t, os.MkdirAll(sandbox, 0755))
 	return workspace, sandbox
+}
+
+func readUntilContains(t *testing.T, dpty *daemonPTY, want string, timeout time.Duration) string {
+	t.Helper()
+	require.NoError(t, dpty.SetReadDeadline(time.Now().Add(timeout)))
+	var output strings.Builder
+	buf := make([]byte, 4096)
+	for {
+		n, err := dpty.Read(buf)
+		if n > 0 {
+			output.Write(buf[:n])
+			if strings.Contains(output.String(), want) {
+				return output.String()
+			}
+		}
+		require.NoErrorf(t, err, "read output before %q appeared; output=%q", want, output.String())
+	}
 }

@@ -22,9 +22,9 @@ func TestPodBuilderBuildSuccessWithOptions(t *testing.T) {
 	}
 
 	cmd := &runnerv1.CreatePodCommand{
-		PodKey:        "build-pod",
-		LaunchCommand: "echo",
-		LaunchArgs:    []string{"hello"},
+		PodKey:          "build-pod",
+		LaunchCommand:   "echo",
+		LaunchArgs:      []string{"hello"},
 		AgentfileSource: testMinimalAgentFile,
 	}
 
@@ -56,8 +56,8 @@ func TestPodBuilderBuildTerminalError(t *testing.T) {
 	}
 
 	cmd := &runnerv1.CreatePodCommand{
-		PodKey:        "error-pod",
-		LaunchCommand: "/nonexistent/command/path/that/doesnt/exist/12345",
+		PodKey:          "error-pod",
+		LaunchCommand:   "/nonexistent/command/path/that/doesnt/exist/12345",
 		AgentfileSource: "AGENT /nonexistent/command/path/that/doesnt/exist/12345\n",
 	}
 
@@ -80,9 +80,9 @@ func TestPodBuilderSetupNoManager(t *testing.T) {
 	}
 
 	cmd := &runnerv1.CreatePodCommand{
-		PodKey:        "workspace-test",
-		LaunchCommand: "echo",
-		LaunchArgs:    []string{"test"},
+		PodKey:          "workspace-test",
+		LaunchCommand:   "echo",
+		LaunchArgs:      []string{"test"},
 		AgentfileSource: testMinimalAgentFile,
 	}
 
@@ -114,11 +114,11 @@ func TestPodBuilderSetupWithEmptySandbox(t *testing.T) {
 	}
 
 	cmd := &runnerv1.CreatePodCommand{
-		PodKey:        "temp-workspace-test",
-		LaunchCommand: "echo",
-		LaunchArgs:    []string{"test"},
+		PodKey:          "temp-workspace-test",
+		LaunchCommand:   "echo",
+		LaunchArgs:      []string{"test"},
 		AgentfileSource: testMinimalAgentFile,
-		SandboxConfig: &runnerv1.SandboxConfig{},
+		SandboxConfig:   &runnerv1.SandboxConfig{},
 	}
 
 	builder := NewPodBuilderFromRunner(runner).WithCommand(cmd)

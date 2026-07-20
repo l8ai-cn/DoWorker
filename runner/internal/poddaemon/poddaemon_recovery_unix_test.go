@@ -84,11 +84,7 @@ func TestDaemonSurvivesParentDeath(t *testing.T) {
 	_, err = dpty.Write([]byte("before-kill\n"))
 	require.NoError(t, err)
 
-	buf := make([]byte, 4096)
-	dpty.SetReadDeadline(time.Now().Add(3 * time.Second))
-	n, err := dpty.Read(buf)
-	require.NoError(t, err)
-	assert.Contains(t, string(buf[:n]), "before-kill")
+	readUntilContains(t, dpty, "before-kill", 3*time.Second)
 
 	// Phase 2: Simulate Runner death — just close the IPC connection (Detach).
 	// In real life, Runner crashing would cause the connection to drop.
@@ -133,10 +129,7 @@ func TestDaemonSurvivesParentDeath(t *testing.T) {
 	_, err = dpty2.Write([]byte("after-recovery\n"))
 	require.NoError(t, err)
 
-	dpty2.SetReadDeadline(time.Now().Add(3 * time.Second))
-	n, err = dpty2.Read(buf)
-	require.NoError(t, err, "failed to read after recovery")
-	assert.Contains(t, string(buf[:n]), "after-recovery")
+	readUntilContains(t, dpty2, "after-recovery", 3*time.Second)
 
 	t.Log("full kill-restart-recover cycle succeeded")
 }
@@ -179,18 +172,13 @@ func TestDaemonSurvivesMultipleReattachCycles(t *testing.T) {
 	})
 
 	const cycles = 5
-	buf := make([]byte, 4096)
-
 	for i := range cycles {
 		// Write data
 		msg := strings.Repeat("x", 10) + "\n"
 		_, err = dpty.Write([]byte(msg))
 		require.NoError(t, err, "write failed at cycle %d", i)
 
-		dpty.SetReadDeadline(time.Now().Add(3 * time.Second))
-		n, err := dpty.Read(buf)
-		require.NoError(t, err, "read failed at cycle %d", i)
-		assert.Contains(t, string(buf[:n]), strings.Repeat("x", 10))
+		readUntilContains(t, dpty, strings.Repeat("x", 10), 3*time.Second)
 
 		// Detach (simulate Runner crash)
 		dpty.Close()
@@ -209,10 +197,7 @@ func TestDaemonSurvivesMultipleReattachCycles(t *testing.T) {
 	// Final write after all cycles
 	_, err = dpty.Write([]byte("final\n"))
 	require.NoError(t, err)
-	dpty.SetReadDeadline(time.Now().Add(3 * time.Second))
-	n, err := dpty.Read(buf)
-	require.NoError(t, err)
-	assert.Contains(t, string(buf[:n]), "final")
+	readUntilContains(t, dpty, "final", 3*time.Second)
 
 	dpty.Kill()
 	dpty.Close()

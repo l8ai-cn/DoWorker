@@ -3,10 +3,10 @@ package runner
 import (
 	"context"
 	"fmt"
-	"os"
 
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 	"github.com/anthropics/agentsmesh/runner/internal/client"
+	"github.com/anthropics/agentsmesh/runner/internal/fsutil"
 	"github.com/anthropics/agentsmesh/runner/internal/logger"
 )
 
@@ -19,22 +19,27 @@ func (h *RunnerMessageHandler) OnTerminatePod(req client.TerminatePodRequest) er
 		log.Warn("Pod not found for termination", "pod_key", req.PodKey)
 		return fmt.Errorf("pod not found: %s", req.PodKey)
 	}
-	if req.DeleteBranch && pod.SandboxPath != "" {
-		h.removePodSandbox(pod.SandboxPath)
-	}
 
 	h.cleanupPodExit(req.PodKey, -1, true)
+	if req.DeleteBranch && pod.SandboxPath != "" {
+		if err := h.removePodSandbox(req.PodKey, pod.SandboxPath); err != nil {
+			return fmt.Errorf("remove pod sandbox: %w", err)
+		}
+	}
 	return nil
 }
 
-func (h *RunnerMessageHandler) removePodSandbox(path string) {
-	if runner, ok := h.runner.(*Runner); ok && runner.workspace != nil {
-		if err := runner.workspace.RemoveWorktree(context.Background(), path); err != nil {
-			logger.Pod().Warn("worktree remove failed", "path", path, "error", err)
-		}
-		return
+func (h *RunnerMessageHandler) removePodSandbox(podKey, path string) error {
+	if runner, ok := h.runner.(*Runner); ok {
+		return cleanupPodSandbox(
+			context.Background(),
+			runner.workspace,
+			runner.cfg.WorkspaceRoot,
+			podKey,
+			path,
+		)
 	}
-	_ = os.RemoveAll(path)
+	return fsutil.RemoveAll(path)
 }
 
 func (h *RunnerMessageHandler) OnUpdatePodPerpetual(

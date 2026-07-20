@@ -75,11 +75,10 @@ func reconcileExistingKnowledgeMount(
 	if err := validateKnowledgeMountRepoPath(sandboxRoot, dest); err != nil {
 		return err
 	}
-	remoteURL := m.GetHttpCloneUrl()
+	remoteURL := knowledgeMountRemoteURL(m)
 	if m.GetMode() != "rw" {
 		return setKnowledgeMountRemote(ctx, dest, remoteURL, m.GetGitPrivateKey())
 	}
-	remoteURL = m.GetSshCloneUrl()
 	if err := setKnowledgeMountRemote(ctx, dest, remoteURL, m.GetGitPrivateKey()); err != nil {
 		return err
 	}
@@ -172,5 +171,19 @@ func setKnowledgeMountRemote(ctx context.Context, dest, remoteURL, privateKey st
 }
 
 func knowledgeMountGitConfigEnv() []string {
-	return append(os.Environ(), "GIT_CONFIG_GLOBAL="+os.DevNull, "GIT_CONFIG_NOSYSTEM=1")
+	env := removeKnowledgeMountInheritedGitEnv(os.Environ())
+	return append(env,
+		"GIT_CONFIG_GLOBAL="+os.DevNull, "GIT_CONFIG_NOSYSTEM=1",
+		"GIT_CONFIG_COUNT=2",
+		"GIT_CONFIG_KEY_0=credential.helper", "GIT_CONFIG_VALUE_0=",
+		"GIT_CONFIG_KEY_1=http.extraHeader", "GIT_CONFIG_VALUE_1=",
+		"GIT_ASKPASS=", "SSH_ASKPASS=", "SSH_AUTH_SOCK=",
+	)
+}
+
+func knowledgeMountRemoteURL(m *runnerv1.KnowledgeMount) string {
+	if m.GetMode() == "rw" || (m.GetGitPrivateKey() != "" && m.GetHttpCloneUrl() == "") {
+		return m.GetSshCloneUrl()
+	}
+	return m.GetHttpCloneUrl()
 }

@@ -13,10 +13,10 @@ import (
 func TestPodBuilderStruct(t *testing.T) {
 	runner := &Runner{cfg: &config.Config{}}
 	cmd := &runnerv1.CreatePodCommand{
-		PodKey:        "pod-1",
-		LaunchCommand: "claude",
-		LaunchArgs:    []string{"--headless"},
-		EnvVars:       map[string]string{"KEY": "VALUE"},
+		PodKey:          "pod-1",
+		LaunchCommand:   "claude",
+		LaunchArgs:      []string{"--headless"},
+		EnvVars:         map[string]string{"KEY": "VALUE"},
 		AgentfileSource: "AGENT claude\nPROMPT_POSITION prepend\n",
 		FilesToCreate: []*runnerv1.FileToCreate{
 			{Path: "{{.sandbox.root_path}}/test.txt", Content: "test"},
@@ -45,9 +45,9 @@ func TestPodBuilderStruct(t *testing.T) {
 func TestPodBuilderFluentAPI(t *testing.T) {
 	runner := &Runner{}
 	cmd := &runnerv1.CreatePodCommand{
-		PodKey:        "pod-1",
-		LaunchCommand: "claude",
-		LaunchArgs:    []string{"--headless"},
+		PodKey:          "pod-1",
+		LaunchCommand:   "claude",
+		LaunchArgs:      []string{"--headless"},
 		AgentfileSource: "AGENT claude\nPROMPT_POSITION prepend\n",
 		EnvVars: map[string]string{
 			"KEY1": "VALUE1",

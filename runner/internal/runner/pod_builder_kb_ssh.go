@@ -34,6 +34,9 @@ func writeKnowledgeMountKey(sandboxRoot, privateKey, knownHosts string) (string,
 			fmt.Errorf("failed to create temporary SSH known_hosts: %w", err),
 		)
 	}
+	if err := secureWindowsPrivateKey(path); err != nil {
+		return "", joinKnowledgeMountCredentialCleanup(path, err)
+	}
 	return path, nil
 }
 
@@ -57,6 +60,9 @@ func persistKnowledgeMountKey(
 	}
 	if err := os.Chmod(knownHostsPath, 0600); err != nil {
 		return fmt.Errorf("failed to secure knowledge mount SSH known_hosts: %w", err)
+	}
+	if err := secureWindowsPrivateKey(keyPath); err != nil {
+		return err
 	}
 	configCmd := exec.CommandContext(ctx, "git", "config", "--local", "core.sshCommand",
 		knowledgeMountSSHCommand(keyPath, knownHostsPath))
@@ -93,18 +99,30 @@ func joinKnowledgeMountCredentialCleanup(keyPath string, primary error) error {
 }
 
 func knowledgeMountSSHEnv(keyPath, knownHostsPath string) []string {
-	return append(os.Environ(),
+	return append(knowledgeMountGitConfigEnv(),
 		"GIT_ASKPASS=", "SSH_ASKPASS=", "GIT_TERMINAL_PROMPT=0",
-		"GIT_CONFIG_GLOBAL="+os.DevNull, "GIT_CONFIG_NOSYSTEM=1",
 		"GIT_SSH_VARIANT=ssh", "GIT_SSH_COMMAND="+knowledgeMountSSHCommand(keyPath, knownHostsPath))
+}
+
+func knowledgeMountAnonymousGitEnv() []string {
+	return append(knowledgeMountGitConfigEnv(),
+		"GIT_ASKPASS=", "SSH_ASKPASS=", "GIT_TERMINAL_PROMPT=0",
+		"GIT_SSH_VARIANT=ssh", "GIT_SSH_COMMAND="+knowledgeMountAnonymousSSHCommand())
 }
 
 func knowledgeMountSSHCommand(keyPath, knownHostsPath string) string {
 	quotedKey := shellQuoteKnowledgeMountPath(keyPath)
 	quotedKnownHosts := shellQuoteKnowledgeMountPath(knownHostsPath)
-	return "ssh -i " + quotedKey + " -o IdentitiesOnly=yes -o IdentityAgent=none" +
+	return "ssh -F " + shellQuoteKnowledgeMountPath(os.DevNull) +
+		" -o IdentityFile=none -i " + quotedKey + " -o IdentitiesOnly=yes -o IdentityAgent=none" +
 		" -o StrictHostKeyChecking=yes -o UserKnownHostsFile=" + quotedKnownHosts +
-		" -o GlobalKnownHostsFile=/dev/null -o BatchMode=yes"
+		" -o GlobalKnownHostsFile=" + shellQuoteKnowledgeMountPath(os.DevNull) + " -o BatchMode=yes"
+}
+
+func knowledgeMountAnonymousSSHCommand() string {
+	return "ssh -F " + shellQuoteKnowledgeMountPath(os.DevNull) +
+		" -o IdentityFile=" + shellQuoteKnowledgeMountPath(os.DevNull) +
+		" -o IdentitiesOnly=yes -o IdentityAgent=none -o StrictHostKeyChecking=no -o BatchMode=yes"
 }
 
 func shellQuoteKnowledgeMountPath(path string) string {

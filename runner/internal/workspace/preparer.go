@@ -18,80 +18,6 @@ import (
 // Module logger for workspace
 var log = logger.Workspace()
 
-// PreparationStep represents a single step in the workspace preparation process.
-// Implements the Strategy pattern for extensible preparation steps.
-type PreparationStep interface {
-	// Name returns the step name for logging and error reporting.
-	Name() string
-
-	// Execute runs the preparation step.
-	// Returns an error if the step fails, which should abort pod creation.
-	Execute(ctx context.Context, prepCtx *PreparationContext) error
-}
-
-// PreparationContext contains all the context needed for workspace preparation.
-type PreparationContext struct {
-	PodID        string            // Pod identifier
-	TicketSlug   string            // Ticket slug (e.g., "TBD-123")
-	BranchName   string            // Git branch name
-	WorkspaceDir string            // Workspace directory path
-	MainRepoDir  string            // Path to the main git repository (for bare repo operations)
-	BaseEnvVars  map[string]string // Base environment variables (e.g., AI provider credentials)
-}
-
-// GetEnvVars returns all environment variables for script execution.
-// Includes base variables plus workspace-specific variables.
-func (c *PreparationContext) GetEnvVars() map[string]string {
-	result := make(map[string]string)
-
-	// Copy base environment variables
-	for k, v := range c.BaseEnvVars {
-		result[k] = v
-	}
-
-	// Add workspace-specific variables
-	result["WORKSPACE_DIR"] = c.WorkspaceDir
-	if c.MainRepoDir != "" {
-		result["MAIN_REPO_DIR"] = c.MainRepoDir
-	}
-	if c.TicketSlug != "" {
-		result["TICKET_SLUG"] = c.TicketSlug
-	}
-	if c.BranchName != "" {
-		result["BRANCH_NAME"] = c.BranchName
-	}
-
-	return result
-}
-
-// String returns a string representation for logging.
-func (c *PreparationContext) String() string {
-	return fmt.Sprintf(
-		"PreparationContext{PodID: %s, Ticket: %s, WorkspaceDir: %s}",
-		c.PodID, c.TicketSlug, c.WorkspaceDir,
-	)
-}
-
-// PreparationError represents an error during workspace preparation.
-type PreparationError struct {
-	Step   string // Name of the step that failed
-	Cause  error  // Underlying error
-	Output string // Command output if applicable
-}
-
-// Error implements the error interface.
-func (e *PreparationError) Error() string {
-	if e.Output != "" {
-		return fmt.Sprintf("preparation step '%s' failed: %v\nOutput: %s", e.Step, e.Cause, e.Output)
-	}
-	return fmt.Sprintf("preparation step '%s' failed: %v", e.Step, e.Cause)
-}
-
-// Unwrap returns the underlying error.
-func (e *PreparationError) Unwrap() error {
-	return e.Cause
-}
-
 // Preparer orchestrates the execution of preparation steps.
 type Preparer struct {
 	steps []PreparationStep
@@ -224,7 +150,7 @@ func (s *ScriptPreparationStep) Execute(ctx context.Context, prepCtx *Preparatio
 // buildEnv builds the environment variables for script execution.
 func (s *ScriptPreparationStep) buildEnv(prepCtx *PreparationContext) []string {
 	// Start with filtered environment (removes sensitive/unnecessary vars)
-	env := envfilter.FilterEnv(os.Environ())
+	env := removePreparationEnvironmentVariables(envfilter.FilterEnv(os.Environ()), prepCtx.UnsetEnvVars)
 
 	// Add extra paths for common tools
 	env = s.addToolPaths(env)

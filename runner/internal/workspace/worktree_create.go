@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 
 	"github.com/anthropics/agentsmesh/runner/internal/logger"
 )
@@ -29,14 +28,17 @@ func (m *Manager) CreateWorktree(ctx context.Context, repoURL, branch, podKey st
 // CreateWorktreeWithOptions creates a git worktree with additional options.
 // worktreePath is the full path where the worktree should be created.
 func (m *Manager) CreateWorktreeWithOptions(ctx context.Context, repoURL, branch, worktreePath string, opts ...WorktreeOption) (*WorktreeResult, error) {
-	log := logger.Workspace()
-	log.Info("Creating worktree", "repo", repoURL, "branch", branch, "path", worktreePath)
-
-	// Apply options
 	options := &WorktreeOptions{}
 	for _, opt := range opts {
 		opt(options)
 	}
+	for _, candidate := range []string{repoURL, options.HttpCloneURL, options.SshCloneURL} {
+		if err := validateRepositoryURL(candidate); err != nil {
+			return nil, err
+		}
+	}
+	log := logger.Workspace()
+	log.Info("Creating worktree", "repo", RepositoryURLForDisplay(repoURL), "branch", branch, "path", worktreePath)
 
 	// If multiple clone URLs are available, probe to find the accessible one
 	if options.HttpCloneURL != "" || options.SshCloneURL != "" {
@@ -47,14 +49,14 @@ func (m *Manager) CreateWorktreeWithOptions(ctx context.Context, repoURL, branch
 		if err != nil {
 			return nil, fmt.Errorf("repository access probe failed: %w", err)
 		}
-		log.Info("Repository access probe selected URL", "url", probeURL)
+		log.Info("Repository access probe selected URL", "url", RepositoryURLForDisplay(probeURL))
 		repoURL = probeURL
 	}
 
 	// Parse repo name from URL (needed before locking)
 	repoName := extractRepoName(repoURL)
 	if repoName == "" {
-		return nil, fmt.Errorf("invalid repository URL: %s", repoURL)
+		return nil, fmt.Errorf("invalid repository URL: %s", RepositoryURLForDisplay(repoURL))
 	}
 	log.Debug("Parsed repo name", "name", repoName)
 
@@ -84,23 +86,35 @@ func (m *Manager) CreateWorktreeWithOptions(ctx context.Context, repoURL, branch
 		return nil, fmt.Errorf("failed to create worktree parent dir: %w", err)
 	}
 
+	if options.SourceCommitSHA != "" {
+		commitSHA, err := NormalizeCommitSHA(options.SourceCommitSHA)
+		if err != nil {
+			return nil, err
+		}
+		pinnedBranch := worktreeBranchName(worktreePath)
+		if err := m.createPinnedWorktree(ctx, repoURL, worktreePath, mainRepoPath, commitSHA, pinnedBranch, options); err != nil {
+			return nil, err
+		}
+		result, err := m.finalizeWorktree(ctx, worktreePath, "", repoURL, options)
+		if err != nil {
+			m.cleanupCreatedWorktree(ctx, mainRepoPath, worktreePath, pinnedBranch)
+			return nil, err
+		}
+		return result, nil
+	}
+
 	// Fetch the branch
 	if branch == "" {
 		branch = "main"
 	}
 
-	// Fetch from remote.
-	// Use transient auth URL for token-based HTTPS auth because shared bare repo's
-	// origin URL is intentionally cleaned to avoid persisting credentials.
 	fetchBranch := func(fetchRef string) ([]byte, error) {
 		remote := "origin"
 		refspec := fetchRef
 		if options != nil && options.GitToken != "" {
 			authURL := m.prepareAuthURL(repoURL, options)
-			if authURL != "" && authURL != repoURL {
-				remote = authURL
-				refspec = fmt.Sprintf("refs/heads/%s:refs/remotes/origin/%s", fetchRef, fetchRef)
-			}
+			remote = authURL
+			refspec = fmt.Sprintf("refs/heads/%s:refs/remotes/origin/%s", fetchRef, fetchRef)
 		}
 		fetchCmd := exec.CommandContext(ctx, "git", "fetch", remote, refspec)
 		fetchCmd.Dir = mainRepoPath
@@ -112,51 +126,64 @@ func (m *Manager) CreateWorktreeWithOptions(ctx context.Context, repoURL, branch
 		if branch == "main" {
 			branch = "master"
 			if output, err = fetchBranch(branch); err != nil {
-				return nil, fmt.Errorf("failed to fetch branch: %s, output: %s", err, output)
+				return nil, fmt.Errorf("failed to fetch branch: %s, output: %s", err, m.redactGitOutput(options, output))
 			}
 		} else {
-			return nil, fmt.Errorf("failed to fetch branch: %s, output: %s", err, output)
+			return nil, fmt.Errorf("failed to fetch branch: %s, output: %s", err, m.redactGitOutput(options, output))
 		}
 	}
 
 	// Create worktree
 	// Use a unique branch name based on parent directory name (sandbox podKey)
 	// e.g., /path/sandboxes/pod-123/worktree -> worktree-pod-123
-	parentDir := filepath.Base(filepath.Dir(worktreePath))
-	worktreeBranch := fmt.Sprintf("worktree-%s", parentDir)
+	worktreeBranch := worktreeBranchName(worktreePath)
 
 	worktreeCmd := exec.CommandContext(ctx, "git", "worktree", "add", "-b", worktreeBranch, worktreePath, fmt.Sprintf("origin/%s", branch))
 	worktreeCmd.Dir = mainRepoPath
+	m.setLocalGitEnv(worktreeCmd)
+	createdBranch := true
 	if _, err := worktreeCmd.CombinedOutput(); err != nil {
 		// If branch already exists, try without -b
 		worktreeCmd = exec.CommandContext(ctx, "git", "worktree", "add", worktreePath, fmt.Sprintf("origin/%s", branch))
 		worktreeCmd.Dir = mainRepoPath
+		m.setLocalGitEnv(worktreeCmd)
 		if output, retryErr := worktreeCmd.CombinedOutput(); retryErr != nil {
 			return nil, fmt.Errorf("failed to create worktree: %s, output: %s", retryErr, output)
 		}
+		createdBranch = false
 	}
 
-	// Apply git config if specified
-	if m.gitConfigPath != "" {
-		if err := m.applyGitConfig(ctx, worktreePath); err != nil {
-			// Non-fatal error
-			log.Warn("Failed to apply git config", "error", err)
+	result, err := m.finalizeWorktree(ctx, worktreePath, branch, repoURL, options)
+	if err != nil {
+		branchToDelete := ""
+		if createdBranch {
+			branchToDelete = worktreeBranch
 		}
+		m.cleanupCreatedWorktree(ctx, mainRepoPath, worktreePath, branchToDelete)
+		return nil, err
 	}
+	return result, nil
+}
 
-	// Detect the actual branch name in the worktree
-	actualBranch := branch
-	branchCmd := exec.CommandContext(ctx, "git", "rev-parse", "--abbrev-ref", "HEAD")
-	branchCmd.Dir = worktreePath
-	if branchOutput, err := branchCmd.Output(); err == nil {
-		detected := strings.TrimSpace(string(branchOutput))
-		if detected != "" && detected != "HEAD" {
-			actualBranch = detected
-		}
-	} else {
-		log.Warn("Failed to detect actual branch name, falling back to fetch branch", "error", err, "fallback", branch)
+func worktreeBranchName(worktreePath string) string {
+	return fmt.Sprintf("worktree-%s", filepath.Base(filepath.Dir(worktreePath)))
+}
+
+func (m *Manager) cleanupCreatedWorktree(
+	ctx context.Context,
+	mainRepoPath, worktreePath, branchName string,
+) {
+	log := logger.Workspace()
+	if err := m.removeWorktreeInternal(ctx, mainRepoPath, worktreePath); err != nil {
+		log.Warn("Failed to clean up worktree after setup failure", "path", worktreePath, "error", err)
 	}
-
-	log.Info("Worktree created successfully", "path", worktreePath, "branch", actualBranch)
-	return &WorktreeResult{Path: worktreePath, Branch: actualBranch}, nil
+	if branchName == "" {
+		return
+	}
+	cmd := exec.CommandContext(ctx, "git", "branch", "-D", branchName)
+	cmd.Dir = mainRepoPath
+	m.setLocalGitEnv(cmd)
+	if output, err := cmd.CombinedOutput(); err != nil {
+		log.Warn("Failed to clean up worktree branch after setup failure", "branch", branchName, "error", err, "output", string(output))
+	}
 }

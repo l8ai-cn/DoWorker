@@ -34,9 +34,9 @@ func TestOnCreatePodSuccess(t *testing.T) {
 
 	sleepCmd, sleepArgs := testutil.SleepCommand(10)
 	cmd := &runnerv1.CreatePodCommand{
-		PodKey:        "test-pod-1",
-		LaunchCommand: sleepCmd,
-		LaunchArgs:    sleepArgs,
+		PodKey:          "test-pod-1",
+		LaunchCommand:   sleepCmd,
+		LaunchArgs:      sleepArgs,
 		AgentfileSource: "AGENT " + sleepCmd + "\nPROMPT_POSITION prepend\n",
 	}
 
@@ -94,12 +94,53 @@ func TestOnCreatePodInvalidCommand(t *testing.T) {
 	handler := NewRunnerMessageHandler(runner, store, mockConn)
 
 	cmd := &runnerv1.CreatePodCommand{
-		PodKey:        "invalid-cmd-pod",
-		LaunchCommand: "/nonexistent/command/path",
+		PodKey:          "invalid-cmd-pod",
+		LaunchCommand:   "/nonexistent/command/path",
 		AgentfileSource: "AGENT test\nPROMPT_POSITION prepend\n",
 	}
 
 	err = handler.OnCreatePod(cmd)
 	// Command may or may not fail depending on OS
 	t.Logf("OnCreatePod with invalid command: %v", err)
+}
+
+func TestOnCreatePodPreservesJoinedPodErrorCode(t *testing.T) {
+	tempDir := t.TempDir()
+	store := NewInMemoryPodStore()
+	mockConn := client.NewMockConnection()
+	runner := &Runner{
+		cfg: &config.Config{
+			MaxConcurrentPods: 10,
+			WorkspaceRoot:     tempDir,
+		},
+		workspace: &mockWorkspace{},
+	}
+	handler := NewRunnerMessageHandler(runner, store, mockConn)
+	cmd := &runnerv1.CreatePodCommand{
+		PodKey:        "joined-pod-error",
+		LaunchCommand: "echo",
+		SandboxConfig: &runnerv1.SandboxConfig{
+			HttpCloneUrl:    "https://github.com/org/repo.git",
+			SourceCommitSha: testCommitSHA,
+			CredentialType:  "unsupported",
+		},
+	}
+
+	if err := handler.OnCreatePod(cmd); err == nil {
+		t.Fatal("expected create failure")
+	}
+	for _, event := range mockConn.GetEvents() {
+		if event.Type != client.MessageType("error") {
+			continue
+		}
+		data, ok := event.Data.(map[string]interface{})
+		if !ok {
+			t.Fatalf("unexpected error event: %#v", event.Data)
+		}
+		if data["code"] != client.ErrCodeGitAuth {
+			t.Fatalf("error code = %v, want %s", data["code"], client.ErrCodeGitAuth)
+		}
+		return
+	}
+	t.Fatal("expected structured error event")
 }

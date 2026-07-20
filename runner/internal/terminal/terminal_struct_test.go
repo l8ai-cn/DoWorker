@@ -2,6 +2,7 @@ package terminal
 
 import (
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -86,6 +87,20 @@ func TestNewTerminalWithEnv(t *testing.T) {
 
 	if !envFound {
 		t.Error("environment variable should be set")
+	}
+}
+
+func TestNewTerminalRemovesUnsetInheritedEnvironment(t *testing.T) {
+	t.Setenv("GIT_SSH_COMMAND", "ssh -i /runner/key")
+
+	term, err := New(Options{Command: "echo", UnsetEnv: []string{"GIT_SSH_COMMAND"}})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	for _, entry := range term.env {
+		if strings.HasPrefix(entry, "GIT_SSH_COMMAND=") {
+			t.Fatalf("unset environment variable leaked into terminal: %s", entry)
+		}
 	}
 }
 

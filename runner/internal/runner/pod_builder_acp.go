@@ -19,6 +19,7 @@ func (b *PodBuilder) buildACPPod(
 	workspace *sandboxWorkspace,
 ) (*Pod, error) {
 	b.sendProgress("starting_acp", 80, "Preparing ACP agent...")
+	unsetEnv := gitProcessIsolationUnsetEnv(b.cmd.GetSandboxConfig().GetCredentialType())
 
 	pod := &Pod{
 		ID:              b.cmd.PodKey,
@@ -30,7 +31,7 @@ func (b *PodBuilder) buildACPPod(
 		LaunchCommand:   launchCommand,
 		LaunchArgs:      resolvedArgs,
 		WorkDir:         workingDir,
-		LaunchEnv:       buildMergedEnv(envVars),
+		LaunchEnv:       buildMergedEnvWithout(envVars, unsetEnv),
 		Perpetual:       b.cmd.Perpetual,
 		PolicyRules:     policyRulesFromProto(b.cmd.PolicyRules),
 		StartedAt:       time.Now(),

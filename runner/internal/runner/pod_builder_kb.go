@@ -11,6 +11,7 @@ import (
 	"github.com/anthropics/agentsmesh/runner/internal/client"
 	"github.com/anthropics/agentsmesh/runner/internal/fsutil"
 	"github.com/anthropics/agentsmesh/runner/internal/logger"
+	"github.com/anthropics/agentsmesh/runner/internal/workspace"
 )
 
 const (
@@ -37,6 +38,17 @@ func (b *PodBuilder) setupKnowledgeMounts(ctx context.Context, sandboxRoot strin
 }
 
 func (b *PodBuilder) cloneKnowledgeMount(ctx context.Context, sandboxRoot string, m *runnerv1.KnowledgeMount) error {
+	commitSHA, err := knowledgeMountCommitSHA(m)
+	if err != nil {
+		return &client.PodError{Code: client.ErrCodeGitClone, Message: err.Error(),
+			Details: map[string]string{"kb_slug": m.GetSlug(), "mode": m.GetMode()}}
+	}
+	for _, cloneURL := range []string{m.GetHttpCloneUrl(), m.GetSshCloneUrl()} {
+		if err := workspace.ValidateRepositoryURL(cloneURL); err != nil {
+			return &client.PodError{Code: client.ErrCodeGitClone, Message: err.Error(),
+				Details: map[string]string{"kb_slug": m.GetSlug(), "mode": m.GetMode()}}
+		}
+	}
 	mountPath := m.GetMountPath()
 	if mountPath == "" {
 		mountPath = filepath.Join("kb", m.GetSlug())
@@ -66,6 +78,22 @@ func (b *PodBuilder) cloneKnowledgeMount(ctx context.Context, sandboxRoot string
 			return &client.PodError{Code: client.ErrCodeGitClone, Message: err.Error(),
 				Details: map[string]string{"kb_slug": m.GetSlug(), "mode": m.GetMode()}}
 		}
+		if m.GetMode() == "rw" {
+			if knowledgeMountIsDetached(ctx, dest) {
+				if err := checkoutExistingKnowledgeMountCommit(ctx, sandboxRoot, dest, m, commitSHA); err != nil {
+					return &client.PodError{Code: client.ErrCodeGitClone, Message: err.Error(),
+						Details: map[string]string{"kb_slug": m.GetSlug(), "mode": m.GetMode()}}
+				}
+			} else if err := verifyReadWriteKnowledgeMountPin(ctx, dest, m, commitSHA); err != nil {
+				return &client.PodError{Code: client.ErrCodeGitClone, Message: err.Error(),
+					Details: map[string]string{"kb_slug": m.GetSlug(), "mode": m.GetMode()}}
+			}
+			return nil
+		}
+		if err := checkoutExistingKnowledgeMountCommit(ctx, sandboxRoot, dest, m, commitSHA); err != nil {
+			return &client.PodError{Code: client.ErrCodeGitClone, Message: err.Error(),
+				Details: map[string]string{"kb_slug": m.GetSlug(), "mode": m.GetMode()}}
+		}
 		return nil
 	}
 	if err := os.MkdirAll(filepath.Dir(dest), 0755); err != nil {
@@ -79,14 +107,12 @@ func (b *PodBuilder) cloneKnowledgeMount(ctx context.Context, sandboxRoot string
 		}
 	}
 
-	args := []string{"clone", "--single-branch"}
-	if m.GetBranch() != "" {
-		args = append(args, "--branch", m.GetBranch())
-	}
-	args = append(args, cloneURL, dest)
+	args := []string{"clone", "--no-checkout", cloneURL, dest}
 	cloneCmd := exec.CommandContext(ctx, "git", args...)
 	if temporaryKey != "" {
 		cloneCmd.Env = knowledgeMountSSHEnv(temporaryKey, temporaryKey+temporaryKnownHostsFileSuffix)
+	} else {
+		cloneCmd.Env = knowledgeMountAnonymousGitEnv()
 	}
 	if output, err := cloneCmd.CombinedOutput(); err != nil {
 		cleanupKnowledgeMount(ctx, dest)
@@ -94,6 +120,12 @@ func (b *PodBuilder) cloneKnowledgeMount(ctx context.Context, sandboxRoot string
 			Message: knowledgeMountCommandError("clone", m.GetSlug(), err, output, privateKey),
 			Details: map[string]string{"kb_slug": m.GetSlug(), "mode": m.GetMode()}}
 		return joinKnowledgeMountCredentialCleanup(temporaryKey, cloneErr)
+	}
+	if err := checkoutKnowledgeMountCommit(ctx, dest, m, commitSHA, temporaryKey); err != nil {
+		cleanupKnowledgeMount(ctx, dest)
+		checkoutErr := &client.PodError{Code: client.ErrCodeGitClone, Message: err.Error(),
+			Details: map[string]string{"kb_slug": m.GetSlug(), "mode": m.GetMode()}}
+		return joinKnowledgeMountCredentialCleanup(temporaryKey, checkoutErr)
 	}
 	if temporaryKey != "" {
 		if m.GetMode() == "rw" {
@@ -111,10 +143,7 @@ func (b *PodBuilder) cloneKnowledgeMount(ctx context.Context, sandboxRoot string
 			}
 		}
 	}
-	remoteURL := m.GetHttpCloneUrl()
-	if m.GetMode() == "rw" {
-		remoteURL = sshURL
-	}
+	remoteURL := knowledgeMountRemoteURL(m)
 	if err := setKnowledgeMountRemote(ctx, dest, remoteURL, privateKey); err != nil {
 		cleanupKnowledgeMount(ctx, dest)
 		return &client.PodError{Code: client.ErrCodeGitClone, Message: err.Error(),

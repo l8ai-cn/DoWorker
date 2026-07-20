@@ -1,8 +1,8 @@
 package runner
 
 import (
+	"errors"
 	"fmt"
-	"os"
 
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 	"github.com/anthropics/agentsmesh/runner/internal/client"
@@ -61,7 +61,8 @@ func (h *RunnerMessageHandler) OnCreatePod(cmd *runnerv1.CreatePodCommand) (err 
 	pod, err := builder.Build(ctx)
 	if err != nil {
 		h.podStore.Delete(cmd.PodKey)
-		if podErr, ok := err.(*client.PodError); ok {
+		var podErr *client.PodError
+		if errors.As(err, &podErr) {
 			h.sendPodErrorWithCode(cmd.PodKey, podErr)
 		} else {
 			h.sendPodError(cmd.PodKey, fmt.Sprintf("failed to build pod: %v", err))
@@ -77,7 +78,8 @@ func (h *RunnerMessageHandler) OnCreatePod(cmd *runnerv1.CreatePodCommand) (err 
 			pod.IO.Stop()
 		}
 		if pod.SandboxPath != "" {
-			_ = os.RemoveAll(pod.SandboxPath)
+			cleanupErr := h.removePodSandbox(cmd.PodKey, pod.SandboxPath)
+			return errors.Join(fmt.Errorf("pod %s was terminated during build", cmd.PodKey), cleanupErr)
 		}
 		return fmt.Errorf("pod %s was terminated during build", cmd.PodKey)
 	}
@@ -131,7 +133,7 @@ func (h *RunnerMessageHandler) wireAndStartPTYPod(
 			pod.IO.Teardown()
 		}
 		if pod.SandboxPath != "" {
-			_ = os.RemoveAll(pod.SandboxPath)
+			err = errors.Join(err, h.removePodSandbox(cmd.PodKey, pod.SandboxPath))
 		}
 		h.sendPodError(cmd.PodKey, fmt.Sprintf("failed to start terminal: %v", err))
 		return fmt.Errorf("failed to start terminal: %w", err)

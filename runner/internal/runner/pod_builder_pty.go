@@ -2,8 +2,8 @@ package runner
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/anthropics/agentsmesh/runner/internal/client"
@@ -23,7 +23,8 @@ func (b *PodBuilder) buildPTYPod(
 	workspace *sandboxWorkspace,
 ) (*Pod, error) {
 	b.sendProgress("starting_pty", 80, "Starting terminal...")
-	capturedEnv := buildMergedEnv(envVars)
+	unsetEnv := gitProcessIsolationUnsetEnv(b.cmd.GetSandboxConfig().GetCredentialType())
+	capturedEnv := buildMergedEnvWithout(envVars, unsetEnv)
 	injectTraceparent(ctx, envVars)
 	if traceparent, ok := envVars["TRACEPARENT"]; ok {
 		capturedEnv = append(capturedEnv, "TRACEPARENT="+traceparent)
@@ -38,16 +39,14 @@ func (b *PodBuilder) buildPTYPod(
 	term, err := terminal.New(terminal.Options{
 		Command: launchCommand, Args: resolvedArgs, WorkDir: workingDir,
 		Env: envVars, Rows: b.rows, Cols: b.cols, Label: b.cmd.PodKey,
-		PTYFactory: ptyFactory,
+		UnsetEnv: unsetEnv, PTYFactory: ptyFactory,
 	})
 	if err != nil {
 		workspace.Close()
-		if sandboxRoot != "" {
-			_ = os.RemoveAll(sandboxRoot)
-		}
-		return nil, &client.PodError{
+		podErr := &client.PodError{
 			Code: client.ErrCodeCommandStart, Message: fmt.Sprintf("failed to create terminal: %v", err),
 		}
+		return nil, errors.Join(podErr, b.cleanupSandbox(ctx, sandboxRoot, "terminal creation error"))
 	}
 
 	virtualTerm := vt.NewVirtualTerminal(b.cols, b.rows, b.vtHistoryLimit)

@@ -2,11 +2,13 @@ package workspace
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/anthropics/agentsmesh/runner/internal/fsutil"
 	"github.com/anthropics/agentsmesh/runner/internal/logger"
@@ -25,7 +27,10 @@ func (m *Manager) RemoveWorktree(ctx context.Context, worktreePath string) error
 	if err != nil {
 		// If we can't find the main repo, just remove the directory
 		log.Debug("Main repo not found, removing directory directly", "path", worktreePath)
-		return fsutil.RemoveAll(worktreePath)
+		if err := fsutil.RemoveAll(worktreePath); err != nil {
+			return err
+		}
+		return removeWorktreeCredential(worktreePath)
 	}
 
 	return m.removeWorktreeInternal(ctx, repoPath, worktreePath)
@@ -34,21 +39,44 @@ func (m *Manager) RemoveWorktree(ctx context.Context, worktreePath string) error
 // removeWorktreeInternal removes a worktree (internal, no lock)
 func (m *Manager) removeWorktreeInternal(ctx context.Context, repoPath, worktreePath string) error {
 	// Remove worktree using git
-	removeCmd := exec.CommandContext(ctx, "git", "worktree", "remove", "--force", worktreePath)
+	removeCtx, cancelRemove := context.WithTimeout(context.WithoutCancel(ctx), 30*time.Second)
+	removeCmd := exec.CommandContext(removeCtx, "git", "worktree", "remove", "--force", worktreePath)
 	removeCmd.Dir = repoPath
-	if output, err := removeCmd.CombinedOutput(); err != nil {
+	m.setLocalGitEnv(removeCmd)
+	output, err := removeCmd.CombinedOutput()
+	cancelRemove()
+	if err != nil {
 		// If git worktree remove fails, try manual removal
 		logger.Workspace().Warn("Git worktree remove failed, trying manual removal",
 			"error", err, "output", string(output))
-		return fsutil.RemoveAll(worktreePath)
+		if removeErr := fsutil.RemoveAll(worktreePath); removeErr != nil {
+			return removeErr
+		}
 	}
 
 	// Prune worktrees
-	pruneCmd := exec.CommandContext(ctx, "git", "worktree", "prune")
+	pruneCtx, cancelPrune := context.WithTimeout(context.WithoutCancel(ctx), 30*time.Second)
+	defer cancelPrune()
+	pruneCmd := exec.CommandContext(pruneCtx, "git", "worktree", "prune", "--expire", "now")
 	pruneCmd.Dir = repoPath
-	pruneCmd.Run() // Ignore errors
+	m.setLocalGitEnv(pruneCmd)
+	var pruneErr error
+	if output, err := pruneCmd.CombinedOutput(); err != nil {
+		pruneErr = fmt.Errorf("failed to prune worktrees: %w, output: %s", err, strings.TrimSpace(string(output)))
+	}
 
-	return nil
+	return errors.Join(pruneErr, removeWorktreeCredential(worktreePath))
+}
+
+func removeWorktreeCredential(worktreePath string) error {
+	sandboxPath := filepath.Dir(worktreePath)
+	var cleanupErr error
+	for _, name := range []string{gitCredentialFileName, ".ssh_key"} {
+		if err := os.Remove(filepath.Join(sandboxPath, name)); err != nil && !os.IsNotExist(err) {
+			cleanupErr = errors.Join(cleanupErr, err)
+		}
+	}
+	return cleanupErr
 }
 
 // findMainRepo finds the main repository for a worktree
@@ -80,48 +108,4 @@ func (m *Manager) findMainRepo(worktreePath string) (string, error) {
 
 	// For bare repos, mainGitDir is the repo itself
 	return mainGitDir, nil
-}
-
-// CleanupOldWorktrees removes invalid worktrees from sandboxes.
-// Worktrees are located at sandboxes/{podKey}/worktree
-func (m *Manager) CleanupOldWorktrees(ctx context.Context) error {
-	log := logger.Workspace()
-	log.Info("Starting worktree cleanup")
-
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	sandboxesDir := filepath.Join(m.root, "sandboxes")
-	entries, err := os.ReadDir(sandboxesDir)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil
-		}
-		return err
-	}
-
-	cleanedCount := 0
-	for _, entry := range entries {
-		if !entry.IsDir() {
-			continue
-		}
-
-		worktreePath := filepath.Join(sandboxesDir, entry.Name(), "worktree")
-
-		// Check if worktree exists and is valid
-		if _, err := os.Stat(worktreePath); err == nil {
-			// Worktree exists, check if it's still valid
-			if _, err := os.Stat(filepath.Join(worktreePath, ".git")); os.IsNotExist(err) {
-				// Invalid worktree (no .git), remove it
-				if err := fsutil.RemoveAll(worktreePath); err != nil {
-					log.Warn("Failed to remove invalid worktree", "path", worktreePath, "error", err)
-				} else {
-					cleanedCount++
-				}
-			}
-		}
-	}
-
-	log.Info("Worktree cleanup completed", "cleaned_count", cleanedCount)
-	return nil
 }

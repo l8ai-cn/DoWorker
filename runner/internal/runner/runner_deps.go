@@ -1,6 +1,7 @@
 package runner
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/anthropics/agentsmesh/runner/internal/client"
@@ -28,6 +29,9 @@ func CreateDeps(cfg *config.Config) (RunnerDeps, error) {
 	ws, err := workspace.NewManager(cfg.WorkspaceRoot, cfg.GitConfigPath)
 	if err != nil {
 		return RunnerDeps{}, fmt.Errorf("failed to create workspace manager: %w", err)
+	}
+	if err := ws.CleanupOldWorktrees(context.Background()); err != nil {
+		return RunnerDeps{}, fmt.Errorf("failed to clean stale worktrees: %w", err)
 	}
 
 	// Create gRPC/mTLS connection

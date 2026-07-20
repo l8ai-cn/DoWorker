@@ -57,13 +57,8 @@ func TestCreateSessionAndIO(t *testing.T) {
 	_, err = dpty.Write([]byte("hello world\n"))
 	require.NoError(t, err)
 
-	buf := make([]byte, 4096)
-	dpty.SetReadDeadline(time.Now().Add(3 * time.Second))
-	n, err := dpty.Read(buf)
-	require.NoError(t, err, "failed to read output")
-	output := string(buf[:n])
+	output := readUntilContains(t, dpty, "hello world", 3*time.Second)
 	t.Logf("first read: %q", output)
-	assert.Contains(t, output, "hello world")
 
 	// --- Test Resize ---
 	require.NoError(t, dpty.Resize(120, 40))
@@ -87,12 +82,8 @@ func TestCreateSessionAndIO(t *testing.T) {
 	_, err = dpty2.Write([]byte("after reattach\n"))
 	require.NoError(t, err)
 
-	dpty2.SetReadDeadline(time.Now().Add(3 * time.Second))
-	n, err = dpty2.Read(buf)
-	require.NoError(t, err, "failed to read after re-attach")
-	output = string(buf[:n])
+	output = readUntilContains(t, dpty2, "after reattach", 3*time.Second)
 	t.Logf("post-reattach read: %q", output)
-	assert.Contains(t, output, "after reattach")
 }
 
 // TestCreateSessionExitCode verifies daemon reports child's exit code.
@@ -229,9 +220,5 @@ func TestRecoverSessionsIntegration(t *testing.T) {
 	_, err = dpty2.Write([]byte("recovered\n"))
 	require.NoError(t, err)
 
-	buf := make([]byte, 4096)
-	dpty2.SetReadDeadline(time.Now().Add(3 * time.Second))
-	n, err := dpty2.Read(buf)
-	require.NoError(t, err)
-	assert.Contains(t, string(buf[:n]), "recovered")
+	readUntilContains(t, dpty2, "recovered", 3*time.Second)
 }

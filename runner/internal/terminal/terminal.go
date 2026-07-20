@@ -9,7 +9,6 @@ import (
 
 	"github.com/anthropics/agentsmesh/runner/internal/envfilter"
 	"github.com/anthropics/agentsmesh/runner/internal/logger"
-	"github.com/anthropics/agentsmesh/runner/internal/safego"
 )
 
 const (
@@ -29,6 +28,7 @@ type Options struct {
 	Args     []string
 	WorkDir  string
 	Env      map[string]string
+	UnsetEnv []string
 	Rows     int
 	Cols     int
 	Label    string // Identifier for log correlation (e.g., pod_key)
@@ -96,6 +96,9 @@ func New(opts Options) (*Terminal, error) {
 			envMap[e[:idx]] = e[idx+1:]
 		}
 	}
+	for _, key := range opts.UnsetEnv {
+		delete(envMap, key)
+	}
 	// Remove CLAUDECODE to prevent nested session detection when running
 	// Claude Code inside a pod - the runner intentionally spawns claude sessions.
 	delete(envMap, "CLAUDECODE")
@@ -141,120 +144,4 @@ func New(opts Options) (*Terminal, error) {
 		doneCh:     make(chan struct{}),
 		resumeCh:   make(chan struct{}, 1), // Buffered to avoid blocking
 	}, nil
-}
-
-// Start starts the terminal process
-func (t *Terminal) Start() error {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-
-	if t.closed {
-		return fmt.Errorf("terminal is closed")
-	}
-
-	log := logger.Terminal()
-	log.Debug("Starting command", "command", t.command, "args", t.args, "dir", t.workDir, "cols", t.cols, "rows", t.rows)
-
-	// Start with PTY and initial size (custom factory or platform-specific default)
-	var proc ptyProcess
-	var err error
-	if t.ptyFactory != nil {
-		proc, err = t.ptyFactory(t.command, t.args, t.workDir, t.env, t.cols, t.rows)
-	} else {
-		proc, err = startPTY(t.command, t.args, t.workDir, t.env, t.cols, t.rows)
-	}
-	if err != nil {
-		return fmt.Errorf("failed to start pty: %w", err)
-	}
-	t.proc = proc
-
-	log.Debug("PTY started", "pid", t.proc.Pid(), "cols", t.cols, "rows", t.rows)
-
-	// Start output reader
-	safego.Go("pty-read", t.readOutput)
-
-	// Wait for process exit
-	safego.Go("pty-wait", t.waitExit)
-
-	log.Info("Terminal started", "pid", t.proc.Pid(), "cols", t.cols, "rows", t.rows)
-
-	return nil
-}
-
-// Stop stops the terminal with graceful shutdown.
-// It sends a graceful stop signal first and waits up to gracefulStopTimeout
-// for the process to exit. If the process doesn't exit in time, it is killed.
-// This ensures AI agents (Claude Code, Aider, etc.) have time to perform cleanup
-// operations like saving state and releasing git locks.
-func (t *Terminal) Stop() {
-	log := logger.Terminal()
-	log.Info("Terminal stopping")
-
-	t.mu.Lock()
-	if t.closed {
-		t.mu.Unlock()
-		return
-	}
-	t.closed = true
-	proc := t.proc
-	t.mu.Unlock()
-
-	if proc != nil {
-		// Graceful shutdown: signal → wait → kill
-		pid := proc.Pid()
-		log.Debug("Sending graceful stop signal", "pid", pid)
-		if err := proc.GracefulStop(); err != nil {
-			log.Debug("Graceful stop failed (process may have already exited)", "error", err)
-		}
-
-		// Wait for process to exit or timeout
-		select {
-		case <-t.doneCh:
-			log.Debug("Process exited gracefully")
-		case <-time.After(gracefulStopTimeout):
-			log.Warn("Process did not exit after graceful stop, killing",
-				"pid", pid, "timeout", gracefulStopTimeout)
-			if err := proc.Kill(); err != nil {
-				log.Debug("Kill failed (process may have already exited)", "error", err)
-			}
-			// Wait briefly for waitExit to detect the kill
-			select {
-			case <-t.doneCh:
-			case <-time.After(1 * time.Second):
-				log.Warn("Process did not exit after kill", "pid", pid)
-			}
-		}
-	}
-
-	// Close PTY (safe to call concurrently via sync.Once)
-	t.closePTY()
-
-	log.Info("Terminal stopped")
-}
-
-// closePTY closes the PTY exactly once.
-// Safe to call from multiple goroutines (Stop and waitExit).
-func (t *Terminal) closePTY() {
-	t.ptyCloseOnce.Do(func() {
-		if t.proc != nil {
-			t.proc.Close()
-		}
-	})
-}
-
-// Detach disconnects from the PTY without killing the underlying process.
-// Used during Runner shutdown to keep Pod Daemon processes alive for recovery.
-// For daemonPTY, Close() sends a Detach message (daemon stays running).
-// For direct PTY, this is equivalent to closePTY (process may receive SIGHUP).
-func (t *Terminal) Detach() {
-	t.mu.Lock()
-	if t.closed {
-		t.mu.Unlock()
-		return
-	}
-	t.closed = true
-	t.mu.Unlock()
-
-	logger.Terminal().Info("Terminal detaching (daemon stays alive)")
-	t.closePTY()
 }

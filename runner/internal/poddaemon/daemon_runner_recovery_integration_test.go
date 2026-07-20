@@ -36,11 +36,7 @@ func TestDaemonRecovery_CreateDetachRecover_Integration(t *testing.T) {
 	// Write data and verify I/O works
 	_, err = dpty.Write([]byte("before-detach\n"))
 	require.NoError(t, err)
-	buf := make([]byte, 4096)
-	dpty.SetReadDeadline(time.Now().Add(3 * time.Second))
-	n, err := dpty.Read(buf)
-	require.NoError(t, err)
-	assert.Contains(t, string(buf[:n]), "before-detach")
+	readUntilContains(t, dpty, "before-detach", 3*time.Second)
 
 	childPid := dpty.Pid()
 	require.NoError(t, dpty.Close()) // detach (simulate runner shutdown)
@@ -63,10 +59,7 @@ func TestDaemonRecovery_CreateDetachRecover_Integration(t *testing.T) {
 
 	_, err = dpty2.Write([]byte("after-recover\n"))
 	require.NoError(t, err)
-	dpty2.SetReadDeadline(time.Now().Add(3 * time.Second))
-	n, err = dpty2.Read(buf)
-	require.NoError(t, err)
-	assert.Contains(t, string(buf[:n]), "after-recover")
+	readUntilContains(t, dpty2, "after-recover", 3*time.Second)
 }
 
 // TestDaemonRecovery_MultipleSessionsRecovery_Integration creates 3 daemons,
@@ -109,16 +102,12 @@ func TestDaemonRecovery_MultipleSessionsRecovery_Integration(t *testing.T) {
 	}
 
 	// Attach to each and verify alive
-	buf := make([]byte, 4096)
 	for _, s := range sessions {
 		dpty, err := mgr.AttachSession(s)
 		require.NoError(t, err, "attach %s", s.PodKey)
 		_, err = dpty.Write([]byte("ping-" + s.PodKey + "\n"))
 		require.NoError(t, err)
-		dpty.SetReadDeadline(time.Now().Add(3 * time.Second))
-		n, err := dpty.Read(buf)
-		require.NoError(t, err)
-		assert.Contains(t, string(buf[:n]), "ping-"+s.PodKey)
+		readUntilContains(t, dpty, "ping-"+s.PodKey, 3*time.Second)
 		dpty.Kill()
 		dpty.Close()
 	}
@@ -213,11 +202,7 @@ func TestDaemonRecovery_StateFilePersistence_Integration(t *testing.T) {
 	defer func() { dpty2.Kill(); dpty2.Close() }()
 	assert.Equal(t, childPid, dpty2.Pid())
 
-	buf := make([]byte, 4096)
 	_, err = dpty2.Write([]byte("new-manager\n"))
 	require.NoError(t, err)
-	dpty2.SetReadDeadline(time.Now().Add(3 * time.Second))
-	n, err := dpty2.Read(buf)
-	require.NoError(t, err)
-	assert.Contains(t, string(buf[:n]), "new-manager")
+	readUntilContains(t, dpty2, "new-manager", 3*time.Second)
 }

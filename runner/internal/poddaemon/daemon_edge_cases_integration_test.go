@@ -132,11 +132,7 @@ func TestPodDaemon_IPCProtocolMessages_Integration(t *testing.T) {
 	_, err = dpty.Write(payload)
 	require.NoError(t, err)
 
-	buf := make([]byte, 4096)
-	dpty.SetReadDeadline(time.Now().Add(3 * time.Second))
-	n, err := dpty.Read(buf)
-	require.NoError(t, err)
-	assert.Contains(t, string(buf[:n]), "exact-bytes-test")
+	readUntilContains(t, dpty, "exact-bytes-test", 3*time.Second)
 
 	// Resize should succeed without error
 	require.NoError(t, dpty.Resize(200, 50))

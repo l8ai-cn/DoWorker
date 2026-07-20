@@ -9,6 +9,8 @@ import (
 	"testing"
 
 	"github.com/anthropics/agentsmesh/runner/internal/testutil"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // --- Test applyGitConfig ---
@@ -69,8 +71,8 @@ func TestApplyGitConfigGitDirError(t *testing.T) {
 	if err == nil {
 		t.Error("expected error when running applyGitConfig on non-git directory")
 	}
-	if !strings.Contains(err.Error(), "failed to get git directory") {
-		t.Errorf("expected 'failed to get git directory' error, got: %v", err)
+	if !strings.Contains(err.Error(), "failed to locate common Git directory") {
+		t.Errorf("expected worktree config error, got: %v", err)
 	}
 }
 
@@ -175,15 +177,43 @@ func TestApplyGitConfigInWorktree(t *testing.T) {
 		t.Errorf("applyGitConfig failed in worktree: %v", err)
 	}
 
-	// Verify config was applied
-	configCheckCmd := exec.Command("git", "config", "--local", "include.path")
+	configCheckCmd := exec.Command("git", "config", "--worktree", "user.name")
 	configCheckCmd.Dir = worktreePath
 	output, err := configCheckCmd.Output()
-	if err != nil {
-		t.Logf("config check output: %s, err: %v", output, err)
-	} else {
-		if !strings.Contains(string(output), "config.local") {
-			t.Errorf("expected include.path to contain config.local, got: %s", output)
-		}
+	if err != nil || !strings.Contains(string(output), "Worktree Test User") {
+		t.Errorf("expected worktree user.name, got output=%s err=%v", output, err)
 	}
+	userCmd := exec.Command("git", "config", "user.name")
+	userCmd.Dir = worktreePath
+	output, err = userCmd.Output()
+	if err != nil || !strings.Contains(string(output), "Worktree Test User") {
+		t.Errorf("expected worktree user.name, got output=%s err=%v", output, err)
+	}
+}
+
+func TestEnableWorktreeConfigPreservesExistingSiblings(t *testing.T) {
+	origin, clone := createPinnedOrigin(t)
+	commit := commitPinnedFile(t, clone, "siblings")
+	pushPinnedBranch(t, clone)
+	root := t.TempDir()
+	bareRepo := filepath.Join(root, "cache.git")
+	runPinnedGit(t, root, "clone", "--bare", origin, bareRepo)
+	first := filepath.Join(root, "first")
+	second := filepath.Join(root, "second")
+	runPinnedGit(t, root, "--git-dir", bareRepo, "worktree", "add", "--detach", first, commit)
+	runPinnedGit(t, root, "--git-dir", bareRepo, "worktree", "add", "--detach", second, commit)
+	manager, err := NewManager(root, "")
+	require.NoError(t, err)
+
+	require.NoError(t, manager.enableWorktreeConfig(context.Background(), first))
+	require.NoError(t, manager.enableWorktreeConfig(context.Background(), first))
+
+	for _, path := range []string{first, second} {
+		cmd := exec.Command("git", "status", "--short")
+		cmd.Dir = path
+		output, err := cmd.CombinedOutput()
+		require.NoError(t, err, "git status in %s: %s", path, output)
+		assert.Equal(t, "false", gitWorktreeConfig(t, path, "core.bare"))
+	}
+	assert.Equal(t, "true", gitBareRepositoryState(t, bareRepo))
 }

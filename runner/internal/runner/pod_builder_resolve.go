@@ -40,11 +40,18 @@ func mapToEnvSlice(m map[string]string) []string {
 }
 
 func buildMergedEnv(userEnv map[string]string) []string {
+	return buildMergedEnvWithout(userEnv, nil)
+}
+
+func buildMergedEnvWithout(userEnv map[string]string, excluded []string) []string {
 	envMap := make(map[string]string)
 	for _, e := range envfilter.FilterEnv(os.Environ()) {
 		if idx := strings.Index(e, "="); idx >= 0 {
 			envMap[e[:idx]] = e[idx+1:]
 		}
+	}
+	for _, key := range excluded {
+		delete(envMap, key)
 	}
 	delete(envMap, "CLAUDECODE")
 	envMap["TERM"] = "xterm-256color"
