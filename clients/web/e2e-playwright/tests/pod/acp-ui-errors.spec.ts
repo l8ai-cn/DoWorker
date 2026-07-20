@@ -46,30 +46,17 @@ test.describe("ACP UI: error and degradation paths", () => {
 
   test("fail_after_1s does not leave the UI wedged in a processing state", async ({ page, api, monitor }) => {
     const ctx = await setupAcpScenarioPage(page, api, monitor, {
-      mode: "acp", scenario: "fail_after_1s", prompt: "crash test", waitForRelay: false,
+      mode: "acp", scenario: "fail_after_1s",
     });
 
-    // The agent emits one content chunk and then os.Exit(1)s after 1s. We
-    // race three possible outcomes and accept any of them as "not wedged":
-    //   (a) chunk renders in the activity stream before the crash arrives, OR
-    //   (b) PaneErrorState replaces the panel because the crashed status
-    //       reaches the browser before / instead of the chunk, OR
-    //   (c) Pod terminated before the workspace router could `addPane`, so
-    //       WorkspaceEmptyState renders (panel never opened — also fine, the
-    //       user can spawn a fresh pod).
-    // The failure mode we actually guard against is the UI sitting on a
-    // loading spinner indefinitely.
-    //
-    // Note: backend's HandlePodTerminated normalizes any non-zero exit to
-    // `status=terminated` (the runner-side error_message is dropped), so
-    // PaneErrorState renders `Pod terminated` rather than `process exited
-    // with code N` (see usePodStatus.ts).
-    await expect(
-      page.getByText("Will crash soon: crash test")
-        .or(page.getByText(/pod terminated|pod failed|process exited with code/i))
-        .or(page.getByText(/spawn your first pod/i))
-    ).toBeVisible({ timeout: 20_000 });
-    await page.waitForTimeout(4000);
+    await takeWorkerControl(page);
+    const composer = page.getByLabel("Message the agent");
+    await expect(composer).toBeEnabled({ timeout: 15_000 });
+    await composer.fill("crash test");
+    await composer.press("Enter");
+
+    await expect(page.getByText("Will crash soon: crash test")).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole("heading", { name: "Spawn your first Pod" })).toBeVisible({ timeout: 15_000 });
     ctx.assertWasmHealthy();
   });
 });
