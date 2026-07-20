@@ -1,6 +1,7 @@
 import type { ApiFixture } from "../fixtures/api.fixture";
 import { createE2EEchoPod } from "./e2e-worker-spec";
 import { TEST_ORG_SLUG, getApiBaseUrl } from "./env";
+import { unregisterE2ECreatedPod } from "./pod-cleanup";
 import { pollUntil } from "./retry";
 
 export type MockAgentMode = "pty" | "acp";
@@ -82,11 +83,8 @@ export async function createMockAgentPod(
     podKey,
     runnerId,
     cleanup: async () => {
-      try {
-        await cc.pod.terminatePod({ orgSlug: TEST_ORG_SLUG, podKey });
-      } catch {
-        // best-effort: tests should not fail because cleanup raced
-      }
+      await cc.pod.terminatePod({ orgSlug: TEST_ORG_SLUG, podKey });
+      unregisterE2ECreatedPod(podKey);
     },
   };
 }

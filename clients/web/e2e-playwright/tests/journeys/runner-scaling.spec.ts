@@ -2,7 +2,12 @@ import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { pollUntil } from "../../helpers/retry";
-import { terminateRegisteredE2EPods } from "../../helpers/pod-cleanup";
+import {
+  createE2EPodAlias,
+  registerE2ECreatedPod,
+  terminateRegisteredE2EPods,
+  unregisterE2ECreatedPod,
+} from "../../helpers/pod-cleanup";
 import {
   buildE2EEchoWorkerSpec,
   type E2EWorkerSpecDraft,
@@ -111,15 +116,17 @@ async function createPod(
   workerSpec: E2EWorkerSpecDraft,
   alias: string,
 ): Promise<Pod> {
+  const markedAlias = createE2EPodAlias(alias);
   const created = await client.pod.createPod({
     orgSlug: TEST_ORG_SLUG,
     cols: 80,
     rows: 24,
-    workerSpec: { ...workerSpec, alias },
+    workerSpec: { ...workerSpec, alias: markedAlias },
   }) as { pod?: Pod };
   if (!created.pod?.podKey || !created.pod.runnerId) {
     throw new Error(`CreatePod returned incomplete placement for ${alias}`);
   }
+  registerE2ECreatedPod(created.pod.podKey, markedAlias);
   return created.pod;
 }
 
@@ -164,6 +171,7 @@ async function terminatePods(client: ConnectClient, pods: Pod[]) {
     await client.pod.terminatePod({
       orgSlug: TEST_ORG_SLUG,
       podKey: pod.podKey,
-    }).catch(() => undefined);
+    });
+    unregisterE2ECreatedPod(pod.podKey);
   }
 }

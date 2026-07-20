@@ -33,6 +33,7 @@ describe("registered E2E pod cleanup", () => {
         podKey: "pod-e2e-1",
         alias,
         agentSlug: E2E_ECHO_AGENT_SLUG,
+        status: "running",
       }))
       .mockResolvedValueOnce(jsonResponse({ message: "terminated" }));
     globalThis.fetch = fetchMock;
@@ -59,6 +60,7 @@ describe("registered E2E pod cleanup", () => {
         podKey: "pod-e2e-1",
         alias: "real production pod",
         agentSlug: E2E_ECHO_AGENT_SLUG,
+        status: "running",
       }));
     globalThis.fetch = fetchMock;
 
@@ -85,16 +87,19 @@ describe("registered E2E pod cleanup", () => {
       .mockResolvedValueOnce(jsonResponse({ token: "test-token" }))
       .mockResolvedValueOnce(jsonResponse({
         items: [
-          { podKey: "pod-stale", alias: "[e2e:deadbeefcafe] stale", agentSlug: E2E_ECHO_AGENT_SLUG },
-          { podKey: "pod-video", alias: "[e2e:deadbeefcafe] video", agentSlug: "video-studio" },
-          { podKey: "pod-seedance", alias: "Seedance production", agentSlug: E2E_ECHO_AGENT_SLUG },
-          { podKey: "pod-pattern", alias: "[e2e:bad] pattern", agentSlug: E2E_ECHO_AGENT_SLUG },
+          { podKey: "pod-stale", alias: "[e2e:deadbeefcafe] stale", agentSlug: E2E_ECHO_AGENT_SLUG, status: "running" },
+          { podKey: "pod-video", alias: "[e2e:deadbeefcafe] video", agentSlug: "video-studio", status: "running" },
+          { podKey: "pod-seedance", alias: "Seedance production", agentSlug: E2E_ECHO_AGENT_SLUG, status: "running" },
+          { podKey: "pod-pattern", alias: "[e2e:bad] pattern", agentSlug: E2E_ECHO_AGENT_SLUG, status: "running" },
+          { podKey: "pod-completed", alias: "[e2e:deadbeefcafe] completed", agentSlug: E2E_ECHO_AGENT_SLUG, status: "completed" },
+          { podKey: "pod-terminated", alias: "[e2e:deadbeefcafe] terminated", agentSlug: E2E_ECHO_AGENT_SLUG, status: "terminated" },
         ],
       }))
       .mockResolvedValueOnce(jsonResponse({
         podKey: "pod-stale",
         alias: "[e2e:deadbeefcafe] stale",
         agentSlug: E2E_ECHO_AGENT_SLUG,
+        status: "running",
       }))
       .mockResolvedValueOnce(jsonResponse({ message: "terminated" }));
     globalThis.fetch = fetchMock;
@@ -102,12 +107,17 @@ describe("registered E2E pod cleanup", () => {
     await expect(terminateStaleMarkedE2EPods()).resolves.toBe(1);
     expect(fetchMock).toHaveBeenCalledTimes(4);
     expect(String(fetchMock.mock.calls[1]?.[0])).toContain("PodService/ListPods");
+    expect(String(fetchMock.mock.calls[1]?.[1]?.body)).toContain(
+      '"status":"queued,initializing,running,paused,disconnected"',
+    );
     expect(String(fetchMock.mock.calls[2]?.[1]?.body)).toContain("pod-stale");
     expect(String(fetchMock.mock.calls[3]?.[1]?.body)).toContain("pod-stale");
     expect(fetchMock.mock.calls.some(([, init]) =>
       String(init?.body).includes("pod-video") ||
       String(init?.body).includes("pod-seedance") ||
-      String(init?.body).includes("pod-pattern"),
+      String(init?.body).includes("pod-pattern") ||
+      String(init?.body).includes("pod-completed") ||
+      String(init?.body).includes("pod-terminated"),
     )).toBe(false);
   });
 });

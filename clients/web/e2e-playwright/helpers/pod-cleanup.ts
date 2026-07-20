@@ -1,24 +1,22 @@
 import { randomUUID } from "node:crypto";
 import { E2E_ECHO_AGENT_SLUG } from "./e2e-echo-runner";
-import { getApiBaseUrl, TEST_ORG_SLUG, TEST_USER } from "./env";
+import {
+  createE2ECleanupSession,
+  e2ECleanupError,
+  getE2ECleanupPod,
+  terminateE2ECleanupPod,
+  type E2EPodIdentity,
+} from "./e2e-pod-cleanup-transport";
+import { TEST_ORG_SLUG } from "./env";
 
-const CONNECT_HEADERS = {
-  "Content-Type": "application/json",
-  "Connect-Protocol-Version": "1",
-};
 const E2E_RUN_MARKER = `e2e:${randomUUID().slice(0, 12)}`;
 const E2E_POD_ALIAS_PATTERN = /^\[e2e:[0-9a-f]{12}\] /;
+const TERMINABLE_STATUSES = ["queued", "initializing", "running", "paused", "disconnected"];
 const registeredPods = new Map<string, RegisteredE2EPod>();
 
 interface RegisteredE2EPod {
   orgSlug: string;
   alias: string;
-}
-
-interface PodIdentity {
-  podKey?: string;
-  alias?: string;
-  agentSlug?: string;
 }
 
 export function createE2EPodAlias(alias?: string): string {
@@ -43,155 +41,82 @@ export function registerE2ECreatedPod(
   registeredPods.set(podKey, { orgSlug, alias });
 }
 
+export function unregisterE2ECreatedPod(podKey: string): void {
+  registeredPods.delete(podKey);
+}
+
 export async function terminateRegisteredE2EPods(): Promise<number> {
   const pending = [...registeredPods.entries()];
   if (pending.length === 0) return 0;
-  const { baseUrl, headers } = await cleanupSession("registered");
+  const session = await createE2ECleanupSession("registered");
   let count = 0;
   for (const [podKey, registered] of pending) {
-    const pod = await getPod(baseUrl, headers, registered.orgSlug, podKey, "registered");
+    const pod = await getE2ECleanupPod(session, registered.orgSlug, podKey, "registered");
     if (!matchesRegisteredE2EPod(pod, podKey, registered)) {
-      throw cleanupError(
+      throw e2ECleanupError(
         `refused to terminate registered pod ${podKey}: identity does not match the E2E record`,
       );
     }
-    await terminatePod(baseUrl, headers, registered.orgSlug, podKey, "registered");
+    if (!isTerminable(pod)) {
+      if (isFinished(pod)) {
+        registeredPods.delete(podKey);
+        continue;
+      }
+      throw e2ECleanupError(`registered pod ${podKey} is not in a terminable state`);
+    }
+    await terminateE2ECleanupPod(session, registered.orgSlug, podKey, "registered");
     registeredPods.delete(podKey);
     count++;
   }
   return count;
 }
 
-// CI shards use isolated backends. This fallback only reclaims stale Pods in
-// a shared dev org when both the e2e-echo agent and the strict run marker match.
+// CI shards use isolated backends. Shared-dev cleanup is limited to active,
+// marker-tagged e2e-echo Pods so unrelated workloads are never selected.
 export async function terminateStaleMarkedE2EPods(): Promise<number> {
-  const { baseUrl, headers } = await cleanupSession("stale");
-  const listed = await requestJson<{ items?: PodIdentity[] }>(
-    `${baseUrl}/proto.pod.v1.PodService/ListPods`,
-    {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ orgSlug: TEST_ORG_SLUG }),
-    },
-    "list stale E2E pods",
-  );
+  const session = await createE2ECleanupSession("stale");
+  const listed = await session.listPods(TERMINABLE_STATUSES.join(","));
   let count = 0;
   for (const candidate of listed.items ?? []) {
-    if (!isMarkedE2EPod(candidate) || !candidate.podKey) continue;
-    const pod = await getPod(baseUrl, headers, TEST_ORG_SLUG, candidate.podKey, "stale");
+    if (!isTerminableMarkedE2EPod(candidate) || !candidate.podKey) continue;
+    const pod = await getE2ECleanupPod(session, TEST_ORG_SLUG, candidate.podKey, "stale");
     if (!isMarkedE2EPod(pod) || pod.podKey !== candidate.podKey) {
-      throw cleanupError(
+      throw e2ECleanupError(
         `refused to terminate stale pod ${candidate.podKey}: identity changed after listing`,
       );
     }
-    await terminatePod(baseUrl, headers, TEST_ORG_SLUG, candidate.podKey, "stale");
+    if (!isTerminable(pod)) continue;
+    await terminateE2ECleanupPod(session, TEST_ORG_SLUG, candidate.podKey, "stale");
     count++;
   }
   return count;
 }
 
-async function cleanupSession(
-  scope: "registered" | "stale",
-): Promise<{ baseUrl: string; headers: Record<string, string> }> {
-  const baseUrl = getApiBaseUrl();
-  const login = await requestJson<{ token?: string }>(
-    `${baseUrl}/proto.auth.v1.AuthService/Login`,
-    {
-      method: "POST",
-      headers: CONNECT_HEADERS,
-      body: JSON.stringify({ username: TEST_USER.username, password: TEST_USER.password }),
-    },
-    `${scope} cleanup login`,
-  );
-  if (!login.token) throw cleanupError(`${scope} cleanup login returned no token`);
-  return {
-    baseUrl,
-    headers: { ...CONNECT_HEADERS, Authorization: `Bearer ${login.token}` },
-  };
-}
-
-async function getPod(
-  baseUrl: string,
-  headers: Record<string, string>,
-  orgSlug: string,
-  podKey: string,
-  scope: "registered" | "stale",
-): Promise<PodIdentity> {
-  return requestJson<PodIdentity>(
-    `${baseUrl}/proto.pod.v1.PodService/GetPod`,
-    {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ orgSlug, podKey }),
-    },
-    `read ${scope} E2E pod ${podKey}`,
-  );
-}
-
-async function terminatePod(
-  baseUrl: string,
-  headers: Record<string, string>,
-  orgSlug: string,
-  podKey: string,
-  scope: "registered" | "stale",
-): Promise<void> {
-  await requestJson(
-    `${baseUrl}/proto.pod.v1.PodService/TerminatePod`,
-    {
-      method: "POST",
-      headers: { ...headers, "X-E2E-Caller": cleanupCaller(scope) },
-      body: JSON.stringify({ orgSlug, podKey }),
-    },
-    `terminate ${scope} E2E pod ${podKey}`,
-  );
-}
-
-async function requestJson<T>(
-  url: string,
-  init: RequestInit,
-  action: string,
-): Promise<T> {
-  let response: Response;
-  try {
-    response = await fetch(url, init);
-  } catch (cause) {
-    throw cleanupError(`${action} request failed: ${errorMessage(cause)}`);
-  }
-  if (!response.ok) throw cleanupError(`${action} returned HTTP ${response.status}`);
-  try {
-    return await response.json() as T;
-  } catch (cause) {
-    throw cleanupError(`${action} returned invalid JSON: ${errorMessage(cause)}`);
-  }
-}
-
 function matchesRegisteredE2EPod(
-  pod: PodIdentity | undefined,
+  pod: E2EPodIdentity,
   podKey: string,
   registered: RegisteredE2EPod,
 ): boolean {
-  return pod?.podKey === podKey &&
+  return pod.podKey === podKey &&
     pod.alias === registered.alias &&
     pod.agentSlug === E2E_ECHO_AGENT_SLUG;
 }
 
-function isMarkedE2EPod(pod: PodIdentity): boolean {
+function isTerminableMarkedE2EPod(pod: E2EPodIdentity): boolean {
+  return isMarkedE2EPod(pod) && isTerminable(pod);
+}
+
+function isMarkedE2EPod(pod: E2EPodIdentity): boolean {
   return pod.agentSlug === E2E_ECHO_AGENT_SLUG &&
     E2E_POD_ALIAS_PATTERN.test(pod.alias ?? "");
 }
 
-function cleanupError(message: string): Error {
-  return new Error(`E2E pod cleanup: ${message}`);
+function isTerminable(pod: E2EPodIdentity): boolean {
+  return TERMINABLE_STATUSES.includes(pod.status ?? "");
 }
 
-function cleanupCaller(scope: "registered" | "stale"): string {
-  return scope === "registered"
-    ? "terminateRegisteredE2EPods"
-    : "terminateStaleMarkedE2EPods";
-}
-
-function errorMessage(cause: unknown): string {
-  return cause instanceof Error ? cause.message : String(cause);
+function isFinished(pod: E2EPodIdentity): boolean {
+  return ["completed", "terminated", "orphaned", "error"].includes(pod.status ?? "");
 }
 
 export function resetRegisteredE2EPodsForTest(): void {
