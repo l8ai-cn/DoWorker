@@ -82,6 +82,17 @@ describe("registered E2E pod cleanup", () => {
     );
   });
 
+  it("accepts the empty first Connect JSON page with omitted default scalars", async () => {
+    const fetchMock = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(jsonResponse({ token: "test-token" }))
+      .mockResolvedValueOnce(jsonResponse({ limit: 100 }));
+    globalThis.fetch = fetchMock;
+
+    await expect(terminateStaleMarkedE2EPods()).resolves.toBe(0);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(String(fetchMock.mock.calls[1]?.[1]?.body)).toContain('"offset":0');
+  });
+
   it("recovers only stale Pods with the strict E2E marker and e2e-echo agent", async () => {
     const fetchMock = vi.fn<typeof fetch>()
       .mockResolvedValueOnce(jsonResponse({ token: "test-token" }))
@@ -93,7 +104,6 @@ describe("registered E2E pod cleanup", () => {
         ],
         total: "6",
         limit: 100,
-        offset: 0,
       }))
       .mockResolvedValueOnce(jsonResponse({
         items: [
@@ -142,6 +152,28 @@ describe("registered E2E pod cleanup", () => {
       String(init?.body).includes("pod-completed") ||
       String(init?.body).includes("pod-terminated"),
     )).toBe(false);
+  });
+
+  it("fails closed when a nonzero page does not echo its requested offset", async () => {
+    const fetchMock = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(jsonResponse({ token: "test-token" }))
+      .mockResolvedValueOnce(jsonResponse({
+        items: [{ podKey: "pod-one", status: "running" }],
+        total: "2",
+        limit: 100,
+      }))
+      .mockResolvedValueOnce(jsonResponse({
+        items: [{ podKey: "pod-two", status: "running" }],
+        total: "2",
+        limit: 100,
+      }));
+    globalThis.fetch = fetchMock;
+
+    await expect(terminateStaleMarkedE2EPods()).rejects.toThrow(
+      "stale E2E pod list returned an invalid page",
+    );
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(String(fetchMock.mock.calls[2]?.[1]?.body)).toContain('"offset":1');
   });
 });
 

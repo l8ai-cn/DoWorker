@@ -103,11 +103,17 @@ async function listActiveStalePods(
       STALE_POD_PAGE_SIZE,
       offset,
     );
-    const total = Number(page.total);
-    if (!Number.isSafeInteger(total) || total < 0 || page.offset !== offset) {
+    const items = page.items ?? [];
+    const total = page.total === undefined && offset === 0 && items.length === 0
+      ? 0
+      : Number(page.total);
+    if (
+      !Number.isSafeInteger(total) ||
+      total < 0 ||
+      (offset === 0 ? page.offset !== undefined && page.offset !== 0 : page.offset !== offset)
+    ) {
       throw e2ECleanupError("stale E2E pod list returned an invalid page");
     }
-    const items = page.items ?? [];
     pods.push(...items);
     if (offset + items.length >= total) return pods;
     if (items.length === 0) throw e2ECleanupError("stale E2E pod list did not advance");
