@@ -4,6 +4,7 @@ import { TEST_ORG_SLUG } from "../../helpers/env";
 test.describe("Worker resource editor", () => {
   test("shows the Worker invocation contract and blocks incomplete creation", async ({ page }) => {
     await page.goto(`/${TEST_ORG_SLUG}/workers/new`);
+    await page.getByTestId("pill-tab-template").click();
 
     const editor = page.getByTestId("resource-editor");
     await expect(editor).toBeVisible();
