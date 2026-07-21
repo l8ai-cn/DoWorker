@@ -343,13 +343,27 @@
   "workers": {
     "create": {
       "title": "创建 Worker",
-      "subtitle": "在同一个四步流程中配置运行资源、Worker 类型、工作区能力并完成服务端预检。",
+      "subtitle": "描述要做的任务，确认默认运行配置，即可创建 Worker；不需要先理解或创建模板。",
       "stepsTitle": "创建步骤",
       "stepCluster": "集群与镜像 — 算力节点 + AI 运行时",
       "stepCapabilities": "能力挂载 — 知识库与 Skill",
       "stepAgentFile": "Agent 指令 — 预览或手写 AGENTS.md / AgentFile",
       "stepLaunch": "初始任务与时长 — 创建后进入工作区",
       "backToWorkspace": "返回工作区",
+      "advancedSettings": "高级设置",
+      "quick": {
+        "title": "这个 Worker 要做什么？",
+        "subtitle": "默认使用推荐的运行环境、模型和资源规格；只有需要调整时再打开高级设置。",
+        "taskLabel": "任务",
+        "taskPlaceholder": "审查 auth 中间件的权限缺口并总结发现。",
+        "defaultsHint": "推荐配置会根据组织运行目录自动选择。",
+        "loadingDefaults": "正在加载推荐配置…",
+        "defaultsNotReady": "推荐配置尚未准备好。打开高级设置查看缺少什么。",
+        "taskRequired": "请先描述任务，再创建 Worker。",
+        "preflightFailed": "预检发现阻塞问题。打开高级设置查看详情。",
+        "create": "创建 Worker",
+        "creating": "正在创建 Worker…"
+      },
       "nl": {
         "title": "用 AI 填写 Worker 草稿",
         "generationModel": "草稿生成模型",

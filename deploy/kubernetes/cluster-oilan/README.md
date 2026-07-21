@@ -141,10 +141,11 @@ Each run is a **full reconcile**, not a DB-only reset:
    DoSql journal and immutable evidence artifact for
    `DOSQL_RELEASE_DB_TARGET`, `DOSQL_RELEASE_DB_MODE`,
    `DOSQL_RELEASE_DB_SESSION`, `DOSQL_RELEASE_CHANGE_ID`, and
-   `DOSQL_RELEASE_OPERATION_ID`. The current DoSql control plane has no
-   production audit-query binding, so normal Oilan deploy remains blocked rather
-   than trusting caller-supplied evidence strings. It never runs DDL/DML,
-   creates no migration Job, and does not query PostgreSQL directly.
+   `DOSQL_RELEASE_OPERATION_ID`. It verifies the canonical
+   `db_agentsmesh_prod_postgres` target identity, the change-specific
+   hash-chained journal, the immutable evidence fingerprint, and the latest
+   schema version. The deploy path never runs DDL/DML, creates a migration Job,
+   or queries PostgreSQL directly.
 4. **`kubectl apply -f /tmp/agentsmesh-release.yaml`** — after the audited
    database gate, re-apply every Deployment/ConfigMap/Ingress from git.
    Live hotfixes (`kubectl set env …`) are **overwritten** on the next deploy.

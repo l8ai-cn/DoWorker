@@ -4,7 +4,7 @@ Normal Oilan deploys do not run DDL/DML. Schema changes and seed changes must be
 applied first through an audited DoSql change, then `deploy.sh` receives:
 
 ```bash
-DOSQL_RELEASE_DB_TARGET=<target> \
+DOSQL_RELEASE_DB_TARGET=db_agentsmesh_prod_postgres \
 DOSQL_RELEASE_DB_MODE=production \
 DOSQL_RELEASE_DB_SESSION=<dosql-session> \
 DOSQL_RELEASE_CHANGE_ID=<change-id> \
@@ -14,20 +14,43 @@ DOOPS_TARGET=gw-oilan-node \
 ./deploy.sh
 ```
 
-The repository gate rejects caller-supplied evidence claims. It requires a
-fixed production query binding to read a DoSql append-only journal and evidence
-artifact, validate the verified lifecycle and artifact fingerprint, and prove
-the target, mode, session, change, operation, and migration version. That
-binding is not available yet, so Oilan deploys remain blocked.
+The repository gate rejects caller-supplied evidence claims. It accepts only a
+change-specific hash-chained journal and an immutable evidence artifact under
+`.dosql`, with matching target, environment, session, operation, release
+namespace, migration version, and artifact fingerprint.
 
-Before a future release evidence can be created, complete a separate DoSql task
-to register the canonical `gw-oilan-node` / `agentsmesh` PostgreSQL asset and
-its read-only Postgres-over-DoOps adapter. That task must only audit current
-state; mutation `000230 -> 000231` remains a user-confirmed DoSql change.
+The canonical asset was verified through `gw-oilan-node` on July 21, 2026:
 
-Production migration state `222 dirty=true` caused by the historical
-`video-studio` insert must be repaired only after the corrected Backend image is
-published and committed:
+- PostgreSQL `server_version_num=160014` (16.14);
+- database `agentsmesh`;
+- `schema_migrations` exists;
+- migration version `231`, `dirty=false` after the approved direct update.
+
+Corroborate the registration against Gateway events and target session audit
+logs without querying PostgreSQL:
+
+```bash
+node .agents/skills/dosql/scripts/oilan-postgres-registration-verify.mjs
+```
+
+This requires the canonical `~/.agent/skills/doops/config.json` target and a
+Gateway login with audit-read permission. Gateway and target audit records are
+corroborating evidence; they do not replace the release journal and evidence
+artifact consumed by `dosql_release_gate.sh`.
+
+The approved direct production update from `000225` through `000231` was
+executed on July 21, 2026. Its release evidence is:
+
+- change `chg-oilan-direct-schema-226-231-20260721`;
+- operation `dbop-oilan-direct-schema-226-231-20260721`;
+- session `oilan-db-direct-226-231-20260721`;
+- resulting migration `231`, `dirty=false`.
+
+The historical `222 dirty=true` state caused by the `video-studio` insert is not
+the current production state. Do not run its repair while the verified state is
+`231 dirty=false`. If a future read-only check again proves that exact dirty
+state, repair it only after the corrected Backend image is published and
+committed:
 
 ```bash
 MIGRATION_REPAIR_ACK=repair-dirty-222-video-studio \

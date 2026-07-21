@@ -17,6 +17,10 @@ vi.mock("@/components/workers/ImportCodexDialog", () => ({
   ImportCodexDialog: () => null,
 }));
 
+vi.mock("@/components/pod/CreatePodForm", () => ({
+  CreatePodForm: () => <div data-testid="simple-worker-create-form" />,
+}));
+
 vi.mock("@/components/resource-editor/ResourceDependencyEditor", () => ({
   ResourceDependencyEditor: () => <div data-testid="resource-editor-resources" />,
 }));
@@ -62,5 +66,12 @@ describe("CreateWorkerPageContent", () => {
     expect(screen.getByTestId("pill-tab-template"))
       .toHaveAttribute("aria-selected", "true");
     expect(screen.getByTestId("resource-editor-template")).toBeInTheDocument();
+  });
+
+  it("uses the simple Worker creation form by default", () => {
+    render(<CreateWorkerPageContent />);
+
+    expect(screen.getByTestId("simple-worker-create-form")).toBeInTheDocument();
+    expect(screen.queryByTestId("resource-editor-run")).not.toBeInTheDocument();
   });
 });

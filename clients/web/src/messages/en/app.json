@@ -318,13 +318,27 @@
   "workers": {
     "create": {
       "title": "Create Worker",
-      "subtitle": "Configure runtime, Worker type, workspace capabilities, and server preflight in one four-step workflow.",
+      "subtitle": "Describe the work, confirm the default runtime choices, and create a Worker without building a template first.",
       "stepsTitle": "Creation steps",
       "stepCluster": "Cluster & image — compute + AI runtime",
       "stepCapabilities": "Capabilities — knowledge bases & skills",
       "stepAgentFile": "Agent instructions — preview or edit AGENTS.md / AgentFile",
       "stepLaunch": "Task & duration — create and open workspace",
       "backToWorkspace": "Back to workspace",
+      "advancedSettings": "Advanced settings",
+      "quick": {
+        "title": "What should this Worker do?",
+        "subtitle": "Use the recommended runtime, model, and resource size. Open advanced settings only when you need to change them.",
+        "taskLabel": "Task",
+        "taskPlaceholder": "Review the auth middleware for permission gaps and summarize findings.",
+        "defaultsHint": "Recommended defaults are selected automatically from the organization runtime catalog.",
+        "loadingDefaults": "Loading recommended defaults…",
+        "defaultsNotReady": "Recommended defaults are not ready. Open advanced settings to see what is missing.",
+        "taskRequired": "Describe the task before creating a Worker.",
+        "preflightFailed": "Preflight found a blocking issue. Open advanced settings to review the details.",
+        "create": "Create Worker",
+        "creating": "Creating Worker…"
+      },
       "nl": {
         "title": "Fill the Worker draft with AI",
         "generationModel": "Draft generation model",

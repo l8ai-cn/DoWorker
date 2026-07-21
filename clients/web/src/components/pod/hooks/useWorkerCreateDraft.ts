@@ -14,7 +14,7 @@ import {
   workerCreateInitialDraft,
 } from "./workerCreateController";
 import { useWorkerCreateDependencies } from "./useWorkerCreateDependencies";
-import { defaultModelPatch, defaultWorkerDraftPatch } from "./workerCreateDefaults";
+import { useWorkerCreateDefaultDraft } from "./useWorkerCreateDefaultDraft";
 import { useWorkerCreateOptions } from "./useWorkerCreateOptions";
 import { useWorkerCreateSubmission } from "./useWorkerCreateSubmission";
 import { workerCreateValidity } from "./workerCreateValidity";
@@ -91,37 +91,16 @@ export function useWorkerCreateDraft(
     });
   }, [orgSlug, state.create.status, state.draft, state.fillPrompt, state.step]);
 
-  useEffect(() => {
-    if (options.status !== "ready") return;
-    const patch = defaultWorkerDraftPatch(
-      state.draft,
-      options.data,
-      params.initialWorkerTypeSlug,
-    );
-    if (Object.keys(patch).length > 0) {
-      dispatch({ type: "patch_draft", patch });
-    }
-  }, [options, params.initialWorkerTypeSlug, state.draft]);
-
-  useEffect(() => {
-    if (dependencies.modelResources.status !== "ready") return;
-    const patch = defaultModelPatch(
-      state.draft,
-      dependencies.modelResources.data,
-    );
-    if (Object.keys(patch).length > 0) {
-      dispatch({ type: "patch_draft", patch });
-    }
-  }, [dependencies.modelResources, state.draft]);
-
-  useEffect(() => {
-    const repositoryId = state.draft.repository_id;
-    if (!repositoryId || state.draft.branch) return;
-    const repository = params.repositories.find((item) => item.id === repositoryId);
-    if (repository) {
-      dispatch({ type: "patch_draft", patch: { branch: repository.default_branch } });
-    }
-  }, [params.repositories, state.draft.branch, state.draft.repository_id]);
+  useWorkerCreateDefaultDraft({
+    state,
+    dispatch,
+    options,
+    modelResources: dependencies.modelResources,
+    toolModelResources: dependencies.toolModelResources,
+    configBundles: dependencies.configBundles,
+    repositories: params.repositories,
+    preferredWorkerType: params.initialWorkerTypeSlug,
+  });
 
   useEffect(() => {
     if (!params.enabled) {

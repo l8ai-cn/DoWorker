@@ -14,10 +14,11 @@ import { sha256, stableJson } from "../Server/lib/oilan-postgres-doops-evidence.
 
 const CLI = new URL("./oilan-postgres-doops-readonly.mjs", import.meta.url).pathname;
 const INPUT = {
-  operationId: "dbop_oilan_probe_001",
+  operationId: "dbop-oilan-probe-001",
   session: "oilan-read-20260720-001",
   queryName: "asset-probe",
 };
+const TARGETING = "\u001b[93m[TARGETING]\u001b[0m Server: gw-oilan-node (https://doops.l8ai.cn -> doops-oilan/oilan-node), Use: doops-oilan/oilan-node via gateway";
 
 test("runs the fixed Oilan PostgreSQL probe through DoOps and writes redacted evidence", async () => {
   const auditRoot = await mkdtemp(join(tmpdir(), "dosql-oilan-readonly-"));
@@ -30,11 +31,11 @@ test("runs the fixed Oilan PostgreSQL probe through DoOps and writes redacted ev
       now: clock(),
       execute(value) {
         request = value;
-        return { status: 0, stdout: "postgres://hidden-password@postgres/agentsmesh\nprivate-row\n" };
+        return { status: 0, stdout: doopsOutput("agentsmesh|160014|t") };
       },
     });
 
-    assert.equal(request.command, "doops");
+    assert.match(request.command, /\/\.local\/bin\/doops$/);
     assert.deepEqual(request.args.slice(0, 6), [
       "-session",
       INPUT.session,
@@ -46,10 +47,21 @@ test("runs the fixed Oilan PostgreSQL probe through DoOps and writes redacted ev
     assert.match(request.args[6], /namespace=agentsmesh/);
     assert.match(request.args[6], /service=postgres/);
     assert.match(request.args[6], /secret=agentsmesh-secrets/);
+    assert.match(request.args[6], /default_transaction_read_only=on/);
+    assert.match(request.args[6], /statement_timeout=15000/);
     assert.equal(request.args[6].includes("postgresql://"), false);
-    assert.equal(JSON.stringify(evidence).includes("hidden-password"), false);
-    assert.equal(JSON.stringify(evidence).includes("private-row"), false);
     assert.equal(evidence.status, "verified");
+    assert.deepEqual(evidence.result, {
+      databaseName: "agentsmesh",
+      serverVersionNum: "160014",
+      schemaMigrationsPresent: true,
+    });
+    assert.deepEqual(evidence.doopsRoute, {
+      targetName: "gw-oilan-node",
+      gateway: "https://doops.l8ai.cn",
+      cluster: "doops-oilan",
+      instance: "oilan-node",
+    });
     assert.equal(verifyOilanPostgresReadOnlyEvidence(evidence), true);
 
     const stored = JSON.parse(await readFile(join(auditRoot, "readonly-evidence", `${INPUT.operationId}.json`), "utf8"));
@@ -132,12 +144,52 @@ test("evidence verifier rejects a fingerprint mismatch", async () => {
       auditRoot,
       registration: await loadOilanPostgresRegistration(),
       now: clock(),
-      execute: () => ({ status: 0, stdout: "version=231\ndirty=false\n" }),
+      execute: () => ({ status: 0, stdout: doopsOutput("agentsmesh|160014|t") }),
     });
     assert.throws(
       () => verifyOilanPostgresReadOnlyEvidence({ ...evidence, resultFingerprint: sha256("tampered") }),
-      /evidence fingerprint is invalid/,
+      /result fingerprint is invalid/,
     );
+  } finally {
+    await rm(auditRoot, { recursive: true, force: true });
+  }
+});
+
+test("rejects successful DoOps output that does not prove the fixed asset", async () => {
+  const auditRoot = await mkdtemp(join(tmpdir(), "dosql-oilan-readonly-"));
+  try {
+    await assert.rejects(
+      executeOilanPostgresReadOnly(INPUT, {
+        auditRoot,
+        registration: await loadOilanPostgresRegistration(),
+        execute: () => ({ status: 0, stdout: doopsOutput("otherdb|160014|t") }),
+      }),
+      /Oilan PostgreSQL read-only query failed/,
+    );
+    const evidence = JSON.parse(await readFile(join(auditRoot, "readonly-evidence", `${INPUT.operationId}.json`), "utf8"));
+    assert.equal(evidence.status, "failed");
+  } finally {
+    await rm(auditRoot, { recursive: true, force: true });
+  }
+});
+
+test("rejects reuse of an existing operation audit path", async () => {
+  const auditRoot = await mkdtemp(join(tmpdir(), "dosql-oilan-readonly-"));
+  try {
+    const options = {
+      auditRoot,
+      registration: await loadOilanPostgresRegistration(),
+      execute: () => ({ status: 0, stdout: doopsOutput("agentsmesh|160014|t") }),
+    };
+    await executeOilanPostgresReadOnly(INPUT, options);
+    await assert.rejects(
+      executeOilanPostgresReadOnly(INPUT, options),
+      /DoSql audit operation already exists/,
+    );
+    const events = (await readFile(join(auditRoot, "readonly-journal", `${INPUT.operationId}.jsonl`), "utf8"))
+      .trim()
+      .split("\n");
+    assert.equal(events.length, 4);
   } finally {
     await rm(auditRoot, { recursive: true, force: true });
   }
@@ -199,6 +251,10 @@ function assertHashChain(events) {
     assert.equal(event.eventHash, sha256(stableJson(payload)));
     previous = event.eventHash;
   }
+}
+
+function doopsOutput(row) {
+  return `${TARGETING}\n${row}\n`;
 }
 
 function clock() {

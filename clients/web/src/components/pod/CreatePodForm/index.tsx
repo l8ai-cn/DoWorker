@@ -8,6 +8,7 @@ import { useWorkerCreateDraft } from "../hooks";
 import { CreatePodFormFields } from "./CreatePodFormFields";
 import { mergeConfig } from "./presets";
 import type { CreatePodFormProps } from "./types";
+import { WorkerQuickCreate } from "./WorkerQuickCreate";
 
 export function CreatePodForm({
   config,
@@ -45,19 +46,27 @@ export function CreatePodForm({
 
   return (
     <div className={className}>
-      <NlWorkerCreate
-        prompt={controller.state.fillPrompt}
-        filling={controller.state.fill.status === "loading"}
-        onPromptChange={controller.setFillPrompt}
-        onFill={(prompt) => void controller.fillWithAI(prompt)}
-      />
-      <CreatePodFormFields
-        controller={controller}
-        initialWizardStep={mergedConfig.initialWizardStep}
-        promptPlaceholder={mergedConfig.promptPlaceholder}
-        onCancel={mergedConfig.onCancel}
-        t={t}
-      />
+      <WorkerQuickCreate controller={controller} t={t} />
+      <details className="mt-5 rounded-lg border border-border bg-background p-4">
+        <summary className="cursor-pointer text-sm font-medium">
+          {t("workers.create.advancedSettings")}
+        </summary>
+        <div className="mt-5">
+          <NlWorkerCreate
+            prompt={controller.state.fillPrompt}
+            filling={controller.state.fill.status === "loading"}
+            onPromptChange={controller.setFillPrompt}
+            onFill={(prompt) => void controller.fillWithAI(prompt)}
+          />
+          <CreatePodFormFields
+            controller={controller}
+            initialWizardStep={mergedConfig.initialWizardStep}
+            promptPlaceholder={mergedConfig.promptPlaceholder}
+            onCancel={mergedConfig.onCancel}
+            t={t}
+          />
+        </div>
+      </details>
     </div>
   );
 }

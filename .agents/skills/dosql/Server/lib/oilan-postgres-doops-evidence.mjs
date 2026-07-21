@@ -2,6 +2,11 @@ import { createHash } from "node:crypto";
 import { appendFile, chmod, lstat, mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 
+import {
+  assertOilanDoopsRoute,
+  assertOilanPostgresQueryResult,
+} from "./oilan-postgres-query-result.mjs";
+
 export async function prepareOilanPostgresAudit(auditRoot, operationId) {
   const root = resolve(auditRoot);
   await mkdir(root, { recursive: true, mode: 0o700 });
@@ -12,6 +17,17 @@ export async function prepareOilanPostgresAudit(auditRoot, operationId) {
   await chmod(root, 0o700);
   const journalPath = resolve(root, "readonly-journal", `${operationId}.jsonl`);
   const evidencePath = resolve(root, "readonly-evidence", `${operationId}.json`);
+  await mkdir(dirname(journalPath), { recursive: true, mode: 0o700 });
+  await mkdir(dirname(evidencePath), { recursive: true, mode: 0o700 });
+  await assertPathAbsent(evidencePath, operationId);
+  try {
+    await writeFile(journalPath, "", { encoding: "utf8", mode: 0o600, flag: "wx" });
+  } catch (error) {
+    if (error?.code === "EEXIST") {
+      throw new Error(`DoSql audit operation already exists: ${operationId}`);
+    }
+    throw error;
+  }
   return {
     journalPath,
     evidencePath,
@@ -30,12 +46,21 @@ export async function appendOilanPostgresAuditEvent(path, event) {
 }
 
 export async function writeOilanPostgresEvidence(path, evidence) {
-  await mkdir(dirname(path), { recursive: true, mode: 0o700 });
   await writeFile(path, `${JSON.stringify(evidence, null, 2)}\n`, {
     encoding: "utf8",
     mode: 0o600,
+    flag: "wx",
   });
   await chmod(path, 0o600);
+}
+
+async function assertPathAbsent(path, operationId) {
+  try {
+    await lstat(path);
+    throw new Error(`DoSql audit operation already exists: ${operationId}`);
+  } catch (error) {
+    if (error?.code !== "ENOENT") throw error;
+  }
 }
 
 export function verifyOilanPostgresReadOnlyEvidence(evidence) {
@@ -44,6 +69,13 @@ export function verifyOilanPostgresReadOnlyEvidence(evidence) {
   }
   if (!["verified", "failed"].includes(evidence.status)) {
     throw new Error("evidence status is invalid");
+  }
+  if (evidence.status === "verified") {
+    assertOilanDoopsRoute(evidence.doopsRoute);
+    assertOilanPostgresQueryResult(evidence.queryName, evidence.result);
+    if (evidence.resultFingerprint !== sha256(stableJson(evidence.result))) {
+      throw new Error("result fingerprint is invalid");
+    }
   }
   const claimed = requiredDigest(evidence.evidenceFingerprint, "evidenceFingerprint");
   const payload = { ...evidence };

@@ -37,7 +37,7 @@ if env \
   DOOPS_LOG="$LOG" \
   DOOPS_SESSION="ses-contract" \
   DOOPS_TARGET="contract-target" \
-  DOSQL_RELEASE_DB_TARGET="oilan-postgres" \
+  DOSQL_RELEASE_DB_TARGET="db_agentsmesh_prod_postgres" \
   DOSQL_RELEASE_DB_MODE="production" \
   DOSQL_RELEASE_DB_SESSION="dosql-contract" \
   DOSQL_RELEASE_MIGRATION_VERSION="$(find "$ROOT/../../../backend/migrations" -name '*.up.sql' -exec basename {} \; | awk -F_ '{ print $1 }' | sort -n | tail -1)" \

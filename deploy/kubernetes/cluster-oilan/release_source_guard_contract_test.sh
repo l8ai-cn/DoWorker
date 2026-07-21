@@ -15,6 +15,7 @@ git -C "${TMP}/repo" remote add origin "${TMP}/origin.git"
 mkdir -p "${TMP}/bin"
 export GH_RESPONSE_FILE="${TMP}/gh-response.json"
 gh() {
+  # shellcheck disable=SC1090
   source "${GH_RESPONSE_FILE:?}"
 }
 cat > "${GH_RESPONSE_FILE}" <<'JSON'
@@ -64,6 +65,8 @@ git -C "${TMP}/repo" push -u origin main >/dev/null
 # shellcheck source=release_source_guard.sh
 source "${ROOT}/release_source_guard.sh"
 release_require_pushed_clean_tree "${TMP}/repo"
+RELEASE_CI_WAIT_SECONDS=0 release_wait_for_ci_success \
+  "$(git -C "${TMP}/repo" rev-parse HEAD)"
 [[ "${RELEASE_SOURCE_COMMIT}" == "$(git -C "${TMP}/repo" rev-parse HEAD)" ]]
 mkdir -p "${TMP}/repo/deploy/kubernetes/cluster-oilan/release"
 {
@@ -151,11 +154,12 @@ fi
 git -C "${TMP}/repo" switch main >/dev/null
 cat > "${GH_RESPONSE_FILE}" <<'JSON'
 printf '%s\n' '[{
-  "total_count": 10,
+  "total_count": 11,
   "check_runs": [
     {"name":"Runtime release contracts","status":"completed","conclusion":"success"},
     {"name":"Loop and sandbox security regressions","status":"completed","conclusion":"success"},
     {"name":"Web-user artifact preview","status":"completed","conclusion":"success"},
+    {"name":"Deploy test environment","status":"in_progress","conclusion":null},
     {"name":"Deploy US West","status":"queued","conclusion":null},
     {"name":"Deploy US West Relay 01","status":"completed","conclusion":"failure"},
     {"name":"Deploy US West Relay Beijing 02","status":"completed","conclusion":"cancelled"},
@@ -181,6 +185,11 @@ printf '%s\n' '[{
 JSON
 if release_require_pushed_clean_tree "${TMP}/repo" 2>/dev/null; then
   echo "release with an unknown pending check was accepted" >&2
+  exit 1
+fi
+if RELEASE_CI_WAIT_SECONDS=0 \
+  release_wait_for_ci_success "$(git -C "${TMP}/repo" rev-parse HEAD)" 2>/dev/null; then
+  echo "release wait accepted an unknown pending check" >&2
   exit 1
 fi
 

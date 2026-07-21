@@ -76,7 +76,9 @@ function workspaceValid(
   );
   if (!type) return false;
   const expected = new Set(
-    type.config_document_requirements.map((requirement) => requirement.document_id),
+    type.config_document_requirements
+      .filter((requirement) => requirement.required)
+      .map((requirement) => requirement.document_id),
   );
   const seen = new Set<string>();
   for (const binding of draft.config_document_bindings) {

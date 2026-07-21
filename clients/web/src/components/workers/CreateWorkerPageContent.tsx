@@ -11,6 +11,7 @@ import {
 import { ArrowLeft, FileInput } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ImportCodexDialog } from "@/components/workers/ImportCodexDialog";
+import { CreatePodForm } from "@/components/pod/CreatePodForm";
 import { ResourceDependencyEditor } from "@/components/resource-editor/ResourceDependencyEditor";
 import { ResourceEditorShell } from "@/components/resource-editor/ResourceEditorShell";
 import { Button } from "@/components/ui/button";
@@ -106,13 +107,17 @@ export function CreateWorkerPageContent() {
                 router.push(`/${orgSlug}/workspace?pod=${encodeURIComponent(podKey)}`);
               }}
             />
-            <ResourceEditorShell
-              orgSlug={orgSlug}
-              kind="Worker"
-              onWorkerCreated={(podKey) => {
-                router.push(
-                  `/${orgSlug}/workspace?pod=${encodeURIComponent(podKey)}`,
-                );
+            <CreatePodForm
+              config={{
+                scenario: "workspace",
+                onSuccess: (pod) => {
+                  router.push(
+                    `/${orgSlug}/workspace?pod=${encodeURIComponent(pod.pod_key)}`,
+                  );
+                },
+                onCancel: () => {
+                  router.push(`/${orgSlug}/workspace`);
+                },
               }}
             />
           </>

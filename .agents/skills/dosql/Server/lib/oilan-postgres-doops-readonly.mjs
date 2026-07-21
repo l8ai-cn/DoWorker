@@ -1,4 +1,5 @@
 import { spawnSync } from "node:child_process";
+import { homedir } from "node:os";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -16,10 +17,12 @@ import {
   loadOilanPostgresRegistration,
   resolveOilanPostgresQuery,
 } from "./oilan-postgres-doops-registration.mjs";
+import { parseOilanPostgresDoopsResult } from "./oilan-postgres-query-result.mjs";
 
 const REPO_ROOT = resolve(fileURLToPath(new URL("../../../../..", import.meta.url)));
+const DOOPS_BIN = resolve(homedir(), ".local/bin/doops");
+const DOOPS_CONFIG = resolve(homedir(), ".agent/skills/doops/config.json");
 const ALLOWED_INPUT_FIELDS = new Set(["operationId", "session", "queryName"]);
-
 export async function executeOilanPostgresReadOnly(input, dependencies = {}) {
   rejectUnexpectedInput(input);
   const operationId = requiredIdentifier(input.operationId, "operationId");
@@ -49,7 +52,7 @@ export async function executeOilanPostgresReadOnly(input, dependencies = {}) {
 
   try {
     const result = await execute({
-      command: "doops",
+      command: DOOPS_BIN,
       args: [
         "-session",
         session,
@@ -63,11 +66,12 @@ export async function executeOilanPostgresReadOnly(input, dependencies = {}) {
     if (result?.error || result?.status !== 0) {
       throw new Error(`DoOps exited with status ${String(result?.status ?? "unavailable")}`);
     }
+    const parsed = parseOilanPostgresDoopsResult(query.name, result.stdout);
     const evidence = createEvidence({
       base,
       query,
       registration,
-      result: String(result.stdout ?? ""),
+      parsed,
       capturedAt: now().toISOString(),
       journalRef: paths.journalRef,
     });
@@ -138,7 +142,7 @@ function baseEvent({ operationId, session, query, registration }) {
   };
 }
 
-function createEvidence({ base, registration, result, capturedAt, journalRef }) {
+function createEvidence({ base, registration, parsed, capturedAt, journalRef }) {
   const payload = {
     schema: "dosql.oilan-postgres-readonly-evidence.v1",
     status: "verified",
@@ -146,7 +150,9 @@ function createEvidence({ base, registration, result, capturedAt, journalRef }) 
     journalRef,
     ...base,
     registrationStatus: registration.registrationStatus,
-    resultFingerprint: sha256(result),
+    doopsRoute: parsed.doopsRoute,
+    result: parsed.result,
+    resultFingerprint: sha256(stableJson(parsed.result)),
   };
   return { ...payload, evidenceFingerprint: sha256(stableJson(payload)) };
 }
@@ -164,12 +170,15 @@ function createFailedEvidence({ base, registration, capturedAt, journalRef }) {
 }
 
 function executeDoops(request) {
-  return spawnSync(request.command, request.args, { encoding: "utf8" });
+  return spawnSync(request.command, request.args, {
+    encoding: "utf8",
+    env: { ...process.env, DOOPS_CONFIG },
+  });
 }
 
 function requiredIdentifier(value, fieldName) {
   const text = requiredText(value, fieldName);
-  if (!/^[a-z][a-z0-9_-]{2,100}$/.test(text)) {
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(text) || text.length < 2 || text.length > 100) {
     throw new Error(`${fieldName} must be a safe identifier`);
   }
   return text;

@@ -82,6 +82,12 @@ allow-listed `queryName` `migration-version` for `query`. It invokes the fixed
 raw SQL, connection URIs, caller-supplied evidence paths, target overrides,
 and all mutation requests.
 
+`scripts/oilan-postgres-registration-verify.mjs` corroborates the tracked
+production registration against DoOps Gateway events and target session audit
+logs for both fixed read-only sessions. It reports `releaseAuthority=false`
+because Gateway does not retain an immutable full-command digest; local
+evidence and target logs are not accepted as release authority.
+
 ## Commands
 
 | Command | Status | Purpose |

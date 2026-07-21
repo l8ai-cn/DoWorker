@@ -25,6 +25,10 @@ require_dosql_database_evidence() {
   require_text_env DOSQL_RELEASE_DB_SESSION
   require_text_env DOSQL_RELEASE_CHANGE_ID
   require_text_env DOSQL_RELEASE_OPERATION_ID
+  if [[ "${DOSQL_RELEASE_DB_TARGET}" != "db_agentsmesh_prod_postgres" ]]; then
+    echo "DOSQL_RELEASE_DB_TARGET must equal db_agentsmesh_prod_postgres" >&2
+    return 1
+  fi
   if [[ -n "${DOSQL_RELEASE_MIGRATION_VERSION:-}" &&
       "${DOSQL_RELEASE_MIGRATION_VERSION}" != "${expected_version}" ]]; then
     echo "DOSQL_RELEASE_MIGRATION_VERSION must equal latest backend migration ${expected_version}" >&2
@@ -38,6 +42,6 @@ require_dosql_database_evidence() {
     --operation-id "${DOSQL_RELEASE_OPERATION_ID}" \
     --expected-version "${expected_version}" \
     --canonical-root "${audit_root}" \
-    --journal "${audit_root}/journal.jsonl" \
+    --journal "${audit_root}/changes/${DOSQL_RELEASE_CHANGE_ID}/journal.jsonl" \
     --evidence "${audit_root}/evidence/${DOSQL_RELEASE_OPERATION_ID}.json"
 }

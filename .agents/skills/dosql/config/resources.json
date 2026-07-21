@@ -1,7 +1,7 @@
 {
   "schema": "dosuite.skill-resources.v1",
   "product": "DoSql",
-  "updatedAt": "2026-07-12",
+  "updatedAt": "2026-07-21",
   "projectId": "agentsmesh",
   "publicConsole": "https://dosql.l8ai.cn",
   "credentialPolicy": "No plaintext database credentials are stored here. Resolve connections only through the selected doops target, Kubernetes secretRef, and DoSql approval policy before execution.",
@@ -35,7 +35,7 @@
       "connectionRef": "k8s://doops-oilan/oilan-node/agentsmesh/service/postgres:5432#db=agentsmesh",
       "secretRef": "secret://agentsmesh/agentsmesh-secrets#DB_PASSWORD",
       "owner": "agentsmesh-platform",
-      "status": "registered-offline-target",
+      "status": "verified-read-only",
       "risk": "production",
       "tags": [
         "agentsmesh",
@@ -51,9 +51,41 @@
         "dowork pg",
         "线上 pg"
       ],
-      "note": "Registered from the production K8S manifests. The doops target was offline when this asset was initialized; verify connectivity before read or mutation.",
+      "note": "Verified through the fixed PostgreSQL-over-DoOps read-only adapter on 2026-07-21. Production mutation still requires a separate approved DoSql change.",
       "registeredAssetId": "db_agentsmesh_prod_postgres",
-      "displayName": "AgentsMesh Production PostgreSQL"
+      "displayName": "AgentsMesh Production PostgreSQL",
+      "serverVersionNum": "160014",
+      "registration": {
+        "status": "verified-read-only",
+        "verifiedAt": "2026-07-21T05:37:12.712Z",
+        "operationId": "dbop-oilan-asset-verify-20260721-0540",
+        "session": "agentsmesh-pg-asset-verify-20260721-0540",
+        "evidenceRef": ".dosql/readonly-evidence/dbop-oilan-asset-verify-20260721-0540.json",
+        "evidenceFingerprint": "sha256:fd68654b81eea51146ea8cac7efa17ec5467dbed290508053717f50518a56ab5",
+        "gatewayAudit": {
+          "eventId": 423834,
+          "cluster": "doops-oilan",
+          "instance": "oilan-node",
+          "startedAt": "2026-07-21T05:37:12Z",
+          "endedAt": "2026-07-21T05:37:12Z"
+        }
+      },
+      "migrationState": {
+        "version": 231,
+        "dirty": false,
+        "verifiedAt": "2026-07-21T12:47:40.613Z",
+        "operationId": "dbop-oilan-migration-read-231-20260721",
+        "session": "agentsmesh-pg-migration-read-231-20260721",
+        "evidenceRef": ".dosql/readonly-evidence/dbop-oilan-migration-read-231-20260721.json",
+        "evidenceFingerprint": "sha256:5b2579c87002f01be84a2ba3bd0440ed3c0c9e439290fd30d1f0142a8f56d0fe",
+        "gatewayAudit": {
+          "eventId": 425009,
+          "cluster": "doops-oilan",
+          "instance": "oilan-node",
+          "startedAt": "2026-07-21T12:47:39Z",
+          "endedAt": "2026-07-21T12:47:40Z"
+        }
+      }
     }
   ],
   "executionPolicy": {

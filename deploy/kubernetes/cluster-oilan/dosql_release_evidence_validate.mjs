@@ -12,6 +12,7 @@ const expected = {
   operationId: required(args.operationId, "operation-id"),
   version: Number(required(args.expectedVersion, "expected-version")),
 };
+requireEqual(expected.target, "db_agentsmesh_prod_postgres", "target");
 
 const sources = resolveAuditSources(args);
 const journal = readJournal(sources.journal);

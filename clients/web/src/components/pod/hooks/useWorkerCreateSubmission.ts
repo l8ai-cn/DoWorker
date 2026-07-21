@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import type { Dispatch } from "react";
 import type { PodData } from "@/lib/api";
+import type { WorkerPreflightResult } from "@/lib/api/facade/podConnect";
 import { podApi } from "@/lib/api";
 import { estimateWorkspaceTerminalSize } from "@/lib/terminal-size";
 import {
@@ -22,7 +23,7 @@ interface WorkerCreateSubmissionParams {
 
 export function useWorkerCreateSubmission(
   params: WorkerCreateSubmissionParams,
-): () => Promise<PodData | null> {
+): (checkedOverride?: WorkerPreflightResult) => Promise<PodData | null> {
   const createInFlightRef = useRef(false);
   const createCompletedRef = useRef(false);
 
@@ -35,10 +36,10 @@ export function useWorkerCreateSubmission(
     }
   }, [params.state.create.status]);
 
-  return useCallback(async () => {
-    const checked = params.state.preflight.status === "ready"
+  return useCallback(async (checkedOverride?: WorkerPreflightResult) => {
+    const checked = checkedOverride ?? (params.state.preflight.status === "ready"
       ? params.state.preflight.data
-      : null;
+      : null);
     if (
       createInFlightRef.current ||
       createCompletedRef.current ||

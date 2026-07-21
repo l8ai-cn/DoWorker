@@ -18,7 +18,7 @@ create_fixture() {
   node "$ROOT/dosql_release_gate_fixture.mjs" \
     --root "$fixture_root" \
     --case "$fixture_case" \
-    --target oilan-postgres \
+    --target db_agentsmesh_prod_postgres \
     --mode production \
     --session dosql-contract \
     --change-id change-contract \
@@ -31,7 +31,7 @@ run_verifier() {
   local fixture_root="$1"
   DOSQL_RELEASE_GATE_TEST_MODE=1 \
   node "$ROOT/dosql_release_evidence_validate.mjs" \
-    --target oilan-postgres \
+    --target db_agentsmesh_prod_postgres \
     --mode production \
     --session dosql-contract \
     --change-id change-contract \
@@ -41,7 +41,7 @@ run_verifier() {
     --test-evidence "$fixture_root/evidence.json"
 }
 
-if DOSQL_RELEASE_DB_TARGET=oilan-postgres \
+if DOSQL_RELEASE_DB_TARGET=db_agentsmesh_prod_postgres \
   DOSQL_RELEASE_DB_MODE=production \
   DOSQL_RELEASE_DB_SESSION=dosql-contract \
   DOSQL_RELEASE_CHANGE_ID=change-contract \
@@ -65,3 +65,8 @@ for fixture_case in target-mismatch mode-mismatch session-mismatch change-mismat
     exit 1
   fi
 done
+
+# shellcheck disable=SC2016
+grep -Fq \
+  'changes/${DOSQL_RELEASE_CHANGE_ID}/journal.jsonl' \
+  "$ROOT/dosql_release_gate.sh"

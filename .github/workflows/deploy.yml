@@ -7,6 +7,15 @@ on:
   push:
     branches: [main]
 
+permissions:
+  actions: read
+  checks: read
+  contents: read
+
+concurrency:
+  group: deploy-test-environment
+  cancel-in-progress: false
+
 env:
   DOOPS_TARGET: gw-oilan-node
 
@@ -21,20 +30,13 @@ jobs:
       - uses: dorny/paths-filter@v4
         id: filter
         with:
+          predicate-quantifier: every
           filters: |
             deploy:
-              - 'backend/**'
-              - 'marketplace/**'
-              - 'relay/**'
-              - 'clients/web/**'
-              - 'clients/web-admin/**'
-              - 'clients/marketplace-web/**'
-              - 'clients/mobile-lovable/**'
-              - 'clients/core/**'
-              - 'packages/**'
-              - 'docker/agent-runtime/**'
               - 'deploy/kubernetes/cluster-oilan/**'
-              - '.github/workflows/deploy.yml'
+              - '!**/*_test.sh'
+              - '!**/*_test.mjs'
+              - '!**/*.md'
   deploy-test:
     name: Deploy test environment
     needs: changes
@@ -42,9 +44,14 @@ jobs:
     runs-on: [self-hosted, deploy]
     env:
       DOOPS_SESSION: deploy-test-${{ github.run_id }}
+      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v7
-      - name: Publish platform images
-        run: bash deploy/kubernetes/cluster-oilan/push-images.sh platform
+        with:
+          fetch-depth: 0
+      - name: Wait for release checks
+        run: |
+          source deploy/kubernetes/cluster-oilan/release_ci_gate.sh
+          release_wait_for_ci_success "${GITHUB_SHA}"
       - name: Reconcile test environment
         run: bash deploy/kubernetes/cluster-oilan/deploy.sh

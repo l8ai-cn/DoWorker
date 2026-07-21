@@ -37,7 +37,7 @@ export interface WorkerCreateController {
   fillWithAI: (prompt: string) => Promise<void>;
   goToStep: (step: WorkerCreateStepId) => Promise<void>;
   runPreflight: () => Promise<WorkerPreflightResult | null>;
-  createWorker: () => Promise<PodData | null>;
+  createWorker: (checkedOverride?: WorkerPreflightResult) => Promise<PodData | null>;
   reset: () => void;
 }
 
