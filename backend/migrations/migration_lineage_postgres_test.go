@@ -46,12 +46,13 @@ func TestMigrationLineageUpgradePostgres(t *testing.T) {
 		requireCurrentMigrationContract(t, dsn, false)
 	})
 
-	t.Run("current clean 000229 forward repair is retained across down up", func(t *testing.T) {
+	t.Run("current clean pre-latest forward repair is retained across down up", func(t *testing.T) {
 		dsn := newMigrationLineageSchema(t)
+		checkpoint := uint(latestMigrationVersion - 3)
 		before := newPostgresMigrator(t, FS, dsn)
-		require.NoError(t, before.Migrate(229))
+		require.NoError(t, before.Migrate(checkpoint))
 		closePostgresMigrator(t, before)
-		requireMigrationVersion(t, dsn, 229, false)
+		requireMigrationVersion(t, dsn, int(checkpoint), false)
 		breakPost229ResourceContract(t, dsn)
 
 		after := newPostgresMigrator(t, FS, dsn)
@@ -60,9 +61,9 @@ func TestMigrationLineageUpgradePostgres(t *testing.T) {
 		requireCurrentMigrationContract(t, dsn, false)
 
 		rollback := newPostgresMigrator(t, FS, dsn)
-		require.NoError(t, rollback.Steps(-3))
+		require.NoError(t, rollback.Migrate(checkpoint))
 		closePostgresMigrator(t, rollback)
-		requireMigrationVersion(t, dsn, 229, false)
+		requireMigrationVersion(t, dsn, int(checkpoint), false)
 
 		reapply := newPostgresMigrator(t, FS, dsn)
 		require.NoError(t, reapply.Up())
