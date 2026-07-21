@@ -176,11 +176,6 @@ mod bootstrap_tests {
         }
         assert!(storage.get(&key).is_none());
     }
-            other => panic!("expected cleanup, got {other:?}"),
-        }
-        assert!(storage.get("agentcloud-auth").is_none());
-    }
-
     #[tokio::test]
     async fn expired_token_refreshes_and_continues() {
         let server = MockServer::start().await;
