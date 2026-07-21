@@ -134,5 +134,4 @@ export function clearLightSession(baseUrl?: string): void {
   if (typeof window === "undefined") return;
   const url = baseUrl ?? resolveLightBaseUrl();
   window.localStorage.removeItem(sessionStorageKey(url));
-  window.localStorage.removeItem(legacySessionStorageKey(url));
 }

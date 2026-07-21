@@ -60,7 +60,7 @@ func TestMigrationLineageUpgradePostgres(t *testing.T) {
 		requireCurrentMigrationContract(t, dsn, false)
 
 		rollback := newPostgresMigrator(t, FS, dsn)
-		require.NoError(t, rollback.Steps(-2))
+		require.NoError(t, rollback.Steps(-3))
 		closePostgresMigrator(t, rollback)
 		requireMigrationVersion(t, dsn, 229, false)
 
