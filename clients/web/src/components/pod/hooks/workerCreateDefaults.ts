@@ -14,7 +14,7 @@ export function defaultWorkerDraftPatch(
   const patch: Partial<WorkerSpecDraft> = {};
   const workerType = selectedOrFirst(
     options.worker_types,
-    draft.worker_type_slug || preferredWorkerType || "",
+    draft.worker_type_slug || preferredWorkerType || "codex-cli",
     (option) => option.slug,
   );
   if (workerType) {

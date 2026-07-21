@@ -1,11 +1,32 @@
 import { describe, expect, it } from "vitest";
 import {
+  defaultWorkerDraftPatch,
   defaultConfigDocumentPatch,
   defaultToolModelPatch,
 } from "../workerCreateDefaults";
 import { completeDraft, createOptions } from "../../CreatePodForm/__tests__/test-utils";
 
 describe("workerCreateDefaults", () => {
+  it("prefers Codex for the zero-configuration quick create default", () => {
+    const draft = completeDraft();
+    draft.worker_type_slug = "";
+    const options = createOptions();
+    options.worker_types = [
+      {
+        ...options.worker_types[0],
+        slug: "pattern-designer",
+        name: "Pattern Designer",
+      },
+      {
+        ...options.worker_types[0],
+        slug: "codex-cli",
+        name: "OpenAI Codex",
+      },
+    ];
+
+    expect(defaultWorkerDraftPatch(draft, options).worker_type_slug).toBe("codex-cli");
+  });
+
   it("selects a compatible tool model for required tool roles", () => {
     const draft = completeDraft();
     const options = createOptions();
