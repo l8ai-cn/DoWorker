@@ -6,6 +6,11 @@ name: Deploy test environment
 on:
   push:
     branches: [main]
+    paths:
+      - 'deploy/kubernetes/cluster-oilan/**'
+      - '!deploy/kubernetes/cluster-oilan/**/*_test.sh'
+      - '!deploy/kubernetes/cluster-oilan/**/*_test.mjs'
+      - '!deploy/kubernetes/cluster-oilan/**/*.md'
 
 permissions:
   actions: read
@@ -20,27 +25,8 @@ env:
   DOOPS_TARGET: gw-oilan-node
 
 jobs:
-  changes:
-    name: Detect Changes
-    runs-on: ubuntu-latest
-    outputs:
-      deploy: ${{ steps.filter.outputs.deploy }}
-    steps:
-      - uses: actions/checkout@v7
-      - uses: dorny/paths-filter@v4
-        id: filter
-        with:
-          predicate-quantifier: every
-          filters: |
-            deploy:
-              - 'deploy/kubernetes/cluster-oilan/**'
-              - '!**/*_test.sh'
-              - '!**/*_test.mjs'
-              - '!**/*.md'
   deploy-test:
     name: Deploy test environment
-    needs: changes
-    if: needs.changes.outputs.deploy == 'true'
     runs-on: [self-hosted, deploy]
     env:
       DOOPS_SESSION: deploy-test-${{ github.run_id }}

@@ -215,3 +215,27 @@ probe_command="$(grep -F 'https://release-preview-probe.l8ai.cn/preview/release-
 ! grep -Fq -- '--insecure' <<<"$probe_command"
 grep -F 'release_require_pushed_clean_tree' "$ROOT/deploy.sh" >/dev/null
 grep -F 'clean -session ses-contract' "$LOG" >/dev/null
+
+WORKFLOW="$ROOT/../../../.github/workflows/deploy.yml"
+grep -Fq "runs-on: [self-hosted, deploy]" "$WORKFLOW"
+grep -Fq "checks: read" "$WORKFLOW"
+grep -Fq "GH_TOKEN: \${{ github.token }}" "$WORKFLOW"
+grep -Fq "fetch-depth: 0" "$WORKFLOW"
+grep -Fq "release_wait_for_ci_success \"\${GITHUB_SHA}\"" "$WORKFLOW"
+grep -Fq "bash deploy/kubernetes/cluster-oilan/deploy.sh" "$WORKFLOW"
+grep -Fq "'deploy/kubernetes/cluster-oilan/**'" "$WORKFLOW"
+grep -Fq "'!deploy/kubernetes/cluster-oilan/**/*_test.sh'" "$WORKFLOW"
+grep -Fq "'!deploy/kubernetes/cluster-oilan/**/*_test.mjs'" "$WORKFLOW"
+grep -Fq "'!deploy/kubernetes/cluster-oilan/**/*.md'" "$WORKFLOW"
+
+reject_workflow_text() {
+  if grep -Fq "$1" "$WORKFLOW"; then
+    printf 'deploy workflow contains obsolete text: %s\n' "$1" >&2
+    exit 1
+  fi
+}
+
+reject_workflow_text "dorny/paths-filter"
+reject_workflow_text "push-images.sh"
+reject_workflow_text "name: Detect Changes"
+reject_workflow_text "needs: changes"

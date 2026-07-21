@@ -18,7 +18,6 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - run: bash deploy/kubernetes/cluster-oilan/deploy_contract_test.sh
-      - run: bash deploy/kubernetes/cluster-oilan/deploy_workflow_contract_test.sh
       - run: bash deploy/kubernetes/cluster-oilan/internal_gitea_deploy_contract_test.sh
       - run: bash deploy/kubernetes/cluster-oilan/release_gitea_provenance_contract_test.sh
       - run: bash deploy/kubernetes/cluster-oilan/deploy-mobile-access-contract_test.sh
