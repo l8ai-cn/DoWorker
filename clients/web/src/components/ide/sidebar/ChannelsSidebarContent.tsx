@@ -3,11 +3,10 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
-import { useCurrentOrg, useAuthStore } from "@/stores/auth";
+import { useCurrentOrg } from "@/stores/auth";
 import {
   useChannelStore,
   useChannels,
-  useChannelMessageStore,
   useUnreadCounts,
   getLastMessage,
   type Channel,
@@ -76,18 +75,14 @@ export function ChannelsSidebarContent({ className }: ChannelsSidebarContentProp
   const _tick = useChannelStore((s) => s._tick);
 
   const unreadCounts = useUnreadCounts();
-  const fetchUnreadCounts = useChannelMessageStore((s) => s.fetchUnreadCounts);
 
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     if (!currentOrg) return;
-    const controller = new AbortController();
     fetchChannels({ includeArchived: true });
-    void fetchUnreadCounts(controller.signal);
-    return () => controller.abort();
-  }, [currentOrg, fetchChannels, fetchUnreadCounts]);
+  }, [currentOrg, fetchChannels]);
 
   const visible = useMemo(() => {
     return channels.filter((channel) => {

@@ -9,7 +9,9 @@ test.describe("Worker resource editor", () => {
     const editor = page.getByTestId("resource-editor");
     await expect(editor).toBeVisible();
     await expect(editor.getByLabel(/Resource name|资源名称/i)).toBeVisible();
-    await expect(editor.getByLabel(/Worker template|Worker 模板/i).first()).toBeVisible();
+    await expect(editor.getByRole("combobox", {
+      name: /Model binding|模型绑定/i,
+    })).toBeVisible();
 
     const createButton = editor.getByRole("button", {
       name: /^(Create Worker|创建 Worker)$/i,
