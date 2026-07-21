@@ -57,7 +57,7 @@ describe("mobile auth store", () => {
   });
 
   it("uses the Rust URL slug rules for API URLs with paths and trailing slashes", () => {
-    expect(mobileAuthUrlSlug("https://API.Agent Cloud.AI/api/")).toBe("https_api_agentcloud_ai");
+    expect(mobileAuthUrlSlug("https://API.agentcloud.AI/api/")).toBe("https_api_agentcloud_ai");
     expect(mobileAuthUrlSlug("http://localhost:10015/")).toBe("http_localhost_10015");
   });
 

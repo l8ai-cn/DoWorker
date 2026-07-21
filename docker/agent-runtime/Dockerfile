@@ -173,7 +173,6 @@ RUN groupmod -n runner node \
     && echo 'runner ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/runner
 
 COPY --chmod=0755 runner-binary /usr/local/bin/agent-cloud-runner
-RUN ln -sf agent-cloud-runner /usr/local/bin/do-worker-runner     && ln -sf agent-cloud-runner /usr/local/bin/agentsmesh-runner     && ln -sf agent-cloud-runner /usr/local/bin/agentcloud-runner
 COPY --chmod=0755 binaries/ /usr/local/lib/agent-cloud/
 COPY --chmod=0755 runner-entrypoint.sh /usr/local/bin/runner-entrypoint.sh
 COPY --chmod=0755 runner-ssh-bootstrap.sh /usr/local/lib/runner-ssh-bootstrap.sh

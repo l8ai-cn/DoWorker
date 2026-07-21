@@ -296,7 +296,7 @@ mod auth_api_error_tests {
     #[test]
     fn url_slug_normalizes_host() {
         use crate::state::url_slug;
-        assert_eq!(url_slug("https://API.Agent Cloud.AI"), "https_api_agentcloud_ai");
+        assert_eq!(url_slug("https://API.agentcloud.AI"), "https_api_agentcloud_ai");
         assert_eq!(
             url_slug("https://agentcloud.ai/"),
             url_slug("https://agentcloud.ai")

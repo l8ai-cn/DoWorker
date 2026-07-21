@@ -96,7 +96,7 @@ func Load() (*Config, error) {
 			PublicKeyFile:   getEnv("ACCESS_TOKEN_PUBLIC_KEY_FILE", ""),
 			KeyID:           getEnv("ACCESS_TOKEN_KEY_ID", ""),
 			Issuer:          getEnv("ACCESS_TOKEN_ISSUER", "agentcloud"),
-			Audiences:       getEnvList("ACCESS_TOKEN_AUDIENCES", []string{"agentcloud-api", "agentsmesh-api", "marketplace-api"}),
+			Audiences:       getEnvList("ACCESS_TOKEN_AUDIENCES", []string{"agentcloud-api", "marketplace-api"}),
 			CoreAudience:    getEnv("ACCESS_TOKEN_CORE_AUDIENCE", "agentcloud-api"),
 			ExpirationHours: getEnvInt("ACCESS_TOKEN_EXPIRATION_HOURS", 24),
 		},

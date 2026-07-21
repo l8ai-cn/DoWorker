@@ -176,17 +176,6 @@ mod bootstrap_tests {
         }
         assert!(storage.get(&key).is_none());
     }
-
-    #[tokio::test]
-    async fn legacy_key_alone_is_purged() {
-        let storage = InMemoryStorage::new();
-        storage.set("agentcloud-auth", r#"{"token":"old"}"#);
-        let manager = AuthManager::new("http://localhost".into(), storage.clone());
-
-        match manager.bootstrap().await {
-            BootstrapResult::AnonymousAfterCleanup { reason } => {
-                assert_eq!(reason, BootstrapCleanupReason::LegacyDataPurged);
-            }
             other => panic!("expected cleanup, got {other:?}"),
         }
         assert!(storage.get("agentcloud-auth").is_none());

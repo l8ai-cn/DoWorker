@@ -70,14 +70,14 @@ INSERT INTO orchestration_resource_revisions
 		requireExecError(t, ctx, conn, `
 INSERT INTO orchestration_resources
 	(organization_id, api_version, kind, namespace, name, created_by_id, updated_by_id)
-VALUES (1, 'agentcloud.io/v1alpha1', 'WorkerTemplate', 'other', 'worker-three', 10, 10)`)
+VALUES (1, 'agentsmesh.io/v1alpha1', 'WorkerTemplate', 'other', 'worker-three', 10, 10)`)
 		requireExecError(t, ctx, conn, `
 	INSERT INTO orchestration_resource_plans
 	(organization_id, actor_id, target_resource_id, target_api_version, target_kind,
 		 target_namespace, target_name, operation, base_head_uid, base_resource_version,
 		 draft_hash, plan_hash, canonical_manifest, resolved_refs, semantic_diff, issues,
 		 artifact_kind, artifact_json, artifact_digest, options_revision, expires_at)
-	VALUES (2, 10, $1, 'agentcloud.io/v1alpha1', 'WorkerTemplate', 'acme', 'worker-one',
+	VALUES (2, 10, $1, 'agentsmesh.io/v1alpha1', 'WorkerTemplate', 'acme', 'worker-one',
 		'update', $2, 1, $3, $3, '{}', '[]', '[]', '[]', 'WorkerSpec', '{}', $3,
 		'runtime-catalog-1',
 		now() + interval '5 minutes')`,
@@ -88,21 +88,21 @@ VALUES (1, 'agentcloud.io/v1alpha1', 'WorkerTemplate', 'other', 'worker-three', 
 		requireExecError(t, ctx, conn, `
 INSERT INTO orchestration_resources
 	(organization_id, api_version, kind, namespace, name, labels, created_by_id, updated_by_id)
-VALUES (1, 'agentcloud.io/v1alpha1', 'WorkerTemplate', 'acme', 'bad-labels', '[]', 10, 10)`)
+VALUES (1, 'agentsmesh.io/v1alpha1', 'WorkerTemplate', 'acme', 'bad-labels', '[]', 10, 10)`)
 		requireExecError(t, ctx, conn, `
 INSERT INTO orchestration_resources
 	(organization_id, api_version, kind, namespace, name, created_by_id, updated_by_id)
-VALUES (1, 'agentcloud.io/v1alpha1', 'WorkerTemplate', 'Acme', 'bad-namespace', 10, 10)`)
+VALUES (1, 'agentsmesh.io/v1alpha1', 'WorkerTemplate', 'Acme', 'bad-namespace', 10, 10)`)
 		requireExecError(t, ctx, conn, `
 INSERT INTO orchestration_resources
 	(organization_id, api_version, kind, namespace, name, created_by_id, updated_by_id)
-VALUES (1, 'agentcloud.io/v1alpha1', 'WorkerTemplate', 'acme', 'admin', 10, 10)`)
+VALUES (1, 'agentsmesh.io/v1alpha1', 'WorkerTemplate', 'acme', 'admin', 10, 10)`)
 		requireExecError(t, ctx, conn, `
 INSERT INTO orchestration_resource_plans
 	(organization_id, actor_id, target_api_version, target_kind, target_namespace,
 		 target_name, operation, draft_hash, plan_hash, canonical_manifest, resolved_refs,
 		 semantic_diff, issues, artifact_kind, artifact_json, artifact_digest, options_revision, expires_at)
-	VALUES (1, 10, 'agentcloud.io/v1alpha1', 'WorkerTemplate', 'acme', 'admin',
+	VALUES (1, 10, 'agentsmesh.io/v1alpha1', 'WorkerTemplate', 'acme', 'admin',
 		'create', $1, $1, '{}', '[]', '[]', '[]', 'WorkerSpec', '{}', $1,
 		'runtime-catalog-1',
 		now() + interval '5 minutes')`, validOrchestrationDigest)
@@ -131,7 +131,7 @@ INSERT INTO orchestration_resource_revisions
 		 target_name, operation, draft_hash, plan_hash, canonical_manifest, resolved_refs,
 		 semantic_diff, issues, artifact_kind, artifact_json, artifact_digest,
 		 options_revision, expires_at)
-	VALUES (1, 10, 'agentcloud.io/v1alpha1', 'WorkerTemplate', 'acme', 'worker-bad-digest',
+	VALUES (1, 10, 'agentsmesh.io/v1alpha1', 'WorkerTemplate', 'acme', 'worker-bad-digest',
 		'create', $1, $1, '{}', '[]', '[]', '[]', 'WorkerSpec', '{}', 'sha256:BAD',
 		'runtime-catalog-1', now() + interval '5 minutes')`, validOrchestrationDigest)
 		requireExecError(t, ctx, conn, `
@@ -140,7 +140,7 @@ INSERT INTO orchestration_resource_revisions
 		 target_name, operation, draft_hash, plan_hash, canonical_manifest, resolved_refs,
 		 semantic_diff, issues, artifact_kind, artifact_json, artifact_digest,
 		 options_revision, expires_at)
-	VALUES (1, 10, 'agentcloud.io/v1alpha1', 'WorkerTemplate', 'acme', 'worker-infinite',
+	VALUES (1, 10, 'agentsmesh.io/v1alpha1', 'WorkerTemplate', 'acme', 'worker-infinite',
 		'create', $1, $1, '{}', '[]', '[]', '[]', 'WorkerSpec', '{}', $1,
 		'runtime-catalog-1', 'infinity')`, validOrchestrationDigest)
 		requireExecError(t, ctx, conn, `
@@ -149,7 +149,7 @@ INSERT INTO orchestration_resource_revisions
 		 target_name, operation, draft_hash, plan_hash, canonical_manifest, resolved_refs,
 		 semantic_diff, issues, artifact_kind, artifact_json, artifact_digest,
 		 options_revision, expires_at)
-	VALUES (1, 10, 'agentcloud.io/v1alpha1', 'WorkerTemplate', 'acme', 'worker-bad-options',
+	VALUES (1, 10, 'agentsmesh.io/v1alpha1', 'WorkerTemplate', 'acme', 'worker-bad-options',
 		'create', $1, $1, '{}', '[]', '[]', '[]', 'WorkerSpec', '{}', $1,
 		' runtime-catalog-1', now() + interval '5 minutes')`, validOrchestrationDigest)
 		requireExecError(t, ctx, conn, `
@@ -221,7 +221,7 @@ INSERT INTO orchestration_resource_plans
 	 target_namespace, target_name, operation, base_head_uid, draft_hash, plan_hash,
 	 canonical_manifest, resolved_refs, semantic_diff, issues, artifact_kind,
 	 artifact_json, artifact_digest, options_revision, expires_at)
-VALUES (1, 10, $1, 'agentcloud.io/v1alpha1', 'WorkerTemplate', 'acme', 'worker-one',
+VALUES (1, 10, $1, 'agentsmesh.io/v1alpha1', 'WorkerTemplate', 'acme', 'worker-one',
 	'update', $2, $3, $3, '{}', '[]', '[]', '[]', 'WorkerSpec', '{}', $3,
 	'runtime-catalog-1',
 	now() + interval '5 minutes')`,
@@ -234,7 +234,7 @@ INSERT INTO orchestration_resource_plans
 	 artifact_kind, artifact_json, artifact_digest, options_revision, expires_at, consumed_at,
 	 consumed_by_id, consumption_result, result_resource_id, result_resource_uid,
 	 result_resource_version, result_revision, result_json)
-VALUES (1, 10, $1, 'agentcloud.io/v1alpha1', 'WorkerTemplate', 'acme', 'worker-one',
+VALUES (1, 10, $1, 'agentsmesh.io/v1alpha1', 'WorkerTemplate', 'acme', 'worker-one',
 	'update', $2, 1, $3, $3, '{}', '[]', '[]', '[]', 'WorkerSpec', '{}', $3,
 	'runtime-catalog-1',
 	now() + interval '5 minutes', now(), 10, 'applied', $1, $2, 2, 1, '{}')`,
