@@ -22,7 +22,7 @@
     "noUncheckedSideEffectImports": true,
     "paths": {
       "@/*": ["./src/*"],
-      "@do-worker/proto/*": ["../../proto/gen/ts/*"]
+      "@agent-cloud/proto/*": ["../../proto/gen/ts/*"]
     }
   }
 }

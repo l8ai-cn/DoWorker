@@ -1,6 +1,6 @@
 package coordinator
 
-import "github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+import "github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 
 func (p *Project) ValidateIdentifiers() error {
 	if err := slugkit.ValidateIdentifier("coordinator_projects.slug", p.Slug); err != nil {

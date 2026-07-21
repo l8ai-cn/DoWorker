@@ -7,10 +7,10 @@ import (
 
 	"github.com/thejerf/suture/v4"
 
-	"github.com/anthropics/agentsmesh/runner/internal/autopilot"
-	"github.com/anthropics/agentsmesh/runner/internal/lifecycle"
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
-	"github.com/anthropics/agentsmesh/runner/internal/terminal"
+	"github.com/l8ai-cn/agentcloud/runner/internal/autopilot"
+	"github.com/l8ai-cn/agentcloud/runner/internal/lifecycle"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/terminal"
 )
 
 // AddService registers an additional suture.Service to be managed by the Supervisor.

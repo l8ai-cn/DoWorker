@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/billing"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/billing"
 )
 
 func (s *Service) CheckQuota(ctx context.Context, orgID int64, resource string, requestedAmount int) error {

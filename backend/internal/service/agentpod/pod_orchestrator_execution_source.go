@@ -3,7 +3,7 @@ package agentpod
 import (
 	"strings"
 
-	"github.com/anthropics/agentsmesh/agentfile"
+	"github.com/l8ai-cn/agentcloud/agentfile"
 )
 
 type ExecutionSource string

@@ -11,8 +11,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
-	"github.com/anthropics/agentsmesh/runner/internal/client"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
+	"github.com/l8ai-cn/agentcloud/runner/internal/client"
 )
 
 func TestRunVerificationUsesPodWorkspaceAndReturnsExitCode(t *testing.T) {

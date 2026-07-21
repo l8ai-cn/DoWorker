@@ -1,8 +1,8 @@
 package main
 
 import (
-	resource "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
-	workerplanner "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationworker"
+	resource "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationresource"
+	workerplanner "github.com/l8ai-cn/agentcloud/backend/internal/service/orchestrationworker"
 )
 
 type orchestrationApplyRepository interface {

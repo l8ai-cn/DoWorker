@@ -6,7 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/conversationitem"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/conversationitem"
 	"gorm.io/gorm"
 )
 

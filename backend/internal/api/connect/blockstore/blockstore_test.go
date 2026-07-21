@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/blockstore"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	blockstorev1 "github.com/anthropics/agentsmesh/proto/gen/go/blockstore/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/blockstore"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	blockstorev1 "github.com/l8ai-cn/agentcloud/proto/gen/go/blockstore/v1"
 )
 
 type fakeOrg struct {

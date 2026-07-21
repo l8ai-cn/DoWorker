@@ -165,13 +165,13 @@
     },
     "intro": {
       "title": "简介",
-      "description": "Do Worker 将 AI 工具按可验证的 Worker 契约运行：正式 Definition 声明适配器、配置和凭据引用，运行时目录选择不可变镜像，Runner 执行隔离工作空间。创建向导会显示真实可用性和阻塞原因，而不是把已定义的工具直接宣称为已支持。",
+      "description": "Agent Cloud 将 AI 工具按可验证的 Worker 契约运行：正式 Definition 声明适配器、配置和凭据引用，运行时目录选择不可变镜像，Runner 执行隔离工作空间。创建向导会显示真实可用性和阻塞原因，而不是把已定义的工具直接宣称为已支持。",
       "supportedAgents": "支持的 AI 智能体：",
       "customAgents": "通过 MCP 协议自定义智能体"
     },
     "architecture": {
       "title": "工作原理",
-      "description": "Do Worker 让你通过浏览器控制在笔记本电脑、服务器或云虚拟机上运行的 Worker。命令通过加密连接传输，终端输出实时推流；代码始终留在你的基础设施内。",
+      "description": "Agent Cloud 让你通过浏览器控制在笔记本电脑、服务器或云虚拟机上运行的 Worker。命令通过加密连接传输，终端输出实时推流；代码始终留在你的基础设施内。",
       "clientLayer": "客户端层",
       "clientSubtitle": "随时随地访问——浏览器、手机或平板",
       "cloudLayer": "云端",
@@ -203,7 +203,7 @@
     },
     "whatYouCanDo": {
       "title": "你可以做什么",
-      "description": "Do Worker 为你的团队赋予 AI 驱动开发的超能力。",
+      "description": "Agent Cloud 为你的团队赋予 AI 驱动开发的超能力。",
       "orchestrate": {
         "title": "协调多个 Worker",
         "description": "通过频道和任务关联协调不同 Worker；可创建的类型、凭据和运行时以 Worker 目录的真实状态为准。"
@@ -227,21 +227,21 @@
       "quickStartDesc": "5 分钟内快速启动",
       "agentpod": "Worker 类型与运行时",
       "agentpodDesc": "每种工具的适配器、凭据、配置与真实验证状态",
-      "agentsmesh": "频道协作",
-      "agentsmeshDesc": "在 Worker 之间共享消息、文档和任务上下文",
+      "agentcloud": "频道协作",
+      "agentcloudDesc": "在 Worker 之间共享消息、文档和任务上下文",
       "mcpTools": "MCP 工具",
       "mcpToolsDesc": "26 个 AI 智能体工具"
     },
     "concepts": {
       "title": "核心概念",
-      "description": "了解 Do Worker 的基础概念，充分利用平台功能。",
+      "description": "了解 Agent Cloud 的基础概念，充分利用平台功能。",
       "architecture": {
         "title": "架构概述",
-        "description": "Do Worker 采用分层架构：组织管理成员和资源，Runner 提供计算，Worker 在 Pod 中执行。",
+        "description": "Agent Cloud 采用分层架构：组织管理成员和资源，Runner 提供计算，Worker 在 Pod 中执行。",
         "orgTitle": "组织 (Organization)",
         "orgDesc": "顶层实体。每个组织拥有独立的成员、设置、运行节点和计费。团队可以邀请不同角色的成员加入。",
         "runnerTitle": "运行节点 (Runner)",
-        "runnerDesc": "自托管的守护进程，通过 gRPC + mTLS 连接到 Do Worker 后端。Runner 提供 Worker 和 Pod 执行所需的计算环境。",
+        "runnerDesc": "自托管的守护进程，通过 gRPC + mTLS 连接到 Agent Cloud 后端。Runner 提供 Worker 和 Pod 执行所需的计算环境。",
         "podTitle": "Worker 与 Pod",
         "podDesc": "Worker 是用户创建和配置的执行单元；Runner 将其解析为隔离 Pod。每个 Pod 拥有独立 PTY、沙箱和可选 Git 工作树。",
         "channelTitle": "频道 (Channel)",
@@ -251,7 +251,7 @@
       },
       "byok": {
         "title": "BYOK（自带密钥）",
-        "description": "Do Worker 采用 BYOK 模式——你需要提供自己的 AI 服务商 API 密钥（Anthropic、OpenAI、Google 等）。你的 API 密钥在静态存储时加密，绝不会被共享。这意味着你对成本和模型选择拥有完全控制权。"
+        "description": "Agent Cloud 采用 BYOK 模式——你需要提供自己的 AI 服务商 API 密钥（Anthropic、OpenAI、Google 等）。你的 API 密钥在静态存储时加密，绝不会被共享。这意味着你对成本和模型选择拥有完全控制权。"
       },
       "mtls": {
         "title": "mTLS 安全通信",
@@ -263,14 +263,14 @@
       },
       "mcp": {
         "title": "MCP（模型上下文协议）",
-        "description": "Do Worker 提供 26 个 MCP 工具，AI 智能体可以用它们来发现资源、与其他 Pod 通信、管理任务和控制终端。MCP 服务器运行在每个 Runner 上，并为 Claude Code 等支持的智能体自动配置。"
+        "description": "Agent Cloud 提供 26 个 MCP 工具，AI 智能体可以用它们来发现资源、与其他 Pod 通信、管理任务和控制终端。MCP 服务器运行在每个 Runner 上，并为 Claude Code 等支持的智能体自动配置。"
       },
       "repositoriesGit": {
         "title": "仓库与 Git 集成",
-        "description": "将你的 Git 仓库连接到 Do Worker，配置提供商访问权限，实现无缝的 AI 驱动开发工作流。",
+        "description": "将你的 Git 仓库连接到 Agent Cloud，配置提供商访问权限，实现无缝的 AI 驱动开发工作流。",
         "overview": {
           "title": "概述",
-          "description": "仓库将你的 Git 项目关联到平台。当使用关联仓库创建 Pod 时，Runner 会自动克隆项目并设置隔离的 Git 工作树。Do Worker 集成了主流 Git 托管平台，为 AI 智能体提供无缝的仓库访问。"
+          "description": "仓库将你的 Git 项目关联到平台。当使用关联仓库创建 Pod 时，Runner 会自动克隆项目并设置隔离的 Git 工作树。Agent Cloud 集成了主流 Git 托管平台，为 AI 智能体提供无缝的仓库访问。"
         },
         "providers": {
           "title": "支持的 Git 提供商",
@@ -289,10 +289,10 @@
           "step1": "在 GitHub 中，前往 Settings → Developer settings → Personal access tokens → Fine-grained tokens",
           "step2": "点击 Generate new token 并选择你要授权访问的仓库",
           "step3": "授予仓库权限：至少选择 Contents（只读）和 Metadata（只读）",
-          "step4": "在 Do Worker 中，前往 设置 → 个人 → Git 设置",
+          "step4": "在 Agent Cloud 中，前往 设置 → 个人 → Git 设置",
           "step5": "点击 添加 GitHub 提供商 并粘贴你的令牌",
           "oauthTitle": "方式 B：OAuth（仅限 GitHub 注册用户）",
-          "oauthDesc": "如果你使用 GitHub 账户注册了 Do Worker，可以使用 OAuth 连接：",
+          "oauthDesc": "如果你使用 GitHub 账户注册了 Agent Cloud，可以使用 OAuth 连接：",
           "oauthStep1": "前往 设置 → 个人 → Git 设置",
           "oauthStep2": "点击 连接 GitHub — 你的账户已通过 OAuth 关联",
           "oauthStep3": "选择要授权访问的仓库",
@@ -303,7 +303,7 @@
           "description": "使用个人访问令牌连接 GitLab：",
           "step1": "在 GitLab 中，前往 设置 → 访问令牌",
           "step2": "创建一个具有 api 和 read_repository 权限的新令牌",
-          "step3": "在 Do Worker 中，前往 设置 → 个人 → Git 设置",
+          "step3": "在 Agent Cloud 中，前往 设置 → 个人 → Git 设置",
           "step4": "点击 添加 GitLab 提供商 并粘贴你的令牌",
           "step5": "输入你的 GitLab 实例 URL（适用于自托管）",
           "selfHosted": "自托管 GitLab：输入你的 GitLab 实例的完整 URL（例如 https://gitlab.yourcompany.com）。"
@@ -313,7 +313,7 @@
           "description": "使用个人访问令牌连接 Gitee：",
           "step1": "在 Gitee 中，前往 设置 → 个人访问令牌",
           "step2": "创建一个具有 projects 权限的新令牌",
-          "step3": "在 Do Worker 中，前往 设置 → 个人 → Git 设置",
+          "step3": "在 Agent Cloud 中，前往 设置 → 个人 → Git 设置",
           "step4": "点击 添加 Gitee 提供商 并粘贴你的令牌"
         },
         "sshKeys": {
@@ -341,7 +341,7 @@
           "addRepo": "添加仓库",
           "addRepoSteps": "前往 设置 → 仓库 → 添加仓库。选择你的 Git 提供商，完成认证，然后选择要连接的仓库。",
           "removeRepo": "移除仓库",
-          "removeRepoSteps": "移除仓库会断开其与 Do Worker 的连接。已使用该仓库的现有 Pod 不受影响，但无法再使用该仓库创建新 Pod。"
+          "removeRepoSteps": "移除仓库会断开其与 Agent Cloud 的连接。已使用该仓库的现有 Pod 不受影响，但无法再使用该仓库创建新 Pod。"
         }
       },
       "agentfile": {
@@ -349,7 +349,7 @@
         "description": "AgentFile 完整参考 — 用于定义 AI 智能体执行环境配置的领域特定语言 (DSL)。",
         "whatIs": {
           "title": "什么是 AgentFile？",
-          "description": "AgentFile 是一种声明式 DSL，用于配置 AI 智能体的执行环境，类似于 Dockerfile 定义容器构建。Do Worker 中的每个智能体都有一个 AgentFile，指定启动智能体所需的 CLI 命令、环境变量、配置选项和构建逻辑。"
+          "description": "AgentFile 是一种声明式 DSL，用于配置 AI 智能体的执行环境，类似于 Dockerfile 定义容器构建。Agent Cloud 中的每个智能体都有一个 AgentFile，指定启动智能体所需的 CLI 命令、环境变量、配置选项和构建逻辑。"
         },
         "structure": {
           "title": "结构",
@@ -420,7 +420,7 @@
         "description": "AgentFile Layer 允许你在每个 Pod 的基础上覆盖智能体配置，无需修改基础 AgentFile。",
         "whatIs": {
           "title": "什么是 AgentFile Layer？",
-          "description": "AgentFile Layer 是用户提供的覆盖层，在创建 Pod 时合并到基础 AgentFile 之上。Do Worker 使用三层合并模型：基础 AgentFile（智能体默认值）与用户偏好设置（保存的设置）合并，然后应用 Layer（每个 Pod 的运行时覆盖）。Layer 具有最高优先级。"
+          "description": "AgentFile Layer 是用户提供的覆盖层，在创建 Pod 时合并到基础 AgentFile 之上。Agent Cloud 使用三层合并模型：基础 AgentFile（智能体默认值）与用户偏好设置（保存的设置）合并，然后应用 Layer（每个 Pod 的运行时覆盖）。Layer 具有最高优先级。"
         },
         "supported": {
           "title": "支持的声明",
@@ -448,7 +448,7 @@
     },
     "gettingStarted": {
       "title": "快速上手",
-      "description": "六步启动 Do Worker。这是一个快速概览——每个步骤都链接到包含故障排除和高级选项的详细教程。",
+      "description": "六步启动 Agent Cloud。这是一个快速概览——每个步骤都链接到包含故障排除和高级选项的详细教程。",
       "step1": {
         "title": "创建账户",
         "description": "前往注册页面，填写邮箱、用户名和密码。提交后你将收到一封验证邮件——如果几分钟内没有收到，请检查垃圾邮件文件夹。",
@@ -790,7 +790,7 @@
         "description": "集成看板视图的任务管理。创建任务，关联到 Worker，并通过工作流跟踪进度。",
         "overview": {
           "title": "概述",
-          "description": "Do Worker 任务提供为 AI 驱动开发设计的轻量级问题跟踪系统。核心功能包括：",
+          "description": "Agent Cloud 任务提供为 AI 驱动开发设计的轻量级问题跟踪系统。核心功能包括：",
           "item1": "看板视图",
           "item2": "任务 ↔ Pod 关联",
           "item3": "Git 提交和合并请求关联",
@@ -914,7 +914,7 @@
       },
       "repositories": {
         "title": "仓库管理",
-        "description": "将 Git 仓库连接到 Do Worker，实现无缝的 AI 辅助开发工作流。",
+        "description": "将 Git 仓库连接到 Agent Cloud，实现无缝的 AI 辅助开发工作流。",
         "overview": {
           "title": "概述",
           "description": "仓库将你的 Git 项目关联到平台。当创建关联了仓库的 Pod 时，Runner 会自动克隆项目并设置隔离的 Git 工作树。"
@@ -933,7 +933,7 @@
           "oauth": "OAuth",
           "oauthDesc": "适用于 GitHub——一键授权，支持细粒度仓库访问。令牌加密安全存储。",
           "pat": "个人访问令牌（PAT）",
-          "patDesc": "适用于 GitLab 和 Gitee——在服务商设置中生成令牌，然后在 Do Worker 中添加。需要仓库读写权限。"
+          "patDesc": "适用于 GitLab 和 Gitee——在服务商设置中生成令牌，然后在 Agent Cloud 中添加。需要仓库读写权限。"
         },
         "podAssociation": {
           "title": "仓库与 Pod 关联",
@@ -953,7 +953,7 @@
           "addRepo": "添加仓库",
           "addRepoSteps": "前往 设置 → 仓库 → 添加仓库。选择 Git 服务商，认证后选择要连接的仓库。",
           "removeRepo": "移除仓库",
-          "removeRepoSteps": "移除仓库会断开其与 Do Worker 的连接。已使用该仓库的 Pod 不受影响，但无法再用它创建新 Pod。"
+          "removeRepoSteps": "移除仓库会断开其与 Agent Cloud 的连接。已使用该仓库的 Pod 不受影响，但无法再用它创建新 Pod。"
         }
       }
     },
@@ -966,7 +966,7 @@
           "item1": "Linux、macOS 或 Windows（推荐 WSL2）",
           "item2": "已安装并配置 Git",
           "item3": "Docker（可选，用于容器化智能体）",
-          "item4": "可访问 Do Worker 服务器的网络",
+          "item4": "可访问 Agent Cloud 服务器的网络",
           "item5": "至少 4GB 内存（多 Pod 推荐 8GB+）"
         },
         "quickInstall": {
@@ -974,7 +974,7 @@
           "oneLineTitle": "一行命令安装（推荐）",
           "linuxTitle": "Linux（包管理器）",
           "afterInstall": "安装后",
-          "tokenHint": "在 Do Worker Web 界面的 设置 → Runner → 创建令牌 中获取注册令牌。",
+          "tokenHint": "在 Agent Cloud Web 界面的 设置 → Runner → 创建令牌 中获取注册令牌。",
           "methodToken": "选项 A：使用令牌注册",
           "methodLogin": "选项 B：使用浏览器登录注册"
         },
@@ -990,7 +990,7 @@
           "descriptionHeader": "说明",
           "defaultHeader": "默认值",
           "tokenDesc": "注册令牌（必需）",
-          "urlDesc": "Do Worker 服务器地址",
+          "urlDesc": "Agent Cloud 服务器地址",
           "maxPodsDesc": "最大并发 Pod 数",
           "workspaceDirDesc": "工作空间根目录",
           "mcpPortDesc": "MCP 服务器端口"
@@ -1014,7 +1014,7 @@
         "troubleshooting": {
           "title": "故障排除",
           "offline": "Runner 显示为离线",
-          "offlineDesc": "检查到 Do Worker 服务器的网络连接。确保防火墙允许出站 gRPC 连接（端口 9443，用于 mTLS）。",
+          "offlineDesc": "检查到 Agent Cloud 服务器的网络连接。确保防火墙允许出站 gRPC 连接（端口 9443，用于 mTLS）。",
           "podsFail": "Pod 启动失败",
           "podsFailDesc": "确认 Git 已安装并配置。检查 Runner 是否可以克隆仓库（SSH 密钥或令牌已配置）。",
           "tokenInvalid": "\"令牌无效\"错误",
@@ -1150,17 +1150,17 @@
     "guides": {
       "gitIntegration": {
         "title": "Git 集成",
-        "description": "连接 Git 服务商并在 Do Worker 中使用仓库的完整指南。",
+        "description": "连接 Git 服务商并在 Agent Cloud 中使用仓库的完整指南。",
         "overview": {
           "title": "概述",
-          "description": "Do Worker 集成了主流 Git 托管平台，为 AI 智能体提供无缝的仓库访问。本指南涵盖端到端的设置流程。"
+          "description": "Agent Cloud 集成了主流 Git 托管平台，为 AI 智能体提供无缝的仓库访问。本指南涵盖端到端的设置流程。"
         },
         "github": {
           "title": "GitHub (OAuth)",
           "description": "使用 OAuth 连接你的 GitHub 账户，实现一键授权：",
           "step1": "前往 设置 → Git 服务商",
           "step2": "点击 连接 GitHub",
-          "step3": "在 GitHub 弹窗中授权 Do Worker",
+          "step3": "在 GitHub 弹窗中授权 Agent Cloud",
           "step4": "选择要授权访问的仓库",
           "step5": "你的仓库将出现在 设置 → 仓库 中"
         },
@@ -1169,7 +1169,7 @@
           "description": "使用个人访问令牌连接 GitLab：",
           "step1": "在 GitLab 中，前往 设置 → 访问令牌",
           "step2": "创建具有 api 和 read_repository 权限的新令牌",
-          "step3": "在 Do Worker 中，前往 设置 → Git 服务商",
+          "step3": "在 Agent Cloud 中，前往 设置 → Git 服务商",
           "step4": "点击 添加 GitLab 服务商 并粘贴令牌",
           "step5": "输入你的 GitLab 实例 URL（适用于自托管）",
           "selfHosted": "自托管 GitLab：输入 GitLab 实例的完整 URL（例如 https://gitlab.yourcompany.com）。"
@@ -1179,7 +1179,7 @@
           "description": "使用个人访问令牌连接 Gitee：",
           "step1": "在 Gitee 中，前往 设置 → 私人令牌",
           "step2": "创建具有 projects 权限的新令牌",
-          "step3": "在 Do Worker 中，前往 设置 → Git 服务商",
+          "step3": "在 Agent Cloud 中，前往 设置 → Git 服务商",
           "step4": "点击 添加 Gitee 服务商 并粘贴令牌"
         },
         "sshKeys": {
@@ -1201,10 +1201,10 @@
       },
       "teamManagement": {
         "title": "团队管理",
-        "description": "了解如何在 Do Worker 中设置和管理你的团队。",
+        "description": "了解如何在 Agent Cloud 中设置和管理你的团队。",
         "overview": {
           "title": "概述",
-          "description": "Do Worker 使用组织作为团队协作的基本单位。每个组织拥有独立的成员、Runner、仓库和设置。"
+          "description": "Agent Cloud 使用组织作为团队协作的基本单位。每个组织拥有独立的成员、Runner、仓库和设置。"
         },
         "createOrg": {
           "title": "创建组织",
@@ -1222,11 +1222,11 @@
           "step3": "输入被邀请者的邮箱地址",
           "step4": "选择角色（管理员或成员）",
           "step5": "被邀请者将收到包含加入链接的邮件",
-          "note": "没有 Do Worker 账户的被邀请者将被提示先注册。"
+          "note": "没有 Agent Cloud 账户的被邀请者将被提示先注册。"
         },
         "roles": {
           "title": "角色与权限",
-          "description": "Do Worker 支持基于角色的访问控制（RBAC）：",
+          "description": "Agent Cloud 支持基于角色的访问控制（RBAC）：",
           "ownerTitle": "所有者",
           "ownerDesc": "对所有设置、计费和成员管理拥有完全访问权限。可以删除组织。",
           "adminTitle": "管理员",
@@ -1312,10 +1312,10 @@
       },
       "overview": {
         "title": "API 概述",
-        "description": "使用组织级 API Key 将第三方服务与 Do Worker 集成。通过 REST API 自动化 Pod 管理、任务跟踪等操作。",
+        "description": "使用组织级 API Key 将第三方服务与 Agent Cloud 集成。通过 REST API 自动化 Pod 管理、任务跟踪等操作。",
         "overview": {
           "title": "概述",
-          "description": "Do Worker 提供组织级 API Key，用于第三方集成、CI/CD 流水线和自动化工作流。通过 API Key 你可以：",
+          "description": "Agent Cloud 提供组织级 API Key，用于第三方集成、CI/CD 流水线和自动化工作流。通过 API Key 你可以：",
           "item1": "以编程方式管理 Worker（创建、列表、终止）",
           "item2": "自动创建任务和更新状态",
           "item3": "查询频道和发送消息",
@@ -1765,7 +1765,7 @@
     },
     "faq": {
       "title": "常见问题",
-      "description": "查找关于使用 Do Worker 的常见问题解答。",
+      "description": "查找关于使用 Agent Cloud 的常见问题解答。",
       "categories": {
         "runner": "Runner 问题",
         "pod": "Pod 问题",
@@ -1775,7 +1775,7 @@
       "items": {
         "runnerConnection": {
           "question": "我的 Runner 显示为「离线」，如何修复？",
-          "answer": "请检查以下内容：1) 确认 Runner 进程正在运行（agentsmesh-runner run）。2) 验证到 Do Worker 服务器的网络连接。3) 确保防火墙允许端口 9443 的出站 gRPC 连接。4) 检查 Runner 日志是否有证书错误——如果证书已过期，可能需要重新注册。"
+          "answer": "请检查以下内容：1) 确认 Runner 进程正在运行（agentcloud-runner run）。2) 验证到 Agent Cloud 服务器的网络连接。3) 确保防火墙允许端口 9443 的出站 gRPC 连接。4) 检查 Runner 日志是否有证书错误——如果证书已过期，可能需要重新注册。"
         },
         "runnerMultiple": {
           "question": "可以在同一台机器上运行多个 Runner 吗？",
@@ -1811,18 +1811,18 @@
       "runnerSetup": {
         "title": "教程：配置 Runner",
         "difficulty": "初学者 — 5 分钟",
-        "description": "逐步学习如何安装、注册和验证 Do Worker Runner。创建 Pod 之前需要先配置好 Runner。",
+        "description": "逐步学习如何安装、注册和验证 Agent Cloud Runner。创建 Pod 之前需要先配置好 Runner。",
         "prerequisites": {
           "title": "前提条件",
           "description": "开始之前，请确保你已准备好：",
-          "item1": "一个 Do Worker 账号（在注册页面注册）",
+          "item1": "一个 Agent Cloud 账号（在注册页面注册）",
           "item2": "一台运行 Linux、macOS 或 Windows（推荐 WSL2）的机器",
           "item3": "机器上已安装并配置好 Git",
-          "item4": "能够访问 Do Worker 服务器的网络连接"
+          "item4": "能够访问 Agent Cloud 服务器的网络连接"
         },
         "step1": {
           "title": "安装 Runner",
-          "description": "在你的机器上下载并安装 Do Worker Runner。选择最适合你的安装方式：",
+          "description": "在你的机器上下载并安装 Agent Cloud Runner。选择最适合你的安装方式：",
           "oneLine": "一键安装（推荐）— 适用于 Linux 和 macOS：",
           "linux": "Linux 包管理器 — 支持 Debian/Ubuntu 和 RHEL/Fedora",
           "docker": "Docker — 以容器方式运行 Runner，便于隔离",
@@ -1830,7 +1830,7 @@
         },
         "step2": {
           "title": "注册 Runner",
-          "description": "安装完成后，将 Runner 注册到你的 Do Worker 实例。你有两种方式：",
+          "description": "安装完成后，将 Runner 注册到你的 Agent Cloud 实例。你有两种方式：",
           "methodToken": "方式 A：使用令牌注册（无图形界面的服务器）",
           "methodTokenDesc": "在 Web 界面中前往 设置 → Runner → 创建令牌 获取注册令牌，然后使用令牌运行注册命令。",
           "methodLogin": "方式 B：通过浏览器登录注册（开发者机器）",
@@ -1841,18 +1841,18 @@
           "title": "启动 Runner",
           "description": "注册完成后，启动 Runner 守护进程：",
           "item1": "运行启动命令以开始 Runner 进程",
-          "item2": "Runner 通过 gRPC + mTLS 连接到 Do Worker 后端",
+          "item2": "Runner 通过 gRPC + mTLS 连接到 Agent Cloud 后端",
           "item3": "它会报告 PATH 中可用的 AI 智能体 CLI（Claude Code、Codex、Gemini 等）",
           "tip": "在生产环境中，建议将 Runner 安装为系统服务，以便开机自动启动。",
           "background": {
             "title": "在后台运行",
-            "description": "`agentsmesh-runner run` 会占用当前终端。若希望关闭终端后 Runner 仍继续运行，请选择一种后台模式:",
+            "description": "`agentcloud-runner run` 会占用当前终端。若希望关闭终端后 Runner 仍继续运行，请选择一种后台模式:",
             "service": {
               "title": "系统服务(推荐)",
               "description": "将 Runner 注册到 systemd / launchd / Windows 服务管理器,开机自启、崩溃自动恢复,日志写入系统日志通道。",
               "startLabel": "安装并启动",
               "stopLabel": "停止或卸载",
-              "note": "Linux 日志通过 journalctl -u agentsmesh-runner 查看。macOS 位于 ~/Library/Logs/agentsmesh-runner.log。如果配置文件非默认路径,使用 --config /path/to/config.yaml。"
+              "note": "Linux 日志通过 journalctl -u agentcloud-runner 查看。macOS 位于 ~/Library/Logs/agentcloud-runner.log。如果配置文件非默认路径,使用 --config /path/to/config.yaml。"
             },
             "nohup": {
               "title": "Shell 后台(nohup)",
@@ -1903,7 +1903,7 @@
             "title": "通过 install.sh 重新安装",
             "description": "若自升级通道不可用(内网隔离环境、特殊发行版,或你想要纯净二进制),可重新运行官方安装脚本。",
             "restartLabel": "安装后重启",
-            "note": "重新安装会保留 ~/.agentsmesh/config.yaml 和 mTLS 证书 — 无需重新注册。"
+            "note": "重新安装会保留 ~/.agentcloud/config.yaml 和 mTLS 证书 — 无需重新注册。"
           }
         },
         "troubleshooting": {
@@ -1922,11 +1922,11 @@
       "gitSetup": {
         "title": "教程：连接 Git 仓库",
         "difficulty": "初学者 — 5 分钟",
-        "description": "学习如何将你的 Git 提供商（GitHub、GitLab 或 Gitee）连接到 Do Worker，以便 AI 智能体可以操作你的代码仓库。",
+        "description": "学习如何将你的 Git 提供商（GitHub、GitLab 或 Gitee）连接到 Agent Cloud，以便 AI 智能体可以操作你的代码仓库。",
         "prerequisites": {
           "title": "前提条件",
           "description": "开始之前，请确保你已准备好：",
-          "item1": "一个已连接 Runner 的 Do Worker 账号（参见 Runner 配置教程）",
+          "item1": "一个已连接 Runner 的 Agent Cloud 账号（参见 Runner 配置教程）",
           "item2": "一个拥有你想使用的仓库的 GitHub、GitLab 或 Gitee 账号"
         },
         "step1": {
@@ -1938,16 +1938,16 @@
           "description": "对于 GitHub，你可以使用个人访问令牌（适用于所有人）或 OAuth（仅限使用 GitHub 注册的用户）：",
           "item1": "个人访问令牌：在 GitHub 中，前往 Settings → Developer settings → Personal access tokens → Fine-grained tokens",
           "item2": "生成一个令牌，为你的仓库授予 Contents（只读）和 Metadata（只读）权限",
-          "item3": "在 Do Worker 中，点击 添加 GitHub 提供商 并粘贴你的令牌",
+          "item3": "在 Agent Cloud 中，点击 添加 GitHub 提供商 并粘贴你的令牌",
           "item4": "你的仓库将出现在 设置 → 仓库 中",
-          "tip": "如果你使用 GitHub 账户注册了 Do Worker，也可以使用 连接 GitHub 按钮通过 OAuth 连接 — 你的账户已关联。使用邮箱注册的用户必须使用个人访问令牌。"
+          "tip": "如果你使用 GitHub 账户注册了 Agent Cloud，也可以使用 连接 GitHub 按钮通过 OAuth 连接 — 你的账户已关联。使用邮箱注册的用户必须使用个人访问令牌。"
         },
         "step3": {
           "title": "连接 GitLab（个人访问令牌）",
           "description": "对于 GitLab，使用个人访问令牌：",
           "item1": "在 GitLab 中，前往 设置 → 访问令牌",
           "item2": "创建一个具有 api 和 read_repository 权限的新令牌",
-          "item3": "回到 Do Worker，点击 添加 GitLab 提供商",
+          "item3": "回到 Agent Cloud，点击 添加 GitLab 提供商",
           "item4": "粘贴你的令牌并输入你的 GitLab URL",
           "tip": "完全支持自托管的 GitLab。输入你的实例完整 URL（例如 https://gitlab.yourcompany.com）。"
         },
@@ -1956,7 +1956,7 @@
           "description": "对于 Gitee，使用个人访问令牌：",
           "item1": "在 Gitee 中，前往 设置 → 个人访问令牌",
           "item2": "创建一个具有 projects 权限的新令牌",
-          "item3": "回到 Do Worker，点击 添加 Gitee 提供商 并粘贴你的令牌"
+          "item3": "回到 Agent Cloud，点击 添加 Gitee 提供商 并粘贴你的令牌"
         },
         "step5": {
           "title": "导入仓库",
@@ -1996,7 +1996,7 @@
         "description": "了解如何使用 MCP（模型上下文协议）服务器和技能来扩展你的 AI 智能体。MCP 工具让智能体能够协作、管理任务并与外部服务交互。技能为你的智能体添加可复用的工作流。",
         "whatIsMcp": {
           "title": "什么是 MCP 工具？",
-          "description": "MCP（模型上下文协议）工具是 AI 智能体在 Pod 内工作时可以使用的能力。Do Worker 提供 26 个内置 MCP 工具，分为 7 个类别：",
+          "description": "MCP（模型上下文协议）工具是 AI 智能体在 Pod 内工作时可以使用的能力。Agent Cloud 提供 26 个内置 MCP 工具，分为 7 个类别：",
           "item1": "发现 — 列出可用的 Pod、Runner 和仓库",
           "item2": "终端 — 观察和控制其他 Pod 的终端",
           "item3": "绑定 — 请求和管理 Pod 间连接",
@@ -2009,7 +2009,7 @@
         "step1": {
           "title": "了解内置与自定义 MCP 服务器",
           "description": "你的智能体可以使用两种类型的 MCP 工具：",
-          "builtinTitle": "内置 Do Worker MCP 服务器",
+          "builtinTitle": "内置 Agent Cloud MCP 服务器",
           "builtinDesc": "自动为每个 Pod 配置。提供 26 个协作工具（频道、任务、绑定等）。无需设置。",
           "customTitle": "自定义 MCP 服务器",
           "customDesc": "你安装的用于特定功能的额外 MCP 服务器——例如数据库 MCP 服务器、Slack 集成或自定义 API 连接器。这些按组织或按用户配置。"
@@ -2031,12 +2031,12 @@
           "description": "配置 MCP 服务器后，验证其是否正常工作：",
           "item1": "使用 Claude Code 创建一个新 Pod",
           "item2": "在终端中询问智能体：\"你有哪些可用的 MCP 工具？\"",
-          "item3": "智能体应列出内置的 Do Worker 工具和你安装的所有自定义 MCP 服务器",
+          "item3": "智能体应列出内置的 Agent Cloud 工具和你安装的所有自定义 MCP 服务器",
           "item4": "尝试使用一个工具——例如\"列出所有可用的 Pod\"或\"搜索任务\""
         },
         "whatAreSkills": {
           "title": "什么是技能？",
-          "description": "技能是以 Markdown 文件定义的可复用智能体工作流，包含指令说明。安装后，它们会被注入到你的智能体上下文中，以便按需执行。Do Worker 提供两个内置技能：",
+          "description": "技能是以 Markdown 文件定义的可复用智能体工作流，包含指令说明。安装后，它们会被注入到你的智能体上下文中，以便按需执行。Agent Cloud 提供两个内置技能：",
           "item1": "am-channel — 使智能体能够检查消息、同步任务状态，并通过频道与其他智能体交换信息",
           "item2": "am-delegate — 使智能体能够将任务委派给其他 Pod、创建子 Pod 以并行工作，并触发后续智能体"
         },
@@ -2079,7 +2079,7 @@
         "prerequisites": {
           "title": "前提条件",
           "description": "开始之前，请确保你已准备好：",
-          "item1": "一个 Do Worker 账号（在注册页面注册）",
+          "item1": "一个 Agent Cloud 账号（在注册页面注册）",
           "item2": "已安装并连接 Runner（参见快速上手 → 步骤 2）",
           "item3": "Runner 上至少安装了一个 AI 智能体 CLI（例如 Claude Code）",
           "item4": "已连接 Git 仓库（可选但推荐）"
@@ -2126,7 +2126,7 @@
         "troubleshooting": {
           "title": "故障排除",
           "noRunners": "下拉菜单中没有 Runner",
-          "noRunnersDesc": "你的 Runner 可能已离线。前往 设置 → Runner 检查状态。如果显示离线，请重启 Runner 进程并确保它能连接到 Do Worker 服务器。",
+          "noRunnersDesc": "你的 Runner 可能已离线。前往 设置 → Runner 检查状态。如果显示离线，请重启 Runner 进程并确保它能连接到 Agent Cloud 服务器。",
           "stuckInit": "Pod 一直停留在初始化状态",
           "stuckInitDesc": "这通常意味着仓库较大，仍在克隆中。请等待几分钟。如果问题仍未解决，请检查 Runner 日志中的克隆错误。尝试创建一个不带仓库的 Pod 来测试基本功能。",
           "agentNotResponding": "智能体无响应",
@@ -2145,7 +2145,7 @@
       "ticketWorkflow": {
         "title": "教程：使用任务管理任务",
         "difficulty": "初学者 — 10 分钟",
-        "description": "学习如何使用 Do Worker 的任务系统来组织工作、在看板上跟踪进度，以及将任务连接到 Worker 以自动注入上下文。",
+        "description": "学习如何使用 Agent Cloud 的任务系统来组织工作、在看板上跟踪进度，以及将任务连接到 Worker 以自动注入上下文。",
         "step1": {
           "title": "导航到任务看板",
           "description": "点击左侧边栏的任务。你将看到一个看板，包含各状态列：待办池、待处理、进行中、审查中和已完成。"

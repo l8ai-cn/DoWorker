@@ -13,7 +13,7 @@ package proto.blockstore_state.v1;
 
 import "blockstore/v1/blockstore.proto";
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/blockstore_state/v1;blockstorestatev1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/blockstore_state/v1;blockstorestatev1";
 
 // Apply a remote BlockOp to the local SSOT cache — used by
 // blockstoreSubscribe.ts when the realtime WS broadcasts an op for a

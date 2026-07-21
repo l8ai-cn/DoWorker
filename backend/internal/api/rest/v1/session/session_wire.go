@@ -3,9 +3,9 @@ package sessionapi
 import (
 	"context"
 
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
-	sessionusagesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionusage"
+	podDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentsession"
+	sessionusagesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/sessionusage"
 )
 
 type sessionWire struct {

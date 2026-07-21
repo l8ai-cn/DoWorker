@@ -1,7 +1,7 @@
 use crate::connect_call::connect_call;
 use crate::error::ApiError;
 use crate::ApiClient;
-use agentsmesh_types::proto_user_credential_v1 as uc_proto;
+use agentcloud_types::proto_user_credential_v1 as uc_proto;
 
 impl ApiClient {
     pub async fn list_repository_providers_connect(

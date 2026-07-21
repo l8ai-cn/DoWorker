@@ -3,10 +3,10 @@ package sessionapi
 import (
 	"net/http"
 
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	sessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
+	podDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentsession"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	sessionsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentsession"
 	"github.com/gin-gonic/gin"
 )
 

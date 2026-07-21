@@ -6,9 +6,9 @@ import (
 	"strings"
 
 	"connectrpc.com/connect"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	authpkg "github.com/anthropics/agentsmesh/backend/pkg/auth"
-	"github.com/anthropics/agentsmesh/backend/pkg/embedtoken"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	authpkg "github.com/l8ai-cn/agentcloud/backend/pkg/auth"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/embedtoken"
 )
 
 type EmbedTokenValidator interface {

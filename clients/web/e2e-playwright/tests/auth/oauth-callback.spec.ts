@@ -34,7 +34,7 @@ test.describe("OAuth / SSO callback (light-auth)", () => {
       // dashboard bootstrap can read it back.
       const sessionBlob = await page.evaluate(() => {
         const entry = Object.entries(localStorage).find(([k]) =>
-          k.startsWith("do-worker-auth/") && k.endsWith("/session"));
+          k.startsWith("agent-cloud-auth/") && k.endsWith("/session"));
         return entry ? entry[1] : null;
       });
       expect(sessionBlob, "PersistedSession blob must exist after callback").toBeTruthy();
@@ -52,7 +52,7 @@ test.describe("OAuth / SSO callback (light-auth)", () => {
 
     const sessionBlob = await page.evaluate(() => {
       const entry = Object.entries(localStorage).find(([k]) =>
-        k.startsWith("do-worker-auth/") && k.endsWith("/session"));
+        k.startsWith("agent-cloud-auth/") && k.endsWith("/session"));
       return entry ? entry[1] : null;
     });
     expect(sessionBlob, "error callback must not write a session").toBeNull();

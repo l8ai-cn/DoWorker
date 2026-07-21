@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/runner/internal/processmgr"
+	"github.com/l8ai-cn/agentcloud/runner/internal/processmgr"
 )
 
 // Mock agent modes (selected via ACP_MOCK_MODE env var).

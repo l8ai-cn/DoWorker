@@ -21,7 +21,7 @@ package proto.billing.v1;
 
 import "codegen/v1/options.proto";
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/billing/v1;billingv1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/billing/v1;billingv1";
 
 // Convert codegen target — emits billing_admin_convert.amesh.go into the
 // backend admin/subscription connect handler tree so it can reach
@@ -68,7 +68,7 @@ message AdminSubscription {
 
 message AdminSubscriptionEntity {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/domain/billing.Subscription"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/billing.Subscription"
   };
 
   int64 id = 1 [(amesh.codegen.v1.field_rename) = "ID"];
@@ -100,7 +100,7 @@ message AdminSubscriptionEntity {
 
 message AdminSubscriptionPlan {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/domain/billing.SubscriptionPlan"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/billing.SubscriptionPlan"
   };
 
   int64 id = 1 [(amesh.codegen.v1.field_rename) = "ID"];
@@ -120,7 +120,7 @@ message AdminSubscriptionPlan {
 
 message AdminSeatUsage {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/service/billing.SeatUsage"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/service/billing.SeatUsage"
   };
 
   int32 total_seats = 1 [(amesh.codegen.v1.field_convert) = "int_to_int32"];

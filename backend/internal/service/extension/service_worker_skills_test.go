@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	skilldom "github.com/l8ai-cn/agentcloud/backend/internal/domain/skill"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

@@ -3,8 +3,8 @@ package runner
 import (
 	"sync"
 
-	"github.com/anthropics/agentsmesh/runner/internal/autopilot"
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/autopilot"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
 )
 
 // AutopilotStore manages AutopilotController instances with thread-safe access.

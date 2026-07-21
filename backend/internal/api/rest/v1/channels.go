@@ -4,11 +4,11 @@ import (
 	"errors"
 	"net/http"
 
-	channelDomain "github.com/anthropics/agentsmesh/backend/internal/domain/channel"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	"github.com/anthropics/agentsmesh/backend/internal/service/channel"
-	"github.com/anthropics/agentsmesh/backend/internal/service/ticket"
-	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
+	channelDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/channel"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/channel"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/ticket"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/apierr"
 	"github.com/gin-gonic/gin"
 )
 

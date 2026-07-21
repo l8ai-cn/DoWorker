@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/anthropics/agentsmesh/marketplace/internal/domain/listing"
-	"github.com/anthropics/agentsmesh/marketplace/internal/service"
+	"github.com/l8ai-cn/agentcloud/marketplace/internal/domain/listing"
+	"github.com/l8ai-cn/agentcloud/marketplace/internal/service"
 	"github.com/lib/pq"
 	"gorm.io/gorm"
 )

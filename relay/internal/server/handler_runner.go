@@ -7,12 +7,12 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 
-	"github.com/anthropics/agentsmesh/relay/internal/auth"
-	"github.com/anthropics/agentsmesh/relay/internal/protocol"
+	"github.com/l8ai-cn/agentcloud/relay/internal/auth"
+	"github.com/l8ai-cn/agentcloud/relay/internal/protocol"
 )
 
 func (h *Handler) HandleRunnerWS(w http.ResponseWriter, r *http.Request) {
-	_, span := otel.Tracer("agentsmesh-relay").Start(r.Context(), "relay.ws.runner")
+	_, span := otel.Tracer("agentcloud-relay").Start(r.Context(), "relay.ws.runner")
 	defer span.End()
 
 	if !h.acceptingConnections.Load() {

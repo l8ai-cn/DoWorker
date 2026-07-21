@@ -31,7 +31,7 @@ test.describe("Data integrity: list pages match API counts", () => {
     // by the API would be filtered out client-side, so testing equality
     // against an unfiltered API call is structurally wrong.
     const userId = db.queryValue(
-      `SELECT id FROM users WHERE email = 'dev@agentsmesh.local' LIMIT 1`,
+      `SELECT id FROM users WHERE email = 'dev@agentcloud.local' LIMIT 1`,
     );
     expect(userId, "dev seed must include the dev user").toBeTruthy();
     const { items } = await cc.pod.listPods({

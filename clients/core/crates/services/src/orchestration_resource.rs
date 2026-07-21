@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use agentsmesh_api_client::ApiClient;
+use agentcloud_api_client::ApiClient;
 use orchestration_resource_proto::proto::orchestration_resource::v1 as resource;
 use prost::Message;
 

@@ -33,8 +33,8 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	licenseservice "github.com/anthropics/agentsmesh/backend/internal/service/license"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	licenseservice "github.com/l8ai-cn/agentcloud/backend/internal/service/license"
 )
 
 const (

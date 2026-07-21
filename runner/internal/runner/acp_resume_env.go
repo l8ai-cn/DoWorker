@@ -2,7 +2,7 @@ package runner
 
 import "strings"
 
-const resumeExternalSessionEnvKey = "AGENTSMESH_RESUME_EXTERNAL_SESSION"
+const resumeExternalSessionEnvKey = "AGENTCLOUD_RESUME_EXTERNAL_SESSION"
 
 func resumeExternalSessionFromEnv(env []string) string {
 	prefix := resumeExternalSessionEnvKey + "="

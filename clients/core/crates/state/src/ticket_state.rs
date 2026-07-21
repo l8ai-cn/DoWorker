@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use agentsmesh_persistence::{StorageBackend, TicketRepo};
-use agentsmesh_types::proto_pod_v1::Pod;
-use agentsmesh_types::proto_ticket_v1::{BoardColumn, Label, Ticket};
+use agentcloud_persistence::{StorageBackend, TicketRepo};
+use agentcloud_types::proto_pod_v1::Pod;
+use agentcloud_types::proto_ticket_v1::{BoardColumn, Label, Ticket};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ViewMode {

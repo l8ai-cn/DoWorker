@@ -1,5 +1,5 @@
 [package]
-name = "agentsmesh_protocol"
+name = "agentcloud_protocol"
 version.workspace = true
 edition.workspace = true
 publish.workspace = true

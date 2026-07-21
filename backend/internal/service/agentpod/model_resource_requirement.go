@@ -1,6 +1,6 @@
 package agentpod
 
-import agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
+import agentDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agent"
 
 func AgentRequiresModelResource(agent *agentDomain.Agent) bool {
 	if agent == nil {

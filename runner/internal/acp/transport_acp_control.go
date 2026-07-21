@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-type agentsmeshExtensions struct {
+type agentcloudExtensions struct {
 	ControlRequest  bool
 	PermissionModes []string
 	ArtifactActions []string
@@ -17,33 +17,33 @@ var artifactActionPattern = regexp.MustCompile(
 	`^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$`,
 )
 
-// parseAgentsmeshExtensions reads the agentsmeshExtensions block from an
+// parseAgentsmeshExtensions reads the agentcloudExtensions block from an
 // initialize response: controlRequest (gates SendControlRequest's fast-fail
 // below) and permissionModes (the wire values this agent accepts for
 // set_permission_mode). Agents that omit the extension leave both at zero.
-func parseAgentsmeshExtensions(raw json.RawMessage) (agentsmeshExtensions, error) {
+func parseAgentsmeshExtensions(raw json.RawMessage) (agentcloudExtensions, error) {
 	var body struct {
 		AgentsmeshExtensions struct {
 			ControlRequest  bool     `json:"controlRequest"`
 			PermissionModes []string `json:"permissionModes"`
 			ArtifactActions []string `json:"artifactActions"`
-		} `json:"agentsmeshExtensions"`
+		} `json:"agentcloudExtensions"`
 	}
 	if err := json.Unmarshal(raw, &body); err != nil {
-		return agentsmeshExtensions{}, err
+		return agentcloudExtensions{}, err
 	}
-	extension := agentsmeshExtensions{
+	extension := agentcloudExtensions{
 		ControlRequest:  body.AgentsmeshExtensions.ControlRequest,
 		PermissionModes: body.AgentsmeshExtensions.PermissionModes,
 		ArtifactActions: body.AgentsmeshExtensions.ArtifactActions,
 	}
 	if err := validateArtifactActions(extension); err != nil {
-		return agentsmeshExtensions{}, err
+		return agentcloudExtensions{}, err
 	}
 	return extension, nil
 }
 
-func validateArtifactActions(extension agentsmeshExtensions) error {
+func validateArtifactActions(extension agentcloudExtensions) error {
 	if len(extension.ArtifactActions) > 64 {
 		return fmt.Errorf("artifactActions exceeds 64 entries")
 	}
@@ -65,14 +65,14 @@ func validateArtifactActions(extension agentsmeshExtensions) error {
 }
 
 // SendControlRequest issues a `session/control_request` JSON-RPC and waits
-// for the agent's response. This is an AgentsMesh extension to the standard
+// for the agent's response. This is an Agent Cloud extension to the standard
 // ACP protocol — agents that don't implement it (codex, gemini, opencode)
 // return method_not_found, which surfaces here as an error so callers can
 // degrade gracefully. The mock agent (e2e-mock-agent) and any future agent
 // that opts into control-plane round-trips should accept this method.
 //
 // Capability check up-front: if the agent didn't advertise
-// agentsmeshExtensions.controlRequest in its initialize response, we
+// agentcloudExtensions.controlRequest in its initialize response, we
 // short-circuit to ErrControlNotSupported instead of waiting on the
 // 10-second JSON-RPC timeout. This keeps the Selector responsive on agents
 // that simply don't implement the extension.

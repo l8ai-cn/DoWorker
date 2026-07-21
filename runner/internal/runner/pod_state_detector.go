@@ -3,8 +3,8 @@ package runner
 import (
 	"sync"
 
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
-	"github.com/anthropics/agentsmesh/runner/internal/terminal/detector"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/terminal/detector"
 )
 
 // GetOrCreateStateDetector returns the state detector for this pod, creating one if needed.

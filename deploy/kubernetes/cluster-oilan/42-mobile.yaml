@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mobile
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   replicas: 1
   selector:
@@ -14,10 +14,10 @@ spec:
         app: mobile
     spec:
       imagePullSecrets:
-        - name: agentsmesh-regcred
+        - name: agentcloud-regcred
       containers:
         - name: mobile
-          image: repo.aiedulab.cn:8443/agentsmesh/mobile@sha256:d5f9e3a6761a87583e73f8329414a492e7bc92adcb027c22f0ffb6173f748051
+          image: repo.aiedulab.cn:8443/agentcloud/mobile@sha256:d5f9e3a6761a87583e73f8329414a492e7bc92adcb027c22f0ffb6173f748051
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
@@ -38,7 +38,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: mobile
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   selector:
     app: mobile

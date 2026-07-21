@@ -1,6 +1,6 @@
 import { marketplaceRequest } from "./client";
 
-export const DEFAULT_MARKET_SLUG = "do-worker-market";
+export const DEFAULT_MARKET_SLUG = "agent-cloud-market";
 
 export type MarketplaceResourceType =
   | "application"

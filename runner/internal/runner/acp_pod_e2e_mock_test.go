@@ -8,8 +8,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/runner/internal/acp"
-	"github.com/anthropics/agentsmesh/runner/internal/processmgr"
+	"github.com/l8ai-cn/agentcloud/runner/internal/acp"
+	"github.com/l8ai-cn/agentcloud/runner/internal/processmgr"
 )
 
 // TestMain acts as a mock ACP agent when ACP_MOCK_AGENT=1, as the processmgr
@@ -53,7 +53,7 @@ func runMockACPAgent() {
 			writer.WriteResponse(id, map[string]any{
 				"protocol_version":     "2025-01-01",
 				"capabilities":         map[string]any{"permissions": true},
-				"agentsmeshExtensions": map[string]any{"controlRequest": true},
+				"agentcloudExtensions": map[string]any{"controlRequest": true},
 			}, nil)
 		case "session/new":
 			writer.WriteResponse(id, map[string]any{

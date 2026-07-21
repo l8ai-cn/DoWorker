@@ -6,7 +6,7 @@
 
 ## Product Essence
 
-Do Worker Marketplace helps a team discover a work outcome, assess a trusted
+Agent Cloud Marketplace helps a team discover a work outcome, assess a trusted
 application package, enable it for an explicit organization, and start the
 first real task without having to understand the underlying Skill, MCP, or
 runtime model.
@@ -147,7 +147,7 @@ suspend control when the underlying runtime supports it.
 ## Data And API Contract
 
 The Marketplace service remains the source of truth for catalog, listing,
-taxonomy, entitlement, installation, quota, and lifecycle state. Do Worker
+taxonomy, entitlement, installation, quota, and lifecycle state. Agent Cloud
 remains the source of truth for runtime execution and result evidence.
 
 Required additions:
@@ -159,7 +159,7 @@ Required additions:
 - For expert applications, the listing manifest carries a backend expert
   template reference such as `market_application_slug`. Marketplace does not
   inline agent prompts, Skill lists, or execution settings as the authority for
-  runtime creation; Do Worker resolves the template and creates the real
+  runtime creation; Agent Cloud resolves the template and creates the real
   organization expert, returning `runtime_ref` as `expert:{id}`.
 - Extend public list and detail responses with tags, package summary,
   activation requirements, first-run templates, documentation, and support.
@@ -172,7 +172,7 @@ Required additions:
 ## Acceptance Scenarios
 
 1. Given an anonymous visitor, when they open `market.l8ai.cn`, then they can
-   filter and inspect listings without loading Do Worker WASM or signing in.
+   filter and inspect listings without loading Agent Cloud WASM or signing in.
 2. Given a listing tagged for a scene and industry, when matching filters are
    applied, then the server returns only matching public listings and the URL is
    shareable.

@@ -3,16 +3,16 @@ package main
 import (
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/backend/internal/config"
-	workerruntime "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
-	"github.com/anthropics/agentsmesh/backend/internal/infra"
-	"github.com/anthropics/agentsmesh/backend/internal/service/agent"
-	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	airesourceservice "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
-	"github.com/anthropics/agentsmesh/backend/internal/service/repository"
-	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
-	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
+	workerruntime "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerruntime"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/agent"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
+	airesourceservice "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/repository"
+	workercreation "github.com/l8ai-cn/agentcloud/backend/internal/service/workercreation"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/workerdefinition"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
 	"gorm.io/gorm"
 )
 

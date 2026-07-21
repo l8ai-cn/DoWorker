@@ -22,8 +22,8 @@ export function HowItWorks() {
       description: t("landing.howItWorks.step1.description"),
       accent: "cyan",
       code: `curl -fsSL ${serverUrl}/install.sh | sh
-do-worker-runner register --token <YOUR_TOKEN>
-do-worker-runner run`,
+agent-cloud-runner register --token <YOUR_TOKEN>
+agent-cloud-runner run`,
     },
     {
       number: "02",

@@ -3,7 +3,7 @@ package main
 import (
 	"errors"
 
-	"github.com/anthropics/agentsmesh/marketplace/migrations"
+	"github.com/l8ai-cn/agentcloud/marketplace/migrations"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/golang-migrate/migrate/v4/source/iofs"

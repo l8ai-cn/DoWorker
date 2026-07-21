@@ -15,7 +15,7 @@ package proto.repo_state.v1;
 
 import "repository/v1/repository.proto";
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/repo_state/v1;repostatev1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/repo_state/v1;repostatev1";
 
 // ---------------------------------------------------------------------------
 // Replace the cached "all repositories" view — used by the repositories page

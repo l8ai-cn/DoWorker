@@ -14,11 +14,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	_ "github.com/anthropics/agentsmesh/runner/internal/agents/aider"
-	"github.com/anthropics/agentsmesh/runner/internal/agents/claude"
-	_ "github.com/anthropics/agentsmesh/runner/internal/agents/codex"
-	_ "github.com/anthropics/agentsmesh/runner/internal/agents/opencode"
-	"github.com/anthropics/agentsmesh/runner/internal/tokenusage"
+	_ "github.com/l8ai-cn/agentcloud/runner/internal/agents/aider"
+	"github.com/l8ai-cn/agentcloud/runner/internal/agents/claude"
+	_ "github.com/l8ai-cn/agentcloud/runner/internal/agents/codex"
+	_ "github.com/l8ai-cn/agentcloud/runner/internal/agents/opencode"
+	"github.com/l8ai-cn/agentcloud/runner/internal/tokenusage"
 )
 
 var epoch = time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)

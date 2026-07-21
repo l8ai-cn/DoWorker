@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/relay/internal/auth"
-	"github.com/anthropics/agentsmesh/relay/internal/channel"
-	"github.com/anthropics/agentsmesh/relay/internal/protocol"
+	"github.com/l8ai-cn/agentcloud/relay/internal/auth"
+	"github.com/l8ai-cn/agentcloud/relay/internal/channel"
+	"github.com/l8ai-cn/agentcloud/relay/internal/protocol"
 	"github.com/gorilla/websocket"
 )
 

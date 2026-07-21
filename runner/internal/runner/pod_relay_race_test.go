@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/runner/internal/relay"
+	"github.com/l8ai-cn/agentcloud/runner/internal/relay"
 )
 
 // TestPodRelayOperations_RaceDetection exercises concurrent relay operations

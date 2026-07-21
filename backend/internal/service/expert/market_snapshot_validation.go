@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	expertdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/expert"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 func decodeMarketConfig(raw json.RawMessage) (map[string]any, error) {

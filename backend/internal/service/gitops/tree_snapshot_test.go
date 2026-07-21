@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/anthropics/agentsmesh/backend/internal/infra/gitea"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/gitea"
 )
 
 func TestRestoreTreeUpdatesOriginalFilesAndDeletesNewFiles(t *testing.T) {

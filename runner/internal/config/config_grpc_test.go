@@ -6,7 +6,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/runner/internal/textutil"
+	"github.com/l8ai-cn/agentcloud/runner/internal/textutil"
 )
 
 // Tests for gRPC configuration and persistence
@@ -62,15 +62,15 @@ func TestConfigUsesGRPC(t *testing.T) {
 }
 
 func TestUpdateGRPCEndpointInFile_PreservesCommentsAndOrder(t *testing.T) {
-	original := `# AgentsMesh runner config
-# Managed by: agentsmesh-runner register
+	original := `# Agent Cloud runner config
+# Managed by: agentcloud-runner register
 server_url: https://app.example.com
 grpc_endpoint: grpcs://old.example.com:9443
 runner_id: abc-123
 # Certificate paths
-cert_file: /home/user/.agentsmesh/certs/runner.crt
-key_file: /home/user/.agentsmesh/certs/runner.key
-ca_file: /home/user/.agentsmesh/certs/ca.crt
+cert_file: /home/user/.agentcloud/certs/runner.crt
+key_file: /home/user/.agentcloud/certs/runner.key
+ca_file: /home/user/.agentcloud/certs/ca.crt
 `
 	tmpFile := filepath.Join(t.TempDir(), "config.yaml")
 	if err := os.WriteFile(tmpFile, []byte(original), 0600); err != nil {
@@ -96,7 +96,7 @@ ca_file: /home/user/.agentsmesh/certs/ca.crt
 		t.Errorf("old endpoint still present in file:\n%s", content)
 	}
 	// Comments must be preserved.
-	if !containsLine(content, "# AgentsMesh runner config") {
+	if !containsLine(content, "# Agent Cloud runner config") {
 		t.Errorf("top comment lost:\n%s", content)
 	}
 	if !containsLine(content, "# Certificate paths") {

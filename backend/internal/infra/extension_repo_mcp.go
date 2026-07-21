@@ -6,7 +6,7 @@ import (
 
 	"gorm.io/gorm/clause"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/extension"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/extension"
 )
 
 func (r *extensionRepo) ListMcpMarketItems(ctx context.Context, queryStr string, category string, limit, offset int) ([]*extension.McpMarketItem, int64, error) {

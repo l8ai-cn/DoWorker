@@ -1,7 +1,7 @@
 package apikey
 
 import (
-	apikeyDomain "github.com/anthropics/agentsmesh/backend/internal/domain/apikey"
+	apikeyDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/apikey"
 	"github.com/redis/go-redis/v9"
 )
 

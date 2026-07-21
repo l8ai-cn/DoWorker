@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use agentsmesh_api_client::ApiClient;
-use agentsmesh_services::ChannelService;
+use agentcloud_api_client::ApiClient;
+use agentcloud_services::ChannelService;
 use wasm_bindgen::prelude::*;
 
 // Networking-only wasm handle for the channel domain. The channel cache lives

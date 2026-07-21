@@ -5,10 +5,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
-	expertservice "github.com/anthropics/agentsmesh/backend/internal/service/expert"
-	extensionservice "github.com/anthropics/agentsmesh/backend/internal/service/extension"
-	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
+	skilldom "github.com/l8ai-cn/agentcloud/backend/internal/domain/skill"
+	expertservice "github.com/l8ai-cn/agentcloud/backend/internal/service/expert"
+	extensionservice "github.com/l8ai-cn/agentcloud/backend/internal/service/extension"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/apierr"
 )
 
 type PublicMarketHandler struct {

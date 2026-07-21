@@ -1,5 +1,5 @@
-use agentsmesh_relay::RelayConnectionPool;
-use agentsmesh_transport::runtime::{PlatformRuntime, Runtime};
+use agentcloud_relay::RelayConnectionPool;
+use agentcloud_transport::runtime::{PlatformRuntime, Runtime};
 use futures::stream::StreamExt;
 use wasm_bindgen::prelude::*;
 
@@ -65,30 +65,30 @@ impl WasmRelayManager {
         self.pool
             .acquire_control(&pod_key, &client_label)
             .await
-            .map_err(agentsmesh_services::wire)
+            .map_err(agentcloud_services::wire)
     }
 
     pub async fn renew_control(&self, pod_key: String, lease_id: String) -> Result<(), String> {
         self.pool
             .renew_control(&pod_key, &lease_id)
             .await
-            .map_err(agentsmesh_services::wire)
+            .map_err(agentcloud_services::wire)
     }
 
     pub async fn release_control(&self, pod_key: String, lease_id: String) -> Result<(), String> {
         self.pool
             .release_control(&pod_key, &lease_id)
             .await
-            .map_err(agentsmesh_services::wire)
+            .map_err(agentcloud_services::wire)
     }
 
     pub async fn send_acp_command(&self, pod_key: String, command: String) -> Result<(), String> {
         let val: serde_json::Value =
-            serde_json::from_str(&command).map_err(agentsmesh_services::wire)?;
+            serde_json::from_str(&command).map_err(agentcloud_services::wire)?;
         self.pool
             .send_acp_command(&pod_key, &val)
             .await
-            .map_err(agentsmesh_services::wire)
+            .map_err(agentcloud_services::wire)
     }
 
     pub async fn on_status_change(&self, pod_key: String, callback: js_sys::Function) {

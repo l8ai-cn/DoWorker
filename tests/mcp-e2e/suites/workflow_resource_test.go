@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/tests/mcp-e2e/fixture"
+	"github.com/l8ai-cn/agentcloud/tests/mcp-e2e/fixture"
 	"github.com/stretchr/testify/require"
 )
 
@@ -33,7 +33,7 @@ func TestCreateWorkflow_ResourceManifestPersistsSnapshotBinding(t *testing.T) {
 	defer cancel()
 
 	applied, err := rest.ApplyOrchestrationResource(ctx, env.DevOrgSlug, "Workflow", map[string]any{
-		"apiVersion": "agentsmesh.io/v1alpha1",
+		"apiVersion": "agentcloud.io/v1alpha1",
 		"kind":       "Workflow",
 		"metadata": map[string]any{
 			"name": workflowName, "namespace": env.DevOrgSlug,

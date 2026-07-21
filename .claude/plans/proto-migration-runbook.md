@@ -83,7 +83,7 @@ syntax = "proto3";
 
 package proto.<service>.v1;
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/<service>/v1;<service>v1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/<service>/v1;<service>v1";
 
 service <Service>Service {
   rpc List<Service>s(List<Service>sRequest) returns (List<Service>sResponse);
@@ -140,7 +140,7 @@ proto_library(
 go_proto_library(
     name = "<service>_go_proto",
     compilers = ["@rules_go//proto:go_proto"],
-    importpath = "github.com/anthropics/agentsmesh/proto/gen/go/<service>/v1",
+    importpath = "github.com/l8ai-cn/agentcloud/proto/gen/go/<service>/v1",
     proto = ":<service>_proto",
     visibility = ["//visibility:public"],
 )
@@ -168,9 +168,9 @@ import (
     "time"
 
     "connectrpc.com/connect"
-    authinterceptor "github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptor"
-    <service>v1 "github.com/anthropics/agentsmesh/proto/gen/go/<service>/v1"
-    <service>svc "github.com/anthropics/agentsmesh/backend/internal/service/<service>"
+    authinterceptor "github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptor"
+    <service>v1 "github.com/l8ai-cn/agentcloud/proto/gen/go/<service>/v1"
+    <service>svc "github.com/l8ai-cn/agentcloud/backend/internal/service/<service>"
 )
 
 const ServiceName = "proto.<service>.v1.<Service>Service"
@@ -259,7 +259,7 @@ load("@rules_go//go:def.bzl", "go_library", "go_test")
 go_library(
     name = "<service>",
     srcs = ["<service>.go"],
-    importpath = "github.com/anthropics/agentsmesh/backend/internal/api/connect/<service>",
+    importpath = "github.com/l8ai-cn/agentcloud/backend/internal/api/connect/<service>",
     visibility = ["//backend:__subpackages__"],
     deps = [
         "//proto/<service>/v1:<service>_go_proto",
@@ -338,7 +338,7 @@ pub struct Create<Service>Request {
 use crate::ApiClient;
 use crate::connect_call::connect_call;
 use crate::error::ApiError;
-use agentsmesh_types::*;
+use agentcloud_types::*;
 
 impl ApiClient {
     pub async fn list_<service>s(&self, req: &List<Service>sRequest) -> Result<List<Service>sResponse, ApiError> {
@@ -394,8 +394,8 @@ The wasm bridge surface is **binary in, binary out** — `Vec<u8>` (= TS `Uint8A
 `clients/core/crates/wasm/src/service_<service>.rs`:
 
 ```rust
-use agentsmesh_api_client::ApiClient;
-use agentsmesh_types::*;
+use agentcloud_api_client::ApiClient;
+use agentcloud_types::*;
 use prost::Message;
 use std::sync::Arc;
 use wasm_bindgen::prelude::*;
@@ -572,7 +572,7 @@ import (
     "testing"
 
     "connectrpc.com/connect"
-    <service>v1 "github.com/anthropics/agentsmesh/proto/gen/go/<service>/v1"
+    <service>v1 "github.com/l8ai-cn/agentcloud/proto/gen/go/<service>/v1"
     "github.com/stretchr/testify/require"
 )
 
@@ -834,7 +834,7 @@ proto_library(
 go_proto_library(
     name = "<service>_go_proto",
     compilers = ["@rules_go//proto:go_proto"],
-    importpath = "github.com/anthropics/agentsmesh/proto/gen/go/<service>/v1",
+    importpath = "github.com/l8ai-cn/agentcloud/proto/gen/go/<service>/v1",
     proto = ":<service>_proto",
     visibility = ["//visibility:public"],
 )

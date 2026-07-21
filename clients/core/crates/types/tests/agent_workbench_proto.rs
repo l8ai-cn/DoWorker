@@ -1,4 +1,4 @@
-use agentsmesh_types::proto_agent_workbench_v2 as v2;
+use agentcloud_types::proto_agent_workbench_v2 as v2;
 
 #[test]
 fn command_envelope_exposes_v2_core_command_oneof() {
@@ -54,7 +54,7 @@ fn tool_execution_keeps_exact_identity_and_results() {
     let execution = v2::ToolExecution {
         execution_id: "tool-1".into(),
         identity: Some(v2::ToolIdentity {
-            namespace: "agentsmesh.acp".into(),
+            namespace: "agentcloud.acp".into(),
             semantic_key: "shell".into(),
             schema_version: "1".into(),
             source_tool_name: Some("shell".into()),

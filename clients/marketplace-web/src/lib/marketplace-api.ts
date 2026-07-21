@@ -6,7 +6,7 @@ import type {
   MarketplaceErrorEnvelope,
 } from "./marketplace-types";
 
-const MARKET_SLUG = "do-worker-market";
+const MARKET_SLUG = "agent-cloud-market";
 const DEFAULT_API_URL = "http://marketplace:8080";
 const DEFAULT_REQUEST_HOST = "market.l8ai.cn";
 

@@ -2,7 +2,7 @@ import {
   ArtifactStatus,
   type ArtifactGrant,
   type ArtifactRepresentation,
-} from "@do-worker/proto/agent_workbench/v2/artifact_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/artifact_pb";
 
 import type {
   AgentArtifactGrant,

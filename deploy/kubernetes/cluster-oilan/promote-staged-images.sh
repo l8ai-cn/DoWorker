@@ -4,7 +4,7 @@ set -euo pipefail
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${DIR}/../../.." && pwd)"
 REG="${REG:-repo.aiedulab.cn:8443}"
-PROJ="${REG}/agentsmesh"
+PROJ="${REG}/agentcloud"
 PLATFORM="${PLATFORM:-linux/amd64}"
 STAGING_SERVICES=(backend marketplace marketplace-web relay web)
 

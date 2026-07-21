@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/backend/pkg/secretguard"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/secretguard"
 )
 
 func (p *parser) failMissingStructure(limits, repeat, failure bool) {

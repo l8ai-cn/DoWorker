@@ -5,7 +5,7 @@ import (
 	"encoding/hex"
 	"strconv"
 
-	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
+	agentworkbenchv2 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2"
 )
 
 func artifactDownloadGrant(
@@ -18,7 +18,7 @@ func artifactDownloadGrant(
 	maximumRevision := revision
 	return &agentworkbenchv2.ArtifactGrant{
 		GrantId:           artifactDownloadGrantID(artifactID, revision),
-		Issuer:            stringPointer("agentsmesh.runner"),
+		Issuer:            stringPointer("agentcloud.runner"),
 		Subject:           stringPointer("session.viewer"),
 		RepresentationIds: append([]string(nil), representationIDs...),
 		Actions:           []string{"artifact.download"},

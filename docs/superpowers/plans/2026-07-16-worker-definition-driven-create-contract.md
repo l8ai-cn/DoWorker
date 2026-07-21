@@ -68,7 +68,7 @@
 - [ ] Add a metadata-only compatible-resource query to the existing AI-resource resolver. It must apply organization visibility, connection/resource enabled state, modality, capability, and Definition protocol adapters.
 - [ ] Include only resource ID, revision, display label, selectable state, and blocking reason in `WorkerTypeOption`; the Backend remains authoritative and preflight/create repeat exact resolution.
 - [ ] Regenerate protobufs and update Rust/Web mapping. Do not move provider protocol filtering into the Web.
-- [ ] Run focused Go tests and `cargo test -p agentsmesh-services orchestration_resource_service`; confirm incompatible IDs cannot appear as selectable choices.
+- [ ] Run focused Go tests and `cargo test -p agentcloud-services orchestration_resource_service`; confirm incompatible IDs cannot appear as selectable choices.
 
 ### Task 4: Replace Static Web Form Logic
 

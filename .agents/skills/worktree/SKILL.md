@@ -17,7 +17,7 @@ user-invocable: true
 需要以下信息：
 - **分支名称**: 新功能/修复的分支名（如 `feature/add-login`, `fix/user-auth`）
 - **基础分支**: 从哪个分支创建（默认 `main`）
-- **worktree 目录**: 统一放在 `../AgentsMesh-Worktrees/<branch-name>`
+- **worktree 目录**: 统一放在 `../Agent Cloud-Worktrees/<branch-name>`
 
 ### 2. 创建 Worktree
 
@@ -26,14 +26,14 @@ user-invocable: true
 git fetch origin
 
 # 2. 创建 worktrees 目录（如不存在）
-mkdir -p ../AgentsMesh-Worktrees
+mkdir -p ../Agent Cloud-Worktrees
 
 # 3. 创建 worktree 和新分支
 # 分支名中的 / 替换为 - 作为目录名
-git worktree add -b <branch-name> ../AgentsMesh-Worktrees/<dir-name> origin/<base-branch>
+git worktree add -b <branch-name> ../Agent Cloud-Worktrees/<dir-name> origin/<base-branch>
 
 # 4. 进入 worktree 目录
-cd ../AgentsMesh-Worktrees/<dir-name>
+cd ../Agent Cloud-Worktrees/<dir-name>
 
 # 5. 验证状态
 git status
@@ -65,13 +65,13 @@ cd deploy/dev
 
 ```
 已创建 worktree:
-- 路径: /Users/xxx/Works/AIO/AgentsMesh-Worktrees/feature-user-auth
+- 路径: /Users/xxx/Works/AIO/Agent Cloud-Worktrees/feature-user-auth
 - 分支: feature/user-auth (基于 origin/main)
 
 开发环境:
 - 前端: http://localhost:3000
 - API:  http://localhost:<port>/api
-- 测试账号: dev@agentsmesh.local / AdminAb123456
+- 测试账号: dev@agentcloud.local / AdminAb123456
 - Adminer: http://localhost:<adminer-port>
 - MinIO: http://localhost:<minio-port>
 
@@ -95,9 +95,9 @@ cd deploy/dev
 ```bash
 # 步骤 1: 创建 worktree
 git fetch origin
-mkdir -p ../AgentsMesh-Worktrees
-git worktree add -b feature/user-auth ../AgentsMesh-Worktrees/feature-user-auth origin/main
-cd ../AgentsMesh-Worktrees/feature-user-auth
+mkdir -p ../Agent Cloud-Worktrees
+git worktree add -b feature/user-auth ../Agent Cloud-Worktrees/feature-user-auth origin/main
+cd ../Agent Cloud-Worktrees/feature-user-auth
 git status
 git log --oneline -3
 
@@ -109,7 +109,7 @@ cd deploy/dev
 ## 注意事项
 
 - 分支名遵循约定：`feature/*`, `fix/*`, `refactor/*`, `docs/*`
-- **所有 worktree 统一放在 `../AgentsMesh-Worktrees/` 目录下**
+- **所有 worktree 统一放在 `../Agent Cloud-Worktrees/` 目录下**
 - 目录名使用分支名，将 `/` 替换为 `-`（如 `feature/user-auth` → `feature-user-auth`）
 - 如果分支已存在，使用 `git worktree add <path> <existing-branch>`
 - 每个 worktree 的开发环境端口自动隔离（包括前端端口），可并行运行多个

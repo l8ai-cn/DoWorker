@@ -3,7 +3,7 @@ package orchestrationresource
 import (
 	"strings"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
 )
 
 const workerValidationDigest = "sha256:" +

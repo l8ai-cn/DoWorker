@@ -3,9 +3,9 @@ package agentsession
 import (
 	"context"
 
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	sessionDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
-	itemService "github.com/anthropics/agentsmesh/backend/internal/service/conversationitem"
+	podDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	sessionDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentsession"
+	itemService "github.com/l8ai-cn/agentcloud/backend/internal/service/conversationitem"
 	"gorm.io/gorm"
 )
 

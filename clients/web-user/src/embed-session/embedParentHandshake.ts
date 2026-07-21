@@ -1,5 +1,5 @@
-export const EMBED_OPEN_MESSAGE = "agentsmesh.embed.open";
-export const EMBED_READY_MESSAGE = "agentsmesh.embed.ready";
+export const EMBED_OPEN_MESSAGE = "agentcloud.embed.open";
+export const EMBED_READY_MESSAGE = "agentcloud.embed.ready";
 
 export function isEmbedReadyMessage(data: unknown): boolean {
   if (typeof data !== "object" || data === null) {

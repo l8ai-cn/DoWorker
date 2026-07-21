@@ -4,7 +4,7 @@
 - 更新：2026-07-16
 - 状态：V1.2 已实现，等待生产发布验收
 - 产品名：Loop 工作台
-- 执行对象：AgentsMesh Goal Loop
+- 执行对象：Agent Cloud Goal Loop
 
 ## 1. 产品目标
 

@@ -6,7 +6,7 @@ import (
 
 	"connectrpc.com/connect"
 
-	userv1 "github.com/anthropics/agentsmesh/proto/gen/go/user/v1"
+	userv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/user/v1"
 )
 
 // GetMe — REST analogue: GET /api/v1/users/me.

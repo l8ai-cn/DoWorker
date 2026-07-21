@@ -3,8 +3,8 @@ package v1
 import (
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
 )
 
 func hasRESTResumeRuntimeOverrides(req CreatePodRequest) bool {

@@ -1,6 +1,6 @@
 2026-07-17T12:43:03Z
-container: agentsmesh-codex-loop-blockly-mvp-runner-aider-1
-image: agentsmesh-codex-loop-blockly-mvp-runner-aider@sha256:dc67337a330902f3b7896d6bd53cb41cfda23d0f15fcf0e73d316a24e4fa3d79
+container: agentcloud-codex-loop-blockly-mvp-runner-aider-1
+image: agentcloud-codex-loop-blockly-mvp-runner-aider@sha256:dc67337a330902f3b7896d6bd53cb41cfda23d0f15fcf0e73d316a24e4fa3d79
 command: aider --version
 result: aider 0.86.2
 runtime configuration: runner-aider uses AGENT_RUNTIME=aider and python-runtime-base.

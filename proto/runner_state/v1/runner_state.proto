@@ -19,7 +19,7 @@ package proto.runner_state.v1;
 
 import "runner_api/v1/runner.proto";
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/runner_state/v1;runnerstatev1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/runner_state/v1;runnerstatev1";
 
 // ---------------------------------------------------------------------------
 // Realtime runner:status_changed event.

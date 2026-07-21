@@ -11,7 +11,7 @@ import {
 
 describe("urlSlug", () => {
   it("normalizes scheme + host to lowercase + alphanumeric_underscore", () => {
-    expect(urlSlug("https://AGENTSMESH.AI")).toBe("https_agentsmesh_ai");
+    expect(urlSlug("https://AGENTCLOUD.AI")).toBe("https_agentcloud_ai");
   });
 
   it("includes port when present", () => {
@@ -19,7 +19,7 @@ describe("urlSlug", () => {
   });
 
   it("strips trailing path / query / hash", () => {
-    expect(urlSlug("https://agentsmesh.ai/path?q=1#h")).toBe("https_agentsmesh_ai");
+    expect(urlSlug("https://agentcloud.ai/path?q=1#h")).toBe("https_agentcloud_ai");
   });
 
   it("caps at 64 chars", () => {
@@ -34,9 +34,9 @@ describe("urlSlug", () => {
 });
 
 describe("sessionStorageKey", () => {
-  it("formats as do-worker-auth/<slug>/session", () => {
-    expect(sessionStorageKey("https://agentsmesh.ai"))
-      .toBe("do-worker-auth/https_agentsmesh_ai/session");
+  it("formats as agent-cloud-auth/<slug>/session", () => {
+    expect(sessionStorageKey("https://agentcloud.ai"))
+      .toBe("agent-cloud-auth/https_agentcloud_ai/session");
   });
 });
 
@@ -56,9 +56,9 @@ describe("readLightSession", () => {
     expect(readLightSession(ORIGIN)).toBeNull();
   });
 
-  it("migrates legacy agentsmesh-auth key on read", () => {
+  it("migrates legacy agentcloud-auth key on read", () => {
     const future = Math.floor(Date.now() / 1000) + 3600;
-    const legacyKey = `agentsmesh-auth/${urlSlug(ORIGIN)}/session`;
+    const legacyKey = `agentcloud-auth/${urlSlug(ORIGIN)}/session`;
     window.localStorage.setItem(
       legacyKey,
       JSON.stringify({
@@ -126,7 +126,7 @@ describe("readLightSession", () => {
 
   it("isolates sessions across base_url namespaces", () => {
     const dev = "http://localhost:10007";
-    const prod = "https://agentsmesh.ai";
+    const prod = "https://agentcloud.ai";
     window.localStorage.setItem(
       sessionStorageKey(dev),
       JSON.stringify({ access_token: "dev", expires_at: 9_999_999_999, current_org_slug: "d" }),

@@ -11,9 +11,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/anthropics/agentsmesh/backend/internal/infra/websocket"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	eventsv1 "github.com/anthropics/agentsmesh/proto/gen/go/events/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/websocket"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	eventsv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/events/v1"
 )
 
 type fakeOrg struct{ slug string }

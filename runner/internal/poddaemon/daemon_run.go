@@ -7,14 +7,14 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/anthropics/agentsmesh/runner/internal/envfilter"
-	"github.com/anthropics/agentsmesh/runner/internal/safego"
+	"github.com/l8ai-cn/agentcloud/runner/internal/envfilter"
+	"github.com/l8ai-cn/agentcloud/runner/internal/safego"
 )
 
 func RunDaemon(configPath string) {
 	log := slog.Default()
 	log.Info("pod daemon starting", "config", configPath)
-	if message := os.Getenv("_AGENTSMESH_DAEMON_TEST_PANIC"); message != "" {
+	if message := os.Getenv("_AGENTCLOUD_DAEMON_TEST_PANIC"); message != "" {
 		panic(message)
 	}
 
@@ -73,7 +73,7 @@ func RunDaemon(configPath string) {
 		log:      log,
 		state:    state,
 	}
-	if value := os.Getenv("_AGENTSMESH_ORPHAN_CHECK_INTERVAL_SEC"); value != "" {
+	if value := os.Getenv("_AGENTCLOUD_ORPHAN_CHECK_INTERVAL_SEC"); value != "" {
 		if seconds, parseErr := strconv.Atoi(value); parseErr == nil && seconds > 0 {
 			daemon.orphanCheckInterval = time.Duration(seconds) * time.Second
 		}

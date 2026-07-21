@@ -218,7 +218,7 @@ describe("Sidebar session list", () => {
     // The same card now shows the settings nav (Back to app + sections),
     // not the conversation search/list.
     expect(screen.queryByPlaceholderText("Search sessions")).toBeNull();
-    expect(screen.getByRole("link", { name: /Back to Do Worker/ })).toHaveAttribute("href", "/");
+    expect(screen.getByRole("link", { name: /Back to Agent Cloud/ })).toHaveAttribute("href", "/");
     expect(screen.getByTestId("settings-nav-appearance")).toHaveAttribute(
       "href",
       "/settings/appearance",
@@ -320,7 +320,7 @@ describe("Sidebar session list", () => {
 
   it("offers a pencil on worker groups that links to the landing page with ?agent=", () => {
     const codex = conv("conv_codex", "Codex", {
-      labels: { "do-worker.wrapper": "codex-native-ui" },
+      labels: { "agent-cloud.wrapper": "codex-native-ui" },
       agent_id: "a2",
       workspace: "/data/admin-workspace/workspace",
       host_id: "host_admin-workspace-runner",
@@ -336,7 +336,7 @@ describe("Sidebar session list", () => {
 
   it("closes the mobile overlay when the worker group pencil is tapped", () => {
     const codex = conv("conv_codex", "Codex", {
-      labels: { "do-worker.wrapper": "codex-native-ui" },
+      labels: { "agent-cloud.wrapper": "codex-native-ui" },
       agent_id: "a2",
       workspace: "/data/admin-workspace/workspace",
       host_id: "host_admin-workspace-runner",
@@ -704,7 +704,7 @@ describe("Sidebar project sections", () => {
       conv("conv_pinned", "Claude Code", { labels: { omni_project: "Customer X" } }),
     ]);
     // Pin one of the filed sessions via localStorage (client-side pins).
-    localStorage.setItem("do-worker:pinned-conversation-ids", JSON.stringify(["conv_pinned"]));
+    localStorage.setItem("agent-cloud:pinned-conversation-ids", JSON.stringify(["conv_pinned"]));
     renderSidebar();
 
     // Pinned takes precedence over Project: the pinned session leaves the
@@ -899,7 +899,7 @@ describe("Sidebar collapsed project marker", () => {
 // persists across reloads.
 describe("Sidebar default section collapse", () => {
   it("expands Pinned and Sessions by default when there is no stored preference", () => {
-    localStorage.setItem("do-worker:pinned-conversation-ids", JSON.stringify(["conv_pin"]));
+    localStorage.setItem("agent-cloud:pinned-conversation-ids", JSON.stringify(["conv_pin"]));
     const rows = [conv("conv_pin", "Claude Code"), conv("conv_recent", "Claude Code")];
     seedExpandedSessionGroups([rows[1]!]);
     mockConversations(rows);
@@ -915,7 +915,7 @@ describe("Sidebar default section collapse", () => {
   it("honors a persisted collapse of the Sessions list across remount", () => {
     // "Chats" is the persisted collapse key (kept stable across the label
     // rename); the header it collapses now reads "Sessions".
-    localStorage.setItem("do-worker:collapsed-sidebar-sections", JSON.stringify(["Chats"]));
+    localStorage.setItem("agent-cloud:collapsed-sidebar-sections", JSON.stringify(["Chats"]));
     mockConversations([conv("conv_recent", "Claude Code")]);
     renderSidebar();
 
@@ -931,8 +931,8 @@ describe("Sidebar default section collapse", () => {
 // the just-pinned chat can't silently hide inside the collapsed group.
 describe("Sidebar auto-expand Pinned on pin", () => {
   it("expands a collapsed Pinned section when a session is newly pinned", () => {
-    localStorage.setItem("do-worker:collapsed-sidebar-sections", JSON.stringify(["Pinned"]));
-    localStorage.setItem("do-worker:pinned-conversation-ids", JSON.stringify(["conv_pinned"]));
+    localStorage.setItem("agent-cloud:collapsed-sidebar-sections", JSON.stringify(["Pinned"]));
+    localStorage.setItem("agent-cloud:pinned-conversation-ids", JSON.stringify(["conv_pinned"]));
     const rows = [conv("conv_pinned", "Claude Code"), conv("conv_plain", "Claude Code")];
     seedExpandedSessionGroups([rows[1]!]);
     mockConversations(rows);
@@ -951,7 +951,7 @@ describe("Sidebar auto-expand Pinned on pin", () => {
     // The Pinned section auto-expands so the freshly-pinned session is visible,
     // and the expansion is persisted (dropped from the collapsed list).
     expect(screen.getByRole("button", { name: /Pinned/ })).toHaveAttribute("aria-expanded", "true");
-    expect(JSON.parse(localStorage.getItem("do-worker:collapsed-sidebar-sections")!)).not.toContain(
+    expect(JSON.parse(localStorage.getItem("agent-cloud:collapsed-sidebar-sections")!)).not.toContain(
       "Pinned",
     );
   });
@@ -969,7 +969,7 @@ describe("Sidebar project/worker hierarchy", () => {
         host_id: "host_admin-workspace-runner",
       }),
     ];
-    localStorage.setItem("do-worker:pinned-conversation-ids", JSON.stringify(["conv_pinned"]));
+    localStorage.setItem("agent-cloud:pinned-conversation-ids", JSON.stringify(["conv_pinned"]));
     seedExpandedSessionGroups([rows[1]!]);
     mockConversations(rows);
     renderSidebar();
@@ -1035,7 +1035,7 @@ describe("Sidebar project/worker hierarchy", () => {
 describe("Sidebar pin marker visibility", () => {
   it("hover-reveals an unpin control on a pinned row (no persistent marker)", () => {
     mockConversations([conv("conv_pin", "Claude Code")]);
-    localStorage.setItem("do-worker:pinned-conversation-ids", JSON.stringify(["conv_pin"]));
+    localStorage.setItem("agent-cloud:pinned-conversation-ids", JSON.stringify(["conv_pin"]));
     renderSidebar();
 
     const pinned = screen.getByText("Pinned").closest("section")!;

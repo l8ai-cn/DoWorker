@@ -7,11 +7,11 @@ import (
 	"path/filepath"
 	"testing"
 
-	agentdomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
-	runtimedomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
+	agentdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agent"
+	runtimedomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerruntime"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/workerdefinition"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -107,7 +107,7 @@ func TestServiceListOptionsExposesModelRequirement(t *testing.T) {
 func TestServiceListOptionsAllowsInternalWorkerTypesInE2EEnvironment(
 	t *testing.T,
 ) {
-	t.Setenv("AGENTSMESH_INCLUDE_INTERNAL_AGENTS", "true")
+	t.Setenv("AGENTCLOUD_INCLUDE_INTERNAL_AGENTS", "true")
 	source := "AGENT e2e-mock-agent\nEXECUTABLE e2e-mock-agent\nMODE pty\nMODE acp\n"
 	agent := activeWorkerTypeAgentFor("e2e-echo", "e2e-mock-agent", source)
 	agent.IsInternal = true
@@ -122,7 +122,7 @@ func TestServiceListOptionsAllowsInternalWorkerTypesInE2EEnvironment(
     "id": 1,
     "slug": "e2e-echo-local",
     "name": "E2E Echo",
-    "reference": "docker-daemon://agentsmesh-runner-e2e-echo:latest@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "reference": "docker-daemon://agentcloud-runner-e2e-echo:latest@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
     "digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
     "worker_type_slugs": ["e2e-echo"],
     "enabled": true

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
-	eventsv1 "github.com/anthropics/agentsmesh/proto/gen/go/events/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/eventbus"
+	eventsv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/events/v1"
 )
 
 type NotifyFunc func(ctx context.Context, orgID int64, source, entityID, title, body, link, resolver string)

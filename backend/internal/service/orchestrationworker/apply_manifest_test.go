@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	resource "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
-	controlservice "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
-	"github.com/anthropics/agentsmesh/backend/internal/service/workerdependencyartifact"
+	control "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
+	resource "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationresource"
+	controlservice "github.com/l8ai-cn/agentcloud/backend/internal/service/orchestrationcontrol"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/workerdependencyartifact"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

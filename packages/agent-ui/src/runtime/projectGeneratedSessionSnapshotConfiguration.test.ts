@@ -1,15 +1,15 @@
 import { create } from "@bufbuild/protobuf";
 import { describe, expect, it } from "vitest";
 
-import { SessionConfigurationSchema } from "@do-worker/proto/agent_workbench/v2/configuration_pb";
+import { SessionConfigurationSchema } from "@agent-cloud/proto/agent_workbench/v2/configuration_pb";
 import {
   AgentEventSchema,
   ConfigurationChangedSchema,
   EventEnvelopeSchema,
   SessionSnapshotSchema,
   SupportCapabilitiesSchema,
-} from "@do-worker/proto/agent_workbench/v2/session_pb";
-import { SessionStatus } from "@do-worker/proto/agent_workbench/v2/session_state_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/session_pb";
+import { SessionStatus } from "@agent-cloud/proto/agent_workbench/v2/session_state_pb";
 
 import { projectGeneratedSessionSnapshot } from "./projectGeneratedSessionSnapshot";
 import { applyAgentEvent } from "./agentSessionEventReducer";

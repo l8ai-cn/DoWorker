@@ -2,38 +2,38 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: migration-208-repair-__RUN_ID__
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   backoffLimit: 0
   template:
     metadata:
       labels:
         app: migration-208-repair
-        agentsmesh.ai/repair-run: "__RUN_ID__"
+        agentcloud.ai/repair-run: "__RUN_ID__"
     spec:
       restartPolicy: Never
       imagePullSecrets:
-        - name: agentsmesh-regcred
+        - name: agentcloud-regcred
       initContainers:
         - name: apply-schema-repair
-          image: repo.aiedulab.cn:8443/agentsmesh/pgvector@sha256:1d533553fefe4f12e5d80c7b80622ba0c382abb5758856f52983d8789179f0fb
+          image: repo.aiedulab.cn:8443/agentcloud/pgvector@sha256:1d533553fefe4f12e5d80c7b80622ba0c382abb5758856f52983d8789179f0fb
           imagePullPolicy: IfNotPresent
           env:
             - name: PGPASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: agentsmesh-secrets
+                  name: agentcloud-secrets
                   key: DB_PASSWORD
           command:
             - sh
             - -ec
             - |
               test "$(cat /repair-lock/run-id)" = "__RUN_ID__"
-              until pg_isready -h postgres -U agentsmesh; do sleep 2; done
+              until pg_isready -h postgres -U agentcloud; do sleep 2; done
               psql \
                 -h postgres \
-                -U agentsmesh \
-                -d agentsmesh \
+                -U agentcloud \
+                -d agentcloud \
                 -v ON_ERROR_STOP=1 \
                 -f /repair/repair.sql
           volumeMounts:
@@ -45,7 +45,7 @@ spec:
               readOnly: true
       containers:
         - name: finish-migrations
-          image: repo.aiedulab.cn:8443/agentsmesh/backend@sha256:22c384c72ee54fa6a2877b9b2f6eb464ad5ba16be7efa3d1474838a55e18bde7
+          image: repo.aiedulab.cn:8443/agentcloud/backend@sha256:22c384c72ee54fa6a2877b9b2f6eb464ad5ba16be7efa3d1474838a55e18bde7
           imagePullPolicy: Always
           command:
             - sh
@@ -79,9 +79,9 @@ spec:
               printf '%s\n' "$version"
           envFrom:
             - configMapRef:
-                name: agentsmesh-config
+                name: agentcloud-config
             - secretRef:
-                name: agentsmesh-secrets
+                name: agentcloud-secrets
           volumeMounts:
             - name: repair-lock
               mountPath: /repair-lock

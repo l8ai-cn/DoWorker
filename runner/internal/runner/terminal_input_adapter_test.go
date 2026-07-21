@@ -3,7 +3,7 @@ package runner
 import (
 	"testing"
 
-	"github.com/anthropics/agentsmesh/runner/internal/agentkit"
+	"github.com/l8ai-cn/agentcloud/runner/internal/agentkit"
 	"github.com/stretchr/testify/assert"
 )
 

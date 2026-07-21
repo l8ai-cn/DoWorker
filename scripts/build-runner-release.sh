@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Cross-compile Do Worker runner CLI for 6 platforms and pack archives.
+# Cross-compile Agent Cloud runner CLI for 6 platforms and pack archives.
 #
 # Outputs (under dist/runner-release/ by default):
-#   do-worker-runner_<goos>_<goarch>.{tar.gz,zip}
+#   agent-cloud-runner_<goos>_<goarch>.{tar.gz,zip}
 #   checksums.txt
 #
 # Env:
@@ -17,8 +17,8 @@ cd "$ROOT"
 OUT_DIR="${OUT_DIR:-$ROOT/dist/runner-release}"
 VERSION="${VERSION:-dev}"
 BUILD_TIME="${BUILD_TIME:-$(date -u +%Y-%m-%dT%H:%M:%SZ)}"
-BINARY_NAME="do-worker-runner"
-ARCHIVE_BASENAME="do-worker-runner"
+BINARY_NAME="agent-cloud-runner"
+ARCHIVE_BASENAME="agent-cloud-runner"
 
 # Generated Go stubs are gitignored; ensure they exist before cross-compile.
 if [[ ! -f "$ROOT/proto/gen/go/runner/v1/runner.pb.go" ]]; then

@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
+	agentDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agent"
 )
 
 // ==================== AgentFile Resolved Precedence Tests ====================

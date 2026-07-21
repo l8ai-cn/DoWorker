@@ -15,7 +15,7 @@ func TestDefaultMarketplaceSeedContract(t *testing.T) {
 	require.NoError(t, err)
 
 	for _, fragment := range []string{
-		"'do-worker-market'",
+		"'agent-cloud-market'",
 		"'market.l8ai.cn'",
 		"'dowork.l8ai.cn'",
 		"'software-delivery'",

@@ -9,12 +9,12 @@ import (
 	"testing"
 	"time"
 
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	workflowDomain "github.com/anthropics/agentsmesh/backend/internal/domain/workflow"
-	"github.com/anthropics/agentsmesh/backend/internal/infra"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
-	agentpodSvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	"github.com/anthropics/agentsmesh/backend/internal/testkit"
+	podDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	workflowDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workflow"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/eventbus"
+	agentpodSvc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
+	"github.com/l8ai-cn/agentcloud/backend/internal/testkit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

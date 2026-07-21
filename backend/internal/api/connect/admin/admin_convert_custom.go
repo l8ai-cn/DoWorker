@@ -3,11 +3,11 @@ package adminconnect
 import (
 	"encoding/json"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/admin"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/organization"
-	domainrunner "github.com/anthropics/agentsmesh/backend/internal/domain/runner"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/user"
-	adminv1 "github.com/anthropics/agentsmesh/proto/gen/go/admin/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/admin"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/organization"
+	domainrunner "github.com/l8ai-cn/agentcloud/backend/internal/domain/runner"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/user"
+	adminv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/admin/v1"
 )
 
 // userSummaryToProto is field_custom helper for the embedded user pointer in

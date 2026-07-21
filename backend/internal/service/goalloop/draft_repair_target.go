@@ -1,6 +1,6 @@
 package goalloop
 
-import "github.com/anthropics/agentsmesh/backend/internal/loopscript"
+import "github.com/l8ai-cn/agentcloud/backend/internal/loopscript"
 
 type draftIntegerTarget struct {
 	current int64

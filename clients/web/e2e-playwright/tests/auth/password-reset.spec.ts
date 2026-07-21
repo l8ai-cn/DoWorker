@@ -14,7 +14,7 @@ test.describe("Password Reset Flow", () => {
    */
   test("forgot password returns success for valid email", async ({ api }) => {
     const cc = api.connectWithToken("");
-    const res = await cc.auth.forgotPassword({ email: "dev@agentsmesh.local" }) as { message?: string };
+    const res = await cc.auth.forgotPassword({ email: "dev@agentcloud.local" }) as { message?: string };
     expect(res.message).toBeTruthy();
   });
 

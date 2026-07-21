@@ -30,7 +30,7 @@ syntax = "proto3";
 
 package proto.invitation.v1;
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/invitation/v1;invitationv1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/invitation/v1;invitationv1";
 
 // ============================================================================
 // InvitationService — org-scoped (admin/owner)

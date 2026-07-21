@@ -7,9 +7,9 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/billing"
-	billingsvc "github.com/anthropics/agentsmesh/backend/internal/service/billing"
-	"github.com/anthropics/agentsmesh/backend/internal/service/payment"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/billing"
+	billingsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/billing"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/payment"
 )
 
 // cancelViaProvider mirrors REST's billing_subscription_cancel.go provider

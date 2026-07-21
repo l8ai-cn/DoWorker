@@ -6,7 +6,7 @@
 
 在 **不引入 Omnigent Python 控制面** 的前提下，完成五项工作流 + web-user 对接，使：
 
-1. `clients/web-user` 通过 Do Worker `/v1/*` compat 层可启动、建会话、发消息
+1. `clients/web-user` 通过 Agent Cloud `/v1/*` compat 层可启动、建会话、发消息
 2. `clients/web` 管理面由 AgentFile `CAPABILITY` 驱动，消除 slug 硬编码
 3. Backend/Runner 具备 Policy、Usage、Resume 的 **可扩展基础**（表 + proto + 评估桩）
 
@@ -34,7 +34,7 @@
 - [x] F2 POST/GET/LIST/PATCH sessions → Pod
 - [x] F4 POST events（message → SendPrompt）
 - [x] F3 SSE stream（status + keepalive）
-- [x] web-user vite 默认代理 Do Worker
+- [x] web-user vite 默认代理 Agent Cloud
 
 ### B/C/D — 基础
 - [x] 000163 permission_policies 表
@@ -74,7 +74,7 @@
 e2e-echo ACP → `AcpSessionEvent` → `SessionStreamPublisher` → SSE `turn.*`。
 
 - [x] S0.1 诊断 docker runner gRPC `handshake EOF`：根因是 traefik passthrough 在 Mac Docker 下不稳定；mTLS 直连 host 正常
-- [x] S0.2 `docker-compose.runners.yml` 改为 `GRPC_ENDPOINT: host.docker.internal:10016`；替换 legacy `agentsmesh-main-runner-1` 为 `runner-e2e-echo`
+- [x] S0.2 `docker-compose.runners.yml` 改为 `GRPC_ENDPOINT: host.docker.internal:10016`；替换 legacy `agentcloud-main-runner-1` 为 `runner-e2e-echo`
 - [x] S0.3–S0.4 session API 注入 `MODE acp`（`session_agentfile_layer.go`）；runner `acpSendPromptWhenReady` 修复 create/send_prompt 竞态
 - [x] S0.5 `node tests/session-compat-smoke/api-integration-smoke.mjs` **五步全绿**（2026-07-05 验证）
 
@@ -152,7 +152,7 @@ e2e-echo ACP → `AcpSessionEvent` → `SessionStreamPublisher` → SSE `turn.*`
 - [x] S6.3 `GET /v1/org/usage/summary`：聚合 org 下全部 `pod_session_usage`
 - [x] S6.4 Claude live usage：`assistant` message `usage` → `OnUsage` 回调
 - [x] S6.5 DoAgent `session/resume` vendor E2E：orchestrator 注入
-      `AGENTSMESH_RESUME_EXTERNAL_SESSION` → runner `session/resume`；
+      `AGENTCLOUD_RESUME_EXTERNAL_SESSION` → runner `session/resume`；
       fork smoke 断言 `RESUMED_OK`（`session-s4-smoke.mjs`）
 - [x] S6.6 web Usage 接 compat：`UsageLiveSessionCost` 拉
       `/v1/org/usage/summary`；Connect GetDashboard 合并 `pod_session_usage` token

@@ -37,13 +37,13 @@ export async function generateMetadata({
     title: post.title,
     description: post.excerpt,
     alternates: {
-      canonical: `https://agentsmesh.ai/blog/${slug}`,
+      canonical: `https://agentcloud.ai/blog/${slug}`,
     },
     openGraph: {
       title: post.title,
       description: post.excerpt,
       type: "article",
-      url: `https://agentsmesh.ai/blog/${slug}`,
+      url: `https://agentcloud.ai/blog/${slug}`,
       publishedTime: post.date,
       authors: [post.author],
       locale: dateLocaleMap[locale] ?? "en-US",
@@ -77,20 +77,20 @@ export default async function BlogPostPage({
               headline: post.title,
               description: post.excerpt,
               datePublished: post.date,
-              image: `https://agentsmesh.ai/blog/${slug}/opengraph-image`,
+              image: `https://agentcloud.ai/blog/${slug}/opengraph-image`,
               author: {
                 "@type": "Person",
                 name: post.author,
               },
               publisher: {
                 "@type": "Organization",
-                name: "Do Worker",
-                url: "https://agentsmesh.ai",
+                name: "Agent Cloud",
+                url: "https://agentcloud.ai",
               },
-              url: `https://agentsmesh.ai/blog/${slug}`,
+              url: `https://agentcloud.ai/blog/${slug}`,
               mainEntityOfPage: {
                 "@type": "WebPage",
-                "@id": `https://agentsmesh.ai/blog/${slug}`,
+                "@id": `https://agentcloud.ai/blog/${slug}`,
               },
             },
             {
@@ -101,13 +101,13 @@ export default async function BlogPostPage({
                   "@type": "ListItem",
                   position: 1,
                   name: "Home",
-                  item: "https://agentsmesh.ai",
+                  item: "https://agentcloud.ai",
                 },
                 {
                   "@type": "ListItem",
                   position: 2,
                   name: "Blog",
-                  item: "https://agentsmesh.ai/blog",
+                  item: "https://agentcloud.ai/blog",
                 },
                 {
                   "@type": "ListItem",

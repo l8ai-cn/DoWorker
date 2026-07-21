@@ -9,12 +9,12 @@ import (
 
 	"github.com/google/uuid"
 
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	agentsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	controlservice "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	podDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	control "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	agentsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
+	controlservice "github.com/l8ai-cn/agentcloud/backend/internal/service/orchestrationcontrol"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 type mcpWorkerPlanPayload struct {

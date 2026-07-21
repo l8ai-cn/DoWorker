@@ -1,5 +1,5 @@
-use agentsmesh_state::workflow_state::{WorkflowData, WorkflowRunData};
-use agentsmesh_types::proto_workflow_v1::{
+use agentcloud_state::workflow_state::{WorkflowData, WorkflowRunData};
+use agentcloud_types::proto_workflow_v1::{
     Workflow as ProtoWorkflow, WorkflowRun as ProtoWorkflowRun,
 };
 

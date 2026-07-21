@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"log/slog"
 
-	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/eventbus"
 )
 
 type HubEventSubscriber struct {

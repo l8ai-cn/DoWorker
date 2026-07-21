@@ -9,7 +9,7 @@ const CAPABILITIES = ["orchestrate", "remoteWorkstation", "taskDriven", "selfHos
 const QUICK_LINKS = [
   { href: "/docs/getting-started", titleKey: "quickStart", descKey: "quickStartDesc" },
   { href: "/docs/concepts/workers", titleKey: "agentpod", descKey: "agentpodDesc" },
-  { href: "/docs/features/channels", titleKey: "agentsmesh", descKey: "agentsmeshDesc" },
+  { href: "/docs/features/channels", titleKey: "agentcloud", descKey: "agentcloudDesc" },
   { href: "/docs/runners/mcp-tools", titleKey: "mcpTools", descKey: "mcpToolsDesc" },
 ] as const;
 

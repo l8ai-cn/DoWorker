@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
+	skilldom "github.com/l8ai-cn/agentcloud/backend/internal/domain/skill"
 )
 
 // SkillInfo holds parsed information about a discovered skill.

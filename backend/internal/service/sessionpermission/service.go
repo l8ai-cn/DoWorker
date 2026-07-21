@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/sessionpermission"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/sessionpermission"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )

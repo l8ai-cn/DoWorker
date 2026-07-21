@@ -51,7 +51,7 @@ impl ChannelRow for () {
 // Blanket impl for the proto-generated state schema so callers can plug
 // `ChannelRepo<Channel>` directly without re-declaring the trait at every
 // crate boundary (the orphan rule blocks downstream impls).
-impl ChannelRow for agentsmesh_types::proto_channel_state_v1::Channel {
+impl ChannelRow for agentcloud_types::proto_channel_state_v1::Channel {
     fn id(&self) -> i64 {
         self.id
     }

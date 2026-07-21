@@ -1,7 +1,7 @@
 use std::sync::atomic::Ordering::SeqCst;
 use std::time::Duration;
 
-use agentsmesh_protocol::{decode_message, MsgType};
+use agentcloud_protocol::{decode_message, MsgType};
 
 use crate::pool::RelayConnectionPool;
 use crate::test_support::{

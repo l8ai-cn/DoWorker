@@ -2,8 +2,8 @@ use std::collections::HashMap;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 
-use agentsmesh_api_client::ApiClient;
-use agentsmesh_transport::runtime::{PlatformRuntime, Runtime};
+use agentcloud_api_client::ApiClient;
+use agentcloud_transport::runtime::{PlatformRuntime, Runtime};
 use futures::channel::mpsc;
 use parking_lot::RwLock;
 

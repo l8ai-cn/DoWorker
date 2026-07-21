@@ -30,7 +30,7 @@ func convertOfficePreview(
 	if err != nil {
 		return nil, fmt.Errorf("LibreOffice soffice executable is required: %w", err)
 	}
-	tempDir, err := os.MkdirTemp("", "agentsmesh-office-preview-*")
+	tempDir, err := os.MkdirTemp("", "agentcloud-office-preview-*")
 	if err != nil {
 		return nil, fmt.Errorf("create office preview directory: %w", err)
 	}

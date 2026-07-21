@@ -8,25 +8,25 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/anthropics/agentsmesh/backend/internal/config"
-	"github.com/anthropics/agentsmesh/backend/migrations"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
+	"github.com/l8ai-cn/agentcloud/backend/migrations"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 )
 
-// runMigrate handles the `migrate` subcommand of the agentsmesh-backend
+// runMigrate handles the `migrate` subcommand of the agentcloud-backend
 // binary. The migration SQL lives inside the binary (//go:embed *.sql in
 // //backend/migrations), so deployment only needs the binary itself —
 // no companion `migrate` CLI, no /app/migrations mount.
 //
 // Invocations:
 //
-//	agentsmesh-backend migrate up           # apply all pending
-//	agentsmesh-backend migrate up <N>       # apply at most N
-//	agentsmesh-backend migrate down <N>     # rollback N (default 1)
-//	agentsmesh-backend migrate version      # print current version + dirty flag
-//	agentsmesh-backend migrate force <V>    # force schema_migrations.version (recover from dirty)
+//	agentcloud-backend migrate up           # apply all pending
+//	agentcloud-backend migrate up <N>       # apply at most N
+//	agentcloud-backend migrate down <N>     # rollback N (default 1)
+//	agentcloud-backend migrate version      # print current version + dirty flag
+//	agentcloud-backend migrate force <V>    # force schema_migrations.version (recover from dirty)
 //
 // Database connection params come from the same env vars the server
 // boot path uses (DATABASE_URL or POSTGRES_HOST/POSTGRES_USER/...), so

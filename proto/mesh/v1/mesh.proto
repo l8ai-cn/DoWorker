@@ -35,7 +35,7 @@ package proto.mesh.v1;
 
 import "codegen/v1/options.proto";
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/mesh/v1;meshv1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/mesh/v1;meshv1";
 
 // Convert codegen target — emits mesh_convert.amesh.go into the backend
 // connect handler tree so it can reach the mesh / agentpod domain layers.
@@ -245,7 +245,7 @@ message ReplayDeadLetterResponse {
 // name (pod_key, not key).
 message MeshNode {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/domain/mesh.MeshNode"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/mesh.MeshNode"
     generate_to_proto: true
     generate_from_proto: false
   };
@@ -278,7 +278,7 @@ message MeshNode {
 // backend/internal/domain/mesh/mesh.go:MeshEdge.
 message MeshEdge {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/domain/mesh.MeshEdge"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/mesh.MeshEdge"
     generate_to_proto: true
     generate_from_proto: false
   };
@@ -295,7 +295,7 @@ message MeshEdge {
 // backend/internal/domain/mesh/mesh.go:ChannelInfo.
 message ChannelInfo {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/domain/mesh.ChannelInfo"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/mesh.ChannelInfo"
     generate_to_proto: true
     generate_from_proto: false
   };
@@ -313,7 +313,7 @@ message ChannelInfo {
 // pod counts used by the topology's capacity badges.
 message RunnerInfo {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/domain/mesh.RunnerInfo"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/mesh.RunnerInfo"
     generate_to_proto: true
     generate_from_proto: false
   };

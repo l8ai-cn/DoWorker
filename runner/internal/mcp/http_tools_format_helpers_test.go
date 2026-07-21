@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/runner/internal/mcp/tools"
+	"github.com/l8ai-cn/agentcloud/runner/internal/mcp/tools"
 )
 
 // --- Mock collaboration client that returns real data ---

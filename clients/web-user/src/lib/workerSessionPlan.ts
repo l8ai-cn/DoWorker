@@ -3,10 +3,10 @@ import {
   ListWorkerCreateOptionsRequestSchema,
   ListWorkerCreateOptionsResponseSchema,
   type ListWorkerCreateOptionsResponse,
-} from "@do-worker/proto/pod/v1/worker_creation_pb";
+} from "@agent-cloud/proto/pod/v1/worker_creation_pb";
 
 import { authenticatedFetch } from "./identity";
-import { readDoWorkerOrgSlug } from "./do-worker";
+import { readAgentCloudOrgSlug } from "./agent-cloud";
 
 const OPTIONS_PROCEDURE = "/proto.pod.v1.PodService/ListWorkerCreateOptions";
 
@@ -116,7 +116,7 @@ async function listWorkerCreateOptions(filter: {
   computeTargetId?: bigint;
   deploymentMode?: string;
 }): Promise<ListWorkerCreateOptionsResponse> {
-  const orgSlug = readDoWorkerOrgSlug();
+  const orgSlug = readAgentCloudOrgSlug();
   if (!orgSlug) throw new Error("Select an organization before creating a Worker");
   const request = create(ListWorkerCreateOptionsRequestSchema, {
     orgSlug,

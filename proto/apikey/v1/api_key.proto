@@ -26,7 +26,7 @@ syntax = "proto3";
 
 package proto.apikey.v1;
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/apikey/v1;apikeyv1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/apikey/v1;apikeyv1";
 
 service ApiKeyService {
   rpc ListApiKeys(ListApiKeysRequest) returns (ListApiKeysResponse);

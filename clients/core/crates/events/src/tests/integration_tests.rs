@@ -9,8 +9,8 @@ use std::sync::atomic::{AtomicU32, Ordering::SeqCst};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
-use agentsmesh_api_client::ApiError;
-use agentsmesh_transport::runtime::PlatformRuntime;
+use agentcloud_api_client::ApiError;
+use agentcloud_transport::runtime::PlatformRuntime;
 use futures::channel::mpsc::{self, UnboundedSender};
 use parking_lot::Mutex;
 

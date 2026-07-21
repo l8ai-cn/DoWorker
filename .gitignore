@@ -182,8 +182,8 @@ images/relay.tar
 images/traefik.tar
 images/web-admin.tar
 images/web.tar
-runner/agentsmesh-runner
-agentsmesh-onpremise-v1.0.0.tar.gz
+runner/agentcloud-runner
+agentcloud-onpremise-v1.0.0.tar.gz
 
 # =========================
 # Rust / WASM (clients/core/)
@@ -206,11 +206,11 @@ clients/core/pkg/
 clients/core/crates/node-bridge/*.node
 
 # iOS build outputs — the XCFramework is produced by
-# //clients/core/crates/ffi:AgentsMeshCore (pure Bazel). Local dev
+# //clients/core/crates/ffi:Agent CloudCore (pure Bazel). Local dev
 # wires bazel-bin/ outputs into the SPM tree via `clients/ios/Makefile
 # link-core`, which drops symlinks into the two ignored paths below.
-clients/ios/Packages/AgentsMeshCore/Sources/AgentsMeshCoreFFI/AgentsMeshCore.xcframework
-clients/ios/Packages/AgentsMeshCore/Sources/AgentsMeshCore/Generated/
+clients/ios/Packages/Agent CloudCore/Sources/Agent CloudCoreFFI/Agent CloudCore.xcframework
+clients/ios/Packages/Agent CloudCore/Sources/Agent CloudCore/Generated/
 
 # =========================
 # iOS (Swift / Xcode)
@@ -222,10 +222,10 @@ clients/ios/build/
 clients/ios/.swiftpm/
 clients/ios/**/.build/
 # XcodeGen-generated project (regenerated from project.yml)
-clients/ios/AgentsMesh.xcodeproj/
+clients/ios/Agent Cloud.xcodeproj/
 # Symlinks created by `make link-core`
-clients/ios/Packages/AgentsMeshCore/Sources/AgentsMeshCore/Generated/AgentsMeshCore.swift
-clients/ios/Packages/AgentsMeshCore/Sources/AgentsMeshCoreFFI/AgentsMeshCore.xcframework
+clients/ios/Packages/Agent CloudCore/Sources/Agent CloudCore/Generated/Agent CloudCore.swift
+clients/ios/Packages/Agent CloudCore/Sources/Agent CloudCoreFFI/Agent CloudCore.xcframework
 
 # =========================
 # Claude Code

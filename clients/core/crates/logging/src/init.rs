@@ -104,7 +104,7 @@ mod tests {
         assert!(spec.contains("hyper=info"), "spec: {spec}");
         assert!(spec.contains("rustls=info"), "spec: {spec}");
         // our own crates keep the bare debug level — no clamp injected for them
-        assert!(!spec.contains("agentsmesh"), "spec: {spec}");
+        assert!(!spec.contains("agentcloud"), "spec: {spec}");
     }
 
     #[test]
@@ -115,7 +115,7 @@ mod tests {
     #[test]
     fn explicit_directive_left_verbatim() {
         // RUST_LOG / power-user style: not a bare level, so pass through untouched
-        assert_eq!(scoped_spec("agentsmesh_relay=debug"), "agentsmesh_relay=debug");
+        assert_eq!(scoped_spec("agentcloud_relay=debug"), "agentcloud_relay=debug");
         assert_eq!(scoped_spec("debug,hyper=trace"), "debug,hyper=trace");
     }
 }

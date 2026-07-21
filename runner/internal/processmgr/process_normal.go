@@ -7,7 +7,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/anthropics/agentsmesh/runner/internal/safego"
+	"github.com/l8ai-cn/agentcloud/runner/internal/safego"
 )
 
 // normalProcess is a cmd-backed handle without PTY. Stdio pipes are attached

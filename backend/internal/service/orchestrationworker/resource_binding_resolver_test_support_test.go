@@ -7,10 +7,10 @@ import (
 	"testing"
 	"time"
 
-	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	resource "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
-	controlservice "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	control "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
+	resource "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationresource"
+	controlservice "github.com/l8ai-cn/agentcloud/backend/internal/service/orchestrationcontrol"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 	"github.com/stretchr/testify/require"
 )
 

@@ -6,12 +6,12 @@ import (
 	"errors"
 	"testing"
 
-	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/expertmarket"
-	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
-	expertsvc "github.com/anthropics/agentsmesh/backend/internal/service/expert"
-	skillsvc "github.com/anthropics/agentsmesh/backend/internal/service/skill"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	expertdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/expert"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/expertmarket"
+	skilldom "github.com/l8ai-cn/agentcloud/backend/internal/domain/skill"
+	expertsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/expert"
+	skillsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/skill"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 	"github.com/lib/pq"
 	"github.com/stretchr/testify/require"
 )

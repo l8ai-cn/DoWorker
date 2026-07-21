@@ -16,7 +16,7 @@
 
 import { useSyncExternalStore } from "react";
 
-const STORAGE_KEY = "do-worker:seen-comment-ids";
+const STORAGE_KEY = "agent-cloud:seen-comment-ids";
 
 // Seen ids accumulate forever (comments have no client-visible
 // lifecycle end), so cap the registry and drop the oldest entries

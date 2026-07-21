@@ -10,7 +10,7 @@ import { Logo } from "@/components/common/Logo";
 import { useTranslations } from "next-intl";
 import { isMarketingRouteActive, marketingRoutes } from "./marketing-routes";
 
-const GITHUB_URL = "https://github.com/l8ai-cn/DoWorker";
+const GITHUB_URL = "https://github.com/l8ai-cn/AgentCloud";
 
 function GithubIcon() {
   return (
@@ -52,7 +52,7 @@ export function Navbar() {
               <Logo />
             </div>
             <span className="text-lg font-semibold text-white">
-              Do Worker
+              Agent Cloud
             </span>
           </Link>
 

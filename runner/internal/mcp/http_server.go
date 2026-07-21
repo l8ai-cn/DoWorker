@@ -9,9 +9,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/anthropics/agentsmesh/runner/internal/client"
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
-	"github.com/anthropics/agentsmesh/runner/internal/safego"
+	"github.com/l8ai-cn/agentcloud/runner/internal/client"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/safego"
 )
 
 // NewHTTPServer creates a new MCP HTTP server.
@@ -56,12 +56,12 @@ func (s *HTTPServer) Start() error {
 
 	// Bind host: defaults to loopback so the MCP HTTP surface isn't reachable
 	// from outside the runner host (it carries pod-scoped X-Pod-Key auth, not
-	// proper auth). Override via AGENTSMESH_MCP_BIND env when running inside a
+	// proper auth). Override via AGENTCLOUD_MCP_BIND env when running inside a
 	// container — docker port mappings only forward to interfaces the process
 	// listens on, so a 127.0.0.1-only bind is invisible from the host.
 	bindHost := os.Getenv("DO_WORKER_MCP_BIND")
 	if bindHost == "" {
-		bindHost = os.Getenv("AGENTSMESH_MCP_BIND")
+		bindHost = os.Getenv("AGENTCLOUD_MCP_BIND")
 	}
 	if bindHost == "" {
 		bindHost = "127.0.0.1"

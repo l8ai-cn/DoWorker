@@ -1,6 +1,6 @@
 package workercreation
 
-import resourceservice "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
+import resourceservice "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
 
 func (resolver *modelResolver) resolvedModel(
 	resourceID int64,

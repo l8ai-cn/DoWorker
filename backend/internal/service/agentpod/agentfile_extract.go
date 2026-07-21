@@ -3,13 +3,13 @@ package agentpod
 import (
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/agentfile"
-	"github.com/anthropics/agentsmesh/agentfile/extract"
-	"github.com/anthropics/agentsmesh/agentfile/merge"
-	"github.com/anthropics/agentsmesh/agentfile/parser"
-	"github.com/anthropics/agentsmesh/agentfile/resolve"
-	"github.com/anthropics/agentsmesh/agentfile/serialize"
-	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
+	"github.com/l8ai-cn/agentcloud/agentfile"
+	"github.com/l8ai-cn/agentcloud/agentfile/extract"
+	"github.com/l8ai-cn/agentcloud/agentfile/merge"
+	"github.com/l8ai-cn/agentcloud/agentfile/parser"
+	"github.com/l8ai-cn/agentcloud/agentfile/resolve"
+	"github.com/l8ai-cn/agentcloud/agentfile/serialize"
+	agentDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agent"
 )
 
 type agentfileExtractResult struct {

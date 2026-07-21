@@ -14,7 +14,7 @@ BEGIN
          registration_mode, owner_platform_org_id, created_by_platform_user_id,
          published_at)
     VALUES
-        ('do-worker-market', 'Do Worker 专家应用市场',
+        ('agent-cloud-market', 'Agent Cloud 专家应用市场',
          '面向真实工作的开箱即用 AI 专家应用',
          '汇集经过验证的专家应用、Skill、系统连接与资源。',
          'published', 'public', 'enterprise', 'public', 1, 1, NOW())
@@ -45,8 +45,8 @@ BEGIN
         (slug, publisher_type, display_name, summary, verification_status,
          verified_at)
     VALUES
-        ('do-worker', 'platform', 'Do Worker',
-         'Do Worker 平台维护的专家应用', 'verified', NOW())
+        ('agent-cloud', 'platform', 'Agent Cloud',
+         'Agent Cloud 平台维护的专家应用', 'verified', NOW())
     RETURNING id INTO publisher_id;
 
     INSERT INTO marketplace.marketplace_catalog_items

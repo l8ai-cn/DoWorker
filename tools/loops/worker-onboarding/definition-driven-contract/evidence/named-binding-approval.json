@@ -2,7 +2,7 @@
   "schema_version": 1,
   "status": "approved",
   "selection": "named_definition_document_bindings",
-  "approved_by": "Do Worker maintainer",
+  "approved_by": "Agent Cloud maintainer",
   "approved_at": "2026-07-16T18:32:09Z",
   "legacy_positional_read": false,
   "approved_scope": {

@@ -32,7 +32,7 @@ package proto.channel.v1;
 
 import "codegen/v1/options.proto";
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/channel/v1;channelv1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/channel/v1;channelv1";
 
 // Convert codegen target — emits channel_convert.amesh.go into the backend
 // connect handler tree so it can reach the channel domain layer.
@@ -85,7 +85,7 @@ service ChannelService {
 
 message Channel {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/domain/channel.Channel"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/channel.Channel"
     generate_to_proto: true
     generate_from_proto: false
   };
@@ -120,7 +120,7 @@ message Channel {
 // are opaque JSON strings on the wire (rich AST owned by serde DTO).
 message ChannelMessage {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/domain/channel.Message"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/channel.Message"
     generate_to_proto: true
     generate_from_proto: false
   };
@@ -171,7 +171,7 @@ message ChannelMessageSenderAgent {
 
 message ChannelMember {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/domain/channel.Member"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/channel.Member"
     generate_to_proto: true
     generate_from_proto: false
   };

@@ -22,7 +22,7 @@ func TestAccessTokenManagerSignsRS256AndPublishesJWKS(t *testing.T) {
 		PublicKey:  &privateKey.PublicKey,
 		KeyID:      "auth-key-2026-07",
 		Issuer:     "https://auth.example.com",
-		Audiences:  []string{"agentsmesh-api", "marketplace-api"},
+		Audiences:  []string{"agentcloud-api", "marketplace-api"},
 		Duration:   time.Hour,
 	})
 	require.NoError(t, err)
@@ -60,8 +60,8 @@ func TestAccessTokenManagerRejectsWrongAudienceAlgorithmAndKey(t *testing.T) {
 		PrivateKey: privateKey,
 		PublicKey:  &privateKey.PublicKey,
 		KeyID:      "auth-key",
-		Issuer:     "agentsmesh",
-		Audiences:  []string{"agentsmesh-api"},
+		Issuer:     "agentcloud",
+		Audiences:  []string{"agentcloud-api"},
 		Duration:   time.Hour,
 	})
 	require.NoError(t, err)
@@ -75,14 +75,14 @@ func TestAccessTokenManagerRejectsWrongAudienceAlgorithmAndKey(t *testing.T) {
 		UserID: 42,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
-			Issuer:    "agentsmesh",
-			Audience:  jwt.ClaimStrings{"agentsmesh-api"},
+			Issuer:    "agentcloud",
+			Audience:  jwt.ClaimStrings{"agentcloud-api"},
 		},
 	})
 	hsToken.Header["kid"] = "auth-key"
 	hsString, err := hsToken.SignedString([]byte("shared-secret"))
 	require.NoError(t, err)
-	_, err = manager.ValidateToken(hsString, "agentsmesh-api")
+	_, err = manager.ValidateToken(hsString, "agentcloud-api")
 	require.ErrorIs(t, err, ErrInvalidToken)
 
 	otherKey, err := rsa.GenerateKey(rand.Reader, 2048)
@@ -90,12 +90,12 @@ func TestAccessTokenManagerRejectsWrongAudienceAlgorithmAndKey(t *testing.T) {
 	otherManager, err := NewAccessTokenManager(AccessTokenConfig{
 		PublicKey: &otherKey.PublicKey,
 		KeyID:     "auth-key",
-		Issuer:    "agentsmesh",
-		Audiences: []string{"agentsmesh-api"},
+		Issuer:    "agentcloud",
+		Audiences: []string{"agentcloud-api"},
 		Duration:  time.Hour,
 	})
 	require.NoError(t, err)
-	_, err = otherManager.ValidateToken(tokenString, "agentsmesh-api")
+	_, err = otherManager.ValidateToken(tokenString, "agentcloud-api")
 	require.ErrorIs(t, err, ErrInvalidToken)
 }
 
@@ -108,7 +108,7 @@ func TestAccessTokenManagerRequiresExplicitKeysAndAudience(t *testing.T) {
 	_, err = NewAccessTokenManager(AccessTokenConfig{
 		PublicKey: &privateKey.PublicKey,
 		KeyID:     "auth-key",
-		Issuer:    "agentsmesh",
+		Issuer:    "agentcloud",
 	})
 	require.Error(t, err)
 
@@ -117,8 +117,8 @@ func TestAccessTokenManagerRequiresExplicitKeysAndAudience(t *testing.T) {
 	_, err = NewAccessTokenManager(AccessTokenConfig{
 		PublicKey: &weakKey.PublicKey,
 		KeyID:     "auth-key",
-		Issuer:    "agentsmesh",
-		Audiences: []string{"agentsmesh-api"},
+		Issuer:    "agentcloud",
+		Audiences: []string{"agentcloud-api"},
 		Duration:  time.Hour,
 	})
 	require.ErrorIs(t, err, ErrAccessTokenConfig)

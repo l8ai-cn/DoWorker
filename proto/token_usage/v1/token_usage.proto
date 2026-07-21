@@ -13,7 +13,7 @@ syntax = "proto3";
 
 package proto.token_usage.v1;
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/token_usage/v1;tokenusagev1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/token_usage/v1;tokenusagev1";
 
 service TokenUsageService {
   rpc GetDashboard(GetDashboardRequest) returns (GetDashboardResponse);

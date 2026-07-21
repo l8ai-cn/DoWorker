@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

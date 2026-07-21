@@ -7,7 +7,7 @@ import { useWorkspaceStore } from "../workspace";
 // in the store then NPE'd during a pod:status_changed realtime event.
 // The persist config now forces `panes` to an array.
 
-const KEY = "do-worker-workspace";
+const KEY = "agent-cloud-workspace";
 
 function seedStorage(raw: unknown) {
   localStorage.setItem(KEY, JSON.stringify({

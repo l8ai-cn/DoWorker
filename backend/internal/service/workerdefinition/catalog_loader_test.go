@@ -6,9 +6,9 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/agentfile/extract"
-	"github.com/anthropics/agentsmesh/agentfile/parser"
-	agentfileschema "github.com/anthropics/agentsmesh/agentfile/schema"
+	"github.com/l8ai-cn/agentcloud/agentfile/extract"
+	"github.com/l8ai-cn/agentcloud/agentfile/parser"
+	agentfileschema "github.com/l8ai-cn/agentcloud/agentfile/schema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

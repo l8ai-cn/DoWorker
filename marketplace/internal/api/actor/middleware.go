@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	authpkg "github.com/anthropics/agentsmesh/backend/pkg/auth"
+	authpkg "github.com/l8ai-cn/agentcloud/backend/pkg/auth"
 	"github.com/gin-gonic/gin"
 )
 

@@ -3,10 +3,10 @@ package main
 import (
 	"context"
 
-	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	workerplanner "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationworker"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	control "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
+	workerplanner "github.com/l8ai-cn/agentcloud/backend/internal/service/orchestrationworker"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 	"google.golang.org/protobuf/proto"
 )
 

@@ -3,7 +3,7 @@ package organization
 import (
 	"testing"
 
-	orgDomain "github.com/anthropics/agentsmesh/backend/internal/domain/organization"
+	orgDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/organization"
 )
 
 func TestPickDefaultOrgSlug(t *testing.T) {

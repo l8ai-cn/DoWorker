@@ -10,10 +10,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	apikeydom "github.com/anthropics/agentsmesh/backend/internal/domain/apikey"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	apikeyservice "github.com/anthropics/agentsmesh/backend/internal/service/apikey"
-	apikeyv1 "github.com/anthropics/agentsmesh/proto/gen/go/apikey/v1"
+	apikeydom "github.com/l8ai-cn/agentcloud/backend/internal/domain/apikey"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	apikeyservice "github.com/l8ai-cn/agentcloud/backend/internal/service/apikey"
+	apikeyv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/apikey/v1"
 )
 
 type fakeOrg struct {

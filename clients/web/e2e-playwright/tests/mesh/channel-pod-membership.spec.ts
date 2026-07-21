@@ -19,7 +19,7 @@ type ConnectClient = Awaited<ReturnType<ApiFixture["connect"]>>;
 type Channel = { id: bigint; memberCount: bigint; agentCount: bigint };
 type ChannelPod = { podKey: string };
 
-const SECOND_USER = { email: "dev2@agentsmesh.local", username: "devuser2", password: "AdminAb123456" };
+const SECOND_USER = { email: "dev2@agentcloud.local", username: "devuser2", password: "AdminAb123456" };
 const RAIL = '[data-testid="channel-right-rail"]';
 const POD_ROW = '[data-testid="channel-rail-pod"]';
 

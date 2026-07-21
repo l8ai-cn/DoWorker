@@ -2,7 +2,7 @@
 title: "Warum KI-Entwicklung ein Command Center braucht, nicht noch ein IDE"
 excerpt: "KI-Agenten sind universell einsetzbar. Wenn der Austausch von Spezialisierungen wegfällt, lösen sich Berufsrollen auf, und Entwicklungsprozesse, die auf Conway's Law basieren, müssen neu erfunden werden. Entwickler brauchen jetzt kein besseres IDE -- sondern ein Command Center zur Orchestrierung ganzer Agenten-Flotten."
 date: "2026-02-23"
-author: "Do Worker Team"
+author: "Agent Cloud Team"
 category: "Insight"
 readTime: 10
 ---
@@ -72,9 +72,9 @@ Je leistungsfähiger KI-Agenten werden, desto mehr verschiebt sich die Rolle des
 
 Die Daten stützen dies: Nach unseren Beobachtungen liefert KI 50-fache Effizienzgewinne bei Ausführungsaufgaben (Code generieren, Tests schreiben, Refactoring), aber nahezu null Verbesserung bei Entscheidungsaufgaben (Produktionsprobleme debuggen, Architekturen wählen, Prioritäten setzen). **Ausführung wird zur Massenware. Urteilsvermögen wird zum Engpass.**
 
-## Do Worker: Für diese Realität gebaut
+## Agent Cloud: Für diese Realität gebaut
 
-Do Worker wurde von Grund auf als **Command Center für Agenten-Flotten** konzipiert.
+Agent Cloud wurde von Grund auf als **Command Center für Agenten-Flotten** konzipiert.
 
 Die erste Wertschöpfungsebene ist das Command Center selbst:
 
@@ -108,8 +108,8 @@ Wir stehen an einem Wendepunkt. Die Werkzeuge, die wir bisher genutzt haben, wur
 
 Was entsteht, ist etwas Neues: einzelne Entwickler mit dem Output ganzer Teams, die Flotten von KI-Agenten über Command Center dirigieren, statt Code in IDEs zu schreiben.
 
-Do Worker ist für diese Zukunft gebaut. Nicht als weiteres IDE mit aufgesetzten KI-Features, sondern als das Command Center, das den Betrieb von Agenten-Flotten erst möglich macht.
+Agent Cloud ist für diese Zukunft gebaut. Nicht als weiteres IDE mit aufgesetzten KI-Features, sondern als das Command Center, das den Betrieb von Agenten-Flotten erst möglich macht.
 
 Die Frage ist nicht, ob dieser Wandel kommt. Die Frage ist, ob man bereit sein wird, wenn es soweit ist.
 
-[Starten Sie noch heute mit Do Worker.](https://agentsmesh.ai)
+[Starten Sie noch heute mit Agent Cloud.](https://agentcloud.ai)

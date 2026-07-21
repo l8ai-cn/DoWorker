@@ -3,7 +3,7 @@ package coordinator
 import (
 	"strings"
 
-	coordinatordom "github.com/anthropics/agentsmesh/backend/internal/domain/coordinator"
+	coordinatordom "github.com/l8ai-cn/agentcloud/backend/internal/domain/coordinator"
 )
 
 func coordinatorSnapshotID(project *coordinatordom.Project) (*int64, error) {

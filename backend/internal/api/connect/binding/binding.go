@@ -20,8 +20,8 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	bindingservice "github.com/anthropics/agentsmesh/backend/internal/service/binding"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	bindingservice "github.com/l8ai-cn/agentcloud/backend/internal/service/binding"
 )
 
 const ServiceName = "proto.binding.v1.BindingService"

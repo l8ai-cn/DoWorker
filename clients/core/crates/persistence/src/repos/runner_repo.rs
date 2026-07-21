@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use agentsmesh_types::proto_runner_api_v1::Runner;
+use agentcloud_types::proto_runner_api_v1::Runner;
 
 use crate::backend::StorageBackend;
 use crate::error::Result;

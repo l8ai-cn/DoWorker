@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use agentsmesh_events::types::RealtimeEvent;
-use agentsmesh_persistence::StorageBackend;
+use agentcloud_events::types::RealtimeEvent;
+use agentcloud_persistence::StorageBackend;
 
 use crate::acp_session::AcpSessionManager;
 use crate::agent_workbench_state::AgentWorkbenchState;

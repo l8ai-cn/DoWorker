@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/anthropics/agentsmesh/runner/internal/process"
+	"github.com/l8ai-cn/agentcloud/runner/internal/process"
 )
 
 // isProcessAlive checks if a process is alive (not zombie, not exited).
@@ -338,7 +338,7 @@ func TestOrphanCleanupAfterRecovery(t *testing.T) {
 	}
 
 	// Set orphan check interval to 2 seconds for faster test feedback.
-	env := append(os.Environ(), "_AGENTSMESH_ORPHAN_CHECK_INTERVAL_SEC=2")
+	env := append(os.Environ(), "_AGENTCLOUD_ORPHAN_CHECK_INTERVAL_SEC=2")
 
 	opts := CreateOpts{
 		PodKey:      "orph",

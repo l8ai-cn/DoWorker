@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
-use agentsmesh_state::acp_types::*;
-use agentsmesh_state::app_state::AppState;
-use agentsmesh_types::proto_acp_state_v1::{
+use agentcloud_state::acp_types::*;
+use agentcloud_state::app_state::AppState;
+use agentcloud_types::proto_acp_state_v1::{
     AddPermissionRequestRequest, UpdateConfigurationRequest, UpdatePlanRequest,
     UpdateToolCallRequest,
 };

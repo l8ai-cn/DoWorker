@@ -3,7 +3,7 @@ package parser
 import (
 	"testing"
 
-	"github.com/anthropics/agentsmesh/agentfile/lexer"
+	"github.com/l8ai-cn/agentcloud/agentfile/lexer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

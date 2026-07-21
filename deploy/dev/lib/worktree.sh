@@ -10,7 +10,7 @@
 # In a worktree the git-dir is `.git/worktrees/<name>`; in the main checkout
 # it's plain `.git`, so we fall back to the current branch.
 #
-# `AGENTSMESH_WORKTREE_NAME` env override takes precedence. Required by CI
+# `AGENTCLOUD_WORKTREE_NAME` env override takes precedence. Required by CI
 # shards: detached-HEAD checkouts (PR + push events) resolve to the literal
 # string "HEAD" → slug "head", so every PR / every shard collapses onto the
 # same compose project name and the same backend / DB / runner containers.
@@ -19,8 +19,8 @@
 # in-flight pod of the other. The override is opt-in; local devs and the
 # main worktree continue to use the git-derived name.
 get_worktree_name() {
-    if [[ -n "${AGENTSMESH_WORKTREE_NAME:-}" ]]; then
-        echo "$AGENTSMESH_WORKTREE_NAME" | sed 's/[^a-zA-Z0-9-]/-/g' | tr '[:upper:]' '[:lower:]'
+    if [[ -n "${AGENTCLOUD_WORKTREE_NAME:-}" ]]; then
+        echo "$AGENTCLOUD_WORKTREE_NAME" | sed 's/[^a-zA-Z0-9-]/-/g' | tr '[:upper:]' '[:lower:]'
         return
     fi
 

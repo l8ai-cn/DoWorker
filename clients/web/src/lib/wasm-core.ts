@@ -1,8 +1,8 @@
 import initWasm, {
   version, WasmApiClient, WasmAuthManager, WasmEventsManager, WasmWebSocket,
   init_logger, log_event,
-} from "do-worker-wasm";
-import { markServiceReady, setPlatformInit } from "@do-worker/service-runtime";
+} from "agent-cloud-wasm";
+import { markServiceReady, setPlatformInit } from "@agent-cloud/service-runtime";
 import { getApiBaseUrl } from "./env";
 import { registerAll } from "./wasm-getters";
 import { installConsoleCapture } from "./console-capture";
@@ -36,8 +36,8 @@ async function doWasmInit(): Promise<void> {
 
 setPlatformInit(doWasmInit);
 
-export { ensurePlatformReady as initWasmCore } from "@do-worker/service-runtime";
-export { isServiceReady as isWasmReady, NOOP_PROXY, parseWasmAny } from "@do-worker/service-runtime";
+export { ensurePlatformReady as initWasmCore } from "@agent-cloud/service-runtime";
+export { isServiceReady as isWasmReady, NOOP_PROXY, parseWasmAny } from "@agent-cloud/service-runtime";
 
 export { WasmEventsManager, WasmWebSocket };
 export { log_event as wasmLogEvent };
@@ -63,4 +63,4 @@ export {
   getExecutionClusterService,
   getAgentWorkbenchService,
   getAgentWorkbenchState,
-} from "@do-worker/service-runtime";
+} from "@agent-cloud/service-runtime";

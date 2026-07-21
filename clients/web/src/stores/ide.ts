@@ -90,8 +90,8 @@ export const useIDEStore = create<IDEState>()(
       setHasHydrated: (state) => set({ _hasHydrated: state }),
     }),
     {
-      name: "do-worker-ide",
-      storage: legacyPersistStorage("agentsmesh-ide"),
+      name: "agent-cloud-ide",
+      storage: legacyPersistStorage("agentcloud-ide"),
       partialize: (state) => ({
         activeActivity: state.activeActivity,
         sidebarOpen: state.sidebarOpen,

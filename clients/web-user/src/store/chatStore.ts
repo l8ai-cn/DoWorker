@@ -274,7 +274,7 @@ export interface ChatState {
   backgroundTaskCount: number;
   /**
    * Whether the active session is a native-terminal wrapper
-   * (claude-native / codex-native), derived from the `do-worker.wrapper`
+   * (claude-native / codex-native), derived from the `agent-cloud.wrapper`
    * label on bind. Web messages on these sessions are NOT persisted at
    * POST time — they round-trip through the vendor TUI and reconcile via
    * the transcript forwarder's `session.input.consumed` event, which can
@@ -343,7 +343,7 @@ export interface ChatState {
   costControlModeOverride: "on" | "off" | null;
   /**
    * Per-session Codex collaboration-mode flag. Hydrated from
-   * ``do-worker.codex_native.collaboration_mode`` on bind and updated by the
+   * ``agent-cloud.codex_native.collaboration_mode`` on bind and updated by the
    * web toggle or native Codex TUI events. False for non-Codex sessions.
    */
   codexPlanMode: boolean;
@@ -596,8 +596,8 @@ const STREAM_RECONNECT_MAX_MS = 5_000;
 
 // Sticky picker prefs — persisted so a new chat inherits the user's
 // last pick across reloads and across sessions.
-const PICKER_PREF_EFFORT_KEY = "do-worker.picker.effort";
-const PICKER_PREF_MODEL_KEY = "do-worker.picker.model";
+const PICKER_PREF_EFFORT_KEY = "agent-cloud.picker.effort";
+const PICKER_PREF_MODEL_KEY = "agent-cloud.picker.model";
 
 function loadPickerPref(key: string): string | null {
   try {
@@ -1486,7 +1486,7 @@ type NativeModelFamily = "claude" | "codex";
  * :returns: ``"claude"`` / ``"codex"`` for native wrappers, else ``null``.
  */
 function nativeModelFamilyForSession(session: Pick<Session, "labels">): NativeModelFamily | null {
-  switch (session.labels?.["do-worker.wrapper"]) {
+  switch (session.labels?.["agent-cloud.wrapper"]) {
     case "claude-code-native-ui":
       return "claude";
     case "codex-native-ui":
@@ -1709,7 +1709,7 @@ function sessionBindingPatch(
   | "terminalPending"
   | "sandboxStatus"
 > {
-  const wrapper = session.labels?.["do-worker.wrapper"];
+  const wrapper = session.labels?.["agent-cloud.wrapper"];
   return {
     isNativeTerminalSession: isNativeWrapper(wrapper),
     // Native wrapper whose model lives in the vendor TUI (no Omnigent picker):

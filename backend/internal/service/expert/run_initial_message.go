@@ -5,9 +5,9 @@ import (
 	"errors"
 	"strings"
 
-	sessiondomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	itemservice "github.com/anthropics/agentsmesh/backend/internal/service/conversationitem"
+	sessiondomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentsession"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	itemservice "github.com/l8ai-cn/agentcloud/backend/internal/service/conversationitem"
 )
 
 func (s *Service) prepareRunInitialMessage(

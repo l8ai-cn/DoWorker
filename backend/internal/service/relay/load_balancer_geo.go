@@ -1,7 +1,7 @@
 package relay
 
 import (
-	"github.com/anthropics/agentsmesh/backend/internal/service/geo"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/geo"
 )
 
 type GeoSelectOptions struct {

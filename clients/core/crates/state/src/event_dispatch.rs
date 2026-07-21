@@ -1,8 +1,8 @@
-use agentsmesh_events::event_types::EventType;
-use agentsmesh_events::types::RealtimeEvent;
-use agentsmesh_types::proto_pod_v1::Pod;
-use agentsmesh_types::proto_runner_api_v1::Runner;
-use agentsmesh_types::proto_ticket_v1::Ticket;
+use agentcloud_events::event_types::EventType;
+use agentcloud_events::types::RealtimeEvent;
+use agentcloud_types::proto_pod_v1::Pod;
+use agentcloud_types::proto_runner_api_v1::Runner;
+use agentcloud_types::proto_ticket_v1::Ticket;
 use serde_json::Value;
 
 use crate::app_state::{AppState, NotificationSpec, ToastSpec};
@@ -558,7 +558,7 @@ mod tests {
     fn channel_message_protojson_string_int64() {
         let mut s = AppState::new();
         s.channels
-            .set_channels(vec![agentsmesh_types::proto_channel_state_v1::Channel {
+            .set_channels(vec![agentcloud_types::proto_channel_state_v1::Channel {
                 id: 10,
                 name: "gen".into(),
                 member_count: Some(1),
@@ -587,7 +587,7 @@ mod tests {
     fn channel_member_added_protojson_string_int64() {
         let mut s = AppState::new();
         s.channels
-            .set_channels(vec![agentsmesh_types::proto_channel_state_v1::Channel {
+            .set_channels(vec![agentcloud_types::proto_channel_state_v1::Channel {
                 id: 10,
                 name: "gen".into(),
                 member_count: Some(1),
@@ -772,7 +772,7 @@ mod tests {
 
     #[test]
     fn pod_status_changed_syncs_mesh_node() {
-        use agentsmesh_types::proto_mesh_v1::{MeshNode, MeshTopology};
+        use agentcloud_types::proto_mesh_v1::{MeshNode, MeshTopology};
         let mut s = AppState::new();
         s.mesh.set_topology(MeshTopology {
             nodes: vec![MeshNode {
@@ -883,7 +883,7 @@ mod tests {
     fn channel_member_added_increments_count() {
         let mut s = AppState::new();
         s.channels
-            .add_channel(agentsmesh_types::proto_channel_state_v1::Channel {
+            .add_channel(agentcloud_types::proto_channel_state_v1::Channel {
                 id: 7,
                 name: "general".into(),
                 is_archived: false,
@@ -905,7 +905,7 @@ mod tests {
     fn channel_member_removed_decrements_count_clamped() {
         let mut s = AppState::new();
         s.channels
-            .add_channel(agentsmesh_types::proto_channel_state_v1::Channel {
+            .add_channel(agentcloud_types::proto_channel_state_v1::Channel {
                 id: 7,
                 name: "general".into(),
                 is_archived: false,

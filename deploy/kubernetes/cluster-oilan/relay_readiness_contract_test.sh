@@ -14,7 +14,7 @@ grep -Fq \
   'EXPECTED_IMAGE_DIGEST="sha256:7ce51042743fa58f03ec045e22c211a4d7f830b215491f50e63807d332ab80e8"' \
   "${BUILD}"
 grep -Fq \
-  'FROM repo.aiedulab.cn:8443/agentsmesh/relay@sha256:4e5992c1702cfc467d578ae4ff693cdece606c534c62c1c25dbd373498d4022d' \
+  'FROM repo.aiedulab.cn:8443/agentcloud/relay@sha256:4e5992c1702cfc467d578ae4ff693cdece606c534c62c1c25dbd373498d4022d' \
   "${DOCKERFILE}"
 grep -Fq 'COPY --chown=1000:1000 relay-${RELAY_SHA} /app/relay' \
   "${DOCKERFILE}"

@@ -115,6 +115,6 @@ Protected paths:
 ## Escalation
 
 - Condition: approval, credential, browser, budget, or no-progress gate is reached
-- Owner: Do Worker maintainer
+- Owner: Agent Cloud maintainer
 - Channel: Codex thread
 - Message template: Definition-driven Worker loop stopped: {reason}. Evidence: {evidence_ref}.

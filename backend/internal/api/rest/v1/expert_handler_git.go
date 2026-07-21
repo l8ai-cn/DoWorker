@@ -10,10 +10,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	expertSvc "github.com/anthropics/agentsmesh/backend/internal/service/expert"
-	"github.com/anthropics/agentsmesh/backend/internal/service/gitops"
-	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	expertSvc "github.com/l8ai-cn/agentcloud/backend/internal/service/expert"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/gitops"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/apierr"
 )
 
 const (

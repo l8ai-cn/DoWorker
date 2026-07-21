@@ -76,7 +76,7 @@ export function syncNotificationsFromSessions(sessions: LiveSessionSummary[]): v
     next.push({
       id: "n-welcome",
       kind: "info",
-      title: "已连接 Do Worker",
+      title: "已连接 Agent Cloud",
       body: "会话审批与状态变更会实时汇总到这里。",
       ts: now,
       read: true,

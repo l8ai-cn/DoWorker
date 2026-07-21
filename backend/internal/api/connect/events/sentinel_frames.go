@@ -3,7 +3,7 @@ package eventsconnect
 import (
 	"time"
 
-	eventsv1 "github.com/anthropics/agentsmesh/proto/gen/go/events/v1"
+	eventsv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/events/v1"
 )
 
 // connect-go server-stream 的 HTTP 200 header 直到首个 Send 才 flush;静默 org

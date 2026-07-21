@@ -1,8 +1,8 @@
 package v1
 
 import (
-	grantservice "github.com/anthropics/agentsmesh/backend/internal/service/grant"
-	"github.com/anthropics/agentsmesh/backend/internal/service/repository"
+	grantservice "github.com/l8ai-cn/agentcloud/backend/internal/service/grant"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/repository"
 )
 
 // RepositoryHandler handles repository-related requests.

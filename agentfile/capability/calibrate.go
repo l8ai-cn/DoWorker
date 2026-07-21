@@ -17,7 +17,7 @@ func ProbeRuntimeFromInitialize(raw json.RawMessage) map[string]string {
 		} `json:"capabilities"`
 		AgentsmeshExtensions struct {
 			ControlRequest bool `json:"controlRequest"`
-		} `json:"agentsmeshExtensions"`
+		} `json:"agentcloudExtensions"`
 	}
 	if err := json.Unmarshal(raw, &body); err != nil {
 		return nil

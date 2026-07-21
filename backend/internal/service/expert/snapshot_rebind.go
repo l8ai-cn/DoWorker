@@ -3,7 +3,7 @@ package expert
 import (
 	"context"
 
-	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
+	expertdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/expert"
 )
 
 func (s *Service) RebindWorkerSpecSnapshot(

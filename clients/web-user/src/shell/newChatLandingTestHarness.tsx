@@ -13,7 +13,7 @@ import { useRunnerHealthRegistration } from "@/hooks/RunnerHealthProvider";
 import { CapabilitiesProvider } from "@/lib/CapabilitiesContext";
 import type { ServerInfo } from "@/lib/capabilities";
 import { authenticatedFetch } from "@/lib/identity";
-import { setDoWorkerHostConfig } from "@/lib/host";
+import { setAgentCloudHostConfig } from "@/lib/host";
 import { setPendingInitialPrompt } from "@/store/chatStore";
 import { NewChatLandingScreen, resetLandingDraft } from "./NewChatDialog";
 
@@ -26,7 +26,7 @@ const defaultModelConfigMock = vi.mocked(defaultModelConfig);
 export const useHostFilesystemMock = vi.mocked(useHostFilesystem);
 export const useDirectorySessionsMock = vi.mocked(useDirectorySessions);
 export const useRunnerHealthMock = vi.mocked(useRunnerHealthRegistration);
-export const RECENT_KEY = "do-worker:recent-workspaces";
+export const RECENT_KEY = "agent-cloud:recent-workspaces";
 
 export function host(status: "online" | "offline" = "online", i = 1): Host {
   return { host_id: `host_${i}`, name: `machine-${i}`, owner: "me", status };
@@ -79,7 +79,7 @@ export function setupLandingMocks() {
   useRunnerHealthMock.mockReset();
   resetLandingDraft();
   localStorage.clear();
-  setDoWorkerHostConfig({});
+  setAgentCloudHostConfig({});
   localStorage.setItem(RECENT_KEY, JSON.stringify({ host_1: ["/Users/corey/repo"] }));
   mockHosts([host()]);
   mockAgents([

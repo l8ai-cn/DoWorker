@@ -3,7 +3,7 @@ package eval
 import (
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/agentfile/parser"
+	"github.com/l8ai-cn/agentcloud/agentfile/parser"
 )
 
 const maxForIterations = 10000

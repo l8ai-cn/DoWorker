@@ -12,7 +12,7 @@ import (
 	"github.com/go-acme/lego/v4/lego"
 	"github.com/go-acme/lego/v4/registration"
 
-	"github.com/anthropics/agentsmesh/backend/internal/infra/dns"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/dns"
 )
 
 type Config struct {
@@ -61,7 +61,7 @@ func NewManager(cfg Config) (*Manager, error) {
 		cfg.RenewalDays = 30
 	}
 	if cfg.StorageDir == "" {
-		cfg.StorageDir = "/var/lib/agentsmesh/acme"
+		cfg.StorageDir = "/var/lib/agentcloud/acme"
 	}
 
 	if err := os.MkdirAll(cfg.StorageDir, 0700); err != nil {

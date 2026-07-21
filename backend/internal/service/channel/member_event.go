@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
-	eventsv1 "github.com/anthropics/agentsmesh/proto/gen/go/events/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/eventbus"
+	eventsv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/events/v1"
 )
 
 func (s *Service) publishMemberEvent(ctx context.Context, ch_orgID, channelID, userID int64, eventType eventbus.EventType, role string) {

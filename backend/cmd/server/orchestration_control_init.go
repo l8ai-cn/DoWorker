@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"time"
 
-	resource "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
-	"github.com/anthropics/agentsmesh/backend/internal/infra"
-	controlservice "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
-	workerplanner "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationworker"
-	"github.com/anthropics/agentsmesh/backend/internal/service/organization"
-	"github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
+	resource "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationresource"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra"
+	controlservice "github.com/l8ai-cn/agentcloud/backend/internal/service/orchestrationcontrol"
+	workerplanner "github.com/l8ai-cn/agentcloud/backend/internal/service/orchestrationworker"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/organization"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/workercreation"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )

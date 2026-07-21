@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use agentsmesh_api_client::ApiClient;
-use agentsmesh_types::proto_ticket_v1 as ticket_proto;
+use agentcloud_api_client::ApiClient;
+use agentcloud_types::proto_ticket_v1 as ticket_proto;
 use prost::Message;
 
 // Networking-only service for the ticket domain. The ticket cache (tickets,
@@ -24,8 +24,8 @@ impl TicketService {
         // proto.mesh.v1 owns ticket→pod lookup (MeshService domain). Project
         // each MeshPodNode into proto.pod.v1.Pod for the shared PodState
         // cache (only the channel-surface subset of fields is filled).
-        use agentsmesh_types::proto_mesh_v1 as mp;
-        use agentsmesh_types::proto_pod_v1::Pod;
+        use agentcloud_types::proto_mesh_v1 as mp;
+        use agentcloud_types::proto_pod_v1::Pod;
         let req = mp::GetTicketPodsRequest {
             org_slug: self.client.current_org_slug(),
             ticket_slug: slug.to_string(),

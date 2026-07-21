@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"strings"
 
-	coordinatordom "github.com/anthropics/agentsmesh/backend/internal/domain/coordinator"
-	ticketDomain "github.com/anthropics/agentsmesh/backend/internal/domain/ticket"
-	agentpodSvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	ticketSvc "github.com/anthropics/agentsmesh/backend/internal/service/ticket"
+	coordinatordom "github.com/l8ai-cn/agentcloud/backend/internal/domain/coordinator"
+	ticketDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/ticket"
+	agentpodSvc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
+	ticketSvc "github.com/l8ai-cn/agentcloud/backend/internal/service/ticket"
 )
 
 var ErrCoordinatorWorkerSpecSnapshotRequired = errors.New(

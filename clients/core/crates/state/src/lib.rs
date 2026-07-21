@@ -37,7 +37,7 @@ pub mod workflow_types;
 
 #[cfg(test)]
 mod agent_workbench_test_fixtures {
-    use agentsmesh_types::proto_agent_workbench_v2 as v2;
+    use agentcloud_types::proto_agent_workbench_v2 as v2;
 
     pub(crate) fn snapshot() -> v2::SessionSnapshot {
         v2::SessionSnapshot {

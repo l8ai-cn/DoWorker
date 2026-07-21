@@ -2,11 +2,11 @@
   "schema_version": 1,
   "worker_slug": "do-agent",
   "validated_at": "2026-07-12T19:01:34Z",
-  "image": "do-worker/runner-do-agent:latest",
+  "image": "agent-cloud/runner-do-agent:latest",
   "image_id": "sha256:cafff00644942615a971e75155ad37e7ccff4b56ba869c6b8982cf07d7f37cce",
   "platform": "linux/amd64",
   "build_command": "FORCE_REBUILD=1 BUILD_RETRIES=1 bash docker/agent-runtime/build.sh do-agent",
-  "smoke_command": "docker run --rm --platform linux/amd64 --entrypoint sh do-worker/runner-do-agent:latest -lc '<checks>'",
+  "smoke_command": "docker run --rm --platform linux/amd64 --entrypoint sh agent-cloud/runner-do-agent:latest -lc '<checks>'",
   "checks": {
     "container_user": "runner",
     "cli_path": "/usr/local/bin/do-agent",

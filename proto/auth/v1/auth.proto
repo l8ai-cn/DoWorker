@@ -32,7 +32,7 @@ syntax = "proto3";
 
 package proto.auth.v1;
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/auth/v1;authv1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/auth/v1;authv1";
 
 // ============================================================================
 // AuthService — public (unauthenticated) RPCs

@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/runner/internal/fsutil"
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/fsutil"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
 )
 
 // ensureRepository clones or fetches a repository

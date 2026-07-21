@@ -1,9 +1,9 @@
 package agentpod
 
 import (
-	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
+	agentDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agent"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
 )
 
 // CreatePodRequest represents a pod creation request

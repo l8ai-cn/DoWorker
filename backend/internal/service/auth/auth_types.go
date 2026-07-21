@@ -5,9 +5,9 @@ import (
 	"errors"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/user"
-	userService "github.com/anthropics/agentsmesh/backend/internal/service/user"
-	authpkg "github.com/anthropics/agentsmesh/backend/pkg/auth"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/user"
+	userService "github.com/l8ai-cn/agentcloud/backend/internal/service/user"
+	authpkg "github.com/l8ai-cn/agentcloud/backend/pkg/auth"
 	"github.com/redis/go-redis/v9"
 )
 

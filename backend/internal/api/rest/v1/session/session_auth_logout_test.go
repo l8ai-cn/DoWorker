@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	authservice "github.com/anthropics/agentsmesh/backend/internal/service/auth"
-	authpkg "github.com/anthropics/agentsmesh/backend/pkg/auth"
+	authservice "github.com/l8ai-cn/agentcloud/backend/internal/service/auth"
+	authpkg "github.com/l8ai-cn/agentcloud/backend/pkg/auth"
 	"github.com/gin-gonic/gin"
 )
 
@@ -28,7 +28,7 @@ func TestAuthLogoutRevokesPreviewSessions(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	const audience = "agentsmesh-api"
+	const audience = "agentcloud-api"
 	tokenManager, err := authpkg.NewAccessTokenManager(authpkg.AccessTokenConfig{
 		PrivateKey: privateKey,
 		PublicKey:  &privateKey.PublicKey,

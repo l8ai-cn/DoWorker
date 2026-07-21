@@ -3,7 +3,7 @@ package envbundle
 import (
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/envbundle"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/envbundle"
 )
 
 // encryptData encrypts every value when the kind demands it; for non-encrypted

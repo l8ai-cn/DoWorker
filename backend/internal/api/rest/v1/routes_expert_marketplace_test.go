@@ -3,7 +3,7 @@ package v1
 import (
 	"testing"
 
-	expertsvc "github.com/anthropics/agentsmesh/backend/internal/service/expert"
+	expertsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/expert"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
 )

@@ -66,7 +66,7 @@ const CONV: Conversation = {
   title: "My Session",
   created_at: 1_700_000_000,
   updated_at: 1_700_000_000,
-  labels: { "do-worker.wrapper": "claude-code-native-ui" },
+  labels: { "agent-cloud.wrapper": "claude-code-native-ui" },
   permission_level: null,
   status: "idle",
 };

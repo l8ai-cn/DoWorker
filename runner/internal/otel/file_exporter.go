@@ -18,9 +18,9 @@ const maxOTelFileSize = 50 * 1024 * 1024 // 50MB per file
 
 func otelFileDir() string {
 	if runtime.GOOS == "windows" {
-		return filepath.Join(os.TempDir(), "agentsmesh")
+		return filepath.Join(os.TempDir(), "agentcloud")
 	}
-	return "/tmp/agentsmesh"
+	return "/tmp/agentcloud"
 }
 
 func initFileTracerProvider(res *resource.Resource) (*sdktrace.TracerProvider, *cappedWriter, error) {

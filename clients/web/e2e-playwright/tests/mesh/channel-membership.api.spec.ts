@@ -5,7 +5,7 @@ import { clearAuthRateLimit } from "../../helpers/redis";
 import { textContent } from "../../helpers/test-data";
 
 // Second user in the same org (from seed data)
-const SECOND_USER = { email: "dev2@agentsmesh.local", username: "devuser2", password: "AdminAb123456" };
+const SECOND_USER = { email: "dev2@agentcloud.local", username: "devuser2", password: "AdminAb123456" };
 
 test.describe("Channel IM Group Model", () => {
   test.beforeEach(async () => { clearAuthRateLimit(); });
@@ -31,7 +31,7 @@ test.describe("Channel IM Group Model", () => {
     const { items: members } = await cc.org.listMembers({ orgSlug: TEST_ORG_SLUG }) as {
       items: { userId: bigint; user?: { email: string } }[];
     };
-    const otherUser = members?.find((m) => m.user?.email !== "dev@agentsmesh.local");
+    const otherUser = members?.find((m) => m.user?.email !== "dev@agentcloud.local");
 
     const memberIds: bigint[] = otherUser?.userId ? [otherUser.userId] : [];
     const channel = await cc.channel.createChannel({

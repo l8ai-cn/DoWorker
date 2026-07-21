@@ -16,7 +16,7 @@ import type {
   WasmRunnerState, WasmMeshState, WasmTicketState, WasmChannelState,
   WasmWorkflowState, WasmAcpSessionManager, WasmLoopalManager, WasmRepoState,
   WasmExpertState, WasmAutopilotState, WasmLoopBuilderState, WasmRelayManager,
-} from "do-worker-wasm";
+} from "agent-cloud-wasm";
 import type { AgentWorkbenchServiceRegistry } from "./agent-workbench-service-registry";
 
 // Keeps SSR reads inert until the browser registers the WASM bridge.

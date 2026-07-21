@@ -1,5 +1,5 @@
 import type { Host } from "@/hooks/useHosts";
-import { sandboxOptionLabel } from "@/lib/do-worker/server-info";
+import { sandboxOptionLabel } from "@/lib/agent-cloud/server-info";
 
 const INTERNAL_RUNNER_HOST_RE = /^admin-workspace-/i;
 

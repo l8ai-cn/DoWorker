@@ -5,8 +5,8 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
-	"github.com/anthropics/agentsmesh/runner/internal/safego"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/safego"
 )
 
 // LauncherSubcommand is the first argument the runner inspects in main(). When

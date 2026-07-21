@@ -4,7 +4,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/sso"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/sso"
 	"gorm.io/gorm"
 )
 

@@ -1,9 +1,9 @@
 package grantconnect
 
 import (
-	grantdom "github.com/anthropics/agentsmesh/backend/internal/domain/grant"
-	"github.com/anthropics/agentsmesh/backend/pkg/protoconv"
-	grantv1 "github.com/anthropics/agentsmesh/proto/gen/go/grant/v1"
+	grantdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/grant"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/protoconv"
+	grantv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/grant/v1"
 )
 
 // toProtoGrant converts the GORM-backed grant + eager-loaded user assocs

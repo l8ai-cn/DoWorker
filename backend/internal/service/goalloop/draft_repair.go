@@ -9,8 +9,8 @@ import (
 	"io"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/backend/internal/loopscript"
-	"github.com/anthropics/agentsmesh/backend/pkg/secretguard"
+	"github.com/l8ai-cn/agentcloud/backend/internal/loopscript"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/secretguard"
 )
 
 var (

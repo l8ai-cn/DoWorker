@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	workerruntime "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	workerruntime "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerruntime"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

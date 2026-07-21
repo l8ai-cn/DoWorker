@@ -13,11 +13,11 @@ import (
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
 
-	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
-	extensionsvc "github.com/anthropics/agentsmesh/backend/internal/service/extension"
-	"github.com/anthropics/agentsmesh/backend/internal/service/gitops"
-	skillsvc "github.com/anthropics/agentsmesh/backend/internal/service/skill"
-	workerspecservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
+	expertdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/expert"
+	extensionsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/extension"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/gitops"
+	skillsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/skill"
+	workerspecservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
 )
 
 func TestSkillTagUpdatePreservesExpertAndWorkerSpecBindings(t *testing.T) {

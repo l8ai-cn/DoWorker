@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	workerruntime "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
+	workerruntime "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerruntime"
 )
 
 func validateManagedRunnerImages(

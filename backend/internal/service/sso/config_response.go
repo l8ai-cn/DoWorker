@@ -1,6 +1,6 @@
 package sso
 
-import "github.com/anthropics/agentsmesh/backend/internal/domain/sso"
+import "github.com/l8ai-cn/agentcloud/backend/internal/domain/sso"
 
 func (s *Service) ToConfigResponse(cfg *sso.Config) *ConfigResponse {
 	resp := &ConfigResponse{

@@ -65,7 +65,7 @@ bash -c '
 ROOT="$ROOT" bash -c '
   set -euo pipefail
   source "${ROOT}/deploy-write-quiescence.sh"
-  NS=agentsmesh
+  NS=agentcloud
   deployment_replicas() { printf "1\n"; }
   dexec() { [[ "$1" == *" scale "* ]]; }
   if stop_application_writes; then
@@ -78,7 +78,7 @@ ROOT="$ROOT" bash -c '
 ROOT="$ROOT" bash -c '
   set -euo pipefail
   source "${ROOT}/internal_gitea_deploy.sh"
-  NS=agentsmesh
+  NS=agentcloud
   REG=registry.example
   RELEASE_DEPLOY_COMMIT=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
   RESTORE_LOG="$(mktemp)"
@@ -113,7 +113,7 @@ line_number() {
   grep -n -F "$1" "$LOG" | head -1 | cut -d: -f1
 }
 
-require_command 'kubectl kustomize . > /tmp/agentsmesh-release.yaml'
+require_command 'kubectl kustomize . > /tmp/agentcloud-release.yaml'
 require_command 'kubectl apply -f generated-secrets'
 require_command 'rm -f generated-secrets/*.yaml'
 require_command "name='repo.aiedulab.cn:8443/library/gitea'"
@@ -129,16 +129,16 @@ require_command 'delete pod gitea-backup --wait=true'
 require_command '14-gitea.yaml | kubectl apply -f -'
 require_command 'gitea-'
 require_command 'rollout status deploy/gitea --timeout=300s'
-require_command 'bash bootstrap_internal_gitea.sh agentsmesh'
+require_command 'bash bootstrap_internal_gitea.sh agentcloud'
 require_command 'kubectl apply -f 02-configmap.yaml -f 30-backend-rbac.yaml'
 require_command 'wait --for=delete pod -l app=backend'
 require_command 'wait --for=delete pod -l app=marketplace'
 require_command '10-postgres.yaml | kubectl apply -f -'
 require_command '11-redis.yaml | kubectl apply -f -'
 require_command '12-minio.yaml | kubectl apply -f -'
-require_command 'kubectl -n agentsmesh rollout status deploy/postgres --timeout=300s'
-require_command 'kubectl apply -f /tmp/agentsmesh-release.yaml'
-require_command 'kubectl -n agentsmesh rollout status deploy/backend --timeout=300s'
+require_command 'kubectl -n agentcloud rollout status deploy/postgres --timeout=300s'
+require_command 'kubectl apply -f /tmp/agentcloud-release.yaml'
+require_command 'kubectl -n agentcloud rollout status deploy/backend --timeout=300s'
 require_command "https://health-preview.l8ai.cn/"
 require_command "--write-out '%{remote_ip}'"
 require_command 'test -n "${reference_ip}"'
@@ -149,7 +149,7 @@ require_command 'grep -Fxq token_required "$body"'
 require_command '13-minio-setup-job.yaml | kubectl apply -f -'
 require_command '23-worker-definition-sync-job.yaml | kubectl apply -f -'
 
-render_line="$(line_number 'kubectl kustomize . > /tmp/agentsmesh-release.yaml')"
+render_line="$(line_number 'kubectl kustomize . > /tmp/agentcloud-release.yaml')"
 stop_line="$(line_number 'scale deploy/backend deploy/marketplace --replicas=0')"
 gitea_stop_line="$(line_number 'scale deploy/gitea --replicas=0')"
 gitea_wait_line="$(line_number 'wait --for=delete pod -l app=gitea')"
@@ -162,7 +162,7 @@ gitea_backup_delete_line="$(line_number 'delete pod gitea-backup --wait=true')"
 gitea_line="$(line_number '14-gitea.yaml | kubectl apply -f -')"
 prereq_line="$(line_number 'kubectl apply -f 02-configmap.yaml -f 30-backend-rbac.yaml')"
 postgres_line="$(line_number '10-postgres.yaml | kubectl apply -f -')"
-workload_line="$(line_number 'kubectl apply -f /tmp/agentsmesh-release.yaml')"
+workload_line="$(line_number 'kubectl apply -f /tmp/agentcloud-release.yaml')"
 backend_line="$(line_number 'rollout status deploy/backend')"
 minio_line="$(line_number '13-minio-setup-job.yaml | kubectl apply -f -')"
 sync_line="$(line_number '23-worker-definition-sync-job.yaml | kubectl apply -f -')"
@@ -200,8 +200,8 @@ grep -F -- '--expire-days 1' "$ROOT/13-minio-setup-job.yaml" >/dev/null
 grep -F 'PREVIEW_PUBLIC_ORIGIN: "https://l8ai.cn"' "$ROOT/02-configmap.yaml" >/dev/null
 grep -F 'PREVIEW_COOKIE_MODE: "partitioned"' "$ROOT/02-configmap.yaml" >/dev/null
 grep -F 'KB_GITEA_URL: "http://gitea:3000"' "$ROOT/02-configmap.yaml" >/dev/null
-grep -F 'KB_GITEA_SSH_URL: "ssh://git@gitea.agentsmesh.svc.cluster.local:22"' "$ROOT/02-configmap.yaml" >/dev/null
-grep -F 'name: agentsmesh-gitea' "$ROOT/30-backend.yaml" >/dev/null
+grep -F 'KB_GITEA_SSH_URL: "ssh://git@gitea.agentcloud.svc.cluster.local:22"' "$ROOT/02-configmap.yaml" >/dev/null
+grep -F 'name: agentcloud-gitea' "$ROOT/30-backend.yaml" >/dev/null
 grep -A1 -F 'name: GITEA__indexer__ISSUE_INDEXER_TYPE' "$ROOT/14-gitea.yaml" |
   grep -F 'value: db' >/dev/null
 grep -F 'readOnly: true' "$ROOT/15-gitea-backup-pod.yaml" >/dev/null

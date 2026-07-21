@@ -15,7 +15,7 @@ If the private key is lost or needs to be regenerated:
 
 ```bash
 # Generate a new ED25519 key
-ssh-keygen -t ed25519 -C "agentsmesh-dev-runner@local" -f ./id_ed25519 -N ""
+ssh-keygen -t ed25519 -C "agentcloud-dev-runner@local" -f ./id_ed25519 -N ""
 
 # Generate known_hosts
 ssh-keyscan -p 2222 gitlab.corp.signalrender.com > known_hosts
@@ -28,7 +28,7 @@ Add the public key as a Deploy Key for the project:
 ```bash
 PUBKEY=$(cat id_ed25519.pub)
 GITLAB_HOST=gitlab.corp.signalrender.com glab api -X POST projects/12/deploy_keys \
-  -f title="AgentsMesh Dev Runner" \
+  -f title="Agent Cloud Dev Runner" \
   -f key="$PUBKEY" \
   -f can_push=true
 ```

@@ -64,7 +64,7 @@ export function EmbedProviders({
   }, []);
 
   return (
-    <div className="do-worker-app" style={{ height: "100%", width: "100%" }}>
+    <div className="agent-cloud-app" style={{ height: "100%", width: "100%" }}>
       <div
         ref={scopeRef}
         className={isDarkMode ? "dark" : undefined}

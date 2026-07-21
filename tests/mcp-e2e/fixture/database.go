@@ -3,7 +3,7 @@ package fixture
 import (
 	"testing"
 
-	"github.com/anthropics/agentsmesh/tests/mcp-e2e/client"
+	"github.com/l8ai-cn/agentcloud/tests/mcp-e2e/client"
 )
 
 func OpenDB(t *testing.T, env *Env) *client.DB {

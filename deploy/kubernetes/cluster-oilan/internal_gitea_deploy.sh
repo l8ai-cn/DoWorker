@@ -30,7 +30,7 @@ run_internal_gitea_backup() {
   dexec "kubectl -n ${NS} delete pod gitea-backup --ignore-not-found --wait=true" || return 1
   apply_pinned_manifest "15-gitea-backup-pod.yaml" gitea "${REG}/library/gitea" || return 1
   dexec "kubectl -n ${NS} wait --for=condition=Ready pod/gitea-backup --timeout=180s" || return 1
-  dexec "set -eu; test \"\$(kubectl -n ${NS} exec pod/gitea-backup -- sqlite3 /data/gitea/gitea.db 'PRAGMA quick_check;' | tr -d '\r')\" = ok; backup_dir=/root/backups/agentsmesh; timestamp=\$(date -u +%Y%m%dT%H%M%SZ); backup=\${backup_dir}/gitea-${RELEASE_DEPLOY_COMMIT:0:12}-\${timestamp}.tar.gz; umask 077; mkdir -p \"\${backup_dir}\"; kubectl -n ${NS} exec pod/gitea-backup -- tar -C /data -czf - . > \"\${backup}.tmp\"; test -s \"\${backup}.tmp\"; mv \"\${backup}.tmp\" \"\${backup}\"; sha256sum \"\${backup}\" > \"\${backup}.sha256\"; sha256sum -c \"\${backup}.sha256\"; echo \"Gitea backup: \${backup}\"" || return 1
+  dexec "set -eu; test \"\$(kubectl -n ${NS} exec pod/gitea-backup -- sqlite3 /data/gitea/gitea.db 'PRAGMA quick_check;' | tr -d '\r')\" = ok; backup_dir=/root/backups/agentcloud; timestamp=\$(date -u +%Y%m%dT%H%M%SZ); backup=\${backup_dir}/gitea-${RELEASE_DEPLOY_COMMIT:0:12}-\${timestamp}.tar.gz; umask 077; mkdir -p \"\${backup_dir}\"; kubectl -n ${NS} exec pod/gitea-backup -- tar -C /data -czf - . > \"\${backup}.tmp\"; test -s \"\${backup}.tmp\"; mv \"\${backup}.tmp\" \"\${backup}\"; sha256sum \"\${backup}\" > \"\${backup}.sha256\"; sha256sum -c \"\${backup}.sha256\"; echo \"Gitea backup: \${backup}\"" || return 1
   dexec "kubectl -n ${NS} delete pod gitea-backup --wait=true"
 }
 

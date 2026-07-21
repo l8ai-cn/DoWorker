@@ -1,6 +1,6 @@
 use std::sync::{Arc, RwLock};
 
-use agentsmesh_state::auth_types::{Organization, User};
+use agentcloud_state::auth_types::{Organization, User};
 
 use crate::error::AuthError;
 use crate::state::{legacy_session_storage_key, session_storage_key, AuthState};

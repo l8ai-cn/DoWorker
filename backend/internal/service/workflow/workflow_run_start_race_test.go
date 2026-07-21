@@ -6,9 +6,9 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	workflowDomain "github.com/anthropics/agentsmesh/backend/internal/domain/workflow"
-	agentpodSvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	workflowDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workflow"
+	agentpodSvc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
 	"github.com/stretchr/testify/require"
 )
 

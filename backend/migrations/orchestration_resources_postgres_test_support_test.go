@@ -44,7 +44,7 @@ func insertOrchestrationResource(
 	err = tx.QueryRowContext(ctx, `
 INSERT INTO orchestration_resources
 	(organization_id, api_version, kind, namespace, name, created_by_id, updated_by_id)
-VALUES ($1, 'agentsmesh.io/v1alpha1', 'WorkerTemplate', $2, $3, 10, 10)
+VALUES ($1, 'agentcloud.io/v1alpha1', 'WorkerTemplate', $2, $3, 10, 10)
 RETURNING id, uid::text`, organizationID, namespace, name).Scan(&id, &uid)
 	require.NoError(t, err)
 	_, err = tx.ExecContext(ctx, `
@@ -86,7 +86,7 @@ INSERT INTO orchestration_resource_plans
 	 target_namespace, target_name, operation, base_head_uid, base_resource_version,
 	 draft_hash, plan_hash, canonical_manifest, resolved_refs, semantic_diff, issues,
 	 artifact_kind, artifact_json, artifact_digest, options_revision, expires_at)
-VALUES (1, 10, $1, 'agentsmesh.io/v1alpha1', 'WorkerTemplate', 'acme', $2,
+VALUES (1, 10, $1, 'agentcloud.io/v1alpha1', 'WorkerTemplate', 'acme', $2,
 	$3, $4, $5, $6, $6, '{}', '[]', '[]', '[]', 'WorkerSpec', '{}', $6,
 	'runtime-catalog-1',
 	now() + interval '5 minutes')

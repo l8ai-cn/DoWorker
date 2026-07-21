@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   workspaceFileArtifacts,
-} from "@do-worker/agent-ui";
+} from "@agent-cloud/agent-ui";
 import {
   mergeWorkspaceArtifactDiscoveryError,
   prepareWorkspaceArtifacts,

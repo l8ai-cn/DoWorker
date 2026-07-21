@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/service/instance"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/instance"
 	"github.com/robfig/cron/v3"
 )
 

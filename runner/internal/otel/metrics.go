@@ -14,10 +14,10 @@ var (
 )
 
 func InitMetrics() {
-	m := otel.Meter("do-worker-runner")
-	PodActiveCount, _ = m.Int64UpDownCounter("agentsmesh.runner.pod.active")
-	GRPCReconnects, _ = m.Int64Counter("agentsmesh.runner.grpc.reconnects")
-	RelayReconnects, _ = m.Int64Counter("agentsmesh.runner.relay.reconnects")
-	PodBuildDuration, _ = m.Float64Histogram("agentsmesh.runner.pod.build.duration",
+	m := otel.Meter("agent-cloud-runner")
+	PodActiveCount, _ = m.Int64UpDownCounter("agentcloud.runner.pod.active")
+	GRPCReconnects, _ = m.Int64Counter("agentcloud.runner.grpc.reconnects")
+	RelayReconnects, _ = m.Int64Counter("agentcloud.runner.relay.reconnects")
+	PodBuildDuration, _ = m.Float64Histogram("agentcloud.runner.pod.build.duration",
 		metric.WithUnit("ms"))
 }

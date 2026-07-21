@@ -1,5 +1,5 @@
-use agentsmesh_state::auth_types::Organization;
-use agentsmesh_types::proto_org_v1 as org_proto;
+use agentcloud_state::auth_types::Organization;
+use agentcloud_types::proto_org_v1 as org_proto;
 
 use crate::connect::connect_call;
 use crate::error::AuthError;

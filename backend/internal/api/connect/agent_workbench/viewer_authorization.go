@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"time"
 
-	sessiondomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	"github.com/anthropics/agentsmesh/backend/pkg/embedtoken"
-	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
+	sessiondomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentsession"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/embedtoken"
+	agentworkbenchv2 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2"
 )
 
 type viewerAuthorization struct {
@@ -70,7 +70,7 @@ func (authorization *viewerAuthorization) decorateSnapshot(
 	authorization.capabilities = snapshot.GetCapabilities()
 	snapshot.Grants = []*agentworkbenchv2.AuthorizationGrant{{
 		GrantId:   "backend:" + authorization.subject + ":" + snapshot.GetSessionId(),
-		Issuer:    "agentsmesh.backend",
+		Issuer:    "agentcloud.backend",
 		Subject:   authorization.subject,
 		SessionId: snapshot.GetSessionId(),
 		Actions:   authorization.sessionActions(snapshot.GetCapabilities()),

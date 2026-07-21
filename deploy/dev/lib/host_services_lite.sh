@@ -128,9 +128,9 @@ start_backend_host_lite() {
     # duplicating only the launch logic for lite mode.
     export DB_HOST=localhost
     export DB_PORT="$POSTGRES_PORT"
-    export DB_USER=agentsmesh
-    export DB_PASSWORD="${POSTGRES_PASSWORD:-agentsmesh_dev}"
-    export DB_NAME=agentsmesh
+    export DB_USER=agentcloud
+    export DB_PASSWORD="${POSTGRES_PASSWORD:-agentcloud_dev}"
+    export DB_NAME=agentcloud
     export DB_SSLMODE=disable
     export REDIS_URL="redis://localhost:${REDIS_PORT}"
     export JWT_SECRET="${JWT_SECRET:-dev-jwt-secret-change-in-production}"
@@ -138,8 +138,8 @@ start_backend_host_lite() {
     export ACCESS_TOKEN_PUBLIC_KEY_FILE="$SCRIPT_DIR/runtime/access-token/public.pem"
     export ACCESS_TOKEN_KEY_ID="dev-core-1"
     export ACCESS_TOKEN_ISSUER="http://${PRIMARY_DOMAIN}"
-    export ACCESS_TOKEN_AUDIENCES="agentsmesh-api,marketplace-api"
-    export ACCESS_TOKEN_CORE_AUDIENCE="agentsmesh-api"
+    export ACCESS_TOKEN_AUDIENCES="agentcloud-api,marketplace-api"
+    export ACCESS_TOKEN_CORE_AUDIENCE="agentcloud-api"
     export ACCESS_TOKEN_EXPIRATION_HOURS=24
     export INTERNAL_API_SECRET="${INTERNAL_API_SECRET:-dev-internal-secret}"
     export SERVER_ADDRESS=":${BACKEND_HTTP_PORT}"
@@ -156,14 +156,14 @@ start_backend_host_lite() {
     export CORS_ALLOWED_ORIGINS="http://localhost:${HTTP_PORT},http://127.0.0.1:${HTTP_PORT},http://localhost:${WEB_PORT},http://127.0.0.1:${WEB_PORT},http://localhost:${WEB_ADMIN_PORT},http://127.0.0.1:${WEB_ADMIN_PORT},http://localhost:${WEB_USER_PORT:-10020},http://127.0.0.1:${WEB_USER_PORT:-10020},http://localhost:${MOBILE_LOVABLE_PORT:-10021},http://127.0.0.1:${MOBILE_LOVABLE_PORT:-10021},${PUBLIC_WEB_URL}"
     export LOG_LEVEL=debug
     export LOG_FORMAT=text
-    export LOG_FILE="$(_runtime_dir)/backend/agentsmesh.log"
+    export LOG_FILE="$(_runtime_dir)/backend/agentcloud.log"
     export MCP_REGISTRY_ENABLED="${MCP_REGISTRY_ENABLED:-false}"
     export EMAIL_PROVIDER=console
     export STORAGE_ENDPOINT="localhost:${MINIO_API_PORT}"
     export STORAGE_PUBLIC_ENDPOINT="localhost:${MINIO_API_PORT}"
     export STORAGE_RUNNER_ENDPOINT="host.lan:${MINIO_API_PORT}"
     export STORAGE_REGION=us-east-1
-    export STORAGE_BUCKET=agentsmesh
+    export STORAGE_BUCKET=agentcloud
     export STORAGE_ACCESS_KEY="${MINIO_ROOT_USER:-minioadmin}"
     export STORAGE_SECRET_KEY="${MINIO_ROOT_PASSWORD:-minioadmin}"
     export STORAGE_USE_SSL=false
@@ -179,9 +179,9 @@ start_backend_host_lite() {
     export PKI_VALIDITY_DAYS=365
     export GEO_MMDB_PATH="${GEO_MMDB_PATH:-}"
     export OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:${OTEL_GRPC_PORT}"
-    export OTEL_SERVICE_NAME=do-worker-backend
+    export OTEL_SERVICE_NAME=agent-cloud-backend
     export OTEL_TRACES_SAMPLER_ARG=1.0
-    export AGENTSMESH_INCLUDE_INTERNAL_AGENTS=true
+    export AGENTCLOUD_INCLUDE_INTERNAL_AGENTS=true
     local kb_token_file="$SCRIPT_DIR/runtime/gitea/backend-token"
     if [[ -f "$kb_token_file" ]]; then
         export KB_GITEA_URL="http://localhost:${GITEA_HTTP_PORT}"
@@ -221,7 +221,7 @@ start_marketplace_host_lite() {
     local repo_root="$SCRIPT_DIR/../.."
     mkdir -p "$(_runtime_dir)/marketplace"
 
-    export MARKETPLACE_DATABASE_URL="postgres://agentsmesh:${POSTGRES_PASSWORD:-agentsmesh_dev}@localhost:${POSTGRES_PORT}/agentsmesh?sslmode=disable"
+    export MARKETPLACE_DATABASE_URL="postgres://agentcloud:${POSTGRES_PASSWORD:-agentcloud_dev}@localhost:${POSTGRES_PORT}/agentcloud?sslmode=disable"
     export MARKETPLACE_HTTP_ADDRESS=":${MARKETPLACE_HTTP_PORT}"
     export MARKETPLACE_IDENTITY_ISSUER="http://${PRIMARY_DOMAIN}"
     export MARKETPLACE_IDENTITY_AUDIENCE="marketplace-api"
@@ -268,7 +268,7 @@ start_relay_host_lite() {
     export SESSION_KEEP_ALIVE_DURATION=30s
     export DEBUG=true
     export OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:${OTEL_GRPC_PORT}"
-    export OTEL_SERVICE_NAME=do-worker-relay
+    export OTEL_SERVICE_NAME=agent-cloud-relay
     export OTEL_TRACES_SAMPLER_ARG=1.0
 
     ensure_go_codegen || return 1

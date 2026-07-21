@@ -4,7 +4,7 @@ package proto.agent_workbench.v2;
 
 import "agent_workbench/v2/content.proto";
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2;agentworkbenchv2";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2;agentworkbenchv2";
 
 enum ArtifactStatus {
   ARTIFACT_STATUS_UNSPECIFIED = 0;

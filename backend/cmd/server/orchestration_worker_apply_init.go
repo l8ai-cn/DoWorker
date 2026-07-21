@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	workerplanner "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationworker"
+	workerplanner "github.com/l8ai-cn/agentcloud/backend/internal/service/orchestrationworker"
 )
 
 func attachOrchestrationWorkerApply(

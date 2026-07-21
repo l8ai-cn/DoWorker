@@ -17,9 +17,9 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	orgservice "github.com/anthropics/agentsmesh/backend/internal/service/organization"
-	userservice "github.com/anthropics/agentsmesh/backend/internal/service/user"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	orgservice "github.com/l8ai-cn/agentcloud/backend/internal/service/organization"
+	userservice "github.com/l8ai-cn/agentcloud/backend/internal/service/user"
 )
 
 // ServiceName mirrors proto.org.v1.OrgService exactly — Connect derives the

@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/extension"
-	"github.com/anthropics/agentsmesh/backend/pkg/crypto"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/extension"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/crypto"
 )
 
 // ---------------------------------------------------------------------------

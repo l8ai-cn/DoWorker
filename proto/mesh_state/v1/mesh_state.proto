@@ -10,7 +10,7 @@ package proto.mesh_state.v1;
 
 import "mesh/v1/mesh.proto";
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/mesh_state/v1;meshstatev1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/mesh_state/v1;meshstatev1";
 
 // Replace the cached mesh topology — used after MeshService.fetch_topology
 // returns. Carries the wire-level MeshTopology directly so Rust state can

@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
-	"github.com/anthropics/agentsmesh/runner/internal/config"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
+	"github.com/l8ai-cn/agentcloud/runner/internal/config"
 	"github.com/stretchr/testify/require"
 )
 
@@ -39,7 +39,7 @@ requires_openai_auth = false
 		FilesToCreate: []*runnerv1.FileToCreate{
 			{
 				Path:    "{{sandbox_root}}/codex-home/config.toml",
-				Content: "[mcp_servers.agentsmesh]\nurl = \"http://127.0.0.1:19000/mcp\"\n",
+				Content: "[mcp_servers.agentcloud]\nurl = \"http://127.0.0.1:19000/mcp\"\n",
 			},
 			{Path: "{{work_dir}}/.codex", IsDirectory: true},
 			{Path: "{{work_dir}}/.codex/mcp.json", Content: "{}"},

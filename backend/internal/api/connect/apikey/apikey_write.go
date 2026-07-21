@@ -5,10 +5,10 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	apikeyservice "github.com/anthropics/agentsmesh/backend/internal/service/apikey"
-	apikeyv1 "github.com/anthropics/agentsmesh/proto/gen/go/apikey/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	apikeyservice "github.com/l8ai-cn/agentcloud/backend/internal/service/apikey"
+	apikeyv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/apikey/v1"
 )
 
 func (s *Server) CreateApiKey(

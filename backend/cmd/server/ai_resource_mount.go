@@ -5,7 +5,7 @@ import (
 
 	"connectrpc.com/connect"
 
-	airesourceconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/ai_resource"
+	airesourceconnect "github.com/l8ai-cn/agentcloud/backend/internal/api/connect/ai_resource"
 )
 
 func mountAIResourceService(mux *http.ServeMux, services *serviceContainer, options []connect.HandlerOption) {

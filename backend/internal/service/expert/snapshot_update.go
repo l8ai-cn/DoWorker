@@ -7,9 +7,9 @@ import (
 	"reflect"
 	"strings"
 
-	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
+	expertdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/expert"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
 )
 
 func (s *Service) refreshExpertWorkerSpec(

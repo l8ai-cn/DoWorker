@@ -2,18 +2,18 @@
 
 ## Decision
 
-AgentsMesh exposes a Kubernetes-inspired resource document for authoring,
+Agent Cloud exposes a Kubernetes-inspired resource document for authoring,
 inspection, API automation, and GitOps. It does not copy Kubernetes
 reconciliation semantics or replace the existing domain services.
 
-The first API group is `agentsmesh.io/v1alpha1`. Splitting resources into more
+The first API group is `agentcloud.io/v1alpha1`. Splitting resources into more
 groups before the contract stabilizes would add versioning and reference
 complexity without improving the first delivery.
 
 ## Resource Envelope
 
 ```yaml
-apiVersion: agentsmesh.io/v1alpha1
+apiVersion: agentcloud.io/v1alpha1
 kind: Expert
 metadata:
   name: code-reviewer

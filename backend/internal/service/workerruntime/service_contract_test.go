@@ -6,9 +6,9 @@ import (
 	"strings"
 	"testing"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerruntime"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

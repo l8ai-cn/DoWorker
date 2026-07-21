@@ -1,4 +1,4 @@
-// Mirror of the Rust SSOT `agentsmesh-types::ServiceError` discriminant tags
+// Mirror of the Rust SSOT `agentcloud-types::ServiceError` discriminant tags
 // (clients/core/crates/types/src/service_error.rs, serde `rename_all =
 // "snake_case"`). Single TS copy — both the web parse layer and the
 // Connect/WASM error unwrappers validate against this set; adding a kind in

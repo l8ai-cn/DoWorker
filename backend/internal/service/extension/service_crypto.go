@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/extension"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/extension"
 )
 
 // encryptCredential encrypts a single credential string.

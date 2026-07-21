@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/relay/internal/protocol/tunnelframe"
+	"github.com/l8ai-cn/agentcloud/relay/internal/protocol/tunnelframe"
 )
 
 func mustJSON(v interface{}) []byte {

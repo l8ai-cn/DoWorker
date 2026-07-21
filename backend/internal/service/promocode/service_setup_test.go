@@ -4,10 +4,10 @@ import (
 	"context"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/promocode"
-	"github.com/anthropics/agentsmesh/backend/internal/infra"
-	svc "github.com/anthropics/agentsmesh/backend/internal/service/promocode"
-	"github.com/anthropics/agentsmesh/backend/internal/testkit"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/promocode"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra"
+	svc "github.com/l8ai-cn/agentcloud/backend/internal/service/promocode"
+	"github.com/l8ai-cn/agentcloud/backend/internal/testkit"
 	"gorm.io/gorm"
 )
 

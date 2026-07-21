@@ -3,9 +3,9 @@ package subscriptionadminconnect
 import (
 	"encoding/json"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/billing"
-	billingservice "github.com/anthropics/agentsmesh/backend/internal/service/billing"
-	billingv1 "github.com/anthropics/agentsmesh/proto/gen/go/billing/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/billing"
+	billingservice "github.com/l8ai-cn/agentcloud/backend/internal/service/billing"
+	billingv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/billing/v1"
 )
 
 // toProtoAdminSubscription assembles the admin-facing composite response:

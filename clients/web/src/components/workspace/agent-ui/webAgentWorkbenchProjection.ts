@@ -4,7 +4,7 @@ import {
   projectGeneratedSessionSnapshot,
   type AgentConnectionStatus,
   type AgentSessionSnapshot,
-} from "@do-worker/agent-ui";
+} from "@agent-cloud/agent-ui";
 import {
   SessionSnapshotSchema,
   type SessionSnapshot,

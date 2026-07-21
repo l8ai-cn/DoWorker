@@ -12,15 +12,15 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	aiderfixture "github.com/anthropics/agentsmesh/runner/internal/agents/aider/testsupport"
-	claudefixture "github.com/anthropics/agentsmesh/runner/internal/agents/claude/testsupport"
-	codexfixture "github.com/anthropics/agentsmesh/runner/internal/agents/codex/testsupport"
-	doagentfixture "github.com/anthropics/agentsmesh/runner/internal/agents/doagent/testsupport"
-	_ "github.com/anthropics/agentsmesh/runner/internal/agents/cursor"
-	_ "github.com/anthropics/agentsmesh/runner/internal/agents/doagent"
-	_ "github.com/anthropics/agentsmesh/runner/internal/agents/loopal"
-	opencodefixture "github.com/anthropics/agentsmesh/runner/internal/agents/opencode/testsupport"
-	"github.com/anthropics/agentsmesh/runner/internal/tokenusage"
+	aiderfixture "github.com/l8ai-cn/agentcloud/runner/internal/agents/aider/testsupport"
+	claudefixture "github.com/l8ai-cn/agentcloud/runner/internal/agents/claude/testsupport"
+	codexfixture "github.com/l8ai-cn/agentcloud/runner/internal/agents/codex/testsupport"
+	doagentfixture "github.com/l8ai-cn/agentcloud/runner/internal/agents/doagent/testsupport"
+	_ "github.com/l8ai-cn/agentcloud/runner/internal/agents/cursor"
+	_ "github.com/l8ai-cn/agentcloud/runner/internal/agents/doagent"
+	_ "github.com/l8ai-cn/agentcloud/runner/internal/agents/loopal"
+	opencodefixture "github.com/l8ai-cn/agentcloud/runner/internal/agents/opencode/testsupport"
+	"github.com/l8ai-cn/agentcloud/runner/internal/tokenusage"
 )
 
 // fixtureCase wires one canonical slug to its fixture builder + expected

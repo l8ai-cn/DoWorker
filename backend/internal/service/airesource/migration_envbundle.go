@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/envbundle"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/envbundle"
 	"gorm.io/gorm"
 )
 

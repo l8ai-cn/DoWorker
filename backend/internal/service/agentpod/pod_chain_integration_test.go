@@ -8,12 +8,12 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	envbundledomain "github.com/anthropics/agentsmesh/backend/internal/domain/envbundle"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
-	"github.com/anthropics/agentsmesh/backend/internal/service/agent"
-	envbundleservice "github.com/anthropics/agentsmesh/backend/internal/service/envbundle"
+	agentDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agent"
+	podDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	envbundledomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/envbundle"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/gitprovider"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/agent"
+	envbundleservice "github.com/l8ai-cn/agentcloud/backend/internal/service/envbundle"
 )
 
 // fakeEnvBundleLoader is the minimal mock satisfying ConfigBuilder's

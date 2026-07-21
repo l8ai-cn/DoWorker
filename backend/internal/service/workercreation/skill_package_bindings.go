@@ -3,7 +3,7 @@ package workercreation
 import (
 	"fmt"
 
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
 )
 
 func skillPackageIndex(

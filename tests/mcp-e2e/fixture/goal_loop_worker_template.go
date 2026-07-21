@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/tests/mcp-e2e/client"
+	"github.com/l8ai-cn/agentcloud/tests/mcp-e2e/client"
 	"github.com/google/uuid"
 )
 
@@ -37,7 +37,7 @@ WHERE organization.slug = $1 AND actor.username = $2`,
 		return "", fmt.Errorf("encode worker template spec: %w", err)
 	}
 	manifestJSON, err := json.Marshal(map[string]any{
-		"apiVersion": "agentsmesh.io/v1alpha1",
+		"apiVersion": "agentcloud.io/v1alpha1",
 		"kind":       "WorkerTemplate",
 		"metadata": map[string]any{
 			"name": name, "namespace": env.DevOrgSlug,
@@ -77,7 +77,7 @@ INSERT INTO orchestration_resources
   (organization_id, uid, api_version, kind, namespace, name,
    display_name, generation, resource_version, active_revision,
    created_by_id, updated_by_id)
-VALUES ($1, $2, 'agentsmesh.io/v1alpha1', 'WorkerTemplate', $3, $4,
+VALUES ($1, $2, 'agentcloud.io/v1alpha1', 'WorkerTemplate', $3, $4,
         $4, 1, 1, 1, $5, $5)
 RETURNING id`,
 		organizationID,

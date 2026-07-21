@@ -31,7 +31,7 @@ type Config struct {
 	// Unified Domain Configuration - Single source of truth for public URLs
 	// If PRIMARY_DOMAIN is set, RELAY_URL is derived as ws(s)://{PRIMARY_DOMAIN}/relay
 	// =============================================================================
-	PrimaryDomain       string            `mapstructure:"primary_domain"` // e.g., "localhost:10000" or "agentsmesh.ai"
+	PrimaryDomain       string            `mapstructure:"primary_domain"` // e.g., "localhost:10000" or "agentcloud.ai"
 	UseHTTPS            bool              `mapstructure:"use_https"`      // Use wss:// instead of ws://
 	PreviewPublicOrigin string            `mapstructure:"preview_public_origin"`
 	PreviewCookieMode   PreviewCookieMode `mapstructure:"preview_cookie_mode"`
@@ -113,7 +113,7 @@ func Load() (*Config, error) {
 	v.SetDefault("server.read_timeout", 30*time.Second)
 	v.SetDefault("server.write_timeout", 30*time.Second)
 
-	v.SetDefault("jwt.issuer", "agentsmesh-relay")
+	v.SetDefault("jwt.issuer", "agentcloud-relay")
 
 	v.SetDefault("backend.url", "http://backend:8080")
 	v.SetDefault("backend.heartbeat_interval", 10*time.Second)

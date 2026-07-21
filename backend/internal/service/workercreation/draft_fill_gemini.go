@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"strings"
 
-	resourceservice "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
+	resourceservice "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
 )
 
 type geminiDraftFillPart struct {

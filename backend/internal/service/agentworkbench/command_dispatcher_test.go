@@ -6,11 +6,11 @@ import (
 	"testing"
 	"time"
 
-	poddomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	sessiondomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
-	domainworkbench "github.com/anthropics/agentsmesh/backend/internal/domain/agentworkbench"
-	sessionmessagesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionmessage"
-	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
+	poddomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	sessiondomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentsession"
+	domainworkbench "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentworkbench"
+	sessionmessagesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/sessionmessage"
+	agentworkbenchv2 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
 )

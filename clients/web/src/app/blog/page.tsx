@@ -19,15 +19,15 @@ export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
 
   return {
-    title: { absolute: `${t("blog.hero.title")} | Do Worker` },
+    title: { absolute: `${t("blog.hero.title")} | Agent Cloud` },
     description: t("blog.hero.subtitle"),
     alternates: {
-      canonical: "https://agentsmesh.ai/blog",
+      canonical: "https://agentcloud.ai/blog",
     },
     openGraph: {
-      title: `${t("blog.hero.title")} | Do Worker`,
+      title: `${t("blog.hero.title")} | Agent Cloud`,
       description: t("blog.hero.subtitle"),
-      url: "https://agentsmesh.ai/blog",
+      url: "https://agentcloud.ai/blog",
     },
   };
 }
@@ -51,7 +51,7 @@ export default async function BlogPage() {
                 "@type": "ListItem",
                 position: 1,
                 name: "Home",
-                item: "https://agentsmesh.ai",
+                item: "https://agentcloud.ai",
               },
               {
                 "@type": "ListItem",

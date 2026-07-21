@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/anthropics/agentsmesh/agentfile/lexer"
+	"github.com/l8ai-cn/agentcloud/agentfile/lexer"
 )
 
 // Parser converts a token stream into an AST.

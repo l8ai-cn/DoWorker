@@ -2,9 +2,9 @@ package grpc
 
 import (
 	"context"
-	otelinit "github.com/anthropics/agentsmesh/backend/internal/infra/otel"
-	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	otelinit "github.com/l8ai-cn/agentcloud/backend/internal/infra/otel"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/runner"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 	"time"

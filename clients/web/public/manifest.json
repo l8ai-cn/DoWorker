@@ -1,7 +1,7 @@
 {
-  "name": "Do Worker",
-  "short_name": "Do Worker",
-  "description": "Do Worker — The AI Agent Workforce Platform. Give every team member an AI agent squad — assign tasks, track progress, and let them collaborate autonomously.",
+  "name": "Agent Cloud",
+  "short_name": "Agent Cloud",
+  "description": "Agent Cloud — The AI Agent Workforce Platform. Give every team member an AI agent squad — assign tasks, track progress, and let them collaborate autonomously.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#16130f",

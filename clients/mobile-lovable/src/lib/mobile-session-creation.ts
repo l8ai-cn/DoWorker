@@ -3,7 +3,7 @@ import {
   ListWorkerCreateOptionsRequestSchema,
   ListWorkerCreateOptionsResponseSchema,
   type ListWorkerCreateOptionsResponse,
-} from "@do-worker/proto/pod/v1/worker_creation_pb";
+} from "@agent-cloud/proto/pod/v1/worker_creation_pb";
 import { apiFetch } from "./api-fetch";
 import { readOrgSlug } from "./auth-store";
 import { resolveDefaultModelResourceId } from "./model-resources-api";

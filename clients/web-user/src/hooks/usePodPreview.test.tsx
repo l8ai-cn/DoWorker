@@ -6,12 +6,12 @@ import type { ReactNode } from "react";
 vi.mock("@/lib/identity", () => ({
   authenticatedFetch: vi.fn(),
 }));
-vi.mock("@/lib/do-worker", () => ({
-  readDoWorkerOrgSlug: vi.fn(),
+vi.mock("@/lib/agent-cloud", () => ({
+  readAgentCloudOrgSlug: vi.fn(),
 }));
 
 import { authenticatedFetch } from "@/lib/identity";
-import { readDoWorkerOrgSlug } from "@/lib/do-worker";
+import { readAgentCloudOrgSlug } from "@/lib/agent-cloud";
 import {
   buildPreviewSrc,
   parsePodPreviewInfo,
@@ -19,7 +19,7 @@ import {
 } from "./usePodPreview";
 
 const fetchMock = vi.mocked(authenticatedFetch);
-const orgSlugMock = vi.mocked(readDoWorkerOrgSlug);
+const orgSlugMock = vi.mocked(readAgentCloudOrgSlug);
 
 function jsonResponse(status: number, body: unknown): Response {
   return {

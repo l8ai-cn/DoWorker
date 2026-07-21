@@ -1,4 +1,4 @@
-// AgentsMesh codegen annotations.
+// Agent Cloud codegen annotations.
 //
 // Marks proto messages with binding metadata so `tools/protoc-gen-amesh-convert`
 // can generate Go domain↔proto convert functions (`*_convert.gen.go`).
@@ -35,7 +35,7 @@ export const file_codegen_v1_options: GenFile = /*@__PURE__*/
  * Example:
  *   message Pod {
  *     option (amesh.codegen.v1.go_domain) = {
- *       type: "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod.Pod"
+ *       type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod.Pod"
  *       generate_to_proto: true
  *       generate_from_proto: false
  *     };

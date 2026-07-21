@@ -1,6 +1,6 @@
 # Demo API
 
-A simple Go HTTP API server for testing AgentsMesh development environment.
+A simple Go HTTP API server for testing Agent Cloud development environment.
 
 ## Structure
 

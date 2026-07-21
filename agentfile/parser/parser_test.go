@@ -201,7 +201,7 @@ for name, server in servers {
 func TestParse_ObjectLiteral(t *testing.T) {
 	input := `
 x = json({
-  name: "agentsmesh",
+  name: "agentcloud",
   version: "1.0.0",
   enabled: true
 })

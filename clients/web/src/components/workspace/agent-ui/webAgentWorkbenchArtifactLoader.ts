@@ -1,7 +1,7 @@
 import {
   createAgentArtifactLoader,
   type AgentArtifactLoadRequest,
-} from "@do-worker/agent-ui";
+} from "@agent-cloud/agent-ui";
 
 import { loadPodWorkspaceArtifact } from "@/lib/api/podWorkspaceArtifactApi";
 import { loadSessionArtifactRepresentation } from "@/lib/api/sessionWorkspaceArtifactApi";

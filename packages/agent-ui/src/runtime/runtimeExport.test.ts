@@ -4,7 +4,7 @@ import {
   AgentSessionStore,
   applyDeltaBatch,
   applySessionSnapshot,
-} from "@do-worker/agent-ui/runtime";
+} from "@agent-cloud/agent-ui/runtime";
 
 describe("runtime package export", () => {
   it("exposes the generated session store and reducer", () => {

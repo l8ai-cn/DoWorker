@@ -7,9 +7,9 @@ import (
 
 	"connectrpc.com/connect"
 
-	orgservice "github.com/anthropics/agentsmesh/backend/internal/service/organization"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
-	orgv1 "github.com/anthropics/agentsmesh/proto/gen/go/org/v1"
+	orgservice "github.com/l8ai-cn/agentcloud/backend/internal/service/organization"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
+	orgv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/org/v1"
 )
 
 // ListMyOrgs returns the caller's organizations. User-scoped — auth

@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
-	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
+	expertdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/expert"
 )
 
 type ExpertRepository struct {

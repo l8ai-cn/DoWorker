@@ -1,8 +1,8 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: agentsmesh-config
-  namespace: agentsmesh
+  name: agentcloud-config
+  namespace: agentcloud
 data:
   PRIMARY_DOMAIN: "dowork.l8ai.cn"
   PUBLIC_WEB_URL: "https://dowork.l8ai.cn"
@@ -14,8 +14,8 @@ data:
 
   DB_HOST: "postgres"
   DB_PORT: "5432"
-  DB_USER: "agentsmesh"
-  DB_NAME: "agentsmesh"
+  DB_USER: "agentcloud"
+  DB_NAME: "agentcloud"
   DB_SSLMODE: "disable"
 
   REDIS_URL: "redis://redis:6379"
@@ -33,8 +33,8 @@ data:
   ACCESS_TOKEN_PRIVATE_KEY_FILE: "/app/access-token/private.pem"
   ACCESS_TOKEN_PUBLIC_KEY_FILE: "/app/access-token/public.pem"
   ACCESS_TOKEN_ISSUER: "https://dowork.l8ai.cn"
-  ACCESS_TOKEN_AUDIENCES: "agentsmesh-api,marketplace-api"
-  ACCESS_TOKEN_CORE_AUDIENCE: "agentsmesh-api"
+  ACCESS_TOKEN_AUDIENCES: "agentcloud-api,marketplace-api"
+  ACCESS_TOKEN_CORE_AUDIENCE: "agentcloud-api"
   ACCESS_TOKEN_EXPIRATION_HOURS: "24"
   MARKETPLACE_HTTP_ADDRESS: ":8080"
   MARKETPLACE_IDENTITY_ISSUER: "https://dowork.l8ai.cn"
@@ -46,7 +46,7 @@ data:
   STORAGE_ENDPOINT: "minio:9000"
   STORAGE_PUBLIC_ENDPOINT: "minio.dowork.l8ai.cn"
   STORAGE_REGION: "us-east-1"
-  STORAGE_BUCKET: "agentsmesh"
+  STORAGE_BUCKET: "agentcloud"
   STORAGE_ACCESS_KEY: "minioadmin"
   STORAGE_USE_SSL: "false"
   STORAGE_PUBLIC_USE_SSL: "true"
@@ -54,11 +54,11 @@ data:
   STORAGE_MAX_FILE_SIZE: "10"
 
   KB_GITEA_URL: "http://gitea:3000"
-  KB_GITEA_CLONE_URL: "http://gitea.agentsmesh.svc.cluster.local:3000"
-  KB_GITEA_SSH_URL: "ssh://git@gitea.agentsmesh.svc.cluster.local:22"
+  KB_GITEA_CLONE_URL: "http://gitea.agentcloud.svc.cluster.local:3000"
+  KB_GITEA_SSH_URL: "ssh://git@gitea.agentcloud.svc.cluster.local:22"
   KB_GITEA_ORG: "am-kb"
 
-  # PKI CA is mounted from the agentsmesh-pki-ca secret at /app/ssl.
+  # PKI CA is mounted from the agentcloud-pki-ca secret at /app/ssl.
   PKI_CA_CERT_FILE: "/app/ssl/ca.crt"
   PKI_CA_KEY_FILE: "/app/ssl/ca.key"
   PKI_SERVER_CERT_FILE: "/data/server.crt"

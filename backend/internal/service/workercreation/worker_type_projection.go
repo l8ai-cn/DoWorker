@@ -5,11 +5,11 @@ import (
 	"os"
 	"strings"
 
-	agentdomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	agentservice "github.com/anthropics/agentsmesh/backend/internal/service/agent"
-	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	agentdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agent"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	agentservice "github.com/l8ai-cn/agentcloud/backend/internal/service/agent"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/workerdefinition"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 func validateWorkerTypeProjection(
@@ -26,7 +26,7 @@ func validateWorkerTypeProjection(
 	if !agent.IsActive {
 		return invalidWorkerType("worker type is disabled")
 	}
-	if agent.IsInternal && os.Getenv("AGENTSMESH_INCLUDE_INTERNAL_AGENTS") != "true" {
+	if agent.IsInternal && os.Getenv("AGENTCLOUD_INCLUDE_INTERNAL_AGENTS") != "true" {
 		return invalidWorkerType("internal worker type is not selectable")
 	}
 	if agent.AgentfileSource == nil || *agent.AgentfileSource == "" {

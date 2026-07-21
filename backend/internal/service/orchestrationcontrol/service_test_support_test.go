@@ -8,17 +8,17 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/organization"
-	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationresource"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/organization"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/workerdefinition"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 	"github.com/stretchr/testify/require"
 )
 
 const (
 	testResourceJSON = `{
-		"apiVersion":"agentsmesh.io/v1alpha1",
+		"apiVersion":"agentcloud.io/v1alpha1",
 		"kind":"WorkerTemplate",
 		"metadata":{"name":"worker-one","namespace":"team-alpha"},
 		"spec":{
@@ -34,7 +34,7 @@ metadata:
 spec:
   modelRef: {kind: ModelBinding, name: coding-primary}
   promptRef: {kind: Prompt, name: system-prompt}
-apiVersion: agentsmesh.io/v1alpha1
+apiVersion: agentcloud.io/v1alpha1
 `
 )
 

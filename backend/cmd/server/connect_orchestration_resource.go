@@ -5,7 +5,7 @@ import (
 
 	"connectrpc.com/connect"
 
-	orchestrationresourceconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/orchestration_resource"
+	orchestrationresourceconnect "github.com/l8ai-cn/agentcloud/backend/internal/api/connect/orchestration_resource"
 )
 
 func mountOrchestrationResourceService(

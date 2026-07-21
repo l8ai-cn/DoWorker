@@ -7,17 +7,17 @@ import (
 	"net/url"
 	"strings"
 
-	grpcserver "github.com/anthropics/agentsmesh/backend/internal/api/grpc"
-	v1 "github.com/anthropics/agentsmesh/backend/internal/api/rest/v1"
-	"github.com/anthropics/agentsmesh/backend/internal/config"
-	runnerDomain "github.com/anthropics/agentsmesh/backend/internal/domain/runner"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/dns"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/logger"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/pki"
-	"github.com/anthropics/agentsmesh/backend/internal/interfaces"
-	"github.com/anthropics/agentsmesh/backend/internal/service/agent"
-	"github.com/anthropics/agentsmesh/backend/internal/service/organization"
-	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
+	grpcserver "github.com/l8ai-cn/agentcloud/backend/internal/api/grpc"
+	v1 "github.com/l8ai-cn/agentcloud/backend/internal/api/rest/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
+	runnerDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/runner"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/dns"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/logger"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/pki"
+	"github.com/l8ai-cn/agentcloud/backend/internal/interfaces"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/agent"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/organization"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/runner"
 )
 
 func initializePKIAndGRPC(

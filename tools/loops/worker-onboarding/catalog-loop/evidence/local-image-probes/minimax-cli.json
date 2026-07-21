@@ -4,7 +4,7 @@
   "definition_hash": "sha256:d7c0fe3c67243528c4bf4b8fe7cffb0fee29406188d0a833c92603cea01cf2be",
   "platform": "linux/amd64",
   "observed_at": "2026-07-16T16:32:48.911Z",
-  "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-minimax-cli:latest",
+  "image_reference": "agentcloud-codex-loop-blockly-mvp-runner-minimax-cli:latest",
   "image_id": "sha256:987127f57f37c559a7ff989e189cf1b7606a6c112d86a55748eab4381b0877bc",
   "probe_command": [
     "mmx",

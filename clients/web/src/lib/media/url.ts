@@ -89,7 +89,7 @@ export function buildEmbedURL(url: string, kind: MediaKind): string | null {
       return m ? `https://www.loom.com/embed/${m[1]}` : null;
     }
     case "figma":
-      return `https://www.figma.com/embed?embed_host=agentsmesh&url=${encodeURIComponent(url)}`;
+      return `https://www.figma.com/embed?embed_host=agentcloud&url=${encodeURIComponent(url)}`;
     case "codesandbox":
       return url.includes("/s/") ? url.replace("/s/", "/embed/") : null;
     default:

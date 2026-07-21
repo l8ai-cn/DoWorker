@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/gitprovider"
 )
 
 type RepositoryServiceInterface interface {

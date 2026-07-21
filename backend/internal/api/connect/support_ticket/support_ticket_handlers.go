@@ -7,8 +7,8 @@ import (
 
 	"connectrpc.com/connect"
 
-	supportticketsvc "github.com/anthropics/agentsmesh/backend/internal/service/supportticket"
-	supportticketv1 "github.com/anthropics/agentsmesh/proto/gen/go/support_ticket/v1"
+	supportticketsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/supportticket"
+	supportticketv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/support_ticket/v1"
 )
 
 // ListSupportTickets returns the authenticated user's tickets, mirroring

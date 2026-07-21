@@ -14,8 +14,8 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	"github.com/anthropics/agentsmesh/runner/internal/safego"
-	"github.com/anthropics/agentsmesh/runner/internal/tunnelframe"
+	"github.com/l8ai-cn/agentcloud/runner/internal/safego"
+	"github.com/l8ai-cn/agentcloud/runner/internal/tunnelframe"
 )
 
 type Dispatcher interface {

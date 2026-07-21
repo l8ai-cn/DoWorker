@@ -16,8 +16,8 @@ vi.mock("@/lib/host", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/host")>();
   return {
     ...actual,
-    getDoWorkerUserSearch: vi.fn(() => undefined),
-    getDoWorkerTransformShareLink: vi.fn(() => undefined),
+    getAgentCloudUserSearch: vi.fn(() => undefined),
+    getAgentCloudTransformShareLink: vi.fn(() => undefined),
   };
 });
 
@@ -26,8 +26,8 @@ import * as host from "@/lib/host";
 const listMock = vi.mocked(api.listPermissions);
 const grantMock = vi.mocked(api.grantPermission);
 const revokeMock = vi.mocked(api.revokePermission);
-const userSearchMock = vi.mocked(host.getDoWorkerUserSearch);
-const transformLinkMock = vi.mocked(host.getDoWorkerTransformShareLink);
+const userSearchMock = vi.mocked(host.getAgentCloudUserSearch);
+const transformLinkMock = vi.mocked(host.getAgentCloudTransformShareLink);
 
 function createWrapper() {
   const qc = new QueryClient({

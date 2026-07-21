@@ -1,8 +1,8 @@
 package agentconnect
 
 import (
-	"github.com/anthropics/agentsmesh/agentfile/capability"
-	agentv1 "github.com/anthropics/agentsmesh/proto/gen/go/agent/v1"
+	"github.com/l8ai-cn/agentcloud/agentfile/capability"
+	agentv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent/v1"
 )
 
 func enrichCapabilities(proto *agentv1.Agent, agentfileSource *string) {

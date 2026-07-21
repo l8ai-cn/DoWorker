@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"strings"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	sessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
-	itemsvc "github.com/anthropics/agentsmesh/backend/internal/service/conversationitem"
-	runnerservice "github.com/anthropics/agentsmesh/backend/internal/service/runner"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentsession"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	sessionsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentsession"
+	itemsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/conversationitem"
+	runnerservice "github.com/l8ai-cn/agentcloud/backend/internal/service/runner"
 	"github.com/gin-gonic/gin"
 )
 

@@ -3,7 +3,7 @@ package agentworkbench
 import (
 	"testing"
 
-	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
+	agentworkbenchv2 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2"
 	"github.com/stretchr/testify/require"
 )
 
@@ -11,7 +11,7 @@ func TestAttachmentFileIDsAcceptsSessionFileReference(t *testing.T) {
 	ids, err := attachmentFileIDs([]*agentworkbenchv2.ContentBlock{{
 		ContentId: "file-1",
 		Identity: &agentworkbenchv2.ContentIdentity{
-			Namespace: "agentsmesh.session-file", SemanticKey: "attachment",
+			Namespace: "agentcloud.session-file", SemanticKey: "attachment",
 			SchemaVersion: "1",
 		},
 		Content: &agentworkbenchv2.ContentBlock_File{

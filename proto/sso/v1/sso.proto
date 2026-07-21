@@ -41,7 +41,7 @@ syntax = "proto3";
 
 package proto.sso.v1;
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/sso/v1;ssov1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/sso/v1;ssov1";
 
 // ============================================================================
 // SSOService — public (unauthenticated) SSO entry points

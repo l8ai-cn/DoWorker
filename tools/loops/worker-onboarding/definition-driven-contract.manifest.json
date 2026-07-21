@@ -575,7 +575,7 @@
   },
   "escalation": {
     "condition": "approval, credential, browser, budget, or no-progress gate is reached",
-    "owner": "Do Worker maintainer",
+    "owner": "Agent Cloud maintainer",
     "channel": "Codex thread",
     "message_template": "Definition-driven Worker loop stopped: {reason}. Evidence: {evidence_ref}."
   },

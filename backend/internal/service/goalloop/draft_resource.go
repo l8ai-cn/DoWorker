@@ -3,8 +3,8 @@ package goalloop
 import (
 	"context"
 
-	airesourcedomain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
-	airesourceservice "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
+	airesourcedomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
+	airesourceservice "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
 )
 
 func (generator *DraftGenerator) resolveResource(

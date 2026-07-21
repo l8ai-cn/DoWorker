@@ -14,11 +14,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/anthropics/agentsmesh/runner/internal/processmgr"
+	"github.com/l8ai-cn/agentcloud/runner/internal/processmgr"
 
-	"github.com/anthropics/agentsmesh/runner/internal/config"
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
-	"github.com/anthropics/agentsmesh/runner/internal/safego"
+	"github.com/l8ai-cn/agentcloud/runner/internal/config"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/safego"
 )
 
 // Module logger for console
@@ -168,5 +168,5 @@ func GetConfigDir() string {
 	if err != nil {
 		return ""
 	}
-	return filepath.Join(home, ".agentsmesh")
+	return filepath.Join(home, ".agentcloud")
 }

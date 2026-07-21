@@ -4,7 +4,7 @@ package proto.ai_resource.v1;
 
 import "ai_resource/v1/types.proto";
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/ai_resource/v1;airesourcev1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/ai_resource/v1;airesourcev1";
 
 service AIResourceService {
   rpc GetCatalog(GetCatalogRequest) returns (GetCatalogResponse);

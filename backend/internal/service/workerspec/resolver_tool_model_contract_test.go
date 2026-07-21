@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	resourcedomain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	resourcedomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

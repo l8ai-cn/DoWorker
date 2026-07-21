@@ -12,7 +12,7 @@
 // approval_timeout_min / control_agent_slug / updated_at) have no wire source
 // and default to None; realtime patch events fill them later.
 
-use agentsmesh_types::proto_autopilot_v1::{
+use agentcloud_types::proto_autopilot_v1::{
     AutopilotController as WireController, AutopilotIteration as WireIteration,
 };
 
@@ -101,7 +101,7 @@ impl AutopilotState {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use agentsmesh_types::proto_autopilot_v1::CircuitBreaker;
+    use agentcloud_types::proto_autopilot_v1::CircuitBreaker;
 
     fn wire_ctrl() -> WireController {
         WireController {

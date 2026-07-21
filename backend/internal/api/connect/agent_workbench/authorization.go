@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	sessiondomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	sessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
-	"github.com/anthropics/agentsmesh/backend/pkg/embedtoken"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	sessiondomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentsession"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	sessionsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentsession"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/embedtoken"
 )
 
 func (s *Server) authorizeSession(

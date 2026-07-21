@@ -5,10 +5,10 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
-	runtimedomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workerdependency"
+	runtimedomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerruntime"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
 )
 
 type Service struct {

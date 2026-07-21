@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	coordinatordom "github.com/anthropics/agentsmesh/backend/internal/domain/coordinator"
-	ticketDomain "github.com/anthropics/agentsmesh/backend/internal/domain/ticket"
+	coordinatordom "github.com/l8ai-cn/agentcloud/backend/internal/domain/coordinator"
+	ticketDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/ticket"
 )
 
 // HandlePodTerminated is the eventbus consumer entrypoint: when a coordinator
@@ -95,7 +95,7 @@ func feedbackBody(final string, execution *coordinatordom.Execution) string {
 	case coordinatordom.ExecutionStatusCancelled:
 		verb = "was cancelled"
 	}
-	body := fmt.Sprintf("Do Worker Coordinator: do-agent run %s.", verb)
+	body := fmt.Sprintf("Agent Cloud Coordinator: do-agent run %s.", verb)
 	if strings.TrimSpace(execution.Summary) != "" {
 		body += "\n\n" + execution.Summary
 	}

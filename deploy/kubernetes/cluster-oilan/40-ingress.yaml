@@ -1,8 +1,8 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: agentsmesh-dowork
-  namespace: agentsmesh
+  name: agentcloud-dowork
+  namespace: agentcloud
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: "20m"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "180"
@@ -77,8 +77,8 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: agentsmesh-marketplace
-  namespace: agentsmesh
+  name: agentcloud-marketplace
+  namespace: agentcloud
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: "20m"
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
@@ -109,8 +109,8 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: agentsmesh-admin
-  namespace: agentsmesh
+  name: agentcloud-admin
+  namespace: agentcloud
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: "20m"
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
@@ -134,8 +134,8 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: agentsmesh-dowork-relay
-  namespace: agentsmesh
+  name: agentcloud-dowork-relay
+  namespace: agentcloud
   annotations:
     nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /$2
@@ -162,8 +162,8 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: agentsmesh-dowork-tunnel
-  namespace: agentsmesh
+  name: agentcloud-dowork-tunnel
+  namespace: agentcloud
   annotations:
     nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"

@@ -96,4 +96,4 @@ type Service interface {
 
 // defaultAuthor is used for seed/edit commits when the caller passes a zero
 // Author.
-var defaultAuthor = Author{Name: "Do Worker", Email: "platform@agentsmesh.local"}
+var defaultAuthor = Author{Name: "Agent Cloud", Email: "platform@agentcloud.local"}

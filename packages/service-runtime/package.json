@@ -1,5 +1,5 @@
 {
-  "name": "@do-worker/service-runtime",
+  "name": "@agent-cloud/service-runtime",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -9,7 +9,7 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "@do-worker/service-interface": "workspace:*",
-    "do-worker-wasm": "workspace:*"
+    "@agent-cloud/service-interface": "workspace:*",
+    "agent-cloud-wasm": "workspace:*"
   }
 }

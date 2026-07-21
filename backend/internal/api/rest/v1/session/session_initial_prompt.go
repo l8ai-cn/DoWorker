@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/agentfile"
+	"github.com/l8ai-cn/agentcloud/agentfile"
 )
 
 func promptLayerFromItems(items []json.RawMessage) *string {

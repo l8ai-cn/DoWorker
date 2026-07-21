@@ -15,7 +15,7 @@ The homepage remains the product overview. Public marketing pricing is removed f
 
 ## Product Frame
 
-The visitor is evaluating whether Do Worker can own cross-functional work. Each page answers one decision:
+The visitor is evaluating whether Agent Cloud can own cross-functional work. Each page answers one decision:
 
 - **Solutions:** Which business outcomes can an Expert carry?
 - **How it works:** How does one Expert coordinate capabilities and human control?

@@ -1,8 +1,8 @@
 use crate::connect_call::connect_call;
 use crate::error::ApiError;
 use crate::ApiClient;
-use agentsmesh_types::proto_runner_api_v1 as runner_proto;
-use agentsmesh_types::*;
+use agentcloud_types::proto_runner_api_v1 as runner_proto;
+use agentcloud_types::*;
 
 // =============================================================================
 // Connect-RPC (binary wire). See proto-naming-conventions.md §2.5.
@@ -159,8 +159,8 @@ impl ApiClient {
         status: Option<&str>,
         limit: Option<u32>,
         offset: Option<u32>,
-    ) -> Result<agentsmesh_types::proto_pod_v1::ListPodsResponse, ApiError> {
-        let req = agentsmesh_types::proto_pod_v1::ListPodsRequest {
+    ) -> Result<agentcloud_types::proto_pod_v1::ListPodsResponse, ApiError> {
+        let req = agentcloud_types::proto_pod_v1::ListPodsRequest {
             org_slug: self.current_org_slug(),
             status: status.map(|s| s.to_string()),
             created_by_id: None,

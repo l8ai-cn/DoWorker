@@ -28,13 +28,13 @@ type ACPTransport struct {
 	handler *Handler
 
 	// supportsControlRequest captures whether the agent advertised the
-	// `agentsmeshExtensions.controlRequest` capability in its initialize
+	// `agentcloudExtensions.controlRequest` capability in its initialize
 	// response. When false (codex/gemini/opencode + any other standard
 	// ACP agent), SendControlRequest fails fast with ErrControlNotSupported
 	// instead of waiting on a 10-second JSON-RPC timeout.
 	supportsControlRequest bool
 
-	// supportedPermissionModes captures agentsmeshExtensions.permissionModes from
+	// supportedPermissionModes captures agentcloudExtensions.permissionModes from
 	// the initialize response — the wire values this agent accepts for
 	// set_permission_mode. Empty means the agent didn't advertise (frontend falls
 	// back to the Claude default set).
@@ -71,7 +71,7 @@ func (t *ACPTransport) Handshake(_ context.Context) (string, error) {
 	params := map[string]any{
 		"protocolVersion": 1,
 		"clientInfo": map[string]any{
-			"name":    "do-worker-runner",
+			"name":    "agent-cloud-runner",
 			"version": "1.0.0",
 		},
 		"clientCapabilities": map[string]any{},

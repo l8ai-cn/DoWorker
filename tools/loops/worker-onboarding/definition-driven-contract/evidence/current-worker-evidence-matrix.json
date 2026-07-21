@@ -31,7 +31,7 @@
       "config_documents": [],
       "runtime": {
         "image_probe_status": "passed",
-        "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-aider:latest",
+        "image_reference": "agentcloud-codex-loop-blockly-mvp-runner-aider:latest",
         "create_option_selectable": true,
         "create_option_blocking_reason": "",
         "online_runners": [
@@ -81,7 +81,7 @@
       "config_documents": [],
       "runtime": {
         "image_probe_status": "passed",
-        "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-claude-code:latest",
+        "image_reference": "agentcloud-codex-loop-blockly-mvp-runner-claude-code:latest",
         "create_option_selectable": true,
         "create_option_blocking_reason": "",
         "online_runners": [
@@ -125,7 +125,7 @@
       "config_documents": [],
       "runtime": {
         "image_probe_status": "passed",
-        "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-codex-cli:latest",
+        "image_reference": "agentcloud-codex-loop-blockly-mvp-runner-codex-cli:latest",
         "create_option_selectable": true,
         "create_option_blocking_reason": "",
         "online_runners": [
@@ -170,7 +170,7 @@
       "config_documents": [],
       "runtime": {
         "image_probe_status": "passed",
-        "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-cursor-cli:latest",
+        "image_reference": "agentcloud-codex-loop-blockly-mvp-runner-cursor-cli:latest",
         "create_option_selectable": true,
         "create_option_blocking_reason": "",
         "online_runners": [
@@ -226,7 +226,7 @@
       ],
       "runtime": {
         "image_probe_status": "passed",
-        "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-do-agent:latest",
+        "image_reference": "agentcloud-codex-loop-blockly-mvp-runner-do-agent:latest",
         "create_option_selectable": true,
         "create_option_blocking_reason": "",
         "online_runners": [
@@ -270,7 +270,7 @@
       "config_documents": [],
       "runtime": {
         "image_probe_status": "passed",
-        "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-gemini-cli:latest",
+        "image_reference": "agentcloud-codex-loop-blockly-mvp-runner-gemini-cli:latest",
         "create_option_selectable": true,
         "create_option_blocking_reason": "",
         "online_runners": [
@@ -315,7 +315,7 @@
       "config_documents": [],
       "runtime": {
         "image_probe_status": "passed",
-        "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-grok-build:latest",
+        "image_reference": "agentcloud-codex-loop-blockly-mvp-runner-grok-build:latest",
         "create_option_selectable": true,
         "create_option_blocking_reason": "",
         "online_runners": [
@@ -358,7 +358,7 @@
       "config_documents": [],
       "runtime": {
         "image_probe_status": "passed",
-        "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-hermes:latest",
+        "image_reference": "agentcloud-codex-loop-blockly-mvp-runner-hermes:latest",
         "create_option_selectable": true,
         "create_option_blocking_reason": "",
         "online_runners": [
@@ -417,7 +417,7 @@
       "config_documents": [],
       "runtime": {
         "image_probe_status": "image_missing",
-        "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-loopal:latest",
+        "image_reference": "agentcloud-codex-loop-blockly-mvp-runner-loopal:latest",
         "create_option_selectable": false,
         "create_option_blocking_reason": "No runtime image is available for this worker type",
         "online_runners": [],
@@ -454,7 +454,7 @@
       "config_documents": [],
       "runtime": {
         "image_probe_status": "passed",
-        "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-minimax-cli:latest",
+        "image_reference": "agentcloud-codex-loop-blockly-mvp-runner-minimax-cli:latest",
         "create_option_selectable": true,
         "create_option_blocking_reason": "",
         "online_runners": [
@@ -503,7 +503,7 @@
       ],
       "runtime": {
         "image_probe_status": "passed",
-        "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-openclaw:latest",
+        "image_reference": "agentcloud-codex-loop-blockly-mvp-runner-openclaw:latest",
         "create_option_selectable": true,
         "create_option_blocking_reason": "",
         "online_runners": [
@@ -540,7 +540,7 @@
       "config_documents": [],
       "runtime": {
         "image_probe_status": "passed",
-        "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-opencode:latest",
+        "image_reference": "agentcloud-codex-loop-blockly-mvp-runner-opencode:latest",
         "create_option_selectable": true,
         "create_option_blocking_reason": "",
         "online_runners": [
@@ -596,7 +596,7 @@
       ],
       "runtime": {
         "image_probe_status": "passed",
-        "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-do-agent:latest",
+        "image_reference": "agentcloud-codex-loop-blockly-mvp-runner-do-agent:latest",
         "create_option_selectable": true,
         "create_option_blocking_reason": "",
         "online_runners": [

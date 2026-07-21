@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	domainuser "github.com/anthropics/agentsmesh/backend/internal/domain/user"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	userv1 "github.com/anthropics/agentsmesh/proto/gen/go/user/v1"
+	domainuser "github.com/l8ai-cn/agentcloud/backend/internal/domain/user"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	userv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/user/v1"
 )
 
 // Auth-guard tests — each RPC short-circuits on missing TenantContext.

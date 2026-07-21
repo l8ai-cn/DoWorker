@@ -2,10 +2,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend
-  namespace: agentsmesh
+  namespace: agentcloud
   annotations:
-    kubernetes.io/change-cause: "AgentsMesh release __RELEASE_COMMIT__"
-    agentsmesh.ai/verified-image-digest: "__BACKEND_DIGEST__"
+    kubernetes.io/change-cause: "Agent Cloud release __RELEASE_COMMIT__"
+    agentcloud.ai/verified-image-digest: "__BACKEND_DIGEST__"
 spec:
   replicas: 1
   selector:
@@ -16,18 +16,18 @@ spec:
       labels:
         app: backend
       annotations:
-        agentsmesh.ai/verified-image-digest: "__BACKEND_DIGEST__"
+        agentcloud.ai/verified-image-digest: "__BACKEND_DIGEST__"
     spec:
-      serviceAccountName: agentsmesh-backend
+      serviceAccountName: agentcloud-backend
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
       imagePullSecrets:
-        - name: agentsmesh-regcred
+        - name: agentcloud-regcred
       initContainers:
         - name: kubectl-install
-          image: repo.aiedulab.cn:8443/agentsmesh/kubectl:1.28
+          image: repo.aiedulab.cn:8443/agentcloud/kubectl:1.28
           imagePullPolicy: Always
           command: ["sh", "-c", "cp \"$(command -v kubectl)\" /kube-tools/kubectl && chmod +x /kube-tools/kubectl"]
           volumeMounts:
@@ -35,7 +35,7 @@ spec:
               mountPath: /kube-tools
       containers:
         - name: backend
-          image: repo.aiedulab.cn:8443/agentsmesh/backend@sha256:a01484f0c50a3ccbc7baf907b49f5465905615001fc63fe5258964917232c4e0
+          image: repo.aiedulab.cn:8443/agentcloud/backend@sha256:a01484f0c50a3ccbc7baf907b49f5465905615001fc63fe5258964917232c4e0
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -44,22 +44,22 @@ spec:
               name: grpc
           envFrom:
             - configMapRef:
-                name: agentsmesh-config
+                name: agentcloud-config
             - secretRef:
-                name: agentsmesh-secrets
+                name: agentcloud-secrets
             - secretRef:
-                name: agentsmesh-gitea
+                name: agentcloud-gitea
           env:
             - name: COORDINATOR_RUNNER_LAUNCHER
               value: "k8s"
             - name: COORDINATOR_RUNNER_K8S_KUBECTL
               value: "/kube-tools/kubectl"
             - name: COORDINATOR_RUNNER_K8S_NAMESPACE
-              value: "agentsmesh"
+              value: "agentcloud"
             - name: COORDINATOR_RUNNER_K8S_IMAGE_PULL_POLICY
               value: "Always"
             - name: COORDINATOR_RUNNER_K8S_SSL_SECRET
-              value: "agentsmesh-pki-ca"
+              value: "agentcloud-pki-ca"
             - name: COORDINATOR_RUNNER_K8S_READY_TIMEOUT_SECONDS
               value: "180"
             - name: COORDINATOR_RUNNER_NODE_ID_PREFIX
@@ -73,7 +73,7 @@ spec:
             - name: COORDINATOR_RUNNER_RELAY_BASE_URL
               value: "ws://relay:8090"
             - name: COORDINATOR_RUNNER_IMAGES
-              value: "e2e-echo=repo.aiedulab.cn:8443/agentsmesh/runner-e2e-echo@sha256:077eb4511113ddb80dd8e09d7b46ffe3668d6b69d1840c1cbe849e97595087fa,do-agent=repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653,seedance-expert=repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653,video-studio=repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:f3463bc567f1ed8516486e95e17d50f48834275aae7931221b1a3eeb3c526a5d"
+              value: "e2e-echo=repo.aiedulab.cn:8443/agentcloud/runner-e2e-echo@sha256:077eb4511113ddb80dd8e09d7b46ffe3668d6b69d1840c1cbe849e97595087fa,do-agent=repo.aiedulab.cn:8443/agentcloud/runner-do-agent@sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653,seedance-expert=repo.aiedulab.cn:8443/agentcloud/runner-do-agent@sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653,video-studio=repo.aiedulab.cn:8443/agentcloud/runner-video-studio@sha256:f3463bc567f1ed8516486e95e17d50f48834275aae7931221b1a3eeb3c526a5d"
           volumeMounts:
             - name: pki-ca
               mountPath: /app/ssl
@@ -107,10 +107,10 @@ spec:
       volumes:
         - name: pki-ca
           secret:
-            secretName: agentsmesh-pki-ca
+            secretName: agentcloud-pki-ca
         - name: access-token
           secret:
-            secretName: agentsmesh-access-token
+            secretName: agentcloud-access-token
         - name: kube-tools
           emptyDir: {}
         - name: data
@@ -120,7 +120,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: backend
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   selector:
     app: backend

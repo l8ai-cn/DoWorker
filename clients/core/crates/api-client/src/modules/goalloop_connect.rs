@@ -1,7 +1,7 @@
 use crate::connect_call::connect_call;
 use crate::error::ApiError;
 use crate::ApiClient;
-use agentsmesh_types::proto_goalloop_v1 as lp;
+use agentcloud_types::proto_goalloop_v1 as lp;
 
 impl ApiClient {
     pub async fn compile_loop_program_connect(

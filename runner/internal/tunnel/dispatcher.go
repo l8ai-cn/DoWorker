@@ -8,8 +8,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/anthropics/agentsmesh/runner/internal/safego"
-	"github.com/anthropics/agentsmesh/runner/internal/tunnelframe"
+	"github.com/l8ai-cn/agentcloud/runner/internal/safego"
+	"github.com/l8ai-cn/agentcloud/runner/internal/tunnelframe"
 )
 
 const defaultLocalWindow = 1 << 20

@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	coordinatordom "github.com/anthropics/agentsmesh/backend/internal/domain/coordinator"
-	agentpodSvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	coordinatordom "github.com/l8ai-cn/agentcloud/backend/internal/domain/coordinator"
+	agentpodSvc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
 )
 
 const coordinatorCompensationTimeout = 15 * time.Second

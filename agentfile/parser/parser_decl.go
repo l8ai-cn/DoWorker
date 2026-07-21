@@ -1,6 +1,6 @@
 package parser
 
-import "github.com/anthropics/agentsmesh/agentfile/lexer"
+import "github.com/l8ai-cn/agentcloud/agentfile/lexer"
 
 // tryParseDeclaration attempts to parse a declaration from the current token.
 func (p *Parser) tryParseDeclaration(tok lexer.Token) Declaration {

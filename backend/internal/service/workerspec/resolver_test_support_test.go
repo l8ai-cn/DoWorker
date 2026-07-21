@@ -5,9 +5,9 @@ import (
 	"errors"
 	"strings"
 
-	workerruntime "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	workerruntime "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerruntime"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 var errCrossScopeForTest = errors.New("cross-scope resolution")

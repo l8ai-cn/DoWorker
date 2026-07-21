@@ -1,6 +1,6 @@
 # Demo WebApp
 
-A simple static web application for testing AgentsMesh development environment.
+A simple static web application for testing Agent Cloud development environment.
 
 ## Structure
 

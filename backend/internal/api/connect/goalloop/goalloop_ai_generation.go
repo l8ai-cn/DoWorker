@@ -6,11 +6,11 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	airesourcesvc "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
-	goalloopsvc "github.com/anthropics/agentsmesh/backend/internal/service/goalloop"
-	goalloopv1 "github.com/anthropics/agentsmesh/proto/gen/go/goalloop/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	airesourcesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
+	goalloopsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/goalloop"
+	goalloopv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/goalloop/v1"
 )
 
 func (s *Server) GenerateLoopProgram(

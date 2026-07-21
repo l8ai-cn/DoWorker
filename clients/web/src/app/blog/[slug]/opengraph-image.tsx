@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { getPost } from "@/lib/blog";
 
-export const alt = "Do Worker Blog";
+export const alt = "Agent Cloud Blog";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -85,7 +85,7 @@ export default async function Image({
             DW
           </div>
           <span style={{ fontSize: 28, fontWeight: 600, color: "#a1a1aa" }}>
-            Do Worker Blog
+            Agent Cloud Blog
           </span>
         </div>
 

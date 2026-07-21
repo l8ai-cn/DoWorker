@@ -6,7 +6,7 @@ import (
 
 	"gorm.io/gorm"
 
-	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
+	skilldom "github.com/l8ai-cn/agentcloud/backend/internal/domain/skill"
 )
 
 // SkillCatalogRepository is the gorm-backed store for the unified skills

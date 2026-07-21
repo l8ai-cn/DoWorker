@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	agentdomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
-	"github.com/anthropics/agentsmesh/backend/internal/testkit"
+	agentdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agent"
+	"github.com/l8ai-cn/agentcloud/backend/internal/testkit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

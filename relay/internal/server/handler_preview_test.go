@@ -10,10 +10,10 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 
-	"github.com/anthropics/agentsmesh/relay/internal/auth"
-	relaybackend "github.com/anthropics/agentsmesh/relay/internal/backend"
-	"github.com/anthropics/agentsmesh/relay/internal/config"
-	"github.com/anthropics/agentsmesh/relay/internal/tunnel"
+	"github.com/l8ai-cn/agentcloud/relay/internal/auth"
+	relaybackend "github.com/l8ai-cn/agentcloud/relay/internal/backend"
+	"github.com/l8ai-cn/agentcloud/relay/internal/config"
+	"github.com/l8ai-cn/agentcloud/relay/internal/tunnel"
 )
 
 type previewSessionBackendStub struct {

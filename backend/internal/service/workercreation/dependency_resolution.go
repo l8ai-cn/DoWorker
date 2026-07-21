@@ -3,10 +3,10 @@ package workercreation
 import (
 	"context"
 
-	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
-	"github.com/anthropics/agentsmesh/backend/internal/service/workerdependencyartifact"
+	control "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/workerdefinition"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/workerdependencyartifact"
 )
 
 func buildResolvedDependencies(

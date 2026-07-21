@@ -4,7 +4,7 @@
 
 **Goal:** expose the production Web User Worker as a same-root React component, a self-routed React component, and an imperative web-page mount API without duplicating the Worker UI.
 
-**Architecture:** `DoWorkerApp` remains the same-root integration point and accepts a router supplied by its host. A thin `DoWorkerStandaloneApp` adds `HashRouter` for standalone documents, while `mountDoWorkerApp` owns only `createRoot` and unmount lifecycle for non-React hosts. `worker.html` and `iframe.html` call the same standalone component.
+**Architecture:** `AgentCloudApp` remains the same-root integration point and accepts a router supplied by its host. A thin `AgentCloudStandaloneApp` adds `HashRouter` for standalone documents, while `mountAgentCloudApp` owns only `createRoot` and unmount lifecycle for non-React hosts. `worker.html` and `iframe.html` call the same standalone component.
 
 **Tech Stack:** React 19, React Router, Vite, Vitest, Testing Library.
 
@@ -31,13 +31,13 @@
 
 ```tsx
 vi.mock("./embed", () => ({
-  DoWorkerApp: ({ basename }: { basename?: string }) => (
+  AgentCloudApp: ({ basename }: { basename?: string }) => (
     <output data-testid="worker-app">{basename ?? "root"}</output>
   ),
 }));
 
-it("provides a hash router and forwards DoWorkerApp props", () => {
-  render(<DoWorkerStandaloneApp basename="/worker" isDarkMode />);
+it("provides a hash router and forwards AgentCloudApp props", () => {
+  render(<AgentCloudStandaloneApp basename="/worker" isDarkMode />);
 
   expect(screen.getByTestId("worker-app")).toHaveTextContent("/worker");
 });
@@ -47,15 +47,15 @@ it("provides a hash router and forwards DoWorkerApp props", () => {
 
 Run: `cd clients/web-user && pnpm exec vitest run src/standalone.test.tsx`
 
-Expected: FAIL because `DoWorkerStandaloneApp` does not exist.
+Expected: FAIL because `AgentCloudStandaloneApp` does not exist.
 
 - [x] **Step 3: Write minimal implementation**
 
 ```tsx
-export function DoWorkerStandaloneApp(props: DoWorkerAppProps) {
+export function AgentCloudStandaloneApp(props: AgentCloudAppProps) {
   return (
     <HashRouter>
-      <DoWorkerApp {...props} />
+      <AgentCloudApp {...props} />
     </HashRouter>
   );
 }
@@ -78,7 +78,7 @@ Expected: PASS.
 ```tsx
 it("mounts the standalone Worker and removes it on unmount", () => {
   const element = document.createElement("div");
-  const mounted = mountDoWorkerApp(element);
+  const mounted = mountAgentCloudApp(element);
 
   expect(element.querySelector("[data-testid=worker-app]")).not.toBeNull();
 
@@ -91,14 +91,14 @@ it("mounts the standalone Worker and removes it on unmount", () => {
 
 Run: `cd clients/web-user && pnpm exec vitest run src/mount.test.tsx`
 
-Expected: FAIL because `mountDoWorkerApp` does not exist.
+Expected: FAIL because `mountAgentCloudApp` does not exist.
 
 - [x] **Step 3: Write minimal implementation**
 
 ```tsx
-export function mountDoWorkerApp(element: Element, props: DoWorkerAppProps = {}) {
+export function mountAgentCloudApp(element: Element, props: AgentCloudAppProps = {}) {
   const root = createRoot(element);
-  root.render(<DoWorkerStandaloneApp {...props} />);
+  root.render(<AgentCloudStandaloneApp {...props} />);
   return { unmount: () => root.unmount() };
 }
 ```
@@ -120,7 +120,7 @@ Expected: PASS.
 ```tsx
 createRoot(rootElement).render(
   <StrictMode>
-    <DoWorkerStandaloneApp />
+    <AgentCloudStandaloneApp />
   </StrictMode>,
 );
 ```
@@ -128,8 +128,8 @@ createRoot(rootElement).render(
 - [x] **Step 2: Re-export the self-routed and imperative entrypoints**
 
 ```ts
-export { DoWorkerStandaloneApp } from "./standalone";
-export { mountDoWorkerApp } from "./mount";
+export { AgentCloudStandaloneApp } from "./standalone";
+export { mountAgentCloudApp } from "./mount";
 ```
 
 - [x] **Step 3: Run focused tests and the Vite build**
@@ -155,7 +155,7 @@ Verify both paths render the Agent selector, execution target picker, working di
 
 - [x] **Step 2: Verify an imperative host**
 
-Use the rendered test fixture that calls `mountDoWorkerApp`; confirm `unmount()` removes the root.
+Use the rendered test fixture that calls `mountAgentCloudApp`; confirm `unmount()` removes the root.
 
 ## Review Checklist
 

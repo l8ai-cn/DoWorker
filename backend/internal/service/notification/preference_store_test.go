@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	notifDomain "github.com/anthropics/agentsmesh/backend/internal/domain/notification"
+	notifDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/notification"
 )
 
 func TestPreferenceStore_CascadingLookup(t *testing.T) {

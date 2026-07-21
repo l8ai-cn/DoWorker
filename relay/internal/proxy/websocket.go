@@ -8,8 +8,8 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	"github.com/anthropics/agentsmesh/relay/internal/protocol/tunnelframe"
-	"github.com/anthropics/agentsmesh/relay/internal/tunnel"
+	"github.com/l8ai-cn/agentcloud/relay/internal/protocol/tunnelframe"
+	"github.com/l8ai-cn/agentcloud/relay/internal/tunnel"
 )
 
 // ProxyWebSocket proxies a WebSocket upgrade request over a tunnel stream.

@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/tests/mcp-e2e/fixture"
+	"github.com/l8ai-cn/agentcloud/tests/mcp-e2e/fixture"
 )
 
 // TestProtocol_OversizedPayloadRejected pins the MCP HTTP server's 1 MB

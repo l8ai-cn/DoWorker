@@ -5,8 +5,8 @@ import (
 	"errors"
 	"strings"
 
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	podDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
 )
 
 func (o *PodOrchestrator) inheritWorkerSpecSnapshot(

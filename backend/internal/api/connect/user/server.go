@@ -19,8 +19,8 @@ import (
 
 	"connectrpc.com/connect"
 
-	orgservice "github.com/anthropics/agentsmesh/backend/internal/service/organization"
-	userservice "github.com/anthropics/agentsmesh/backend/internal/service/user"
+	orgservice "github.com/l8ai-cn/agentcloud/backend/internal/service/organization"
+	userservice "github.com/l8ai-cn/agentcloud/backend/internal/service/user"
 )
 
 const ServiceName = "proto.user.v1.UserService"

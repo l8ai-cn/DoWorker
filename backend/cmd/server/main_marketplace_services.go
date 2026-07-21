@@ -3,14 +3,14 @@ package main
 import (
 	"log/slog"
 
-	v1 "github.com/anthropics/agentsmesh/backend/internal/api/rest/v1"
-	"github.com/anthropics/agentsmesh/backend/internal/config"
-	"github.com/anthropics/agentsmesh/backend/internal/infra"
-	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	itemsvc "github.com/anthropics/agentsmesh/backend/internal/service/conversationitem"
-	expertsvc "github.com/anthropics/agentsmesh/backend/internal/service/expert"
-	"github.com/anthropics/agentsmesh/backend/internal/service/gitops"
-	skillsvc "github.com/anthropics/agentsmesh/backend/internal/service/skill"
+	v1 "github.com/l8ai-cn/agentcloud/backend/internal/api/rest/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
+	itemsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/conversationitem"
+	expertsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/expert"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/gitops"
+	skillsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/skill"
 	"gorm.io/gorm"
 )
 

@@ -7,7 +7,7 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/anthropics/agentsmesh/runner/internal/acp"
+	"github.com/l8ai-cn/agentcloud/runner/internal/acp"
 )
 
 const mockSessionID = "mock-session-001"
@@ -100,8 +100,8 @@ func dispatchACPRequest(msg *acp.JSONRPCMessage, state *runtimeState, scn scenar
 }
 
 func initializeResult(scn scenario) map[string]any {
-	// AgentsMesh-specific capability advertisement. ACPTransport reads
-	// agentsmeshExtensions to decide control_request support + permission modes;
+	// Agent Cloud-specific capability advertisement. ACPTransport reads
+	// agentcloudExtensions to decide control_request support + permission modes;
 	// other agents that don't ship the extension simply omit the field.
 	ext := map[string]any{"controlRequest": true}
 	if len(scn.permissionModes) > 0 {
@@ -113,7 +113,7 @@ func initializeResult(scn scenario) map[string]any {
 	return map[string]any{
 		"protocol_version":     "2025-01-01",
 		"capabilities":         map[string]any{"permissions": true, "streaming": true},
-		"agentsmeshExtensions": ext,
+		"agentcloudExtensions": ext,
 	}
 }
 

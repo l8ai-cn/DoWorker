@@ -3,7 +3,7 @@ use reqwest::header::{HeaderName, HeaderValue};
 use tracing::{debug, info, warn};
 
 use crate::client::ApiClient;
-use agentsmesh_types::proto_auth_v1 as auth_proto;
+use agentcloud_types::proto_auth_v1 as auth_proto;
 
 impl ApiClient {
     pub(crate) async fn handle_token_refresh(&self, failed_token: Option<&str>) -> bool {

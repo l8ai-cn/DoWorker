@@ -1,11 +1,11 @@
 [package]
-name = "agentsmesh_api_client"
+name = "agentcloud_api_client"
 version.workspace = true
 edition.workspace = true
 publish.workspace = true
 
 [dependencies]
-agentsmesh_types = { workspace = true }
+agentcloud_types = { workspace = true }
 bytes = { workspace = true }
 futures = { workspace = true }
 futures-util = { workspace = true }

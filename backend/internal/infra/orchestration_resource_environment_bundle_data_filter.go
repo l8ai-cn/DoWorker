@@ -3,7 +3,7 @@ package infra
 import (
 	"fmt"
 
-	service "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
+	service "github.com/l8ai-cn/agentcloud/backend/internal/service/orchestrationcontrol"
 	"gorm.io/gorm"
 )
 

@@ -7,7 +7,7 @@
 ## 1. 目标标准
 
 **全量可用** = 打开 web-user 任意页面、任意交互路径，控制台无 404/501；
-所有语义（会话、文件、协作、策略、agent 控制）走 Do Worker 真实数据。
+所有语义（会话、文件、协作、策略、agent 控制）走 Agent Cloud 真实数据。
 Omnigent Python 控制面仍不迁移；语义全部落 compat 层 + Pod/Runner。
 
 ## 2. 缺口矩阵（web-user 实际调用 vs compat 现状）

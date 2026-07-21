@@ -27,7 +27,7 @@ Style: Default,Noto Sans CJK SC,72,&H00FFFFFF,&H000000FF,&H00111111,&H80000000,-
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-Dialogue: 0,0:00:00.00,0:00:00.90,Default,,0,0,0,,AgentsMesh 视频专家
+Dialogue: 0,0:00:00.00,0:00:00.90,Default,,0,0,0,,Agent Cloud 视频专家
 ASS
 ffmpeg -hide_banner -loglevel error \
   -i "$work_dir/source.mp4" \
@@ -50,7 +50,7 @@ const VerticalVideo = () => (
     fontSize: 84,
     justifyContent: "center",
   }}>
-    AgentsMesh Video Studio
+    Agent Cloud Video Studio
   </AbsoluteFill>
 );
 

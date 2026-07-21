@@ -1,10 +1,10 @@
 package promocodeconnect
 
 import (
-	promocodedomain "github.com/anthropics/agentsmesh/backend/internal/domain/promocode"
-	promocodesvc "github.com/anthropics/agentsmesh/backend/internal/service/promocode"
-	"github.com/anthropics/agentsmesh/backend/pkg/protoconv"
-	promocodev1 "github.com/anthropics/agentsmesh/proto/gen/go/promocode/v1"
+	promocodedomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/promocode"
+	promocodesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/promocode"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/protoconv"
+	promocodev1 "github.com/l8ai-cn/agentcloud/proto/gen/go/promocode/v1"
 )
 
 // toProtoValidateResponse maps the service-layer ValidateResponse to wire.

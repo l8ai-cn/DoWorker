@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use agentsmesh_api_client::{ApiClient, AuthTokenStore};
+use agentcloud_api_client::{ApiClient, AuthTokenStore};
 
 use crate::PodService;
 

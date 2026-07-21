@@ -1,4 +1,4 @@
-import initWasm, { WasmRelayManager } from "do-worker-wasm";
+import initWasm, { WasmRelayManager } from "agent-cloud-wasm";
 
 let managerPromise: Promise<WasmRelayManager> | undefined;
 

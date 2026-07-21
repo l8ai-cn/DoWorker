@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	agentfileschema "github.com/anthropics/agentsmesh/agentfile/schema"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	agentfileschema "github.com/l8ai-cn/agentcloud/agentfile/schema"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 type credentialBindingDocument struct {

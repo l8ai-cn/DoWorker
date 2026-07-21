@@ -1,4 +1,4 @@
-import type { AgentConnectionStatus } from "@do-worker/agent-ui";
+import type { AgentConnectionStatus } from "@agent-cloud/agent-ui";
 
 import type { EmbedSessionClient } from "@/embed-session-api";
 import { buildRelayWebSocketUrl } from "./relayFrameCodec";

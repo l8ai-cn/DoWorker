@@ -1,10 +1,10 @@
 package meshconnect
 
 import (
-	"github.com/anthropics/agentsmesh/backend/pkg/protoconv"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	domainmesh "github.com/anthropics/agentsmesh/backend/internal/domain/mesh"
-	meshv1 "github.com/anthropics/agentsmesh/proto/gen/go/mesh/v1"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/protoconv"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	domainmesh "github.com/l8ai-cn/agentcloud/backend/internal/domain/mesh"
+	meshv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/mesh/v1"
 )
 
 // toProtoMeshNode — codegen-backed value-receiver alias. The wire mapping

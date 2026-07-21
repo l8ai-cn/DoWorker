@@ -13,9 +13,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	expertSvc "github.com/anthropics/agentsmesh/backend/internal/service/expert"
+	expertdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/expert"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	expertSvc "github.com/l8ai-cn/agentcloud/backend/internal/service/expert"
 )
 
 func TestUpdateExpertReturnsConflictForResourceManagedDefinition(t *testing.T) {

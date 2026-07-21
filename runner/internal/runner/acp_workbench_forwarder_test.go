@@ -11,10 +11,10 @@ import (
 	"testing"
 	"time"
 
-	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
-	"github.com/anthropics/agentsmesh/runner/internal/acp"
-	"github.com/anthropics/agentsmesh/runner/internal/client"
+	agentworkbenchv2 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
+	"github.com/l8ai-cn/agentcloud/runner/internal/acp"
+	"github.com/l8ai-cn/agentcloud/runner/internal/client"
 	"github.com/stretchr/testify/require"
 )
 
@@ -79,7 +79,7 @@ func TestACPWorkbenchForwarderPublishesOfficePDFPreview(t *testing.T) {
 		preview.GetStatus(),
 	)
 	resourceID := preview.GetTransport().GetResourceId()
-	require.Contains(t, resourceID, "workspace:.do-worker/workbench/previews/")
+	require.Contains(t, resourceID, "workspace:.agent-cloud/workbench/previews/")
 	previewPath := filepath.Join(
 		root,
 		filepath.FromSlash(resourceID[len("workspace:"):]),
@@ -152,7 +152,7 @@ func TestRunnerPublishWorkbenchArtifactEmitsExactToolAndRevisionProvenance(
 	require.Len(t, raw, 3)
 	started := raw[0].GetWorkbenchEvents().GetMutations()[0].
 		GetTimeline().GetContent().GetToolExecution()
-	require.Equal(t, "agentsmesh.runner", started.GetIdentity().GetNamespace())
+	require.Equal(t, "agentcloud.runner", started.GetIdentity().GetNamespace())
 	require.Equal(t, "artifact.publish", started.GetIdentity().GetSemanticKey())
 	artifactBatch := raw[2].GetWorkbenchEvents()
 	require.Len(t, artifactBatch.GetMutations(), 2)
@@ -242,7 +242,7 @@ func writePublishedVideoArtifactRevision(
 	writeVideoRepresentation(t, root, content)
 	declarationDirectory := filepath.Join(
 		root,
-		filepath.FromSlash(".do-worker/workbench/artifacts"),
+		filepath.FromSlash(".agent-cloud/workbench/artifacts"),
 	)
 	require.NoError(t, os.MkdirAll(declarationDirectory, 0o755))
 	require.NoError(t, os.WriteFile(
@@ -271,12 +271,12 @@ func writeVideoRepresentation(t *testing.T, root string, content string) {
 
 func publishedVideoDeclaration(revision uint64) string {
 	return fmt.Sprintf(`{
-			"schema_version":"agentsmesh.agent-workbench.artifact/v1",
+			"schema_version":"agentcloud.agent-workbench.artifact/v1",
 			"artifact_id":"demo-video",
 			"revision":%d,
 			"role":"preview",
 			"primary_representation_id":"playable",
-			"producer":{"namespace":"agentsmesh.mcp","type":"artifact.publish"},
+			"producer":{"namespace":"agentcloud.mcp","type":"artifact.publish"},
 			"representations":[{
 				"representation_id":"playable",
 				"path":"output/demo.mp4",

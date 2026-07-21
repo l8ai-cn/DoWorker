@@ -6,7 +6,7 @@ import "orchestration_resource/v1/orchestration_resource_apply.proto";
 import "orchestration_resource/v1/orchestration_resource_queries.proto";
 import "orchestration_resource/v1/orchestration_resource_types.proto";
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/orchestration_resource/v1;orchestrationresourcev1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/orchestration_resource/v1;orchestrationresourcev1";
 
 service OrchestrationResourceService {
   rpc ValidateResource(ValidateResourceRequest) returns (ValidateResourceResponse);

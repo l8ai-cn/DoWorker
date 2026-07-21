@@ -2,7 +2,7 @@
 title: "Understanding Multi-Agent Collaboration in Software Development"
 excerpt: "Explore how multiple AI agents can work together to solve complex development challenges more effectively than single-agent approaches."
 date: "2026-01-20"
-author: "Do Worker Team"
+author: "Agent Cloud Team"
 category: "Technical"
 readTime: 8
 ---
@@ -11,7 +11,7 @@ As AI coding agents become more sophisticated, we're discovering that some probl
 
 Consider a typical feature implementation: it might require understanding existing code, designing new components, writing tests, and updating documentation. Each of these tasks benefits from different approaches and contexts.
 
-With Do Worker, you can:
+With Agent Cloud, you can:
 
 - **Assign different agents** to different aspects of a task
 - **Enable agents to communicate** through channels

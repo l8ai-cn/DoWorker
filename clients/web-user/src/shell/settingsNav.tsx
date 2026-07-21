@@ -149,7 +149,7 @@ export function useSettingsRoute(): { inSettings: boolean; section: SettingsSect
 }
 
 // Last location the user was on before entering /settings — path + search so
-// the conversation (and its ?file= etc.) is preserved. "Back to Do Worker"
+// the conversation (and its ?file= etc.) is preserved. "Back to Agent Cloud"
 // returns here instead of the home page. Module-scoped: the sidebar stays
 // mounted across the settings transition, so the value captured on the last
 // non-settings render survives into settings.
@@ -203,7 +203,7 @@ export function SettingsSidebarBody({
           (persistent card), so dropping it changes nothing there. */}
           <Link to={settingsReturnPath}>
             <ArrowLeftIcon className="size-4" />
-            Back to Do Worker
+            Back to Agent Cloud
           </Link>
         </Button>
         <Tooltip>

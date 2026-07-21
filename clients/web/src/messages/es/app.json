@@ -30,7 +30,7 @@
     }
   },
   "mesh": {
-    "title": "Do Worker",
+    "title": "Agent Cloud",
     "channels": "Canales",
     "newChannel": "Nuevo Canal",
     "topology": "Topología",
@@ -315,7 +315,7 @@
     "workspaceDescription": "Espacio de trabajo de terminal",
     "goToTickets": "Ir a Tickets",
     "ticketsDescription": "Ver y gestionar tickets",
-    "goToMesh": "Ir a Do Worker",
+    "goToMesh": "Ir a Agent Cloud",
     "meshDescription": "Topología de red",
     "goToChannels": "Go to Channels",
     "channelsDescription": "Team collaboration channels",

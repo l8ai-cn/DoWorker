@@ -1,5 +1,5 @@
 -- =============================================================================
--- AgentsMesh OnPremise Seed Data
+-- Agent Cloud OnPremise Seed Data
 -- =============================================================================
 --
 -- Creates initial data for on-premise deployment:

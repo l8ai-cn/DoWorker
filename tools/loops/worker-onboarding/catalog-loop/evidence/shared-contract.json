@@ -25,22 +25,22 @@
       "exit_code": 0
     },
     {
-      "command": "go build -o /tmp/do-worker-backend-verify ./backend/cmd/server",
+      "command": "go build -o /tmp/agent-cloud-backend-verify ./backend/cmd/server",
       "exit_code": 0
     },
     {
       "command": "curl -fsS http://localhost:10015/health",
       "exit_code": 0,
-      "result": "{\"service\":\"do-worker-api\",\"status\":\"ok\"}"
+      "result": "{\"service\":\"agent-cloud-api\",\"status\":\"ok\"}"
     },
     {
-      "command": "docker build -f backend/Dockerfile -t do-worker-backend-config-verify:local .",
+      "command": "docker build -f backend/Dockerfile -t agent-cloud-backend-config-verify:local .",
       "exit_code": 0
     },
     {
       "command": "curl -fsS http://localhost:10018/health",
       "exit_code": 0,
-      "result": "{\"service\":\"do-worker-api\",\"status\":\"ok\"}"
+      "result": "{\"service\":\"agent-cloud-api\",\"status\":\"ok\"}"
     }
   ]
 }

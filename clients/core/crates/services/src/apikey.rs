@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use agentsmesh_api_client::ApiClient;
-use agentsmesh_types::proto_apikey_v1 as apikey_proto;
+use agentcloud_api_client::ApiClient;
+use agentcloud_types::proto_apikey_v1 as apikey_proto;
 use prost::Message;
 
 // Connect-RPC (binary wire). Each method accepts a prost-encoded request body

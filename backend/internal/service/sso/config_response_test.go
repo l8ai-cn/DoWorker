@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/sso"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/sso"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

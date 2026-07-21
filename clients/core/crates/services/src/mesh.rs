@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
-use agentsmesh_api_client::ApiClient;
-use agentsmesh_types::proto_mesh_state_v1::ReplaceTopologyRequest;
-use agentsmesh_types::proto_mesh_v1 as mp;
+use agentcloud_api_client::ApiClient;
+use agentcloud_types::proto_mesh_state_v1::ReplaceTopologyRequest;
+use agentcloud_types::proto_mesh_v1 as mp;
 use prost::Message;
 
 pub struct MeshService {

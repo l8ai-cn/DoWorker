@@ -6,10 +6,10 @@ import (
 	"log/slog"
 	"time"
 
-	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	otelinit "github.com/anthropics/agentsmesh/backend/internal/infra/otel"
-	"github.com/anthropics/agentsmesh/backend/internal/service/agent/automation"
+	agentDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agent"
+	podDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	otelinit "github.com/l8ai-cn/agentcloud/backend/internal/infra/otel"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/agent/automation"
 )
 
 func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreatePodRequest) (*OrchestrateCreatePodResult, error) {

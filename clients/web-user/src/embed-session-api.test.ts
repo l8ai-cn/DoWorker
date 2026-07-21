@@ -4,8 +4,8 @@ import {
   ArtifactDescriptorSchema,
   ArtifactGrantSchema,
   ArtifactRepresentationSchema,
-} from "@do-worker/proto/agent_workbench/v2/artifact_pb";
-import type { AgentArtifactTransportContext } from "@do-worker/agent-ui";
+} from "@agent-cloud/proto/agent_workbench/v2/artifact_pb";
+import type { AgentArtifactTransportContext } from "@agent-cloud/agent-ui";
 
 import { createEmbedSessionClient } from "./embed-session-api";
 

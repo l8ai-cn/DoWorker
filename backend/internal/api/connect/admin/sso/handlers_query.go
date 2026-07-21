@@ -5,9 +5,9 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	ssodomain "github.com/anthropics/agentsmesh/backend/internal/domain/sso"
-	ssov1 "github.com/anthropics/agentsmesh/proto/gen/go/sso/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	ssodomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/sso"
+	ssov1 "github.com/l8ai-cn/agentcloud/proto/gen/go/sso/v1"
 )
 
 // ListSSOConfigs mirrors REST's ListConfigs (sso.go:52). Pagination defaults

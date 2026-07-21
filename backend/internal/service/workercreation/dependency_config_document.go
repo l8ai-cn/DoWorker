@@ -3,9 +3,9 @@ package workercreation
 import (
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
-	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
-	"github.com/anthropics/agentsmesh/backend/internal/service/workerdependencyartifact"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workerdependency"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/workerdefinition"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/workerdependencyartifact"
 )
 
 func configDocument(

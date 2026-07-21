@@ -10,8 +10,8 @@ import (
 	"github.com/stripe/stripe-go/v76"
 	"gorm.io/gorm"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/billing"
-	"github.com/anthropics/agentsmesh/backend/internal/testkit"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/billing"
+	"github.com/l8ai-cn/agentcloud/backend/internal/testkit"
 )
 
 // Stripe Integration Tests - Run with: go test -tags=integration -v ./internal/service/billing/...

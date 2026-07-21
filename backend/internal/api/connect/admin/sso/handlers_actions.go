@@ -6,8 +6,8 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	ssov1 "github.com/anthropics/agentsmesh/proto/gen/go/sso/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	ssov1 "github.com/l8ai-cn/agentcloud/proto/gen/go/sso/v1"
 )
 
 // TestSSOConnection mirrors REST's TestConnection (sso_actions.go:16). The

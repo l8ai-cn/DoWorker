@@ -3,12 +3,12 @@ package workercreation
 import (
 	"fmt"
 
-	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	resource "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	resourceservice "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	control "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
+	resource "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationresource"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	resourceservice "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 func appendFreshModelReferences(

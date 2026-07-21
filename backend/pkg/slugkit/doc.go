@@ -1,4 +1,4 @@
-// Package slugkit is the single source of truth for AgentsMesh identifier
+// Package slugkit is the single source of truth for Agent Cloud identifier
 // fields (slug / username / pod_key / handle). All UNIQUE string columns
 // used as URL params, mention keys, or lookup identifiers MUST conform to
 // the slugkit rule: lowercase letters/digits with hyphens between segments,

@@ -3,7 +3,7 @@ package consumer
 import (
 	"strconv"
 
-	"github.com/anthropics/agentsmesh/marketplace/internal/service"
+	"github.com/l8ai-cn/agentcloud/marketplace/internal/service"
 	"github.com/gin-gonic/gin"
 )
 

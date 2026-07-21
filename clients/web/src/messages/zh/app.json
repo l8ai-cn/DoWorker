@@ -678,7 +678,7 @@
       }
     },
     "banner": {
-      "newUser": "新手使用 Do Worker？",
+      "newUser": "新手使用 Agent Cloud？",
       "watchIntro": "观看 2 分钟介绍 →"
     },
     "hints": {
@@ -782,7 +782,7 @@
     "workspaceDescription": "终端工作区",
     "goToTickets": "前往任务",
     "ticketsDescription": "查看和管理任务",
-    "goToMesh": "前往 Do Worker",
+    "goToMesh": "前往 Agent Cloud",
     "meshDescription": "网络��扑",
     "goToChannels": "前往频道",
     "channelsDescription": "团队协作频道",

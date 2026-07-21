@@ -1,4 +1,4 @@
-# Do Worker 产品能力与首页内容设计
+# Agent Cloud 产品能力与首页内容设计
 
 - **日期：** 2026-07-13
 - **状态：** 已确认并进入实现；持续维护基线见 `docs/product/expert-platform-capability-map.md`
@@ -6,7 +6,7 @@
 - **维护原则：** 代码与已批准设计是事实来源；实现能力、可组装能力、规划能力必须分开展示
 
 ## 1. 产品判断
-Do Worker 不是把多个 Agent 角色堆在一个界面里的聊天产品，也不是单纯的
+Agent Cloud 不是把多个 Agent 角色堆在一个界面里的聊天产品，也不是单纯的
 Agent 启动器。它应被定义为：
 > 一个以 Expert 为业务入口，把不同 Worker、模型、Skill、知识、系统连接和
 > Workflow 组织成完整交付链路的 AI 工作平台。

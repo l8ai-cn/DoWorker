@@ -13,10 +13,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	authservice "github.com/anthropics/agentsmesh/backend/internal/service/auth"
-	authpkg "github.com/anthropics/agentsmesh/backend/pkg/auth"
+	authservice "github.com/l8ai-cn/agentcloud/backend/internal/service/auth"
+	authpkg "github.com/l8ai-cn/agentcloud/backend/pkg/auth"
 
-	authv1 "github.com/anthropics/agentsmesh/proto/gen/go/auth/v1"
+	authv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/auth/v1"
 )
 
 type previewSessionRevokerStub struct {
@@ -176,7 +176,7 @@ func TestLogout_MalformedHeader_NoCrash(t *testing.T) {
 func TestLogout_RevokesPreviewSessions(t *testing.T) {
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	require.NoError(t, err)
-	const audience = "agentsmesh-api"
+	const audience = "agentcloud-api"
 	tokenManager, err := authpkg.NewAccessTokenManager(authpkg.AccessTokenConfig{
 		PrivateKey: privateKey,
 		PublicKey:  &privateKey.PublicKey,

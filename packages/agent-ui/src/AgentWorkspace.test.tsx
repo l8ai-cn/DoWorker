@@ -194,7 +194,7 @@ describe("AgentWorkspace", () => {
       {
         id: "tool-1",
         identity: {
-          namespace: "agentsmesh.acp",
+          namespace: "agentcloud.acp",
           schemaVersion: "1",
           semanticKey: "shell",
         },
@@ -227,7 +227,7 @@ describe("AgentWorkspace", () => {
   it("localizes structured task activity without changing its evidence", async () => {
     const snapshot = sessionSnapshot();
     const shellIdentity = {
-      namespace: "agentsmesh.acp",
+      namespace: "agentcloud.acp",
       schemaVersion: "1",
       semanticKey: "shell",
     };
@@ -371,7 +371,7 @@ describe("AgentWorkspace", () => {
       {
         id: "tool-background",
         identity: {
-          namespace: "agentsmesh.acp",
+          namespace: "agentcloud.acp",
           schemaVersion: "1",
           semanticKey: "shell",
         },

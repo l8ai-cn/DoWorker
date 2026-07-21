@@ -1,14 +1,14 @@
 import { create } from "@bufbuild/protobuf";
 import { describe, expect, it } from "vitest";
 
-import { ArtifactReferenceSchema } from "@do-worker/proto/agent_workbench/v2/artifact_pb";
-import { ContentBlockSchema } from "@do-worker/proto/agent_workbench/v2/content_pb";
+import { ArtifactReferenceSchema } from "@agent-cloud/proto/agent_workbench/v2/artifact_pb";
+import { ContentBlockSchema } from "@agent-cloud/proto/agent_workbench/v2/content_pb";
 import {
   ApprovalTimelineItemSchema,
   TimelineItemContentSchema,
   TimelineItemSchema,
-} from "@do-worker/proto/agent_workbench/v2/session_pb";
-import { SessionStatus } from "@do-worker/proto/agent_workbench/v2/session_state_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/session_pb";
+import { SessionStatus } from "@agent-cloud/proto/agent_workbench/v2/session_state_pb";
 import { createLosslessSessionFixture } from "../protocol";
 import { projectGeneratedSessionSnapshot as rootProjection } from "../index";
 import { projectGeneratedSessionSnapshot as runtimeProjection } from "./index";
@@ -117,7 +117,7 @@ describe("projectGeneratedSessionSnapshot lossless fixture", () => {
           kind: "system",
           title: "Unsupported content",
           detail: expect.stringMatching(
-            /agentsmesh\.fixture.*content\.future.*unknown.*00 ff 10 80 40 0a/is,
+            /agentcloud\.fixture.*content\.future.*unknown.*00 ff 10 80 40 0a/is,
           ),
         }),
       ]),
@@ -127,7 +127,7 @@ describe("projectGeneratedSessionSnapshot lossless fixture", () => {
     expect(tool).toMatchObject({
       id: "tool-1",
       identity: {
-        namespace: "agentsmesh.claude",
+        namespace: "agentcloud.claude",
         semanticKey: "filesystem.read",
         schemaVersion: "1",
       },

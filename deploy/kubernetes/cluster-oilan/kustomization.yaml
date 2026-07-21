@@ -3,7 +3,7 @@ kind: Kustomization
 
 # Long-running resources. Secrets + seed/minio Jobs are applied out-of-band by
 # deploy.sh because those resources are generated or immutable.
-namespace: agentsmesh
+namespace: agentcloud
 
 components:
   - release

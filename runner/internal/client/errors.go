@@ -1,4 +1,4 @@
-// Package client provides communication with AgentsMesh server.
+// Package client provides communication with Agent Cloud server.
 package client
 
 // Error codes for pod operations

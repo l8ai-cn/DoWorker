@@ -4,7 +4,7 @@
   "definition_hash": "sha256:0f76d4f5531ddb50791f5b887993feb750d637838f02b266a14e484c6610b2c2",
   "platform": "linux/amd64",
   "observed_at": "2026-07-16T16:32:46.781Z",
-  "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-grok-build:latest",
+  "image_reference": "agentcloud-codex-loop-blockly-mvp-runner-grok-build:latest",
   "image_id": "sha256:49192854d59d5b39506256ae94ed4db8421ffd2a3a411de9785d5a15c36b8cc7",
   "probe_command": [
     "grok",

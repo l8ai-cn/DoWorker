@@ -1,7 +1,7 @@
 import type {
   AgentArtifactItem,
   AgentSessionSnapshot,
-} from "@do-worker/agent-ui";
+} from "@agent-cloud/agent-ui";
 
 export function mergeWorkspaceArtifactDiscoveryError(
   snapshot: AgentSessionSnapshot,

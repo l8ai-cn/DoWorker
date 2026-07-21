@@ -3,8 +3,8 @@ package merge
 import (
 	"testing"
 
-	"github.com/anthropics/agentsmesh/agentfile/eval"
-	"github.com/anthropics/agentsmesh/agentfile/extract"
+	"github.com/l8ai-cn/agentcloud/agentfile/eval"
+	"github.com/l8ai-cn/agentcloud/agentfile/extract"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -28,7 +28,7 @@ func mcpVars() map[string]interface{} {
 	return map[string]interface{}{
 		"mcp": map[string]interface{}{
 			"enabled":   true,
-			"builtin":   map[string]interface{}{"agentsmesh": map[string]interface{}{"type": "http", "url": "http://127.0.0.1:19000/mcp"}},
+			"builtin":   map[string]interface{}{"agentcloud": map[string]interface{}{"type": "http", "url": "http://127.0.0.1:19000/mcp"}},
 			"installed": map[string]interface{}{},
 		},
 		"sandbox": map[string]interface{}{"root": "/sandbox", "work_dir": "/sandbox/workspace"},
@@ -204,7 +204,7 @@ arg "--model" config.model when config.model != ""
 
 if mcp.enabled {
   mcp_cfg = json_merge(mcp.builtin, mcp.installed)
-  plugin_dir = sandbox.root + "/agentsmesh-plugin"
+  plugin_dir = sandbox.root + "/agentcloud-plugin"
   mkdir plugin_dir
   file plugin_dir + "/.mcp.json" json({ mcpServers: mcp_cfg })
   arg "--plugin-dir" plugin_dir

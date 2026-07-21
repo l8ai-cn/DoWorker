@@ -56,7 +56,7 @@ function resolveConfig(): EnvConfig {
     webPort: getEnvVar("WEB_PORT", "3000"),
     httpPort: getEnvVar("HTTP_PORT", "10000"),
     postgresPort: getEnvVar("POSTGRES_PORT", "5432"),
-    composeProject: getEnvVar("COMPOSE_PROJECT_NAME", "agentsmesh-dev"),
+    composeProject: getEnvVar("COMPOSE_PROJECT_NAME", "agentcloud-dev"),
   };
 }
 
@@ -84,13 +84,13 @@ export function getComposeProject(): string {
 
 /** Test account credentials (from deploy/dev/seed/seed.sql) */
 export const TEST_USER = {
-  email: "dev@agentsmesh.local",
+  email: "dev@agentcloud.local",
   username: "devuser",
   password: "AdminAb123456",
 } as const;
 
 export const ADMIN_USER = {
-  email: "admin@agentsmesh.local",
+  email: "admin@agentcloud.local",
   username: "admin",
   password: "Ab123456",
 } as const;

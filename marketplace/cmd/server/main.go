@@ -10,12 +10,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/anthropics/agentsmesh/marketplace/internal/api"
-	"github.com/anthropics/agentsmesh/marketplace/internal/config"
-	marketplacepostgres "github.com/anthropics/agentsmesh/marketplace/internal/infra/postgres"
-	"github.com/anthropics/agentsmesh/marketplace/internal/integration/identity"
-	runtimebridge "github.com/anthropics/agentsmesh/marketplace/internal/integration/runtime"
-	"github.com/anthropics/agentsmesh/marketplace/internal/service"
+	"github.com/l8ai-cn/agentcloud/marketplace/internal/api"
+	"github.com/l8ai-cn/agentcloud/marketplace/internal/config"
+	marketplacepostgres "github.com/l8ai-cn/agentcloud/marketplace/internal/infra/postgres"
+	"github.com/l8ai-cn/agentcloud/marketplace/internal/integration/identity"
+	runtimebridge "github.com/l8ai-cn/agentcloud/marketplace/internal/integration/runtime"
+	"github.com/l8ai-cn/agentcloud/marketplace/internal/service"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )

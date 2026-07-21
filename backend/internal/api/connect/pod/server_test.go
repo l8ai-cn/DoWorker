@@ -11,13 +11,13 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/reflect/protoreflect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	agentpodservice "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	airesourceservice "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
-	billingservice "github.com/anthropics/agentsmesh/backend/internal/service/billing"
-	runner "github.com/anthropics/agentsmesh/backend/internal/service/runner"
-	podv1 "github.com/anthropics/agentsmesh/proto/gen/go/pod/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	agentpodservice "github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
+	airesourceservice "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
+	billingservice "github.com/l8ai-cn/agentcloud/backend/internal/service/billing"
+	runner "github.com/l8ai-cn/agentcloud/backend/internal/service/runner"
+	podv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/pod/v1"
 )
 
 // =====================================================================

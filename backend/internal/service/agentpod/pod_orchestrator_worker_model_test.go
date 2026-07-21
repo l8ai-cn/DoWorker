@@ -4,10 +4,10 @@ import (
 	"context"
 	"testing"
 
-	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
-	resourceDomain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
-	resourcesvc "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	agentDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agent"
+	resourceDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
+	resourcesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

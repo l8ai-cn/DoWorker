@@ -1,8 +1,8 @@
 package notificationconnect
 
 import (
-	notifDomain "github.com/anthropics/agentsmesh/backend/internal/domain/notification"
-	notificationv1 "github.com/anthropics/agentsmesh/proto/gen/go/notification/v1"
+	notifDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/notification"
+	notificationv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/notification/v1"
 )
 
 // toProtoPreference maps the GORM-backed PreferenceRecord to the wire

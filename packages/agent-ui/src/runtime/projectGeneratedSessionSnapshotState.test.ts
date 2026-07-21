@@ -1,12 +1,12 @@
 import { create } from "@bufbuild/protobuf";
 import { describe, expect, it } from "vitest";
-import { ArtifactDescriptorSchema, ArtifactReferenceSchema, ArtifactStatus } from "@do-worker/proto/agent_workbench/v2/artifact_pb";
-import { AgentErrorSchema } from "@do-worker/proto/agent_workbench/v2/command_pb";
+import { ArtifactDescriptorSchema, ArtifactReferenceSchema, ArtifactStatus } from "@agent-cloud/proto/agent_workbench/v2/artifact_pb";
+import { AgentErrorSchema } from "@agent-cloud/proto/agent_workbench/v2/command_pb";
 import {
   ContentBlockSchema,
   UnsupportedReason,
   UnsupportedValueSchema,
-} from "@do-worker/proto/agent_workbench/v2/content_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/content_pb";
 import {
   ApprovalTimelineItemSchema,
   ArtifactReferenceTimelineItemSchema,
@@ -20,7 +20,7 @@ import {
   TimelineItemContentSchema,
   TimelineItemSchema,
   type TimelineItemContent,
-} from "@do-worker/proto/agent_workbench/v2/session_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/session_pb";
 import {
   PermissionRequestState,
   PlanStepStatus,
@@ -28,7 +28,7 @@ import {
   SessionStatus,
   TerminalControlMode,
   TimelineItemStatus,
-} from "@do-worker/proto/agent_workbench/v2/session_state_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/session_state_pb";
 import { projectGeneratedSessionSnapshot } from "./projectGeneratedSessionSnapshot";
 const encoder = new TextEncoder();
 function timelineItem(itemId: string, sequence: bigint, content: TimelineItemContent) {
@@ -80,7 +80,7 @@ describe("projectGeneratedSessionSnapshot state coverage", () => {
     });
     const unsupported = create(UnsupportedValueSchema, {
       identity: {
-        namespace: "agentsmesh.future",
+        namespace: "agentcloud.future",
         semanticKey: "timeline.future",
         schemaVersion: "9",
       },

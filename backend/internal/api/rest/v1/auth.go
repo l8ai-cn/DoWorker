@@ -1,9 +1,9 @@
 package v1
 
 import (
-	"github.com/anthropics/agentsmesh/backend/internal/config"
-	"github.com/anthropics/agentsmesh/backend/internal/service/auth"
-	"github.com/anthropics/agentsmesh/backend/pkg/auth/oauth"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/auth"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/auth/oauth"
 	"github.com/gin-gonic/gin"
 )
 

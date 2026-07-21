@@ -15,7 +15,7 @@ set -euo pipefail
 config="$(cat)"
 state="${CONTRACT_STATE}"
 
-if [[ "${config}" == *'user = "agentsmesh-service:'* ]]; then
+if [[ "${config}" == *'user = "agentcloud-service:'* ]]; then
   count="$(cat "${state}.deletes" 2>/dev/null || printf 0)"
   printf '%s' "$((count + 1))" > "${state}.deletes"
   if [[ -f "${state}.active" ]]; then
@@ -40,7 +40,7 @@ if [[ "${CONTRACT_SCENARIO}" == wrong_token && "${config}" == *"/api/v1/user"* ]
   exit 0
 fi
 case "${config}" in
-  *"/api/v1/user"*) printf '{"login":"agentsmesh-service","is_admin":true}\n' ;;
+  *"/api/v1/user"*) printf '{"login":"agentcloud-service","is_admin":true}\n' ;;
   *"/api/v1/admin/users?limit=1"*) printf '[]\n' ;;
   *) echo "unexpected Gitea API request" >&2; exit 1 ;;
 esac
@@ -51,7 +51,7 @@ cat > "${TMP}/bin/kubectl" <<'EOF'
 set -euo pipefail
 printf '%s\n' "$*" >> "${COMMAND_LOG}"
 case " $* " in
-  *" get secret agentsmesh-gitea "*)
+  *" get secret agentcloud-gitea "*)
     case "${CONTRACT_SCENARIO}" in
       existing|wrong_token) printf '%s' "${CONTRACT_TOKEN}" | base64 | tr -d '\n' ;;
     esac
@@ -60,9 +60,9 @@ case " $* " in
   *" exec gitea-pod -- su git -c gitea admin user list"*)
     printf 'ID Username Email IsActive IsAdmin 2FA\n'
     [[ "${CONTRACT_SCENARIO}" == fresh ]] ||
-      printf '1 agentsmesh-service agentsmesh-service@agentsmesh.invalid true true false\n'
+      printf '1 agentcloud-service agentcloud-service@agentcloud.invalid true true false\n'
     ;;
-  *" admin user create --username agentsmesh-service "*) ;;
+  *" admin user create --username agentcloud-service "*) ;;
   *" exec -i gitea-pod "*)
     IFS= read -r password
     [[ "${password}" =~ ^[a-f0-9]{64}$ ]]
@@ -92,15 +92,15 @@ run_contract() {
     CONTRACT_HOST_KEY="${HOST_KEY}" CONTRACT_STATE="${state}" \
     COMMAND_LOG="${log}" APPLY_MANIFEST="${manifest}" \
     PATH="${TMP}/bin:${PATH}" \
-    bash "${ROOT}/bootstrap_internal_gitea.sh" agentsmesh
+    bash "${ROOT}/bootstrap_internal_gitea.sh" agentcloud
 }
 
 run_contract fresh
 fresh_log="${TMP}/fresh.log"
 fresh_manifest="${TMP}/fresh.yaml"
-grep -F 'admin user create --username agentsmesh-service' "${fresh_log}" >/dev/null
+grep -F 'admin user create --username agentcloud-service' "${fresh_log}" >/dev/null
 grep -F 'admin user change-password' "${fresh_log}" >/dev/null
-grep -F 'generate-access-token --username agentsmesh-service --token-name agentsmesh-backend' \
+grep -F 'generate-access-token --username agentcloud-service --token-name agentcloud-backend' \
   "${fresh_log}" >/dev/null
 [[ "$(cat "${TMP}/fresh.state.deletes")" == 1 ]]
 grep -F 'KB_GITEA_TOKEN:' "${fresh_manifest}" >/dev/null

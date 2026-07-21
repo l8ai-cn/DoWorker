@@ -40,7 +40,7 @@ setup("authenticate as admin user", async ({ browser }) => {
         current_org_slug: null,
         schema_version: 1,
       };
-      localStorage.setItem(`do-worker-auth/${slug}/session`, JSON.stringify(blob));
+      localStorage.setItem(`agent-cloud-auth/${slug}/session`, JSON.stringify(blob));
     },
     { token, refresh_token, expiresAt, baseUrl },
   );

@@ -6,8 +6,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/extension"
-	"github.com/anthropics/agentsmesh/backend/internal/testkit"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/extension"
+	"github.com/l8ai-cn/agentcloud/backend/internal/testkit"
 )
 
 func TestExtensionRepo_BatchUpsertMcpMarketItems_MatchesRegistryPartialUniqueIndex(t *testing.T) {

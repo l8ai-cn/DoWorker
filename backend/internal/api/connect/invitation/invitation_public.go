@@ -5,7 +5,7 @@ import (
 
 	"connectrpc.com/connect"
 
-	invitationv1 "github.com/anthropics/agentsmesh/proto/gen/go/invitation/v1"
+	invitationv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/invitation/v1"
 )
 
 // GetInvitationByToken returns invitation info by token. Unauthenticated —

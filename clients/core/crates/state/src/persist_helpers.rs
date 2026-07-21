@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use agentsmesh_persistence::StorageBackend;
+use agentcloud_persistence::StorageBackend;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 

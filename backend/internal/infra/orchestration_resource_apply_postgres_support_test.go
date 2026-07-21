@@ -10,10 +10,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
-	orchestrationservice "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
-	"github.com/anthropics/agentsmesh/backend/migrations"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationresource"
+	orchestrationservice "github.com/l8ai-cn/agentcloud/backend/internal/service/orchestrationcontrol"
+	"github.com/l8ai-cn/agentcloud/backend/migrations"
 	"github.com/stretchr/testify/require"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -26,7 +26,7 @@ func orchestrationPostgresRepository(
 	t.Helper()
 	dsn := os.Getenv("TEST_POSTGRES_DSN")
 	if dsn == "" {
-		dsn = "postgres://agentsmesh:agentsmesh_dev@localhost:10002/agentsmesh?sslmode=disable"
+		dsn = "postgres://agentcloud:agentcloud_dev@localhost:10002/agentcloud?sslmode=disable"
 	}
 	admin, err := gorm.Open(
 		postgres.Open(dsn),

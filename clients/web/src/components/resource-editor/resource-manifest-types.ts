@@ -1,4 +1,4 @@
-export const RESOURCE_API_VERSION = "agentsmesh.io/v1alpha1";
+export const RESOURCE_API_VERSION = "agentcloud.io/v1alpha1";
 
 export interface ResourceReference {
   apiVersion?: string;

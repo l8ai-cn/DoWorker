@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	actorapi "github.com/anthropics/agentsmesh/marketplace/internal/api/actor"
+	actorapi "github.com/l8ai-cn/agentcloud/marketplace/internal/api/actor"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )

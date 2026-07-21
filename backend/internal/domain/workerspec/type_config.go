@@ -1,6 +1,6 @@
 package workerspec
 
-import "github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+import "github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 
 type InteractionMode string
 

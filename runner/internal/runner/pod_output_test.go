@@ -3,7 +3,7 @@ package runner
 import (
 	"testing"
 
-	"github.com/anthropics/agentsmesh/runner/internal/terminal/aggregator"
+	"github.com/l8ai-cn/agentcloud/runner/internal/terminal/aggregator"
 )
 
 // Regression tests for OutputHandler panic isolation (L2 fix).

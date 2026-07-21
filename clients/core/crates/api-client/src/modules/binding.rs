@@ -6,7 +6,7 @@
 use crate::connect_call::connect_call;
 use crate::error::ApiError;
 use crate::ApiClient;
-use agentsmesh_types::proto_binding_v1 as bp;
+use agentcloud_types::proto_binding_v1 as bp;
 
 impl ApiClient {
     pub async fn request_binding_connect(

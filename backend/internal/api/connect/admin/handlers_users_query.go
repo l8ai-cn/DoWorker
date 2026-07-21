@@ -6,11 +6,11 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/admin"
-	domainUser "github.com/anthropics/agentsmesh/backend/internal/domain/user"
-	adminservice "github.com/anthropics/agentsmesh/backend/internal/service/admin"
-	adminv1 "github.com/anthropics/agentsmesh/proto/gen/go/admin/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/admin"
+	domainUser "github.com/l8ai-cn/agentcloud/backend/internal/domain/user"
+	adminservice "github.com/l8ai-cn/agentcloud/backend/internal/service/admin"
+	adminv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/admin/v1"
 )
 
 func (s *Server) ListUsers(

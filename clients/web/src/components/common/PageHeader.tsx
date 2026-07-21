@@ -13,7 +13,7 @@ export function PageHeader() {
           <div className="w-8 h-8 rounded-lg overflow-hidden">
             <Logo />
           </div>
-          <span className="text-xl font-bold">Do Worker</span>
+          <span className="text-xl font-bold">Agent Cloud</span>
         </Link>
         <div className="flex items-center gap-4">
           <LanguageSwitcher variant="icon" />

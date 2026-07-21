@@ -5,12 +5,12 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/grant"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	agentpodsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
-	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
-	"github.com/anthropics/agentsmesh/backend/pkg/policy"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/grant"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	agentpodsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/runner"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/apierr"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/policy"
 	"github.com/gin-gonic/gin"
 )
 

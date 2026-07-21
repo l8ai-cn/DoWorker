@@ -3,7 +3,7 @@
   "recorded_at": "2026-07-16T21:20:40+0800",
   "scope": "Read-only local development Runner and adapter audit. No Worker or Pod was created and no provider credential was read.",
   "worktree": {
-    "compose_project": "agentsmesh-codex-loop-blockly-mvp",
+    "compose_project": "agentcloud-codex-loop-blockly-mvp",
     "backend_health": "http://127.0.0.1:12415/health returned status=ok",
     "runtime_catalog_path": "deploy/dev/runtime/worker-runtime-catalog.local.json",
     "runtime_catalog_revision": "local-dev-062e8636f10ae06b6d648702da2db23c10512fbfc7497c544b3fab7d1bd83eab"

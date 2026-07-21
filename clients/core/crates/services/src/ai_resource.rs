@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use agentsmesh_api_client::ApiClient;
-use agentsmesh_types::proto_ai_resource_v1 as ai;
+use agentcloud_api_client::ApiClient;
+use agentcloud_types::proto_ai_resource_v1 as ai;
 use prost::Message;
 
 pub struct AIResourceService {

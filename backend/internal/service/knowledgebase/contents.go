@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/backend/internal/infra/gitea"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/gitea"
 )
 
 type File struct {
@@ -68,9 +68,9 @@ func (s *Service) CommitFile(
 		isUpdate[path] = existing.SHA
 	}
 	if authorName == "" {
-		authorName = "Do Worker"
+		authorName = "Agent Cloud"
 	}
 	return s.git.CommitFiles(ctx, repoName, kb.DefaultBranch, message,
-		gitea.CommitAuthor{Name: authorName, Email: "kb@agentsmesh.local"},
+		gitea.CommitAuthor{Name: authorName, Email: "kb@agentcloud.local"},
 		[]gitea.FileChange{{Path: path, Content: content}}, isUpdate)
 }

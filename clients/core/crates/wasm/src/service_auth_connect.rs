@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use agentsmesh_api_client::ApiClient;
-use agentsmesh_services::AuthConnectService;
+use agentcloud_api_client::ApiClient;
+use agentcloud_services::AuthConnectService;
 use wasm_bindgen::prelude::*;
 
 // WasmAuthConnectService — wasm-bindgen front for AuthConnectService.

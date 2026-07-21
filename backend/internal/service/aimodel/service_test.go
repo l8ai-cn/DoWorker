@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/aimodel"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/aimodel"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

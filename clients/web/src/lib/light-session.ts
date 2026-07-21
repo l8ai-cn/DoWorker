@@ -3,8 +3,8 @@
 // this module instead of pulling 40MB of wasm just to render Sign In / handle
 // /login. The schema and url_slug algorithm mirror Rust SSOT at:
 //   clients/core/crates/auth/src/state.rs (PersistedSession + url_slug)
-// MUST NOT import from @/lib/wasm-core, @do-worker/service-runtime, or
-// do-worker-wasm — that would defeat the whole purpose.
+// MUST NOT import from @/lib/wasm-core, @agent-cloud/service-runtime, or
+// agent-cloud-wasm — that would defeat the whole purpose.
 
 import { getApiBaseUrl } from "@/lib/env";
 
@@ -25,8 +25,8 @@ export interface LightSession {
 // In short: don't touch in isolation. Cross-language change requires
 // coordinating both files in one commit + a migration plan.
 const SCHEMA_VERSION = 1;
-const NAMESPACE_PREFIX = "do-worker-auth";
-const LEGACY_NAMESPACE_PREFIX = "agentsmesh-auth";
+const NAMESPACE_PREFIX = "agent-cloud-auth";
+const LEGACY_NAMESPACE_PREFIX = "agentcloud-auth";
 
 // Mirrors Rust state.rs::url_slug — keep in sync. Same algorithm runs in
 // e2e-playwright/fixtures/blockstore.fixture.ts (live cross-check).

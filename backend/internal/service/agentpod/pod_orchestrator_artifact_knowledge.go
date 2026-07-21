@@ -3,8 +3,8 @@ package agentpod
 import (
 	"strings"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workerdependency"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 )
 
 func artifactKnowledgeMounts(

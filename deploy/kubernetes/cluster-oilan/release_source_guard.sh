@@ -38,7 +38,7 @@ release_require_pushed_clean_tree() {
 
 release_require_ci_success() {
   local head="${1:?commit is required}"
-  local repository="${RELEASE_REPOSITORY:-l8ai-cn/DoWorker}"
+  local repository="${RELEASE_REPOSITORY:-l8ai-cn/AgentCloud}"
   local checks
 
   command -v gh >/dev/null || {

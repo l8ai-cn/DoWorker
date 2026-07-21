@@ -3,7 +3,7 @@ package blockstoreservice
 import (
 	"encoding/json"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/blockstore"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/blockstore"
 )
 
 // BlockACL is block.meta.acl: visibility ∈ {workspace,private,org}; nil falls back to workspace.

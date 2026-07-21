@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	infraTasks "github.com/anthropics/agentsmesh/backend/internal/infra/tasks"
+	infraTasks "github.com/l8ai-cn/agentcloud/backend/internal/infra/tasks"
 )
 
 func TestTaskExecutionModel(t *testing.T) {

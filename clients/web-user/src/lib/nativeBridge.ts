@@ -345,9 +345,9 @@ export async function setBadgeCount(count: number): Promise<void> {
 /**
  * Set one of the inset-system CSS variables on the document root. Visibility of
  * the native bars is web-owned (the web app is what shows/hides them), so the
- * setters below fold it into `--do-worker-*-bar-visible`; the bars' size comes
+ * setters below fold it into `--agent-cloud-*-bar-visible`; the bars' size comes
  * from the native bridge (see {@link onNativeInsets} / nativeInsets.ts). Both
- * combine in `--do-worker-inset-*` (index.css). Harmless off-shell — the size
+ * combine in `--agent-cloud-inset-*` (index.css). Harmless off-shell — the size
  * vars stay 0 there, so a stray visibility flag contributes nothing.
  */
 function setInsetVar(name: string, value: string): void {
@@ -360,7 +360,7 @@ function setInsetVar(name: string, value: string): void {
  * simply lack this optional method, so this degrades to a no-op.
  */
 export function setNativeServerSwitcherHidden(hidden: boolean): void {
-  setInsetVar("--do-worker-top-bar-visible", hidden ? "0" : "1");
+  setInsetVar("--agent-cloud-top-bar-visible", hidden ? "0" : "1");
   const native = nativeApi();
   const setter = native?.setServerSwitcherHidden ?? native?.setSidebarOpen;
   if (!setter) return;
@@ -384,7 +384,7 @@ export function setNativeSidebarOpen(open: boolean): void {
  * caller renders its own in-page pill there.
  */
 export function setNativeViewMode(params: NativeViewModeParams): void {
-  setInsetVar("--do-worker-bottom-bar-visible", params.visible ? "1" : "0");
+  setInsetVar("--agent-cloud-bottom-bar-visible", params.visible ? "1" : "0");
   const native = nativeApi();
   if (!native?.setViewMode) return;
   try {

@@ -31,7 +31,7 @@ harbor_registry_token() {
     -u "${HARBOR_USERNAME}:${HARBOR_PASSWORD}" \
     --get \
     --data-urlencode "service=harbor-registry" \
-    --data-urlencode "scope=repository:agentsmesh/release-preflight:push,pull" \
+    --data-urlencode "scope=repository:agentcloud/release-preflight:push,pull" \
     "https://${registry}/service/token" \
     | jq -er '.token'
 }

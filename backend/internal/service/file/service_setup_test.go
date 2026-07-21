@@ -3,8 +3,8 @@ package file
 import (
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/config"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/storage"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/storage"
 )
 
 func setupTestService(t *testing.T) (*Service, *storage.MockStorage) {

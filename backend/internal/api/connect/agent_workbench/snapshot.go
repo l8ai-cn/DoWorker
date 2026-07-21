@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"connectrpc.com/connect"
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	workbenchdomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentworkbench"
-	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	workbenchdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentworkbench"
+	agentworkbenchv2 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2"
 	"github.com/google/uuid"
 )
 

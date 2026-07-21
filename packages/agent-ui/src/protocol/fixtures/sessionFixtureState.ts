@@ -5,25 +5,25 @@ import {
   ArtifactStatus,
   VideoStage,
   type ArtifactDescriptor,
-} from "@do-worker/proto/agent_workbench/v2/artifact_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/artifact_pb";
 import {
   CommandReceiptSchema,
   CommandReceiptState,
   PermissionDecision,
   type CommandReceipt,
-} from "@do-worker/proto/agent_workbench/v2/command_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/command_pb";
 import {
   PermissionRequestSchema,
   SessionResourceSchema,
   type PermissionRequest,
   type SessionResource,
-} from "@do-worker/proto/agent_workbench/v2/session_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/session_pb";
 import {
   PermissionRequestState,
   SessionResourceStatus,
   TerminalControlMode,
   TerminalLeaseState,
-} from "@do-worker/proto/agent_workbench/v2/session_state_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/session_state_pb";
 
 export function createFixtureArtifacts(): ArtifactDescriptor[] {
   return [

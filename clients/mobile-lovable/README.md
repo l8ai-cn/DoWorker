@@ -1,4 +1,4 @@
-# Do Worker Mobile
+# Agent Cloud Mobile
 
 Mobile Worker entry point for ACP visual conversations and PTY command lines.
 
@@ -31,7 +31,7 @@ Relay URL.
 
 ## Test account
 
-- Email: `dev@agentsmesh.local`
+- Email: `dev@agentcloud.local`
 - Password: `AdminAb123456`
 
 ## Modes
@@ -46,8 +46,8 @@ Relay URL.
 
 ```bash
 DO_WORKER_API_URL=http://127.0.0.1:10015
-VITE_AGENTSMESH_JWT=...
-VITE_AGENTSMESH_ORG_SLUG=dev-org
+VITE_AGENTCLOUD_JWT=...
+VITE_AGENTCLOUD_ORG_SLUG=dev-org
 ```
 
 ## Build

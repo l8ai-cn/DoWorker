@@ -34,12 +34,12 @@
         if (
           event.source === frame.contentWindow &&
           event.origin === window.location.origin &&
-          event.data?.type === "agentsmesh.embed.ready" &&
+          event.data?.type === "agentcloud.embed.ready" &&
           event.data?.version === 1
         ) {
           frame.contentWindow.postMessage(
             {
-              type: "agentsmesh.embed.open",
+              type: "agentcloud.embed.open",
               version: 1,
               redemptionProof: proof,
             },

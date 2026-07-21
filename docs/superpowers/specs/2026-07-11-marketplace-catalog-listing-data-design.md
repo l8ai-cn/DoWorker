@@ -32,7 +32,7 @@
 | `name` | varchar(120) | 原始名称 |
 | `summary` | varchar(240) | 原始摘要 |
 | `platform_resource_type` | varchar(40) | `expert/skill/mcp_item/ai_resource/...` |
-| `platform_resource_id` | bigint | Do Worker 外部引用 |
+| `platform_resource_id` | bigint | Agent Cloud 外部引用 |
 | `status` | varchar(20) | `draft/active/deprecated/blocked` |
 | `latest_version_id` | bigint | 可空 |
 | `created_by_platform_user_id` | bigint | 创建人 |

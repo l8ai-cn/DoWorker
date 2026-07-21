@@ -1,9 +1,9 @@
 #!/bin/sh
-# Do Worker Runner Installation Script
-# Usage: curl -fsSL https://agentsmesh.ai/install.sh | sh
+# Agent Cloud Runner Installation Script
+# Usage: curl -fsSL https://agentcloud.ai/install.sh | sh
 #
-# This script installs the Do Worker Runner CLI on macOS and Linux.
-# For Windows, use: irm https://agentsmesh.ai/install.ps1 | iex
+# This script installs the Agent Cloud Runner CLI on macOS and Linux.
+# For Windows, use: irm https://agentcloud.ai/install.ps1 | iex
 
 set -e
 
@@ -15,8 +15,8 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # GitHub release repository
-GITHUB_REPO="l8ai-cn/DoWorker"
-BINARY_NAME="do-worker-runner"
+GITHUB_REPO="l8ai-cn/AgentCloud"
+BINARY_NAME="agent-cloud-runner"
 INSTALL_DIR=""
 
 # Print colored message
@@ -140,7 +140,7 @@ detect_platform() {
             esac
             ;;
         *)
-            error "Unsupported operating system: $OS. For Windows, use: irm https://agentsmesh.ai/install.ps1 | iex"
+            error "Unsupported operating system: $OS. For Windows, use: irm https://agentcloud.ai/install.ps1 | iex"
             ;;
     esac
 
@@ -169,7 +169,7 @@ get_latest_version() {
 
 # Download and install
 install() {
-    DOWNLOAD_URL="https://github.com/${GITHUB_REPO}/releases/download/v${VERSION}/do-worker-runner_${VERSION}_${PLATFORM}.tar.gz"
+    DOWNLOAD_URL="https://github.com/${GITHUB_REPO}/releases/download/v${VERSION}/agent-cloud-runner_${VERSION}_${PLATFORM}.tar.gz"
 
     info "Downloading from: $DOWNLOAD_URL"
 
@@ -199,11 +199,11 @@ install() {
     info "Installing to $INSTALL_DIR..."
     mv "$BINARY_PATH" "$INSTALL_DIR/$BINARY_NAME"
     chmod +x "$INSTALL_DIR/$BINARY_NAME"
-    if [ "$BINARY_NAME" != "agentsmesh-runner" ]; then
-        ln -sf "$BINARY_NAME" "$INSTALL_DIR/agentsmesh-runner" 2>/dev/null || true
+    if [ "$BINARY_NAME" != "agentcloud-runner" ]; then
+        ln -sf "$BINARY_NAME" "$INSTALL_DIR/agentcloud-runner" 2>/dev/null || true
     fi
 
-    success "Do Worker Runner v$VERSION installed successfully!"
+    success "Agent Cloud Runner v$VERSION installed successfully!"
 }
 
 # Verify installation
@@ -225,14 +225,14 @@ print_next_steps() {
     success "Next steps:"
     echo ""
     echo "  1. Register your runner:"
-    echo "     ${BLUE}do-worker-runner register --server https://agentsmesh.ai --token <YOUR_TOKEN>${NC}"
+    echo "     ${BLUE}agent-cloud-runner register --server https://agentcloud.ai --token <YOUR_TOKEN>${NC}"
     echo ""
     echo "  2. Start the runner:"
-    echo "     ${BLUE}do-worker-runner run${NC}"
+    echo "     ${BLUE}agent-cloud-runner run${NC}"
     echo ""
     echo "  Get your registration token from: Settings → Runners → Create Token"
     echo ""
-    echo "  For more options, run: ${BLUE}do-worker-runner --help${NC}"
+    echo "  For more options, run: ${BLUE}agent-cloud-runner --help${NC}"
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 }

@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	marketdomain "github.com/anthropics/agentsmesh/marketplace/internal/domain/market"
-	"github.com/anthropics/agentsmesh/marketplace/internal/service"
+	marketdomain "github.com/l8ai-cn/agentcloud/marketplace/internal/domain/market"
+	"github.com/l8ai-cn/agentcloud/marketplace/internal/service"
 	"gorm.io/gorm"
 )
 

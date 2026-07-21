@@ -1,9 +1,9 @@
 package apikeyconnect
 
 import (
-	apikeydomain "github.com/anthropics/agentsmesh/backend/internal/domain/apikey"
-	"github.com/anthropics/agentsmesh/backend/pkg/protoconv"
-	apikeyv1 "github.com/anthropics/agentsmesh/proto/gen/go/apikey/v1"
+	apikeydomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/apikey"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/protoconv"
+	apikeyv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/apikey/v1"
 )
 
 // toProtoApiKey converts the GORM-backed APIKey to the protobuf wire

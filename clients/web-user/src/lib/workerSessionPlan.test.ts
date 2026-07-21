@@ -3,10 +3,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   ListWorkerCreateOptionsRequestSchema,
   ListWorkerCreateOptionsResponseSchema,
-} from "@do-worker/proto/pod/v1/worker_creation_pb";
+} from "@agent-cloud/proto/pod/v1/worker_creation_pb";
 
 vi.mock("./identity", () => ({ authenticatedFetch: vi.fn() }));
-vi.mock("./do-worker", () => ({ readDoWorkerOrgSlug: vi.fn(() => "dev-org") }));
+vi.mock("./agent-cloud", () => ({ readAgentCloudOrgSlug: vi.fn(() => "dev-org") }));
 
 import { authenticatedFetch } from "./identity";
 import { buildSessionWorkerPlan, workerRequiresModelResource } from "./workerSessionPlan";

@@ -5,16 +5,16 @@ import (
 	"encoding/json"
 	"log/slog"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/expertmarket"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
-	skilldomain "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	agentpodSvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	itemservice "github.com/anthropics/agentsmesh/backend/internal/service/conversationitem"
-	"github.com/anthropics/agentsmesh/backend/internal/service/gitops"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	expertdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/expert"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/expertmarket"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/gitprovider"
+	skilldomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/skill"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	agentpodSvc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
+	itemservice "github.com/l8ai-cn/agentcloud/backend/internal/service/conversationitem"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/gitops"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
 )
 
 type PodLoader interface {

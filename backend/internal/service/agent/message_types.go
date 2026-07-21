@@ -3,7 +3,7 @@ package agent
 import (
 	"errors"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agent"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agent"
 )
 
 var (

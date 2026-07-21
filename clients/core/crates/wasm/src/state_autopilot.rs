@@ -1,14 +1,14 @@
 use std::sync::Arc;
 
-use agentsmesh_state::app_state::AppState;
-use agentsmesh_state::autopilot_state::{AutopilotController, AutopilotIteration};
-use agentsmesh_types::proto_autopilot_state_v1::{
+use agentcloud_state::app_state::AppState;
+use agentcloud_state::autopilot_state::{AutopilotController, AutopilotIteration};
+use agentcloud_types::proto_autopilot_state_v1::{
     AppendIterationRequest, AutopilotControllerSnapshot, AutopilotIterationSnapshot,
     InsertControllerRequest, PatchControllerRequest, RemoveControllerRequest,
     ReplaceCachedControllersRequest, ReplaceCachedIterationsRequest, SetCurrentControllerRequest,
     UpdateThinkingRequest,
 };
-use agentsmesh_types::proto_autopilot_v1::{
+use agentcloud_types::proto_autopilot_v1::{
     AutopilotController as WireController, GetIterationsResponse, ListAutopilotControllersResponse,
 };
 use parking_lot::RwLock;

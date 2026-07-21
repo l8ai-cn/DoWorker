@@ -1,7 +1,7 @@
 {
   "worker_slug": "codex-cli",
   "adapter_id": "codex-app-server",
-  "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-codex-cli",
+  "image_reference": "agentcloud-codex-loop-blockly-mvp-runner-codex-cli",
   "image_digest": "sha256:4b02f25fda853690da0d2844ef1da0606e9730e45de3cfca8bf3f2fd8448f113",
   "upstream_version": "0.144.5",
   "probe_command": "codex --version",

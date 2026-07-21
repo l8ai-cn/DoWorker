@@ -456,7 +456,7 @@ describe("AppShell header", () => {
       {
         id: "conv_terminal",
         permission_level: null,
-        labels: { "do-worker.ui": "terminal" },
+        labels: { "agent-cloud.ui": "terminal" },
       },
     ]);
     useTerminalsMock.mockReturnValue({
@@ -482,7 +482,7 @@ describe("AppShell header", () => {
     // Baseline for the suppression test below: terminalPending (PTY being
     // created) with no terminals available drives terminalStartingUp true.
     mockConversations([
-      { id: "conv_terminal", permission_level: null, labels: { "do-worker.ui": "terminal" } },
+      { id: "conv_terminal", permission_level: null, labels: { "agent-cloud.ui": "terminal" } },
     ]);
     useChatStore.setState({ terminalPending: true, sessionStatus: "running" });
 
@@ -497,7 +497,7 @@ describe("AppShell header", () => {
     // must drop the spinner so the error banner stands alone — otherwise
     // the user sees a spinner that spins forever beside the error.
     mockConversations([
-      { id: "conv_terminal", permission_level: null, labels: { "do-worker.ui": "terminal" } },
+      { id: "conv_terminal", permission_level: null, labels: { "agent-cloud.ui": "terminal" } },
     ]);
     useChatStore.setState({ terminalPending: true, sessionStatus: "failed" });
 
@@ -518,8 +518,8 @@ describe("TerminalFirstContext", () => {
         id: "conv_native",
         permission_level: null,
         labels: {
-          "do-worker.ui": "terminal",
-          "do-worker.wrapper": "claude-code-native-ui",
+          "agent-cloud.ui": "terminal",
+          "agent-cloud.wrapper": "claude-code-native-ui",
         },
       },
       {
@@ -565,8 +565,8 @@ describe("TerminalFirstContext", () => {
         createdAt: 0,
         title: null,
         labels: {
-          "do-worker.ui": "terminal",
-          "do-worker.wrapper": "claude-code-native-ui",
+          "agent-cloud.ui": "terminal",
+          "agent-cloud.wrapper": "claude-code-native-ui",
         },
         items: [],
         pendingElicitations: [],
@@ -604,7 +604,7 @@ describe("TerminalFirstContext", () => {
       {
         id: "conv_native",
         permission_level: null,
-        labels: { "do-worker.ui": "terminal" },
+        labels: { "agent-cloud.ui": "terminal" },
       },
     ]);
     useTerminalsMock.mockReturnValue({
@@ -644,7 +644,7 @@ describe("TerminalFirstContext", () => {
       {
         id: "conv_native_empty",
         permission_level: null,
-        labels: { "do-worker.ui": "terminal" },
+        labels: { "agent-cloud.ui": "terminal" },
       },
     ]);
     useTerminalsMock.mockReturnValue({
@@ -678,7 +678,7 @@ describe("TerminalFirstContext", () => {
       {
         id: "conv_native",
         permission_level: null,
-        labels: { "do-worker.ui": "terminal" },
+        labels: { "agent-cloud.ui": "terminal" },
       },
       { id: "conv_other", permission_level: null, labels: {} },
     ]);
@@ -721,7 +721,7 @@ describe("TerminalFirstContext", () => {
       {
         id: "conv_native",
         permission_level: null,
-        labels: { "do-worker.ui": "terminal" },
+        labels: { "agent-cloud.ui": "terminal" },
       },
     ]);
     useTerminalsMock.mockReturnValue({
@@ -750,7 +750,7 @@ describe("Right-rail terminals card", () => {
       {
         id: "conv_native",
         permission_level: null,
-        labels: { "do-worker.ui": "terminal" },
+        labels: { "agent-cloud.ui": "terminal" },
       },
     ]);
     useTerminalsMock.mockReturnValue({
@@ -893,7 +893,7 @@ describe("Right-rail terminals card", () => {
       {
         id: "conv_native",
         permission_level: null,
-        labels: { "do-worker.ui": "terminal" },
+        labels: { "agent-cloud.ui": "terminal" },
       },
     ]);
     useTerminalsMock.mockReturnValue({
@@ -1026,7 +1026,7 @@ describe("Subagents tab", () => {
       {
         id: "conv_native",
         permission_level: null,
-        labels: { "do-worker.ui": "terminal" },
+        labels: { "agent-cloud.ui": "terminal" },
       },
     ]);
     useChildSessionsMock.mockReturnValue(oneChild);
@@ -1732,7 +1732,7 @@ describe("Embedded REPL terminal rail inventory", () => {
         permission_level: null,
         // Terminal-first SDK session: omnigent.ui stamped by the
         // runner's REPL auto-create, NO native wrapper label.
-        labels: { "do-worker.ui": "terminal" },
+        labels: { "agent-cloud.ui": "terminal" },
       },
     ]);
 
@@ -1767,7 +1767,7 @@ describe("Embedded REPL terminal rail inventory", () => {
       {
         id: "conv_sdk",
         permission_level: null,
-        labels: { "do-worker.ui": "terminal" },
+        labels: { "agent-cloud.ui": "terminal" },
       },
     ]);
 
@@ -1801,7 +1801,7 @@ describe("Embedded REPL terminal rail inventory", () => {
       {
         id: "conv_sdk",
         permission_level: null,
-        labels: { "do-worker.ui": "terminal" },
+        labels: { "agent-cloud.ui": "terminal" },
       },
     ]);
 
@@ -2041,7 +2041,7 @@ describe("AppShell URL sync — view param", () => {
 });
 
 describe("Files scope default and persistence", () => {
-  const PREF_KEY = "do-worker:files-panel-preferences";
+  const PREF_KEY = "agent-cloud:files-panel-preferences";
 
   function mockChangedFiles(paths: string[]) {
     useChangedFilesMock.mockReturnValue({
@@ -2385,8 +2385,8 @@ describe("Mobile session menu", () => {
         // Native sessions stamp BOTH labels: the wrapper (behavior
         // gates) and the terminal-first UI marker (presentation).
         labels: {
-          "do-worker.wrapper": "claude-code-native-ui",
-          "do-worker.ui": "terminal",
+          "agent-cloud.wrapper": "claude-code-native-ui",
+          "agent-cloud.ui": "terminal",
         },
       },
     ]);
@@ -2435,7 +2435,7 @@ describe("Mobile session menu", () => {
   });
 
   it("keeps the Terminals entry in terminal-first SDK sessions (no native wrapper)", () => {
-    // Terminal-first SDK sessions (embedded Omnigent REPL, `do-worker.ui:
+    // Terminal-first SDK sessions (embedded Omnigent REPL, `agent-cloud.ui:
     // terminal` without a wrapper label) keep the rail/menu Shells entry
     // for user shells: the pill is quick access to the REPL, while the
     // rail lists the shell inventory (sans the agent's own terminal).
@@ -2447,7 +2447,7 @@ describe("Mobile session menu", () => {
       {
         id: "conv_native",
         permission_level: null,
-        labels: { "do-worker.ui": "terminal" },
+        labels: { "agent-cloud.ui": "terminal" },
       },
     ]);
     useTerminalsMock.mockReturnValue({
@@ -2478,7 +2478,7 @@ describe("Mobile session menu", () => {
       {
         id: "conv_sdk",
         permission_level: null,
-        labels: { "do-worker.ui": "terminal" },
+        labels: { "agent-cloud.ui": "terminal" },
       },
     ]);
     useTerminalsMock.mockReturnValue({
@@ -2578,7 +2578,7 @@ describe("Mobile session menu", () => {
       {
         id: "conv_native",
         permission_level: null,
-        labels: { "do-worker.wrapper": "claude-code-native-ui" },
+        labels: { "agent-cloud.wrapper": "claude-code-native-ui" },
       },
     ]);
     useChatStore.setState({

@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/anthropics/agentsmesh/runner/internal/fsutil"
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/fsutil"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
 )
 
 // RemoveWorktree removes a worktree

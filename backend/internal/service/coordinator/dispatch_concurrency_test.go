@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	coordinatordom "github.com/anthropics/agentsmesh/backend/internal/domain/coordinator"
-	agentpodSvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	podDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	coordinatordom "github.com/l8ai-cn/agentcloud/backend/internal/domain/coordinator"
+	agentpodSvc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
 )
 
 func TestRunProjectSerializesConcurrentDispatchForTask(t *testing.T) {

@@ -8,9 +8,9 @@ import (
 	"connectrpc.com/connect"
 	"github.com/stretchr/testify/require"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	executioncluster "github.com/anthropics/agentsmesh/backend/internal/service/executioncluster"
-	executionclusterv1 "github.com/anthropics/agentsmesh/proto/gen/go/execution_cluster/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	executioncluster "github.com/l8ai-cn/agentcloud/backend/internal/service/executioncluster"
+	executionclusterv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/execution_cluster/v1"
 )
 
 func TestCreateRegistrationCommandRejectsOtherOrganizationCluster(t *testing.T) {

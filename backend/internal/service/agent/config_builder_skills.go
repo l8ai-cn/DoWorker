@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log/slog"
 
-	extensionservice "github.com/anthropics/agentsmesh/backend/internal/service/extension"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	extensionservice "github.com/l8ai-cn/agentcloud/backend/internal/service/extension"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 )
 
 func (b *ConfigBuilder) buildSkillResources(

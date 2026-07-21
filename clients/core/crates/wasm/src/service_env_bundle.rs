@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use agentsmesh_api_client::ApiClient;
-use agentsmesh_services::EnvBundleService;
+use agentcloud_api_client::ApiClient;
+use agentcloud_services::EnvBundleService;
 use wasm_bindgen::prelude::*;
 
 /// Wasm wrapper around EnvBundleService. Connect-RPC binary wire — the TS

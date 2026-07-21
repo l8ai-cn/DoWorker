@@ -62,9 +62,9 @@ loopback codexapp。
 | 文件、终端和 worktree | `pc-gateway/vendor/codexapp/dist-cli/index.js` |
 
 文件接口、主机 PTY 和 Browser Preview 证明 lulu 暴露的是主机级服务，
-不能直接作为 AgentsMesh Pod 安全模型。
+不能直接作为 Agent Cloud Pod 安全模型。
 
-## 5. AgentsMesh 移动原型
+## 5. Agent Cloud 移动原型
 
 | 结论 | 路径 |
 |---|---|

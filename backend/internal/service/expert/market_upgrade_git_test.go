@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/service/gitops"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/gitops"
 	"github.com/stretchr/testify/require"
 )
 

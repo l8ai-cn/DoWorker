@@ -55,16 +55,16 @@ describe("mountEmbeddedAgentWorkspace", () => {
 
     expect(firstElement).toHaveTextContent("session-1");
     expect(secondElement).toHaveTextContent("session-2");
-    expect(firstElement).toHaveClass("do-worker-app");
-    expect(secondElement).toHaveClass("do-worker-app");
+    expect(firstElement).toHaveClass("agent-cloud-app");
+    expect(secondElement).toHaveClass("agent-cloud-app");
     expect(renderedAccess).toEqual([firstAccess, secondAccess]);
 
     act(() => {
       first.unmount();
       second.unmount();
     });
-    expect(firstElement).not.toHaveClass("do-worker-app");
-    expect(secondElement).not.toHaveClass("do-worker-app");
+    expect(firstElement).not.toHaveClass("agent-cloud-app");
+    expect(secondElement).not.toHaveClass("agent-cloud-app");
     firstElement.remove();
     secondElement.remove();
   });

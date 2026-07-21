@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
-	"github.com/anthropics/agentsmesh/backend/internal/service/repository"
+	agentDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agent"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/repository"
 )
 
 var ErrCreateResourceUnavailable = errors.New("create resource unavailable")

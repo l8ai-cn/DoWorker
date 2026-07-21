@@ -4,15 +4,15 @@ import { describe, expect, it, vi } from "vitest";
 import type {
   CommandEnvelope,
   CommandReceipt,
-} from "@do-worker/proto/agent_workbench/v2/command_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/command_pb";
 import {
   AgentEventSchema,
   SessionDeltaBatchSchema,
   SessionSnapshotSchema,
   type SessionCursor,
   type SessionDeltaBatch,
-} from "@do-worker/proto/agent_workbench/v2/session_pb";
-import { SessionStatus } from "@do-worker/proto/agent_workbench/v2/session_state_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/session_pb";
+import { SessionStatus } from "@agent-cloud/proto/agent_workbench/v2/session_state_pb";
 import type { AgentWorkbenchSessionTransport } from "./AgentWorkbenchConnectTransport";
 import { AgentSessionConnection } from "./AgentSessionConnection";
 

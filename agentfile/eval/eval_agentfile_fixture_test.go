@@ -9,7 +9,7 @@ func newMCPContext() *Context {
 		"mcp": map[string]interface{}{
 			"enabled": true,
 			"builtin": map[string]interface{}{
-				"agentsmesh": map[string]interface{}{
+				"agentcloud": map[string]interface{}{
 					"type": "http",
 					"url":  "http://127.0.0.1:19000/mcp",
 				},

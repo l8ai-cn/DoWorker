@@ -9,8 +9,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	airesourcedomain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
-	airesourceservice "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
+	airesourcedomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
+	airesourceservice "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
 )
 
 const draftLoopSource = `@id(n-checkout-fix)

@@ -1,8 +1,8 @@
 package goalloopconnect
 
 import (
-	"github.com/anthropics/agentsmesh/backend/internal/loopscript"
-	goalloopv1 "github.com/anthropics/agentsmesh/proto/gen/go/goalloop/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/loopscript"
+	goalloopv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/goalloop/v1"
 )
 
 func loopProgramToProto(program *loopscript.Program) *goalloopv1.LoopProgram {

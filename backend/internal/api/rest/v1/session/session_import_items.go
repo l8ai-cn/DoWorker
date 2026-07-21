@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"time"
 
-	itemdomain "github.com/anthropics/agentsmesh/backend/internal/domain/conversationitem"
-	"github.com/anthropics/agentsmesh/backend/internal/service/codeximport"
-	itemsvc "github.com/anthropics/agentsmesh/backend/internal/service/conversationitem"
+	itemdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/conversationitem"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/codeximport"
+	itemsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/conversationitem"
 )
 
 func importConversationItems(

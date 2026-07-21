@@ -1,4 +1,4 @@
-// Typed client for Do Worker `/v1/sessions` endpoints.
+// Typed client for Agent Cloud `/v1/sessions` endpoints.
 // Wire contract: `backend/internal/api/rest/v1/session/`.
 //
 // Naming: TS surface is camelCase; the wire is snake_case. The
@@ -317,7 +317,7 @@ async function readJsonOrThrow<T>(res: Response): Promise<T> {
  * message for ``runner_unavailable``) instead of string-matching the
  * status line.
  *
- * The server's :class:`DoWorkerApiError` serializes as
+ * The server's :class:`AgentCloudApiError` serializes as
  * ``{"error": {"code": "...", "message": "..."}}`` (see the FastAPI
  * exception handler in ``server/app.py``); `code` is `null` when the
  * body wasn't in that shape.

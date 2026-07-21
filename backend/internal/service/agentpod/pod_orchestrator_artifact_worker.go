@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/agentfile/extract"
-	"github.com/anthropics/agentsmesh/agentfile/parser"
-	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
+	"github.com/l8ai-cn/agentcloud/agentfile/extract"
+	"github.com/l8ai-cn/agentcloud/agentfile/parser"
+	agentDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agent"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workerdependency"
 )
 
 func (o *PodOrchestrator) runtimeAgentDefinition(

@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { DoWorkerLogo } from "@/components/icons/DoWorkerLogo";
+import { AgentCloudLogo } from "@/components/icons/AgentCloudLogo";
 import { type ChildSessionInfo, useChildSessions } from "@/hooks/useChildSessions";
 import { useSession } from "@/hooks/useSession";
 import { iconForAgentType, SubagentsPanel } from "./SubagentsPanel";
@@ -46,8 +46,8 @@ vi.mock("@/components/icons/PiIcon", () => ({
   PiIcon: (props: Record<string, unknown>) => <svg {...props} data-icon="pi" />,
 }));
 // And for the Otto mascot — the generic sub-agent fallback icon.
-vi.mock("@/components/icons/DoWorkerLogo", () => ({
-  DoWorkerLogo: (props: Record<string, unknown>) => <svg {...props} data-icon="do-worker-logo" />,
+vi.mock("@/components/icons/AgentCloudLogo", () => ({
+  AgentCloudLogo: (props: Record<string, unknown>) => <svg {...props} data-icon="agent-cloud-logo" />,
 }));
 
 const useChildSessionsMock = vi.mocked(useChildSessions);
@@ -120,8 +120,8 @@ const ICON_CASES: Array<[string | null, ReturnType<typeof iconForAgentType>]> = 
   // dropped without a test failing.
   ["documentation", FileTextIcon],
   ["technical-writer", FileTextIcon],
-  ["general-purpose", DoWorkerLogo],
-  [null, DoWorkerLogo],
+  ["general-purpose", AgentCloudLogo],
+  [null, AgentCloudLogo],
 ];
 
 beforeEach(() => {
@@ -206,7 +206,7 @@ describe("SubagentsPanel", () => {
         status: "idle",
         createdAt: 0,
         title: null,
-        labels: { "do-worker.wrapper": "claude-code-native-ui" },
+        labels: { "agent-cloud.wrapper": "claude-code-native-ui" },
         items: [],
         pendingElicitations: [],
         permissionLevel: 4,
@@ -235,7 +235,7 @@ describe("SubagentsPanel", () => {
         status: "idle",
         createdAt: 0,
         title: null,
-        labels: { "do-worker.wrapper": "pi-native-ui" },
+        labels: { "agent-cloud.wrapper": "pi-native-ui" },
         items: [],
         pendingElicitations: [],
         permissionLevel: 4,
@@ -329,22 +329,22 @@ describe("SubagentsPanel", () => {
   }> = [
     {
       name: "claude-native wrapper → claude-native marker",
-      labels: { "do-worker.wrapper": "claude-code-native-ui" },
+      labels: { "agent-cloud.wrapper": "claude-code-native-ui" },
       expectedKind: "claude-native",
     },
     {
       name: "codex-native wrapper → codex-native marker",
-      labels: { "do-worker.wrapper": "codex-native-ui" },
+      labels: { "agent-cloud.wrapper": "codex-native-ui" },
       expectedKind: "codex-native",
     },
     {
       name: "opencode-native wrapper → opencode-native marker",
-      labels: { "do-worker.wrapper": "opencode-native-ui" },
+      labels: { "agent-cloud.wrapper": "opencode-native-ui" },
       expectedKind: "opencode-native",
     },
     {
       name: "pi-native wrapper → pi-native marker",
-      labels: { "do-worker.wrapper": "pi-native-ui" },
+      labels: { "agent-cloud.wrapper": "pi-native-ui" },
       expectedKind: "pi-native",
     },
     {
@@ -360,7 +360,7 @@ describe("SubagentsPanel", () => {
     },
     {
       name: "different wrapper label → generic agent marker",
-      labels: { "do-worker.wrapper": "some-other-wrapper" },
+      labels: { "agent-cloud.wrapper": "some-other-wrapper" },
       expectedKind: "agent",
     },
   ];
@@ -369,7 +369,7 @@ describe("SubagentsPanel", () => {
     "stamps the main row's data-agent-kind from the parent session's wrapper label / agent name ($name)",
     ({ labels, agentName, expectedKind }) => {
       // The leading icon on the main row swaps between Claude, nessie,
-      // and generic based on the parent session's `do-worker.wrapper`
+      // and generic based on the parent session's `agent-cloud.wrapper`
       // label (claude-native) and `agentName` (nessie). We assert via
       // the row's data-agent-kind attribute (set alongside the icon
       // swap) so the test isn't coupled to the SVG internals.
@@ -504,7 +504,7 @@ describe("SubagentsPanel", () => {
           title: "codex-native-ui-subagent:thread_child_alpha",
           tool: "auth-auditor",
           session_name: "thread_child_alpha",
-          labels: { "do-worker.wrapper": "codex-native-ui-subagent" },
+          labels: { "agent-cloud.wrapper": "codex-native-ui-subagent" },
         }),
       ],
     });
@@ -524,28 +524,28 @@ describe("SubagentsPanel", () => {
           title: "codex:auth-refactor",
           tool: "codex",
           session_name: "auth-refactor",
-          labels: { "do-worker.wrapper": "codex-native-ui" },
+          labels: { "agent-cloud.wrapper": "codex-native-ui" },
         }),
         childInfo({
           id: "conv_opencode",
           title: "opencode:port-auth-refactor",
           tool: "opencode",
           session_name: "port-auth-refactor",
-          labels: { "do-worker.wrapper": "opencode-native-ui" },
+          labels: { "agent-cloud.wrapper": "opencode-native-ui" },
         }),
         childInfo({
           id: "conv_claude",
           title: "claude_code:review-auth-refactor",
           tool: "claude_code",
           session_name: "review-auth-refactor",
-          labels: { "do-worker.wrapper": "claude-code-native-ui" },
+          labels: { "agent-cloud.wrapper": "claude-code-native-ui" },
         }),
         childInfo({
           id: "conv_kiro",
           title: "kiro:harden-auth",
           tool: "kiro",
           session_name: "harden-auth",
-          labels: { "do-worker.wrapper": "kiro-native-ui" },
+          labels: { "agent-cloud.wrapper": "kiro-native-ui" },
         }),
       ],
     });
@@ -579,13 +579,13 @@ describe("SubagentsPanel", () => {
           id: "conv_generic",
           title: "claude:tell-a-joke",
           tool: "claude",
-          labels: { "do-worker.wrapper": "claude-code-native-ui-subagent" },
+          labels: { "agent-cloud.wrapper": "claude-code-native-ui-subagent" },
         }),
         childInfo({
           id: "conv_explore",
           title: "Explore:find-the-bug",
           tool: "Explore",
-          labels: { "do-worker.wrapper": "claude-code-native-ui-subagent" },
+          labels: { "agent-cloud.wrapper": "claude-code-native-ui-subagent" },
         }),
       ],
     });
@@ -663,7 +663,7 @@ describe("SubagentsPanel", () => {
           title: "pi:port-fix",
           tool: "pi",
           session_name: "port-fix",
-          labels: { "do-worker.wrapper": "claude-code-native-ui" },
+          labels: { "agent-cloud.wrapper": "claude-code-native-ui" },
         }),
       ],
     });

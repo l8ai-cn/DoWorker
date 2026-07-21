@@ -3,7 +3,7 @@ package agentworkbenchconnect
 import (
 	"context"
 
-	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
+	agentworkbenchv2 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -42,7 +42,7 @@ func (authorization *viewerAuthorization) decorateArtifact(
 	}
 	artifact.Grants = []*agentworkbenchv2.ArtifactGrant{{
 		GrantId:           "backend:" + authorization.subject + ":" + artifact.GetArtifactId(),
-		Issuer:            optionalString("agentsmesh.backend"),
+		Issuer:            optionalString("agentcloud.backend"),
 		Subject:           optionalString(authorization.subject),
 		RepresentationIds: representations,
 		Actions:           actions,

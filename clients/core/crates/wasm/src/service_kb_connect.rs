@@ -3,7 +3,7 @@
 // .toBinary(), receives a Uint8Array back, decodes via .fromBinary().
 // Split from service_kb.rs to honor the 200-line/file limit.
 
-use agentsmesh_types::proto_knowledgebase_v1 as kb;
+use agentcloud_types::proto_knowledgebase_v1 as kb;
 use prost::Message;
 use wasm_bindgen::prelude::*;
 
@@ -19,7 +19,7 @@ impl WasmKnowledgeBaseService {
             .client_ref()
             .list_knowledge_bases_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -31,7 +31,7 @@ impl WasmKnowledgeBaseService {
             .client_ref()
             .get_knowledge_base_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -43,7 +43,7 @@ impl WasmKnowledgeBaseService {
             .client_ref()
             .create_knowledge_base_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -55,7 +55,7 @@ impl WasmKnowledgeBaseService {
             .client_ref()
             .update_knowledge_base_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -67,7 +67,7 @@ impl WasmKnowledgeBaseService {
             .client_ref()
             .sync_knowledge_base_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -79,7 +79,7 @@ impl WasmKnowledgeBaseService {
             .client_ref()
             .delete_knowledge_base_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -91,7 +91,7 @@ impl WasmKnowledgeBaseService {
             .client_ref()
             .set_kb_agent_mounts_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -103,7 +103,7 @@ impl WasmKnowledgeBaseService {
             .client_ref()
             .list_kb_agent_mounts_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -115,7 +115,7 @@ impl WasmKnowledgeBaseService {
             .client_ref()
             .get_knowledge_base_file_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -127,7 +127,7 @@ impl WasmKnowledgeBaseService {
             .client_ref()
             .list_knowledge_base_dir_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 }

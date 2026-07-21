@@ -9,13 +9,13 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	poddomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	sessiondomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
-	itemdomain "github.com/anthropics/agentsmesh/backend/internal/domain/conversationitem"
-	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
-	skilldomain "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	poddomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	sessiondomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentsession"
+	itemdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/conversationitem"
+	expertdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/expert"
+	skilldomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/skill"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 func TestPublishFromPodBindsWorkerSpecSnapshot(t *testing.T) {

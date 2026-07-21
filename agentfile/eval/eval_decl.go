@@ -1,6 +1,6 @@
 package eval
 
-import "github.com/anthropics/agentsmesh/agentfile/parser"
+import "github.com/l8ai-cn/agentcloud/agentfile/parser"
 
 // evalDecl processes a declaration, writing results to BuildResult.
 // Every declaration type is handled — AgentFile eval produces the complete Pod instruction.

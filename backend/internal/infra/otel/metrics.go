@@ -20,19 +20,19 @@ var (
 )
 
 func InitMetrics() {
-	m := otel.Meter("do-worker-backend")
-	PodActiveCount, _ = m.Int64UpDownCounter("agentsmesh.backend.pod.active")
-	RunnerConnected, _ = m.Int64UpDownCounter("agentsmesh.backend.runner.connected")
-	GRPCMessagesRecv, _ = m.Int64Counter("agentsmesh.backend.grpc.messages.received")
-	PodCreateDuration, _ = m.Float64Histogram("agentsmesh.backend.pod.create.duration",
+	m := otel.Meter("agent-cloud-backend")
+	PodActiveCount, _ = m.Int64UpDownCounter("agentcloud.backend.pod.active")
+	RunnerConnected, _ = m.Int64UpDownCounter("agentcloud.backend.runner.connected")
+	GRPCMessagesRecv, _ = m.Int64Counter("agentcloud.backend.grpc.messages.received")
+	PodCreateDuration, _ = m.Float64Histogram("agentcloud.backend.pod.create.duration",
 		metric.WithUnit("ms"))
 
-	BlockstoreOpsApplied, _ = m.Int64Counter("agentsmesh.backend.blockstore.ops.applied")
-	BlockstoreOpsDuration, _ = m.Float64Histogram("agentsmesh.backend.blockstore.ops.duration",
+	BlockstoreOpsApplied, _ = m.Int64Counter("agentcloud.backend.blockstore.ops.applied")
+	BlockstoreOpsDuration, _ = m.Float64Histogram("agentcloud.backend.blockstore.ops.duration",
 		metric.WithUnit("ms"))
-	BlockstoreEmbedQueue, _ = m.Int64UpDownCounter("agentsmesh.backend.blockstore.embed.queue_depth")
-	BlockstoreEmbedDuration, _ = m.Float64Histogram("agentsmesh.backend.blockstore.embed.duration",
+	BlockstoreEmbedQueue, _ = m.Int64UpDownCounter("agentcloud.backend.blockstore.embed.queue_depth")
+	BlockstoreEmbedDuration, _ = m.Float64Histogram("agentcloud.backend.blockstore.embed.duration",
 		metric.WithUnit("ms"))
-	BlockstoreSearchDuration, _ = m.Float64Histogram("agentsmesh.backend.blockstore.search.duration",
+	BlockstoreSearchDuration, _ = m.Float64Histogram("agentcloud.backend.blockstore.search.duration",
 		metric.WithUnit("ms"))
 }

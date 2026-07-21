@@ -3,9 +3,9 @@ package airesourceconnect
 import (
 	"time"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
-	service "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
-	aiv1 "github.com/anthropics/agentsmesh/proto/gen/go/ai_resource/v1"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
+	service "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
+	aiv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/ai_resource/v1"
 )
 
 func providerToProto(provider domain.ProviderDefinition) *aiv1.ProviderDefinition {

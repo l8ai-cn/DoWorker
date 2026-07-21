@@ -41,7 +41,7 @@ import {
   useRevokePermission,
 } from "@/hooks/usePermissions";
 import { useUserSearch } from "@/hooks/useUserSearch";
-import { getDoWorkerTransformShareLink, getDoWorkerUserSearch } from "@/lib/host";
+import { getAgentCloudTransformShareLink, getAgentCloudUserSearch } from "@/lib/host";
 import { useRebasePath } from "@/lib/routing";
 import { cn } from "@/lib/utils";
 
@@ -217,7 +217,7 @@ interface AddUserFieldProps {
 function AddUserField({ value, onChange }: AddUserFieldProps) {
   // Read once: the host installs config eagerly before first render, so the
   // branch is stable for the lifetime of the modal.
-  const searchUsers = getDoWorkerUserSearch();
+  const searchUsers = getAgentCloudUserSearch();
   if (!searchUsers) {
     return (
       <Input
@@ -383,7 +383,7 @@ function AddUserCombobox({ value, onChange }: AddUserFieldProps) {
  */
 function getShareableLink(sessionId: string, rebasePath: (path: string) => string): string {
   const path = rebasePath(`/c/${sessionId}`);
-  const transform = getDoWorkerTransformShareLink();
+  const transform = getAgentCloudTransformShareLink();
   return transform ? transform(path) : `${window.location.origin}${path}`;
 }
 

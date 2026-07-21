@@ -13,12 +13,12 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	agentsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	controlservice "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
-	workerplanner "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationworker"
+	podDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	control "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	agentsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
+	controlservice "github.com/l8ai-cn/agentcloud/backend/internal/service/orchestrationcontrol"
+	workerplanner "github.com/l8ai-cn/agentcloud/backend/internal/service/orchestrationworker"
 )
 
 func postQuickTask(t *testing.T, h *PodHandler, body string) *httptest.ResponseRecorder {

@@ -9,15 +9,15 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	authpkg "github.com/anthropics/agentsmesh/backend/pkg/auth"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	authpkg "github.com/l8ai-cn/agentcloud/backend/pkg/auth"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-const connectAudience = "agentsmesh-api"
+const connectAudience = "agentcloud-api"
 
 type echoReq struct{ Msg string }
 type echoRes struct{ Echo string }

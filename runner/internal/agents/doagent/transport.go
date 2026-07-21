@@ -7,7 +7,7 @@ import (
 	"io"
 	"log/slog"
 
-	"github.com/anthropics/agentsmesh/runner/internal/acp"
+	"github.com/l8ai-cn/agentcloud/runner/internal/acp"
 )
 
 const TransportType = "do-agent-acp"
@@ -44,7 +44,7 @@ func (t *transport) Handshake(_ context.Context) (string, error) {
 	params := map[string]any{
 		"protocolVersion": 1,
 		"clientInfo": map[string]any{
-			"name":    "do-worker-runner",
+			"name":    "agent-cloud-runner",
 			"version": "1.0.0",
 		},
 		"clientCapabilities": map[string]any{},

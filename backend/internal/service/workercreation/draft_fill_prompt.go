@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
 )
 
 const draftFillSystemPrompt = `Fill an existing Worker draft from the user's request.

@@ -19,7 +19,7 @@ export function resourceWorkflowManifest(resourceUID: string) {
     workerTemplateRef: { kind: "WorkerTemplate", name: "e2e-echo-runtime" },
   };
   const canonicalManifest = stableJson({
-    apiVersion: "agentsmesh.io/v1alpha1",
+    apiVersion: "agentcloud.io/v1alpha1",
     kind: "Workflow",
     metadata: {
       generation: 1,

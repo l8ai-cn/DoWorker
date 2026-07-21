@@ -1,6 +1,6 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: agentsmesh
+  name: agentcloud
   labels:
-    app.kubernetes.io/part-of: agentsmesh
+    app.kubernetes.io/part-of: agentcloud

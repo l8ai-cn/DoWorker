@@ -9,12 +9,12 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/config"
-	sessionfiledomain "github.com/anthropics/agentsmesh/backend/internal/domain/sessionfile"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/storage"
-	filesvc "github.com/anthropics/agentsmesh/backend/internal/service/file"
-	sessionfilesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionfile"
-	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
+	sessionfiledomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/sessionfile"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/storage"
+	filesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/file"
+	sessionfilesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/sessionfile"
+	agentworkbenchv2 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

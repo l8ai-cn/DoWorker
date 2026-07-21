@@ -3,32 +3,32 @@ package v1
 import (
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/config"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
 )
 
 // Tests AuthHandler.isAllowedRedirect across the four redirect classes:
 //   - same-host https (web SPA callback)
 //   - relative path (in-app navigation)
-//   - agentsmesh:// deep link (Electron desktop OAuth callback)
+//   - agentcloud:// deep link (Electron desktop OAuth callback)
 //   - everything else (must be rejected)
 func TestIsAllowedRedirect(t *testing.T) {
-	h := &AuthHandler{config: &config.Config{PrimaryDomain: "agentsmesh.ai"}}
+	h := &AuthHandler{config: &config.Config{PrimaryDomain: "agentcloud.ai"}}
 
 	cases := []struct {
 		name string
 		url  string
 		want bool
 	}{
-		{"same-host https", "https://agentsmesh.ai/auth/callback", true},
-		{"same-host with port", "https://agentsmesh.ai:443/auth/callback", true},
+		{"same-host https", "https://agentcloud.ai/auth/callback", true},
+		{"same-host with port", "https://agentcloud.ai:443/auth/callback", true},
 		{"relative path", "/auth/callback", true},
 		{"protocol-relative", "//evil.com/auth/callback", false},
 		{"different host", "https://evil.com/auth/callback", false},
-		{"http on prod host", "http://agentsmesh.ai/auth/callback", true},
-		{"desktop deep link", "agentsmesh://oauth/callback", true},
-		{"desktop deep link with query", "agentsmesh://oauth/callback?token=abc", true},
-		{"deep link wrong host", "agentsmesh://attacker/oauth/callback", false},
-		{"deep link wrong path", "agentsmesh://oauth/evil", false},
+		{"http on prod host", "http://agentcloud.ai/auth/callback", true},
+		{"desktop deep link", "agentcloud://oauth/callback", true},
+		{"desktop deep link with query", "agentcloud://oauth/callback?token=abc", true},
+		{"deep link wrong host", "agentcloud://attacker/oauth/callback", false},
+		{"deep link wrong path", "agentcloud://oauth/evil", false},
 		{"unknown scheme", "javascript:alert(1)", false},
 		{"empty", "", false},
 	}

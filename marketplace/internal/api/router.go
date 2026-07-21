@@ -4,11 +4,11 @@ import (
 	"context"
 	"net/http"
 
-	actorapi "github.com/anthropics/agentsmesh/marketplace/internal/api/actor"
-	consoleapi "github.com/anthropics/agentsmesh/marketplace/internal/api/console"
-	consumerapi "github.com/anthropics/agentsmesh/marketplace/internal/api/consumer"
-	publicapi "github.com/anthropics/agentsmesh/marketplace/internal/api/public"
-	"github.com/anthropics/agentsmesh/marketplace/internal/service"
+	actorapi "github.com/l8ai-cn/agentcloud/marketplace/internal/api/actor"
+	consoleapi "github.com/l8ai-cn/agentcloud/marketplace/internal/api/console"
+	consumerapi "github.com/l8ai-cn/agentcloud/marketplace/internal/api/consumer"
+	publicapi "github.com/l8ai-cn/agentcloud/marketplace/internal/api/public"
+	"github.com/l8ai-cn/agentcloud/marketplace/internal/service"
 	"github.com/gin-gonic/gin"
 )
 

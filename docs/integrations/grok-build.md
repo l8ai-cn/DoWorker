@@ -9,7 +9,7 @@ Grok Build is available as the builtin `grok-build` agent. Its executable is
 | --- | --- |
 | Agent slug | `grok-build` |
 | Executable | `grok` |
-| Image | `do-worker/runner-grok-build:latest` |
+| Image | `agent-cloud/runner-grok-build:latest` |
 | PTY mode | `grok --no-auto-update` |
 | ACP mode | `grok --no-auto-update agent stdio` |
 | Required secret | `XAI_API_KEY` |

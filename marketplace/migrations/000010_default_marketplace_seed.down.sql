@@ -7,7 +7,7 @@ DECLARE
 BEGIN
     SELECT id INTO seed_market_id
     FROM marketplace.marketplaces
-    WHERE slug = 'do-worker-market';
+    WHERE slug = 'agent-cloud-market';
 
     IF seed_market_id IS NULL THEN
         RETURN;

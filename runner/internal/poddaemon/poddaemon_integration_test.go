@@ -259,9 +259,9 @@ func TestDaemonPanicRecoveryWritesStackTrace(t *testing.T) {
 	}
 	require.NoError(t, SaveState(state))
 
-	// Start daemon with _AGENTSMESH_DAEMON_TEST_PANIC to trigger deliberate panic.
+	// Start daemon with _AGENTCLOUD_DAEMON_TEST_PANIC to trigger deliberate panic.
 	panicMsg := "deliberate test panic for stack trace verification"
-	env := append(os.Environ(), "_AGENTSMESH_DAEMON_TEST_PANIC="+panicMsg)
+	env := append(os.Environ(), "_AGENTCLOUD_DAEMON_TEST_PANIC="+panicMsg)
 
 	pid, err := startDaemon(binPath, StatePath(sandbox), sandbox, env)
 	require.NoError(t, err)

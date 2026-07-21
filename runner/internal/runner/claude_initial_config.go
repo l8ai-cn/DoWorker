@@ -1,6 +1,6 @@
 package runner
 
-import "github.com/anthropics/agentsmesh/runner/internal/acp"
+import "github.com/l8ai-cn/agentcloud/runner/internal/acp"
 
 // parseClaudeInitialConfig extracts the AgentFile-resolved permission_mode
 // and model from the runner's launch_args. Only Claude Code's AgentFile

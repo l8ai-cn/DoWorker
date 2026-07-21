@@ -20,8 +20,8 @@ AGENT_RUNTIMES=(
   hermes
 )
 RUNTIME="${1:-all}"
-IMAGE_PREFIX="${IMAGE_PREFIX:-do-worker/runner}"
-BASE_IMAGE="${BASE_IMAGE:-${RUNTIME_BUILD_BASE:-do-worker/runner-base:latest}}"
+IMAGE_PREFIX="${IMAGE_PREFIX:-agent-cloud/runner}"
+BASE_IMAGE="${BASE_IMAGE:-${RUNTIME_BUILD_BASE:-agent-cloud/runner-base:latest}}"
 NODE_BASE_IMAGE="${NODE_BASE_IMAGE:-node:24-bookworm-slim}"
 PYTHON_BASE_IMAGE="${PYTHON_BASE_IMAGE:-python:3.11-slim-bookworm}"
 PLATFORM="${PLATFORM:-linux/amd64}"
@@ -50,8 +50,8 @@ Agent runtimes:
   (e2e-echo 仅 dev compose / CI 使用，不走 build_all)
 
 环境变量:
-  IMAGE_PREFIX    镜像名前缀 (默认 do-worker/runner)
-  BASE_IMAGE      共享 base 镜像 (默认 do-worker/runner-base:latest)
+  IMAGE_PREFIX    镜像名前缀 (默认 agent-cloud/runner)
+  BASE_IMAGE      共享 base 镜像 (默认 agent-cloud/runner-base:latest)
   NODE_BASE_IMAGE Node 基础镜像；可设 Alibaba/Tencent 的完整仓库地址
   PYTHON_BASE_IMAGE Python 基础镜像；可设 Alibaba/Tencent 的完整仓库地址
   PLATFORM        docker build --platform (默认 linux/amd64)
@@ -198,7 +198,7 @@ if [[ "$RUNTIME" == "all" ]]; then
   done
   echo ""
   if [[ ${#failed[@]} -eq 0 ]]; then
-    echo "✓ 全部 ${#AGENT_RUNTIMES[@]} 个 Do Worker agent-runtime 镜像已就绪 (${IMAGE_PREFIX}-*)"
+    echo "✓ 全部 ${#AGENT_RUNTIMES[@]} 个 Agent Cloud agent-runtime 镜像已就绪 (${IMAGE_PREFIX}-*)"
   else
     echo "✗ 以下 runtime 构建失败: ${failed[*]}" >&2
     exit 1

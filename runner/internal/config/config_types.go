@@ -53,7 +53,7 @@ type Config struct {
 	AgentEnvVars map[string]string `mapstructure:"agent_env_vars"`
 
 	// Plugin settings
-	PluginsDir string `mapstructure:"plugins_dir"` // User custom plugins directory (default: ~/.agentsmesh/plugins)
+	PluginsDir string `mapstructure:"plugins_dir"` // User custom plugins directory (default: ~/.agentcloud/plugins)
 
 	// Health check
 	HealthCheckPort int `mapstructure:"health_check_port"`
@@ -64,7 +64,7 @@ type Config struct {
 
 	// PTY logging (for debugging)
 	LogPTY    bool   `mapstructure:"log_pty"`     // Enable PTY output logging
-	LogPTYDir string `mapstructure:"log_pty_dir"` // PTY log directory (default: $TMPDIR/agentsmesh/pty-logs)
+	LogPTYDir string `mapstructure:"log_pty_dir"` // PTY log directory (default: $TMPDIR/agentcloud/pty-logs)
 
 	// Auto-update settings
 	AutoUpdate AutoUpdateConfig `mapstructure:"auto_update"`

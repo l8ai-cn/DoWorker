@@ -13,8 +13,8 @@ go test ./runner/internal/runner -run \
   -count=1
 
 (cd clients/core && cargo test -p pod_proto --test worker_creation_wire_contract -q)
-(cd clients/core && cargo test -p agentsmesh_api_client --test orchestration_resource_connect -q)
-(cd clients/core && cargo test -p agentsmesh_services --test orchestration_resource_service -q)
+(cd clients/core && cargo test -p agentcloud_api_client --test orchestration_resource_connect -q)
+(cd clients/core && cargo test -p agentcloud_services --test orchestration_resource_service -q)
 pnpm run build:wasm
 bash deploy/dev/wasm_freshness_contract_test.sh
 

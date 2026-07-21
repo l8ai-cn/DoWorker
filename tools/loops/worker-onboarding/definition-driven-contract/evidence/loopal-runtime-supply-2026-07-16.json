@@ -8,7 +8,7 @@
     "provider_request": false
   },
   "runtime_image": {
-    "reference": "agentsmesh-codex-loop-blockly-mvp-runner-loopal:latest",
+    "reference": "agentcloud-codex-loop-blockly-mvp-runner-loopal:latest",
     "local_image_present": false,
     "compose_service_declared": true,
     "compose_runtime": "loopal",

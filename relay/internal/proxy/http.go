@@ -9,9 +9,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	otelmetrics "github.com/anthropics/agentsmesh/relay/internal/otel"
-	"github.com/anthropics/agentsmesh/relay/internal/protocol/tunnelframe"
-	"github.com/anthropics/agentsmesh/relay/internal/tunnel"
+	otelmetrics "github.com/l8ai-cn/agentcloud/relay/internal/otel"
+	"github.com/l8ai-cn/agentcloud/relay/internal/protocol/tunnelframe"
+	"github.com/l8ai-cn/agentcloud/relay/internal/tunnel"
 )
 
 // proxyByteCounters accumulates bytes moved by a single proxied

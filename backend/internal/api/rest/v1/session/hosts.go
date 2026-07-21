@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"strings"
 
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	sessionDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
-	domainrunner "github.com/anthropics/agentsmesh/backend/internal/domain/runner"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	podDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	sessionDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentsession"
+	domainrunner "github.com/l8ai-cn/agentcloud/backend/internal/domain/runner"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
 	"github.com/gin-gonic/gin"
 )
 

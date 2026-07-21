@@ -1,6 +1,6 @@
 package airesource
 
-import "github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+import "github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 
 const (
 	MiniMaxChinaBaseURL  = "https://api.minimaxi.com/v1"

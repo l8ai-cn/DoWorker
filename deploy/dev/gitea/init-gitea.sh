@@ -135,8 +135,8 @@ create_and_push_repo() {
         # Ensure git can author a commit even when global identity isn't
         # configured (CI runners, fresh devboxes). Using env vars avoids
         # mutating the user's `~/.gitconfig`.
-        export GIT_AUTHOR_NAME="AgentsMesh Dev Seed"
-        export GIT_AUTHOR_EMAIL="dev-seed@agentsmesh.local"
+        export GIT_AUTHOR_NAME="Agent Cloud Dev Seed"
+        export GIT_AUTHOR_EMAIL="dev-seed@agentcloud.local"
         export GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
         export GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
         git init -b main > /dev/null 2>&1
@@ -236,7 +236,7 @@ fi
 # runtime/; a stale token (e.g. after a gitea volume wipe) is detected by
 # probing /user and re-issued.
 ensure_backend_token() {
-    local token_name="agentsmesh-backend"
+    local token_name="agentcloud-backend"
     local token_dir="${SCRIPT_DIR}/../runtime/gitea"
     local token_file="${token_dir}/backend-token"
     mkdir -p "$token_dir"

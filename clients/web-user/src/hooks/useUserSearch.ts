@@ -2,7 +2,7 @@
  * User search/autocomplete hook for the permissions "add user" field.
  *
  * Inversion of control: the actual search logic is supplied by the host via
- * `DoWorkerHostConfig.searchUsers` (see `lib/host.ts`). When no host searcher
+ * `AgentCloudHostConfig.searchUsers` (see `lib/host.ts`). When no host searcher
  * is configured (standalone, or before the host wires it), this hook is inert —
  * it never fetches and returns no suggestions, so callers fall back to a plain
  * text input.
@@ -10,7 +10,7 @@
 
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getDoWorkerUserSearch, type UserSuggestion } from "@/lib/host";
+import { getAgentCloudUserSearch, type UserSuggestion } from "@/lib/host";
 
 const DEBOUNCE_MS = 300;
 
@@ -22,7 +22,7 @@ interface UseUserSearchResult {
 }
 
 export function useUserSearch(query: string): UseUserSearchResult {
-  const searchUsers = getDoWorkerUserSearch();
+  const searchUsers = getAgentCloudUserSearch();
 
   // Debounce the typed query so we don't fire a request per keystroke.
   const [debouncedQuery, setDebouncedQuery] = useState(query);

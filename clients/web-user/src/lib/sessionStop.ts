@@ -1,6 +1,6 @@
 // Gate for the sidebar row kebab's "Stop session" item.
 
-const WRAPPER_LABEL_KEY = "do-worker.wrapper";
+const WRAPPER_LABEL_KEY = "agent-cloud.wrapper";
 const CLAUDE_NATIVE_WRAPPER_VALUE = "claude-code-native-ui";
 
 /**

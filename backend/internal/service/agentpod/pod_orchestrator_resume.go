@@ -6,8 +6,8 @@ import (
 
 	"github.com/google/uuid"
 
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	userService "github.com/anthropics/agentsmesh/backend/internal/service/user"
+	podDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	userService "github.com/l8ai-cn/agentcloud/backend/internal/service/user"
 )
 
 func (o *PodOrchestrator) handleResumeMode(ctx context.Context, req *OrchestrateCreatePodRequest) (*podDomain.Pod, string, error) {

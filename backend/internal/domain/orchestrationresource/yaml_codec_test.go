@@ -11,7 +11,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const validSubmissionYAML = `apiVersion: agentsmesh.io/v1alpha1
+const validSubmissionYAML = `apiVersion: agentcloud.io/v1alpha1
 kind: WorkerTemplate
 metadata:
   name: worker-one
@@ -365,7 +365,7 @@ func nestedSubmissionYAML(depth int) []byte {
 
 func submissionYAMLWithSequenceItems(items int) []byte {
 	var source strings.Builder
-	source.WriteString("apiVersion: agentsmesh.io/v1alpha1\nkind: WorkerTemplate\n")
+	source.WriteString("apiVersion: agentcloud.io/v1alpha1\nkind: WorkerTemplate\n")
 	source.WriteString("metadata: {name: worker-one, namespace: team-one}\nspec:\n  payload:\n")
 	source.WriteString(strings.Repeat("    - null\n", items))
 	return []byte(source.String())

@@ -1,11 +1,11 @@
 import "./index.css";
 
-export type { DoWorkerHostConfig } from "./lib/host";
+export type { AgentCloudHostConfig } from "./lib/host";
 export type { RoutingApi } from "./lib/routing";
-export { setDoWorkerHostConfig } from "./lib/host";
-export { mountDoWorkerApp } from "./mount";
-export { DoWorkerStandaloneApp } from "./standalone";
-export { DoWorkerApp, type DoWorkerAppProps } from "./embed-app";
+export { setAgentCloudHostConfig } from "./lib/host";
+export { mountAgentCloudApp } from "./mount";
+export { AgentCloudStandaloneApp } from "./standalone";
+export { AgentCloudApp, type AgentCloudAppProps } from "./embed-app";
 export type { EmbedSessionAccess } from "./embed-context";
 export { EmbeddedAgentWorkspace } from "./embed-session/EmbeddedAgentWorkspace";
 export type { EmbeddedAgentWorkbenchAccess } from "./embed-session/embeddedAgentWorkbenchAccess";

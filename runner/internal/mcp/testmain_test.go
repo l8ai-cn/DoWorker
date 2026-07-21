@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/runner/internal/processmgr"
+	"github.com/l8ai-cn/agentcloud/runner/internal/processmgr"
 )
 
 // TestMain initializes processmgr.Global() for every test in this package.

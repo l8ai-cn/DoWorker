@@ -2,7 +2,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: gitea-data
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   accessModes:
     - ReadWriteOnce
@@ -15,7 +15,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: gitea
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   replicas: 1
   strategy:
@@ -29,7 +29,7 @@ spec:
         app: gitea
     spec:
       imagePullSecrets:
-        - name: agentsmesh-regcred
+        - name: agentcloud-regcred
       initContainers:
         - name: initialize-data-layout
           image: repo.aiedulab.cn:8443/library/gitea:1.21.0
@@ -58,9 +58,9 @@ spec:
             - name: GITEA__service__DISABLE_REGISTRATION
               value: "true"
             - name: GITEA__server__ROOT_URL
-              value: "http://gitea.agentsmesh.svc.cluster.local:3000/"
+              value: "http://gitea.agentcloud.svc.cluster.local:3000/"
             - name: GITEA__server__SSH_DOMAIN
-              value: "gitea.agentsmesh.svc.cluster.local"
+              value: "gitea.agentcloud.svc.cluster.local"
             - name: GITEA__server__SSH_PORT
               value: "22"
             - name: GITEA__repository__ROOT
@@ -103,7 +103,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: gitea
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   selector:
     app: gitea

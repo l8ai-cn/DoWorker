@@ -78,7 +78,7 @@ export default function RunnerSetupTutorialPage() {
                 {t("docs.tutorials.runnerSetup.step2.methodTokenDesc")}
               </p>
               <div className="font-mono text-sm overflow-x-auto">
-                <pre className="text-success">{`do-worker-runner register \\
+                <pre className="text-success">{`agent-cloud-runner register \\
   --server ${serverUrl} \\
   --token <YOUR_TOKEN>`}</pre>
               </div>
@@ -91,7 +91,7 @@ export default function RunnerSetupTutorialPage() {
                 {t("docs.tutorials.runnerSetup.step2.methodLoginDesc")}
               </p>
               <div className="font-mono text-sm overflow-x-auto">
-                <pre className="text-success">{`do-worker-runner login`}</pre>
+                <pre className="text-success">{`agent-cloud-runner login`}</pre>
               </div>
             </div>
           </div>
@@ -109,7 +109,7 @@ export default function RunnerSetupTutorialPage() {
             {t("docs.tutorials.runnerSetup.step3.description")}
           </p>
           <div className="rounded-lg bg-surface-muted ring-1 ring-border/15 p-4 font-mono text-sm overflow-x-auto mb-4">
-            <pre className="text-success">{`do-worker-runner run`}</pre>
+            <pre className="text-success">{`agent-cloud-runner run`}</pre>
           </div>
           <ul className="list-disc list-inside text-muted-foreground space-y-2 mb-4">
             <li>{t("docs.tutorials.runnerSetup.step3.item1")}</li>

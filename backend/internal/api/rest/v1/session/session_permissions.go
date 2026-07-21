@@ -3,8 +3,8 @@ package sessionapi
 import (
 	"net/http"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentsession"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
 	"github.com/gin-gonic/gin"
 )
 

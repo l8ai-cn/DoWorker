@@ -107,7 +107,7 @@
           "autonomy": "能動的タスク実行",
           "capabilities": "フルスタック開発",
           "environment": "完全なターミナルアクセス",
-          "multiAgent": "Do Worker対応",
+          "multiAgent": "Agent Cloud対応",
           "selfHosted": "完全制御可能"
         }
       }
@@ -128,9 +128,9 @@
           "4": "ジョブ完了時に自動クリーンアップ"
         }
       },
-      "agentsmesh": {
+      "agentcloud": {
         "title": "エージェント同士が会話する。あなたは伝書鳩にならない。",
-        "subtitle": "Do Worker",
+        "subtitle": "Agent Cloud",
         "description": "エージェントは互いの作業を観察し、チャンネルでコンテキストを共有し、自律的に連携する。チームメイトを見つけ、アクセスを交渉し、ワークロードに応じて援軍を起動することも。",
         "highlights": {
           "0": "エージェント同士がリアルタイムでターミナルを監視",
@@ -240,7 +240,7 @@
       "title": "完全な",
       "titleHighlight": "セルフホスト",
       "titleEnd": "デプロイが必要ですか？",
-      "description": "コードとデータはインフラを離れません。Do Workerを完全にオンプレミスでデプロイ — 厳格なセキュリティとコンプライアンス要件を持つ組織に最適。",
+      "description": "コードとデータはインフラを離れません。Agent Cloudを完全にオンプレミスでデプロイ — 厳格なセキュリティとコンプライアンス要件を持つ組織に最適。",
       "dockerCompose": "Docker Compose",
       "kubernetesHelm": "Kubernetes Helm（近日公開）",
       "airGappedSupport": "エアギャップサポート（近日公開）",
@@ -260,8 +260,8 @@
       "live": "ライブ",
       "initializingPod": "Podを初期化中...",
       "typeMessage": "メッセージを入力...",
-      "connecting": "Do Workerに接続中...",
-      "connected": "Do Workerサーバーに接続しました",
+      "connecting": "Agent Cloudに接続中...",
+      "connected": "Agent Cloudサーバーに接続しました",
       "workspace": "ワークスペース: /projects/e-commerce",
       "monitorPod": "pod beta-devを監視し、認証実装の調整を支援",
       "bindingPod": "beta-devにバインドして観察・調整します...",
@@ -317,26 +317,26 @@
         "runner": "Runner",
         "agent": "エージェント",
         "websocket": "WebSocket",
-        "agentsmeshCloud": "Do Workerクラウド"
+        "agentcloudCloud": "Agent Cloudクラウド"
       }
     },
     "demoVideo": {
       "title": "あなたの未来のチームを",
       "titleHighlight": "実際に見る",
       "description": "2分間。チケットからマージリクエストまで — 完全自律。",
-      "iframeTitle": "Do Worker製品デモ",
+      "iframeTitle": "Agent Cloud製品デモ",
       "highlight1": "フルライフサイクルデモ",
       "highlight2": "マルチエージェントコラボレーション",
       "highlight3": "自律型タスク完了"
     },
     "footer": {
       "tagline": "分散したAI能力を、仕事を完遂するExpertへ。",
-      "copyright": "Do Worker. All rights reserved.",
+      "copyright": "Agent Cloud. All rights reserved.",
       "madeWith": "実務成果のために設計",
       "product": {
         "title": "製品",
         "agentpod": "Worker",
-        "agentsmesh": "コラボレーション",
+        "agentcloud": "コラボレーション",
         "tickets": "タスク管理",
         "runners": "Runner群",
         "enterprise": "エンタープライズ"
@@ -367,7 +367,7 @@
     },
     "demo": {
       "title": "デモを申し込む",
-      "subtitle": "Do Workerがチームの生産性をどう倍増させるか、ご覧ください。",
+      "subtitle": "Agent Cloudがチームの生産性をどう倍増させるか、ご覧ください。",
       "nameLabel": "氏名",
       "namePlaceholder": "山田太郎",
       "emailLabel": "業務メール",
@@ -389,7 +389,7 @@
       "hero": {
         "badge": "最新リリース",
         "title": "ダウンロード",
-        "titleHighlight": "Do Worker",
+        "titleHighlight": "Agent Cloud",
         "subtitle": "セルフホスト型 Runner をダウンロードして、エージェント・コード・データを自分のインフラに留めます。",
         "downloadFor": "{platform} 版をダウンロード",
         "releasedOn": "{date} リリース",

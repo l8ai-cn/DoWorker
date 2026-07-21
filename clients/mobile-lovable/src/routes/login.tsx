@@ -1,7 +1,7 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react";
 import { useState } from "react";
-import { DoWorkerLogo } from "@/components/do-worker-logo";
+import { AgentCloudLogo } from "@/components/agent-cloud-logo";
 import { MobileFrame } from "@/components/mobile-frame";
 import { APP_NAME, APP_TAGLINE, pageTitle } from "@/lib/app-brand";
 import { login } from "@/lib/auth-store";
@@ -9,8 +9,8 @@ import { cn } from "@/lib/utils";
 
 const DEV_ACCOUNTS = import.meta.env.DEV
   ? [
-      { label: "开发用户", email: "dev@agentsmesh.local", password: "AdminAb123456" },
-      { label: "管理员", email: "admin@agentsmesh.local", password: "Ab123456" },
+      { label: "开发用户", email: "dev@agentcloud.local", password: "AdminAb123456" },
+      { label: "管理员", email: "admin@agentcloud.local", password: "Ab123456" },
     ]
   : [];
 
@@ -77,7 +77,7 @@ function LoginPage() {
             <div className="relative mb-5">
               <div className="absolute -inset-3 rounded-[1.35rem] bg-primary/25 blur-xl" />
               <div className="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-primary/10 p-2.5 ring-1 ring-primary/35 shadow-lg">
-                <DoWorkerLogo className="h-full w-full" />
+                <AgentCloudLogo className="h-full w-full" />
               </div>
             </div>
             <h1 className="text-[1.65rem] font-semibold tracking-tight">{APP_NAME}</h1>

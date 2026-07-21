@@ -1,8 +1,8 @@
 package agentpod
 
 import (
-	"github.com/anthropics/agentsmesh/agentfile/parser"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	"github.com/l8ai-cn/agentcloud/agentfile/parser"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
 )
 
 func planSourceArtifactLayer(

@@ -6,10 +6,10 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/runner/internal/acp"
+	"github.com/l8ai-cn/agentcloud/runner/internal/acp"
 )
 
-// handleControlRequest implements the server end of the AgentsMesh ACP
+// handleControlRequest implements the server end of the Agent Cloud ACP
 // extension defined in //runner/internal/acp/transport_acp.go:SendControlRequest.
 //
 // Subtype matrix (kept aligned with runner/internal/acp/client_session.go

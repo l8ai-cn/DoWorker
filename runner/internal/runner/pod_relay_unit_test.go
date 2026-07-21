@@ -6,9 +6,9 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/runner/internal/relay"
-	"github.com/anthropics/agentsmesh/runner/internal/terminal/aggregator"
-	"github.com/anthropics/agentsmesh/runner/internal/terminal/vt"
+	"github.com/l8ai-cn/agentcloud/runner/internal/relay"
+	"github.com/l8ai-cn/agentcloud/runner/internal/terminal/aggregator"
+	"github.com/l8ai-cn/agentcloud/runner/internal/terminal/vt"
 )
 
 var errStub = errors.New("stub error")

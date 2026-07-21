@@ -1,6 +1,6 @@
 package runner
 
-import "github.com/anthropics/agentsmesh/runner/internal/relay"
+import "github.com/l8ai-cn/agentcloud/runner/internal/relay"
 
 // PodRelay abstracts mode-specific relay behavior.
 // PTY and ACP pods implement this interface to encapsulate

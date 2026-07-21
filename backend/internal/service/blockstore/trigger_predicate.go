@@ -3,7 +3,7 @@ package blockstoreservice
 import (
 	"encoding/json"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/blockstore"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/blockstore"
 )
 
 func evalTriggerPredicate(predicate string, data blockstore.JSONMap) bool {

@@ -9,7 +9,7 @@ import "agent_workbench/v2/content.proto";
 import "agent_workbench/v2/session_state.proto";
 import "agent_workbench/v2/tool.proto";
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2;agentworkbenchv2";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2;agentworkbenchv2";
 
 message SessionCursor { string session_id = 1; string stream_epoch = 2; uint64 revision = 3; uint64 sequence = 4; }
 

@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
+	agentworkbenchv2 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2"
 	"github.com/stretchr/testify/require"
 )
 
@@ -127,7 +127,7 @@ func TestArtifactObserverIgnoresDerivedPreviewStorage(t *testing.T) {
 	writeArtifactFile(
 		t,
 		root,
-		".do-worker/workbench/previews/report-r1.pdf",
+		".agent-cloud/workbench/previews/report-r1.pdf",
 		"preview",
 	)
 
@@ -144,7 +144,7 @@ func TestArtifactObserverProjectsDeclaredImageEditArtifact(t *testing.T) {
 	writeArtifactFile(t, root, "output/source.png", "source")
 	writeArtifactFile(t, root, "output/result.png", "result")
 	writeArtifactDeclaration(t, root, "image-edit.json", `{
-		"schema_version":"agentsmesh.agent-workbench.artifact/v1",
+		"schema_version":"agentcloud.agent-workbench.artifact/v1",
 		"artifact_id":"image-edit-result",
 		"revision":1,
 		"role":"image_edit",
@@ -199,7 +199,7 @@ func TestArtifactObserverProjectsDeclaredPresentationAndVideo(t *testing.T) {
 		writeArtifactFile(t, root, path, content)
 	}
 	writeArtifactDeclaration(t, root, "presentation.json", `{
-		"schema_version":"agentsmesh.agent-workbench.artifact/v1",
+		"schema_version":"agentcloud.agent-workbench.artifact/v1",
 		"artifact_id":"quarterly-review",
 		"revision":1,
 		"role":"presentation",
@@ -219,7 +219,7 @@ func TestArtifactObserverProjectsDeclaredPresentationAndVideo(t *testing.T) {
 		}
 	}`)
 	writeArtifactDeclaration(t, root, "video.json", `{
-		"schema_version":"agentsmesh.agent-workbench.artifact/v1",
+		"schema_version":"agentcloud.agent-workbench.artifact/v1",
 		"artifact_id":"launch-video",
 		"revision":1,
 		"role":"video",
@@ -255,7 +255,7 @@ func TestArtifactObserverRejectsInvalidDeclaration(t *testing.T) {
 	observer, err := NewArtifactObserver(root)
 	require.NoError(t, err)
 	writeArtifactDeclaration(t, root, "invalid.json", `{
-		"schema_version":"agentsmesh.agent-workbench.artifact/v0",
+		"schema_version":"agentcloud.agent-workbench.artifact/v0",
 		"artifact_id":"invalid-artifact",
 		"revision":1,
 		"role":"preview",
@@ -277,7 +277,7 @@ func TestArtifactObserverRejectsEmptyDeclaredFile(t *testing.T) {
 	require.NoError(t, err)
 	writeArtifactFile(t, root, "output/empty.mp4", "")
 	writeArtifactDeclaration(t, root, "video.json", `{
-		"schema_version":"agentsmesh.agent-workbench.artifact/v1",
+		"schema_version":"agentcloud.agent-workbench.artifact/v1",
 		"artifact_id":"empty-video",
 		"revision":1,
 		"role":"video",
@@ -304,7 +304,7 @@ func TestArtifactObserverRejectsSeedanceVideoWithoutProducerID(t *testing.T) {
 	require.NoError(t, err)
 	writeArtifactFile(t, root, "output/video.mp4", validMP4Fixture("video"))
 	writeArtifactDeclaration(t, root, "video.json", `{
-		"schema_version":"agentsmesh.agent-workbench.artifact/v1",
+		"schema_version":"agentcloud.agent-workbench.artifact/v1",
 		"artifact_id":"video",
 		"revision":1,
 		"role":"video",
@@ -326,7 +326,7 @@ func TestArtifactObserverRejectsTextDisguisedAsMP4(t *testing.T) {
 	require.NoError(t, err)
 	writeArtifactFile(t, root, "output/video.mp4", "not a video file")
 	writeArtifactDeclaration(t, root, "video.json", `{
-		"schema_version":"agentsmesh.agent-workbench.artifact/v1",
+		"schema_version":"agentcloud.agent-workbench.artifact/v1",
 		"artifact_id":"video",
 		"revision":1,
 		"role":"video",
@@ -354,7 +354,7 @@ func TestArtifactObserverRejectsMP4WithoutVideoTrack(t *testing.T) {
 			"\x00\x00\x00\x08moov\x00\x00\x00\x0cmdatdata",
 	)
 	writeArtifactDeclaration(t, root, "video.json", `{
-		"schema_version":"agentsmesh.agent-workbench.artifact/v1",
+		"schema_version":"agentcloud.agent-workbench.artifact/v1",
 		"artifact_id":"video",
 		"revision":1,
 		"role":"video",
@@ -427,7 +427,7 @@ func writeArtifactFile(t *testing.T, root, relative, content string) {
 }
 
 func validMP4Fixture(payload string) string {
-	file, err := os.CreateTemp("", "agentsmesh-test-*.mp4")
+	file, err := os.CreateTemp("", "agentcloud-test-*.mp4")
 	if err != nil {
 		panic(err)
 	}
@@ -464,7 +464,7 @@ func writeArtifactDeclaration(t *testing.T, root, name, content string) {
 	writeArtifactFile(
 		t,
 		root,
-		filepath.ToSlash(filepath.Join(".do-worker/workbench/artifacts", name)),
+		filepath.ToSlash(filepath.Join(".agent-cloud/workbench/artifacts", name)),
 		content,
 	)
 }
@@ -475,7 +475,7 @@ func declaredPageArtifact(revision int) string {
 
 func declaredPageArtifactForProducer(revision int, producerType string) string {
 	return fmt.Sprintf(`{
-		"schema_version":"agentsmesh.agent-workbench.artifact/v1",
+		"schema_version":"agentcloud.agent-workbench.artifact/v1",
 		"artifact_id":"rendered-page",
 		"revision":%d,
 		"role":"preview",

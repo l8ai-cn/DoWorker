@@ -6,9 +6,9 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/channel"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	channelservice "github.com/anthropics/agentsmesh/backend/internal/service/channel"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/channel"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	channelservice "github.com/l8ai-cn/agentcloud/backend/internal/service/channel"
 )
 
 // requireChannelAccess fetches a channel, validates org ownership, and

@@ -3,8 +3,8 @@ package sessionapi
 import (
 	"net/http"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	orgservice "github.com/anthropics/agentsmesh/backend/internal/service/organization"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	orgservice "github.com/l8ai-cn/agentcloud/backend/internal/service/organization"
 	"github.com/gin-gonic/gin"
 )
 
@@ -47,7 +47,7 @@ func (d *Deps) handleMe(c *gin.Context) {
 func (d *Deps) handleInfo(c *gin.Context) {
 	version := d.Version
 	if version == "" {
-		version = "do-worker-dev"
+		version = "agent-cloud-dev"
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"accounts_enabled":          true,
@@ -55,7 +55,7 @@ func (d *Deps) handleInfo(c *gin.Context) {
 		"needs_setup":               false,
 		"databricks_features":       false,
 		"managed_sandboxes_enabled": false,
-		"product_name":              "Do Worker",
+		"product_name":              "Agent Cloud",
 		"sandbox_provider":          nil,
 		"server_version":            version,
 		"smart_routing_enabled":     false,

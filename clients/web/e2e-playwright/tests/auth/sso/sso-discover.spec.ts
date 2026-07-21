@@ -14,7 +14,7 @@ test.describe("SSO Discovery API", () => {
   test("discover SSO configs by email", async ({ api }) => {
     // Public (pre-auth) endpoint — empty token.
     const cc = api.connectWithToken("");
-    const res = await cc.sso.discover({ email: "user@agentsmesh.local" }) as { items: unknown[] };
+    const res = await cc.sso.discover({ email: "user@agentcloud.local" }) as { items: unknown[] };
     expect(Array.isArray(res.items)).toBe(true);
   });
 

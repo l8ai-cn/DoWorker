@@ -9,9 +9,9 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/expertmarket"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/database"
-	adminv1 "github.com/anthropics/agentsmesh/proto/gen/go/admin/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/expertmarket"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/database"
+	adminv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/admin/v1"
 )
 
 func expertMarketStatus(raw string) (expertmarket.ReleaseStatus, error) {

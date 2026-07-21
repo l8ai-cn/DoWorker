@@ -7,7 +7,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/user"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/user"
 )
 
 const oauthStateKeyPrefix = "oauth:state:"

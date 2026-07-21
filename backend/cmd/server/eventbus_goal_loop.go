@@ -7,10 +7,10 @@ import (
 
 	"google.golang.org/protobuf/encoding/protojson"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
-	goalloop "github.com/anthropics/agentsmesh/backend/internal/service/goalloop"
-	eventsv1 "github.com/anthropics/agentsmesh/proto/gen/go/events/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/eventbus"
+	goalloop "github.com/l8ai-cn/agentcloud/backend/internal/service/goalloop"
+	eventsv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/events/v1"
 )
 
 func setupGoalLoopEventSubscriptions(eventBus *eventbus.EventBus, service *goalloop.Service) {

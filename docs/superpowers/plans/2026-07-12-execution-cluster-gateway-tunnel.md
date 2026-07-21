@@ -17,7 +17,7 @@
 - 本地 Runner 使用 `runner register --server https://dowork.l8ai.cn --token ...` 主动建立 mTLS gRPC 和 Gateway WebSocket；不要求本机暴露公网端口。
 - V1 由 Backend 集中调度 Runner；不部署第二个“集群调度服务”。未来 Kubernetes Cluster 才增加 Cluster-side adapter，不在本次实现。
 - Cluster 是组织级边界；没有现有项目领域模型时，不新增虚假的“项目绑定”表。
-- 不能把 doops 的鉴权、Token、协议或进程引入 DoWorker；仅复用“Agent 主动出站连接、Gateway 负责授权和可观测性”的拓扑原则。
+- 不能把 doops 的鉴权、Token、协议或进程引入 AgentCloud；仅复用“Agent 主动出站连接、Gateway 负责授权和可观测性”的拓扑原则。
 - 不使用兼容/降级路径掩盖 Cluster 缺失：新建 Worker 指定 Cluster 后，Cluster 无可用 Runner 必须返回明确不可调度错误。
 - 本计划不删除任何远端 Runner、Pod、证书或历史数据。数据修正通过可回滚迁移和部署后核验完成。
 
@@ -325,7 +325,7 @@ cd backend && go test ./internal/service/runner -run 'Test(RegisterWithToken|Aut
 go test ./internal/infra -run 'TestRunner.*Registration' -count=1
 go test ./internal/api/connect/runner -run 'Test(MapServiceError|AuthorizeRunner)' -count=1
 go build ./cmd/server
-cd ../clients/core && cargo test -p agentsmesh_types -p agentsmesh_api_client -p agentsmesh_services
+cd ../clients/core && cargo test -p agentcloud_types -p agentcloud_api_client -p agentcloud_services
 cd ../.. && pnpm run web:typecheck
 ```
 
@@ -486,7 +486,7 @@ Run:
 
 ```bash
 pnpm proto:gen-go-all
-cd clients/core && cargo test -p api-client -p services -p agentsmesh-wasm
+cd clients/core && cargo test -p api-client -p services -p agentcloud-wasm
 pnpm run build:wasm
 ```
 
@@ -597,7 +597,7 @@ Run:
 ```bash
 pnpm proto:gen-go-all
 cd backend && go test ./internal/domain/executioncluster ./internal/service/executioncluster ./internal/api/connect/executioncluster -count=1
-cd clients/core && cargo test -p api-client -p services -p agentsmesh-wasm
+cd clients/core && cargo test -p api-client -p services -p agentcloud-wasm
 ```
 
 Expected: PASS；跨组织 ID 不能泄露，非管理员不能生成本地注册命令，组织列表总能返回 `online`/`local`。
@@ -940,7 +940,7 @@ Run:
 ```bash
 cd backend && go test ./internal/domain/executioncluster ./internal/service/executioncluster \
   ./internal/service/runner ./internal/service/agentpod ./internal/api/connect/... ./internal/api/grpc
-MIGRATIONS_POSTGRES_TEST_DSN='postgres://postgres:postgres@localhost:10002/agentsmesh?sslmode=disable' \
+MIGRATIONS_POSTGRES_TEST_DSN='postgres://postgres:postgres@localhost:10002/agentcloud?sslmode=disable' \
   go test ./migrations -run 'TestMigration000206|TestNoDuplicateMigrationSequence' -count=1
 go build ./cmd/server
 cd ../runner && go test ./internal/tunnel ./internal/runner ./internal/client

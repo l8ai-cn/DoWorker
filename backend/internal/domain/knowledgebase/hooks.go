@@ -1,6 +1,6 @@
 package knowledgebase
 
-import "github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+import "github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 
 func (kb *KnowledgeBase) ValidateIdentifiers() error {
 	return slugkit.ValidateIdentifier("knowledge_bases.slug", kb.Slug)

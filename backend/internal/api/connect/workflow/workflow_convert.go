@@ -3,9 +3,9 @@ package workflowconnect
 import (
 	"time"
 
-	workflowDomain "github.com/anthropics/agentsmesh/backend/internal/domain/workflow"
-	"github.com/anthropics/agentsmesh/backend/pkg/protoconv"
-	workflowv1 "github.com/anthropics/agentsmesh/proto/gen/go/workflow/v1"
+	workflowDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workflow"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/protoconv"
+	workflowv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/workflow/v1"
 )
 
 func optStrPtr(p *string) *string {

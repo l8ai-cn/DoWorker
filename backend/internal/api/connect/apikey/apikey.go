@@ -12,8 +12,8 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	apikeyservice "github.com/anthropics/agentsmesh/backend/internal/service/apikey"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	apikeyservice "github.com/l8ai-cn/agentcloud/backend/internal/service/apikey"
 )
 
 // ServiceName mirrors proto.apikey.v1.ApiKeyService exactly — Connect

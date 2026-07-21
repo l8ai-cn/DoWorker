@@ -6,4 +6,4 @@ export type {
   RepositoryData,
   CreateRepositoryRequest,
   UpdateRepositoryRequest,
-} from "@do-worker/service-interface";
+} from "@agent-cloud/service-interface";

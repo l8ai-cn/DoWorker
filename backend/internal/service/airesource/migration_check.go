@@ -3,7 +3,7 @@ package airesource
 import (
 	"context"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/envbundle"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/envbundle"
 	"gorm.io/gorm"
 )
 

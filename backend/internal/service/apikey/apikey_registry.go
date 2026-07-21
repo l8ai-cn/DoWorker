@@ -3,7 +3,7 @@ package apikey
 import (
 	"context"
 
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 // EnsureUniqueSlug derives an org-scoped slug from the API key's display name.

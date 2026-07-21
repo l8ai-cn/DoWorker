@@ -1,9 +1,9 @@
-use agentsmesh_state::auth_types::{Organization, User};
+use agentcloud_state::auth_types::{Organization, User};
 use serde::{Deserialize, Serialize};
 
-pub(crate) const LEGACY_STORAGE_KEY: &str = "agentsmesh-auth";
-pub(crate) const LEGACY_NAMESPACE_PREFIX: &str = "agentsmesh-auth";
-pub(crate) const NAMESPACE_PREFIX: &str = "do-worker-auth";
+pub(crate) const LEGACY_STORAGE_KEY: &str = "agentcloud-auth";
+pub(crate) const LEGACY_NAMESPACE_PREFIX: &str = "agentcloud-auth";
+pub(crate) const NAMESPACE_PREFIX: &str = "agent-cloud-auth";
 pub(crate) const SCHEMA_VERSION: u32 = 1;
 
 /// Only this struct hits disk / localStorage / Keychain. Crate-private:
@@ -33,7 +33,7 @@ pub(crate) struct AuthState {
 impl AuthState {
     pub(crate) fn apply_session(
         &mut self,
-        session: &agentsmesh_state::auth_types::AuthSession,
+        session: &agentcloud_state::auth_types::AuthSession,
         base_url: &str,
         now_secs: i64,
     ) {
@@ -56,7 +56,7 @@ impl AuthState {
 
     pub(crate) fn apply_tokens(
         &mut self,
-        tokens: &agentsmesh_state::auth_types::AuthTokens,
+        tokens: &agentcloud_state::auth_types::AuthTokens,
         base_url: &str,
         now_secs: i64,
     ) {

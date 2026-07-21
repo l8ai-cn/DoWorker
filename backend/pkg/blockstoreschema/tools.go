@@ -1,7 +1,7 @@
 package blockstoreschema
 
 import (
-	"github.com/anthropics/agentsmesh/backend/internal/domain/blockstore"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/blockstore"
 )
 
 // Tool mirrors the structure that LLM providers expect for tool-use. Kept

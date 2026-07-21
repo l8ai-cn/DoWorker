@@ -1,5 +1,5 @@
 [package]
-name = "agentsmesh_logging"
+name = "agentcloud_logging"
 version.workspace = true
 edition.workspace = true
 publish.workspace = true

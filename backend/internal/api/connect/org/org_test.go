@@ -10,10 +10,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	orgdomain "github.com/anthropics/agentsmesh/backend/internal/domain/organization"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	orgservice "github.com/anthropics/agentsmesh/backend/internal/service/organization"
-	orgv1 "github.com/anthropics/agentsmesh/proto/gen/go/org/v1"
+	orgdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/organization"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	orgservice "github.com/l8ai-cn/agentcloud/backend/internal/service/organization"
+	orgv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/org/v1"
 )
 
 // ctxAsUser builds a context with the TenantContext the auth interceptor

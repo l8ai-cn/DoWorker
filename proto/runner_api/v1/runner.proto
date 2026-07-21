@@ -36,7 +36,7 @@ package proto.runner_api.v1;
 
 import "codegen/v1/options.proto";
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/runner_api/v1;runnerapiv1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/runner_api/v1;runnerapiv1";
 
 // Convert codegen target — emits runner_convert.amesh.go into the backend
 // connect handler tree so it can reach domain/runner + service/runner.
@@ -89,7 +89,7 @@ service RunnerPublicService {
 // graph (conventions §6 rationale applies to Struct too).
 message Runner {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/domain/runner.Runner"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/runner.Runner"
     generate_to_proto: true
     generate_from_proto: false
   };
@@ -127,7 +127,7 @@ message Runner {
 // AgentVersion mirrors domain/runner.AgentVersion — installed agent runtime info.
 message AgentVersion {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/domain/runner.AgentVersion"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/runner.AgentVersion"
     generate_to_proto: true
     generate_from_proto: false
   };

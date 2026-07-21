@@ -1,6 +1,6 @@
 package workflow
 
-import "github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+import "github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 
 func (l *Workflow) ValidateIdentifiers() error {
 	if err := slugkit.ValidateIdentifier("workflows.slug", l.Slug); err != nil {

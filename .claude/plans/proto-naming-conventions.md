@@ -18,14 +18,14 @@ Each section: rule → **bad example** → **good example** → **how CI / lint 
 ```protobuf
 syntax = "proto3";
 package extension.v1;            // missing /proto. prefix → won't dispatch
-option go_package = "github.com/anthropics/agentsmesh/proto/extension/v1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/extension/v1";
 ```
 
 **Good**:
 ```protobuf
 syntax = "proto3";
 package proto.extension.v1;
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/extension/v1;extensionv1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/extension/v1;extensionv1";
 ```
 
 **CI gate**: `tools/proto_lint` (to be added) `grep -L '^package proto\.' proto/**/*.proto` returns non-empty → fail. Service URL test in handler test ensures `/proto.<domain>.v1.<Service>/Method` round-trips.

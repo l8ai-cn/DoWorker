@@ -16,7 +16,7 @@
 | `ResourceProfile` | `resourceProfileId` |
 
 ```yaml
-apiVersion: agentsmesh.io/v1alpha1
+apiVersion: agentcloud.io/v1alpha1
 kind: ModelBinding
 metadata:
   name: coding-primary
@@ -28,7 +28,7 @@ spec:
 `ToolBinding` 固定一个 ModelBinding：
 
 ```yaml
-apiVersion: agentsmesh.io/v1alpha1
+apiVersion: agentcloud.io/v1alpha1
 kind: ToolBinding
 metadata:
   name: web-search
@@ -45,7 +45,7 @@ Prompt 内容最大 65,536 字符，最多 128 个变量。变量名使用 ident
 默认值最大 8,192 字符。
 
 ```yaml
-apiVersion: agentsmesh.io/v1alpha1
+apiVersion: agentcloud.io/v1alpha1
 kind: Prompt
 metadata:
   name: delivery-review
@@ -66,7 +66,7 @@ WorkerTemplate 是可复用运行配置。`optionsRevision` 来自 Worker 创建
 不能自行递增。`modelRef` 是否必填由 Worker 类型决定。
 
 ```yaml
-apiVersion: agentsmesh.io/v1alpha1
+apiVersion: agentcloud.io/v1alpha1
 kind: WorkerTemplate
 metadata:
   name: do-agent-reviewer

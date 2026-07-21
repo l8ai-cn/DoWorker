@@ -1,14 +1,14 @@
-# Do Worker agent runtime image: runner daemon + one pre-installed AI CLI.
+# Agent Cloud agent runtime image: runner daemon + one pre-installed AI CLI.
 #
 #   bash docker/agent-runtime/build.sh all
 #   bash docker/agent-runtime/build.sh claude-code
 #
-# Shared `base` stage is built once as do-worker/runner-base:latest so apt/npm
+# Shared `base` stage is built once as agent-cloud/runner-base:latest so apt/npm
 # layers are not re-run for every agent variant.
 
 ARG NODE_BASE_IMAGE=node:24-bookworm-slim
 ARG PYTHON_BASE_IMAGE=python:3.11-slim-bookworm
-ARG RUNTIME_EXTENSION_BASE=do-worker/runner-base:latest
+ARG RUNTIME_EXTENSION_BASE=agent-cloud/runner-base:latest
 ARG RUNTIME_EXTENSION_RUNTIME_BASE=runtime-extension-base
 ARG RUNTIME_SHARED_BASE=base
 ARG RUNTIME_BASE=runtime-shared-base
@@ -66,8 +66,8 @@ ARG OPENCLAW_VERSION=2026.6.11
 ARG REMOTION_VERSION=4.0.377
 ENV AGENT_RUNTIME=${AGENT_RUNTIME} \
     CHROME_BIN=/usr/bin/chromium
-LABEL ai.agentsmesh.do-agent.source-revision="${DO_AGENT_SOURCE_COMMIT}" \
-      ai.agentsmesh.do-agent.binary-sha256="${DO_AGENT_BINARY_SHA256}"
+LABEL ai.agentcloud.do-agent.source-revision="${DO_AGENT_SOURCE_COMMIT}" \
+      ai.agentcloud.do-agent.binary-sha256="${DO_AGENT_BINARY_SHA256}"
 
 RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' \
       /etc/apt/sources.list.d/debian.sources
@@ -155,7 +155,7 @@ RUN install_apt() { \
 RUN groupmod -n runner node \
     && usermod -l runner -g runner node \
     && usermod -d /home/runner -m runner \
-    && mkdir -p /workspace /app /home/runner/.do-worker \
+    && mkdir -p /workspace /app /home/runner/.agent-cloud \
     && case "${AGENT_RUNTIME}" in \
          claude-code) mkdir -p /home/runner/.claude ;; \
          codex-cli|video-studio) mkdir -p /home/runner/.codex ;; \
@@ -172,9 +172,9 @@ RUN groupmod -n runner node \
     && chown -R runner:runner /workspace /app /home/runner \
     && echo 'runner ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/runner
 
-COPY --chmod=0755 runner-binary /usr/local/bin/do-worker-runner
-RUN ln -sf do-worker-runner /usr/local/bin/agentsmesh-runner
-COPY --chmod=0755 binaries/ /usr/local/lib/do-worker/
+COPY --chmod=0755 runner-binary /usr/local/bin/agent-cloud-runner
+RUN ln -sf agent-cloud-runner /usr/local/bin/do-worker-runner     && ln -sf agent-cloud-runner /usr/local/bin/agentsmesh-runner     && ln -sf agent-cloud-runner /usr/local/bin/agentcloud-runner
+COPY --chmod=0755 binaries/ /usr/local/lib/agent-cloud/
 COPY --chmod=0755 runner-entrypoint.sh /usr/local/bin/runner-entrypoint.sh
 COPY --chmod=0755 runner-ssh-bootstrap.sh /usr/local/lib/runner-ssh-bootstrap.sh
 COPY --chmod=0755 minimax-cli-wrapper.sh /usr/local/bin/minimax-cli-wrapper.sh
@@ -182,14 +182,14 @@ COPY --chmod=0755 minimax-cli-wrapper.sh /usr/local/bin/minimax-cli-wrapper.sh
 ARG AGENT_RUNTIME=e2e-echo
 
 RUN case "${AGENT_RUNTIME}" in \
-      e2e-echo) install -m 0755 /usr/local/lib/do-worker/e2e-mock-agent-binary /usr/local/bin/e2e-mock-agent ;; \
-      loopal) install -m 0755 /usr/local/lib/do-worker/loopal-binary /usr/local/bin/loopal ;; \
-      do-agent) install -m 0755 /usr/local/lib/do-worker/do-agent-binary /usr/local/bin/do-agent ;; \
+      e2e-echo) install -m 0755 /usr/local/lib/agent-cloud/e2e-mock-agent-binary /usr/local/bin/e2e-mock-agent ;; \
+      loopal) install -m 0755 /usr/local/lib/agent-cloud/loopal-binary /usr/local/bin/loopal ;; \
+      do-agent) install -m 0755 /usr/local/lib/agent-cloud/do-agent-binary /usr/local/bin/do-agent ;; \
       minimax-cli) rm -f /usr/local/bin/mmx && install -m 0755 /usr/local/bin/minimax-cli-wrapper.sh /usr/local/bin/mmx ;; \
       *) true ;; \
     esac \
     && rm -f /usr/local/bin/minimax-cli-wrapper.sh \
-    && rm -rf /usr/local/lib/do-worker
+    && rm -rf /usr/local/lib/agent-cloud
 
 FROM runtime AS do-agent-runtime
 

@@ -1,8 +1,8 @@
 package workerspec
 
 import (
-	resourcedomain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	resourcedomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 type ModelRequirement struct {

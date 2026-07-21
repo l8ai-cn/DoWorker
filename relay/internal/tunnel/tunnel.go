@@ -8,7 +8,7 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	"github.com/anthropics/agentsmesh/relay/internal/protocol/tunnelframe"
+	"github.com/l8ai-cn/agentcloud/relay/internal/protocol/tunnelframe"
 )
 
 // frameConn is the minimal connection surface a Tunnel needs. *websocket.Conn

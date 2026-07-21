@@ -8,10 +8,10 @@ import (
 	"connectrpc.com/connect"
 	"go.opentelemetry.io/otel/trace"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/blockstore"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	blockstoreservice "github.com/anthropics/agentsmesh/backend/internal/service/blockstore"
-	blockstorev1 "github.com/anthropics/agentsmesh/proto/gen/go/blockstore/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/blockstore"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	blockstoreservice "github.com/l8ai-cn/agentcloud/backend/internal/service/blockstore"
+	blockstorev1 "github.com/l8ai-cn/agentcloud/proto/gen/go/blockstore/v1"
 )
 
 // actorFromCtx mirrors REST's actorFrom (blockstore_handler.go:36). At the

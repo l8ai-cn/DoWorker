@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	virtualkeydomain "github.com/anthropics/agentsmesh/backend/internal/domain/virtualkey"
+	virtualkeydomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/virtualkey"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

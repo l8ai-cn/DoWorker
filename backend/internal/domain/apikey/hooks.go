@@ -1,6 +1,6 @@
 package apikey
 
-import "github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+import "github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 
 func (k *APIKey) ValidateIdentifiers() error {
 	if k.Slug == nil {

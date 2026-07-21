@@ -3,8 +3,8 @@ package envbundle
 import (
 	"errors"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/envbundle"
-	"github.com/anthropics/agentsmesh/backend/pkg/crypto"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/envbundle"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/crypto"
 )
 
 // Standardized errors used by the service. REST handlers map these to HTTP

@@ -35,11 +35,11 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	billingsvc "github.com/anthropics/agentsmesh/backend/internal/service/billing"
-	invitationsvc "github.com/anthropics/agentsmesh/backend/internal/service/invitation"
-	orgservice "github.com/anthropics/agentsmesh/backend/internal/service/organization"
-	userservice "github.com/anthropics/agentsmesh/backend/internal/service/user"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	billingsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/billing"
+	invitationsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/invitation"
+	orgservice "github.com/l8ai-cn/agentcloud/backend/internal/service/organization"
+	userservice "github.com/l8ai-cn/agentcloud/backend/internal/service/user"
 )
 
 const (

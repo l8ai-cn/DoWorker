@@ -40,7 +40,7 @@ import { KimiIcon } from "@/components/icons/KimiIcon";
 import { KiroIcon } from "@/components/icons/KiroIcon";
 import { NessieIcon } from "@/components/icons/NessieIcon";
 import { OpenCodeIcon } from "@/components/icons/OpenCodeIcon";
-import { DoWorkerLogo } from "@/components/icons/DoWorkerLogo";
+import { AgentCloudLogo } from "@/components/icons/AgentCloudLogo";
 import { PiIcon } from "@/components/icons/PiIcon";
 import { RunningDot } from "@/components/RunningDot";
 import { MAX_TREE_DEPTH, useChildSessions, type ChildSessionInfo } from "@/hooks/useChildSessions";
@@ -355,7 +355,7 @@ const SETTLED_STATE: Record<AgentActivity, boolean> = {
  * role at a glance (Claude Code spawns many same-type "Explore" agents — the
  * icon distinguishes roles; the preview line below distinguishes instances).
  * Category icons are monochrome — the row applies the muted color; the
- * fallback is the Do Worker brand mark.
+ * fallback is the Agent Cloud brand mark.
  *
  * @param tool - The agent type, e.g. ``"Explore"`` or ``"researcher"``;
  *   ``null`` when the child carries no type.
@@ -378,7 +378,7 @@ export function iconForAgentType(tool: string | null): AgentRowIcon {
   ) {
     return Code2Icon;
   }
-  return DoWorkerLogo;
+  return AgentCloudLogo;
 }
 
 /**

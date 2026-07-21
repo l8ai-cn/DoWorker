@@ -38,7 +38,7 @@ Backend 只返回满足以下条件的 Edge：
 浏览器选择 Edge 后必须显式探测：
 
 ```text
-GET https://edge.example/.well-known/do-worker-relay-health
+GET https://edge.example/.well-known/agent-cloud-relay-health
 ```
 
 响应不包含内部拓扑、Runner ID 或 Token。探测失败时展示错误，不自动切换

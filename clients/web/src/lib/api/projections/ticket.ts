@@ -4,10 +4,10 @@ import {
   type Ticket as ProtoTicket,
   type Label as ProtoLabel,
   type BoardColumn as ProtoBoardColumn,
-} from "@do-worker/proto/ticket/v1/ticket_pb";
+} from "@agent-cloud/proto/ticket/v1/ticket_pb";
 import type {
   TicketData, TicketStatus, TicketPriority,
-} from "@do-worker/service-interface";
+} from "@agent-cloud/service-interface";
 
 // Single source of truth for the proto.ticket.v1 → TicketData projection. The
 // cache holds the SSOT-shape ticket; the UI re-reads joined fields

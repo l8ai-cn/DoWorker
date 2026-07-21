@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workflow"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workflow"
 )
 
 func (r *workflowRepo) UpdateForResourceRevision(

@@ -10,11 +10,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	domainmesh "github.com/anthropics/agentsmesh/backend/internal/domain/mesh"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	meshservice "github.com/anthropics/agentsmesh/backend/internal/service/mesh"
-	meshv1 "github.com/anthropics/agentsmesh/proto/gen/go/mesh/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	domainmesh "github.com/l8ai-cn/agentcloud/backend/internal/domain/mesh"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	meshservice "github.com/l8ai-cn/agentcloud/backend/internal/service/mesh"
+	meshv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/mesh/v1"
 )
 
 // --- test fakes ---

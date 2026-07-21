@@ -1,12 +1,12 @@
 use std::sync::{Arc, RwLock};
 
-use agentsmesh_api_client::ApiClient;
-use agentsmesh_state::blockstore_state::BlockstoreState;
-use agentsmesh_state::blockstore_types::{
+use agentcloud_api_client::ApiClient;
+use agentcloud_state::blockstore_state::BlockstoreState;
+use agentcloud_state::blockstore_types::{
     ApplyOpsRequest, ApplyOpsResult, BlockOp, OpKind, Workspace,
 };
-use agentsmesh_types::proto_blockstore_state_v1 as blockstore_state_proto;
-use agentsmesh_types::proto_blockstore_v1 as blockstore_proto;
+use agentcloud_types::proto_blockstore_state_v1 as blockstore_state_proto;
+use agentcloud_types::proto_blockstore_v1 as blockstore_proto;
 use prost::Message;
 
 use crate::blockstore_proto_convert::{

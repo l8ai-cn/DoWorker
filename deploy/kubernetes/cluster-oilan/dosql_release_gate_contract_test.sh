@@ -18,7 +18,7 @@ create_fixture() {
   node "$ROOT/dosql_release_gate_fixture.mjs" \
     --root "$fixture_root" \
     --case "$fixture_case" \
-    --target db_agentsmesh_prod_postgres \
+    --target db_agentcloud_prod_postgres \
     --mode production \
     --session dosql-contract \
     --change-id change-contract \
@@ -31,7 +31,7 @@ run_verifier() {
   local fixture_root="$1"
   DOSQL_RELEASE_GATE_TEST_MODE=1 \
   node "$ROOT/dosql_release_evidence_validate.mjs" \
-    --target db_agentsmesh_prod_postgres \
+    --target db_agentcloud_prod_postgres \
     --mode production \
     --session dosql-contract \
     --change-id change-contract \
@@ -41,7 +41,7 @@ run_verifier() {
     --test-evidence "$fixture_root/evidence.json"
 }
 
-if DOSQL_RELEASE_DB_TARGET=db_agentsmesh_prod_postgres \
+if DOSQL_RELEASE_DB_TARGET=db_agentcloud_prod_postgres \
   DOSQL_RELEASE_DB_MODE=production \
   DOSQL_RELEASE_DB_SESSION=dosql-contract \
   DOSQL_RELEASE_CHANGE_ID=change-contract \

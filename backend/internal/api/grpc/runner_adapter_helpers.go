@@ -7,7 +7,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/anthropics/agentsmesh/backend/pkg/audit"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/audit"
 )
 
 func (a *GRPCRunnerAdapter) validateRunner(ctx context.Context, identity *ClientIdentity) (*RunnerInfo, error) {

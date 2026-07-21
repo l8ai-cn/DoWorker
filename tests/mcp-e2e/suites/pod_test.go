@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/tests/mcp-e2e/fixture"
+	"github.com/l8ai-cn/agentcloud/tests/mcp-e2e/fixture"
 	"github.com/stretchr/testify/require"
 )
 
@@ -30,7 +30,7 @@ func TestCreatePod_NestedSpawn(t *testing.T) {
 
 	alias := fmt.Sprintf("e2e-nested-%d", time.Now().UnixMilli())
 	planID, err := rest.PlanOrchestrationResource(ctx, env.DevOrgSlug, map[string]any{
-		"apiVersion": "agentsmesh.io/v1alpha1",
+		"apiVersion": "agentcloud.io/v1alpha1",
 		"kind":       "Worker",
 		"metadata": map[string]any{
 			"name": alias, "namespace": env.DevOrgSlug,

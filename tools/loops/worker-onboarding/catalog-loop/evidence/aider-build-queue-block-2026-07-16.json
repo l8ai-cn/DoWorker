@@ -1,11 +1,11 @@
 {
   "captured_at": "2026-07-16T10:10:00+08:00",
-  "workspace": "/Users/wwyz/Documents/code/AgentsMesh",
+  "workspace": "/Users/wwyz/Documents/code/Agent Cloud",
   "worker_type": "aider",
-  "command": "docker compose --env-file deploy/dev/.env -f deploy/dev/docker-compose.yml -f deploy/dev/docker-compose.runners.yml -p agentsmesh-codex-loop-blockly-mvp build --progress plain runner-aider",
+  "command": "docker compose --env-file deploy/dev/.env -f deploy/dev/docker-compose.yml -f deploy/dev/docker-compose.runners.yml -p agentcloud-codex-loop-blockly-mvp build --progress plain runner-aider",
   "observed": {
     "initial_output": [
-      "Image agentsmesh-codex-loop-blockly-mvp-runner-aider Building",
+      "Image agentcloud-codex-loop-blockly-mvp-runner-aider Building",
       "#1 [internal] load local bake definitions",
       "#1 DONE 0.0s"
     ],
@@ -14,7 +14,7 @@
     "disk_available_after_wait": "129GiB"
   },
   "environment": {
-    "external_buildx_process": "AgentsMesh-Worktrees/codex-video-expert-marketplace client web build",
+    "external_buildx_process": "Agent Cloud-Worktrees/codex-video-expert-marketplace client web build",
     "conclusion": "Docker Buildx queue contention; no Aider Dockerfile execution evidence was produced."
   },
   "action": "Cancelled only this queued build request. No image, Runner, Pod, credential, or provider claim was made."

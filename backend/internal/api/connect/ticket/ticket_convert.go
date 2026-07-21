@@ -1,9 +1,9 @@
 package ticketconnect
 
 import (
-	domainticket "github.com/anthropics/agentsmesh/backend/internal/domain/ticket"
-	"github.com/anthropics/agentsmesh/backend/pkg/protoconv"
-	ticketv1 "github.com/anthropics/agentsmesh/proto/gen/go/ticket/v1"
+	domainticket "github.com/l8ai-cn/agentcloud/backend/internal/domain/ticket"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/protoconv"
+	ticketv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/ticket/v1"
 )
 
 // toProtoTicket converts the GORM-backed domain model into the protobuf

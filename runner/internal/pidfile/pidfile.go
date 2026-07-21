@@ -1,12 +1,12 @@
 // Package pidfile manages a PID file for the runner process.
 //
-// The PID file (~/.agentsmesh/runner.pid) allows the runner to detect and clean up
+// The PID file (~/.agentcloud/runner.pid) allows the runner to detect and clean up
 // stale processes from previous runs that were killed ungracefully (SIGKILL, OOM).
 // Without this, ports (MCP :19000, Console :19080) remain occupied and the runner
 // cannot restart.
 //
 // File format: "<PID> <executable-name>\n"
-// Example: "12345 agentsmesh-runner\n"
+// Example: "12345 agentcloud-runner\n"
 package pidfile
 
 import (
@@ -16,12 +16,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/runner/internal/config"
+	"github.com/l8ai-cn/agentcloud/runner/internal/config"
 )
 
 const pidFileName = "runner.pid"
 
-// GetPath returns the path to the PID file (~/.do-worker/runner.pid).
+// GetPath returns the path to the PID file (~/.agent-cloud/runner.pid).
 func GetPath() string {
 	dir := config.PreferredUserConfigDir()
 	if dir == "" {
@@ -31,7 +31,7 @@ func GetPath() string {
 }
 
 // Write writes the current process PID and executable name to the PID file.
-// Creates ~/.agentsmesh/ directory if needed.
+// Creates ~/.agentcloud/ directory if needed.
 func Write() error {
 	pidPath := GetPath()
 	if pidPath == "" {

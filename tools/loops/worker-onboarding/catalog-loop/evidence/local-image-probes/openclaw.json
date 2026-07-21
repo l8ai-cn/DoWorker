@@ -4,7 +4,7 @@
   "definition_hash": "sha256:6dd46e7bf44d30cd5ececc7e7d87f317559d3892415dec9ab86aabe3b5a57518",
   "platform": "linux/amd64",
   "observed_at": "2026-07-16T16:32:49.772Z",
-  "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-openclaw:latest",
+  "image_reference": "agentcloud-codex-loop-blockly-mvp-runner-openclaw:latest",
   "image_id": "sha256:a1bb29c33f5820f1f36b38527b4e7f89316407c46fc9ea6817962a58971f1de4",
   "probe_command": [
     "openclaw",

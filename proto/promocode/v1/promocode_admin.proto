@@ -19,7 +19,7 @@ package proto.promocode.v1;
 
 import "codegen/v1/options.proto";
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/promocode/v1;promocodev1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/promocode/v1;promocodev1";
 
 // Convert codegen target — emits promocode_admin_convert.amesh.go into the
 // backend admin/promocode connect handler tree so it can reach
@@ -51,7 +51,7 @@ service PromoCodeAdminService {
 // ----------------------------------------------------------------------------
 message PromoCode {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/domain/promocode.PromoCode"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/promocode.PromoCode"
   };
 
   int64 id = 1 [(amesh.codegen.v1.field_rename) = "ID"];
@@ -79,7 +79,7 @@ message PromoCode {
 // that, so we avoid wire-marshalling full entity messages.
 message RedemptionDetail {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/service/admin.RedemptionWithDetails"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/service/admin.RedemptionWithDetails"
   };
 
   int64 id = 1 [(amesh.codegen.v1.field_rename) = "ID"];

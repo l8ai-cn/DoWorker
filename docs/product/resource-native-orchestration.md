@@ -26,7 +26,7 @@ flowchart LR
 所有资源使用同一个顶层结构，不同 Kind 拥有不同 `spec`：
 
 ```yaml
-apiVersion: agentsmesh.io/v1alpha1
+apiVersion: agentcloud.io/v1alpha1
 kind: Prompt
 metadata:
   name: delivery-review

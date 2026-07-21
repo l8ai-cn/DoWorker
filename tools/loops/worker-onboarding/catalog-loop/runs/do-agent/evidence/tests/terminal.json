@@ -6,7 +6,7 @@
   "worker_slug": "do-agent",
   "adapter_id": "do-agent-acp",
   "runner": "dev-runner-do-agent",
-  "image": "agentsmesh-codex-loop-blockly-mvp-runner-do-agent@sha256:b652fdfcb27a7cb08c9c030b5e433d513ad903d2a13019905e4e50633f43778b",
+  "image": "agentcloud-codex-loop-blockly-mvp-runner-do-agent@sha256:b652fdfcb27a7cb08c9c030b5e433d513ad903d2a13019905e4e50633f43778b",
   "version_probe": "do-agent 0.2.7",
   "interaction_mode": "acp",
   "pod": {

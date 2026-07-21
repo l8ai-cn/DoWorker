@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
 )
 
 // MCPRequest represents an MCP JSON-RPC request.
@@ -113,7 +113,7 @@ func (s *HTTPServer) handleInitialize(w http.ResponseWriter, req *MCPRequest) {
 			},
 		},
 		"serverInfo": map[string]interface{}{
-			"name":    "AgentsMesh Collaboration Server",
+			"name":    "Agent Cloud Collaboration Server",
 			"version": "1.0.0",
 		},
 	}

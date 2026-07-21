@@ -31,10 +31,10 @@ It preserves the implemented embed-context redemption protocol, terminal control
 Use one physical package with tree-shakeable subpath exports:
 
 ```text
-@do-worker/agent-ui/protocol
-@do-worker/agent-ui/runtime
-@do-worker/agent-ui/react
-@do-worker/agent-ui/embed
+@agent-cloud/agent-ui/protocol
+@agent-cloud/agent-ui/runtime
+@agent-cloud/agent-ui/react
+@agent-cloud/agent-ui/embed
 ```
 
 ```mermaid

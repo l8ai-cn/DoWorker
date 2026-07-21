@@ -20,7 +20,7 @@ func TestExtractClientIdentity(t *testing.T) {
 		{
 			name: "valid identity with RFC 2253 DN format",
 			metadata: map[string]string{
-				MetadataKeyClientCertDN:          "CN=test-node-123,O=AgentsMesh,OU=Runner",
+				MetadataKeyClientCertDN:          "CN=test-node-123,O=Agent Cloud,OU=Runner",
 				MetadataKeyOrgSlug:               "test-org",
 				MetadataKeyClientCertSerial:      "ABCD1234",
 				MetadataKeyClientCertFingerprint: "sha256:xyz",
@@ -38,7 +38,7 @@ func TestExtractClientIdentity(t *testing.T) {
 		{
 			name: "valid identity with OpenSSL DN format",
 			metadata: map[string]string{
-				MetadataKeyClientCertDN: "/CN=test-node-456/O=AgentsMesh/OU=Runner",
+				MetadataKeyClientCertDN: "/CN=test-node-456/O=Agent Cloud/OU=Runner",
 				MetadataKeyOrgSlug:      "test-org",
 			},
 			wantErr: false,

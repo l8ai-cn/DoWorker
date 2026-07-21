@@ -6,12 +6,12 @@ import (
 	"testing"
 
 	"connectrpc.com/connect"
-	"github.com/anthropics/agentsmesh/backend/internal/infra"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	workflowsvc "github.com/anthropics/agentsmesh/backend/internal/service/workflow"
-	"github.com/anthropics/agentsmesh/backend/internal/testkit"
-	workflowv1 "github.com/anthropics/agentsmesh/proto/gen/go/workflow/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/eventbus"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	workflowsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/workflow"
+	"github.com/l8ai-cn/agentcloud/backend/internal/testkit"
+	workflowv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/workflow/v1"
 	"github.com/stretchr/testify/require"
 )
 

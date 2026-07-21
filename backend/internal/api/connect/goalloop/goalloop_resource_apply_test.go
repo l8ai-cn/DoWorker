@@ -6,7 +6,7 @@ import (
 	"connectrpc.com/connect"
 	"github.com/stretchr/testify/require"
 
-	goalloopv1 "github.com/anthropics/agentsmesh/proto/gen/go/goalloop/v1"
+	goalloopv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/goalloop/v1"
 )
 
 func TestCreateGoalLoopRequiresResourceApply(t *testing.T) {

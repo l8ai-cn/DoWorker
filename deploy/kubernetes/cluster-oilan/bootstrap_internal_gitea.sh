@@ -2,11 +2,11 @@
 set -euo pipefail
 
 namespace="${1:?namespace is required}"
-secret_name="agentsmesh-gitea"
+secret_name="agentcloud-gitea"
 secret_key="KB_GITEA_TOKEN"
 known_hosts_key="KB_GITEA_KNOWN_HOSTS"
-username="agentsmesh-service"
-token_name="agentsmesh-backend"
+username="agentcloud-service"
+token_name="agentcloud-backend"
 base_url="http://gitea.${namespace}.svc.cluster.local:3000"
 
 token_request() {
@@ -91,7 +91,7 @@ if [[ -z "${encoded}" ]]; then
     su git -c 'gitea admin user list' |
     awk -v expected="${username}" 'NR > 1 && $2 == expected { found = 1 } END { exit !found }'; then
     kubectl -n "${namespace}" exec "${pod}" -- \
-      su git -c "gitea admin user create --username ${username} --random-password --email ${username}@agentsmesh.invalid --admin --must-change-password=false" \
+      su git -c "gitea admin user create --username ${username} --random-password --email ${username}@agentcloud.invalid --admin --must-change-password=false" \
       >/dev/null
   fi
   bootstrap_password="$(openssl rand -hex 32)"

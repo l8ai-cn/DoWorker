@@ -8,7 +8,7 @@ import (
 
 	lemonsqueezy "github.com/NdoleStudio/lemonsqueezy-go"
 
-	"github.com/anthropics/agentsmesh/backend/internal/service/payment/types"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/payment/types"
 )
 
 func (p *Provider) CreateCheckoutSession(ctx context.Context, req *types.CheckoutRequest) (*types.CheckoutResponse, error) {

@@ -15,7 +15,7 @@ describe("createGoalLoopResourceDocument", () => {
     expect(document.format).toBe(SourceFormat.JSON);
     const resource = JSON.parse(String(document.content));
     expect(resource).toMatchObject({
-      apiVersion: "agentsmesh.io/v1alpha1",
+      apiVersion: "agentcloud.io/v1alpha1",
       kind: "GoalLoop",
       metadata: {
         name: "checkout-fix",

@@ -72,8 +72,8 @@ export const usePodCreationStore = create<PodCreationPreferences>()(
       setHasHydrated: (state) => set({ _hasHydrated: state }),
     }),
     {
-      name: "do-worker-pod-creation",
-      storage: legacyPersistStorage("agentsmesh-pod-creation"),
+      name: "agent-cloud-pod-creation",
+      storage: legacyPersistStorage("agentcloud-pod-creation"),
       version: 7,
       // v1 stored `lastBundleName: string | null`; v2 unified into
       // `lastBundleNames: string[]`; v3 splits back into credential

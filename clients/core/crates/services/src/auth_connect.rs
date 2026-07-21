@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use agentsmesh_api_client::ApiClient;
-use agentsmesh_types::proto_auth_v1 as auth_proto;
+use agentcloud_api_client::ApiClient;
+use agentcloud_types::proto_auth_v1 as auth_proto;
 use prost::Message;
 
 // AuthConnectService — thin orchestrator over the api-client Connect

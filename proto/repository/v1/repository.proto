@@ -24,7 +24,7 @@ syntax = "proto3";
 
 package proto.repository.v1;
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/repository/v1;repositoryv1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/repository/v1;repositoryv1";
 
 service RepositoryService {
   rpc ListRepositories(ListRepositoriesRequest) returns (ListRepositoriesResponse);

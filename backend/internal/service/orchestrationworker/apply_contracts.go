@@ -3,8 +3,8 @@ package orchestrationworker
 import (
 	"context"
 
-	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	controlservice "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
+	control "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
+	controlservice "github.com/l8ai-cn/agentcloud/backend/internal/service/orchestrationcontrol"
 )
 
 type BindingApplyBuilder = controlservice.BindingApplyBuilder

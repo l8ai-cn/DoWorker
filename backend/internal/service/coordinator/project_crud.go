@@ -6,8 +6,8 @@ import (
 	"errors"
 	"strings"
 
-	coordinatordom "github.com/anthropics/agentsmesh/backend/internal/domain/coordinator"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	coordinatordom "github.com/l8ai-cn/agentcloud/backend/internal/domain/coordinator"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 var ErrInvalidName = errors.New("coordinator: project name is required")

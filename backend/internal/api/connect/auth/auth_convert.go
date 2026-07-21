@@ -1,8 +1,8 @@
 package authconnect
 
 import (
-	domainUser "github.com/anthropics/agentsmesh/backend/internal/domain/user"
-	authv1 "github.com/anthropics/agentsmesh/proto/gen/go/auth/v1"
+	domainUser "github.com/l8ai-cn/agentcloud/backend/internal/domain/user"
+	authv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/auth/v1"
 )
 
 // toProtoUser converts the GORM-backed User entity to the protobuf wire

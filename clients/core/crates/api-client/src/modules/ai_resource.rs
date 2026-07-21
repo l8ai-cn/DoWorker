@@ -1,5 +1,5 @@
 use crate::{connect_call, ApiClient, ApiError};
-use agentsmesh_types::proto_ai_resource_v1 as ai;
+use agentcloud_types::proto_ai_resource_v1 as ai;
 
 macro_rules! rpc {
     ($name:ident, $request:ty, $response:ty, $procedure:literal) => {

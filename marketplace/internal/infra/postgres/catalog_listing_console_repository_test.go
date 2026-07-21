@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/marketplace/internal/domain/listing"
-	"github.com/anthropics/agentsmesh/marketplace/internal/service"
+	"github.com/l8ai-cn/agentcloud/marketplace/internal/domain/listing"
+	"github.com/l8ai-cn/agentcloud/marketplace/internal/service"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/require"
 	gormpostgres "gorm.io/driver/postgres"

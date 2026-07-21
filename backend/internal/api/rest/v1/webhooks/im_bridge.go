@@ -7,8 +7,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	domainimbridge "github.com/anthropics/agentsmesh/backend/internal/domain/imbridge"
-	imbridgesvc "github.com/anthropics/agentsmesh/backend/internal/service/imbridge"
+	domainimbridge "github.com/l8ai-cn/agentcloud/backend/internal/domain/imbridge"
+	imbridgesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/imbridge"
 )
 
 func (r *WebhookRouter) handleIMBridgeWebhook(c *gin.Context) {

@@ -4,7 +4,7 @@
   "definition_hash": "sha256:29c0b8aa03cda214e72282983db4de6938b54f7c28e943c038d8cfa94966039b",
   "platform": "linux/amd64",
   "observed_at": "2026-07-16T16:32:47.733Z",
-  "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-loopal:latest",
+  "image_reference": "agentcloud-codex-loop-blockly-mvp-runner-loopal:latest",
   "probe_command": [
     "loopal",
     "--version"
@@ -12,5 +12,5 @@
   "network": "none",
   "status": "image_missing",
   "exit_code": 1,
-  "output": "Error response from daemon: No such image: agentsmesh-codex-loop-blockly-mvp-runner-loopal:latest"
+  "output": "Error response from daemon: No such image: agentcloud-codex-loop-blockly-mvp-runner-loopal:latest"
 }

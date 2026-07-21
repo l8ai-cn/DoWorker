@@ -6,9 +6,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/blockstore"
-	blockstoreinfra "github.com/anthropics/agentsmesh/backend/internal/infra/blockstore"
-	blockstoreservice "github.com/anthropics/agentsmesh/backend/internal/service/blockstore"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/blockstore"
+	blockstoreinfra "github.com/l8ai-cn/agentcloud/backend/internal/infra/blockstore"
+	blockstoreservice "github.com/l8ai-cn/agentcloud/backend/internal/service/blockstore"
 )
 
 // Verifies the full ticket-content ↔ block-store round-trip:

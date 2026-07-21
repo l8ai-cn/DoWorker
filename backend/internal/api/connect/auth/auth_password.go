@@ -8,9 +8,9 @@ import (
 
 	"connectrpc.com/connect"
 
-	domainUser "github.com/anthropics/agentsmesh/backend/internal/domain/user"
-	authservice "github.com/anthropics/agentsmesh/backend/internal/service/auth"
-	authv1 "github.com/anthropics/agentsmesh/proto/gen/go/auth/v1"
+	domainUser "github.com/l8ai-cn/agentcloud/backend/internal/domain/user"
+	authservice "github.com/l8ai-cn/agentcloud/backend/internal/service/auth"
+	authv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/auth/v1"
 )
 
 // Login mirrors REST POST /api/v1/auth/login. Public RPC — no bearer token

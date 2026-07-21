@@ -8,9 +8,9 @@ import (
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/blockstore"
-	blockstorev1 "github.com/anthropics/agentsmesh/proto/gen/go/blockstore/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/blockstore"
+	blockstorev1 "github.com/l8ai-cn/agentcloud/proto/gen/go/blockstore/v1"
 )
 
 func (s *Server) GetSubtree(

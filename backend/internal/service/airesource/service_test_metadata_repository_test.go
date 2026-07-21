@@ -6,7 +6,7 @@ import (
 	"slices"
 	"time"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
 )
 
 var errMissingAIResource = errors.New("missing AI resource")

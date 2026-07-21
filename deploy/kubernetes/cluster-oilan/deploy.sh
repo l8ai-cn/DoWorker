@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Deploy AgentsMesh to the doops-oilan single-node k3s cluster via DoOps. All
+# Deploy Agent Cloud to the doops-oilan single-node k3s cluster via DoOps. All
 # kubectl runs on the cluster node through `doops exec`; this host only generates
 # secrets + pushes manifests.
 #
@@ -13,7 +13,7 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET="${DOOPS_TARGET:-gw-oilan-node}"
 SESSION="${DOOPS_SESSION:-$(doops session | tr -d '[:space:]')}"
 WS="/root/ws/${SESSION}"
-NS=agentsmesh
+NS=agentcloud
 GEN="${DIR}/_gen"
 SEC="${GEN}/secrets"
 REG="repo.aiedulab.cn:8443"
@@ -21,10 +21,10 @@ RELEASE_BUNDLE=""
 RELEASE_DEPLOY_COMMIT=""
 REMOTE_WORKSPACE_MAY_EXIST=false
 SECRET_MANIFESTS=(
-  agentsmesh-secrets.yaml
-  agentsmesh-pki-ca.yaml
-  agentsmesh-access-token.yaml
-  agentsmesh-regcred.yaml
+  agentcloud-secrets.yaml
+  agentcloud-pki-ca.yaml
+  agentcloud-access-token.yaml
+  agentcloud-regcred.yaml
 )
 # shellcheck source=release_source_guard.sh
 source "${DIR}/release_source_guard.sh"
@@ -96,17 +96,17 @@ ensure_tls_secret() {
 }
 
 render_release() {
-  dexec "kubectl kustomize . > /tmp/agentsmesh-release.yaml; image=\$(awk '\$1 == \"image:\" && \$2 ~ /agentsmesh\\/backend@sha256:/ { print \$2; exit } \$1 == \"-\" && \$2 == \"image:\" && \$3 ~ /agentsmesh\\/backend@sha256:/ { print \$3; exit }' /tmp/agentsmesh-release.yaml); test -n \"\${image}\"; digest=\${image##*@}; sed -i -e \"s|__BACKEND_DIGEST__|\${digest}|g\" -e \"s|__RELEASE_COMMIT__|${RELEASE_DEPLOY_COMMIT}|g\" /tmp/agentsmesh-release.yaml; bash verify_release_images.sh /tmp/agentsmesh-release.yaml"
+  dexec "kubectl kustomize . > /tmp/agentcloud-release.yaml; image=\$(awk '\$1 == \"image:\" && \$2 ~ /agentcloud\\/backend@sha256:/ { print \$2; exit } \$1 == \"-\" && \$2 == \"image:\" && \$3 ~ /agentcloud\\/backend@sha256:/ { print \$3; exit }' /tmp/agentcloud-release.yaml); test -n \"\${image}\"; digest=\${image##*@}; sed -i -e \"s|__BACKEND_DIGEST__|\${digest}|g\" -e \"s|__RELEASE_COMMIT__|${RELEASE_DEPLOY_COMMIT}|g\" /tmp/agentcloud-release.yaml; bash verify_release_images.sh /tmp/agentcloud-release.yaml"
 }
 
 apply_pinned_manifest() {
   local manifest="$1" image="$2" repository
-  repository="${3:-${REG}/agentsmesh/${image}}"
+  repository="${3:-${REG}/agentcloud/${image}}"
   dexec "digest=\$(awk -v name='${repository}' '\$1 == \"-\" && \$2 == \"name:\" && \$3 == name { found=1; next } found && \$1 == \"digest:\" { print \$2; exit }' release/kustomization.yaml); test \"\${digest}\" != \"\"; sed -E \"s|image: ${repository}:[^[:space:]]+|image: ${repository}@\${digest}|g\" ${manifest} | kubectl apply -f -"
 }
 
 backend_image() {
-  awk '$1 == "image:" && $2 ~ /agentsmesh\/backend@sha256:/ { print $2; exit }' \
+  awk '$1 == "image:" && $2 ~ /agentcloud\/backend@sha256:/ { print $2; exit }' \
     "${DIR}/30-backend.yaml"
 }
 
@@ -117,18 +117,18 @@ apply_backend_job() {
     image="$(backend_image)"
   fi
   [[ -n "${image}" ]] || {
-    echo "backend job requires an immutable agentsmesh/backend digest" >&2
+    echo "backend job requires an immutable agentcloud/backend digest" >&2
     return 1
   }
   local digest="${image##*@}"
-  dexec "sed -E 's|repo.aiedulab.cn:8443/agentsmesh/backend@sha256:[a-f0-9]{64}|${image}|g; s|__BACKEND_IMAGE__|${image}|g; s|__BACKEND_DIGEST__|${digest}|g; s|agentsmesh.ai/verified-image-digest: \"sha256:[a-f0-9]{64}\"|agentsmesh.ai/verified-image-digest: \"${digest}\"|g' ${manifest} | kubectl apply -f -"
+  dexec "sed -E 's|repo.aiedulab.cn:8443/agentcloud/backend@sha256:[a-f0-9]{64}|${image}|g; s|__BACKEND_IMAGE__|${image}|g; s|__BACKEND_DIGEST__|${digest}|g; s|agentcloud.ai/verified-image-digest: \"sha256:[a-f0-9]{64}\"|agentcloud.ai/verified-image-digest: \"${digest}\"|g' ${manifest} | kubectl apply -f -"
 }
 
 sync_worker_definitions() {
   local image
   image="$(backend_image)"
   [[ -n "${image}" ]] || {
-    echo "backend deployment must use an immutable agentsmesh/backend digest" >&2
+    echo "backend deployment must use an immutable agentcloud/backend digest" >&2
     return 1
   }
   apply_backend_job "23-worker-definition-sync-job.yaml" "${image}"
@@ -147,7 +147,7 @@ apply_all() {
   ensure_internal_gitea
   apply_stateful_prerequisites
   echo "==> apply workloads after DoSql-audited database gate"
-  dexec "kubectl apply -f /tmp/agentsmesh-release.yaml"
+  dexec "kubectl apply -f /tmp/agentcloud-release.yaml"
   dexec "kubectl -n ${NS} rollout status deploy/backend --timeout=300s"
   dexec "kubectl -n ${NS} rollout status deploy/marketplace --timeout=300s"
   dexec "kubectl -n ${NS} rollout status deploy/marketplace-web --timeout=300s"
@@ -181,7 +181,7 @@ main() {
   push_manifests
   apply_all
   status
-  echo "==> deployed. https://dowork.l8ai.cn · https://market.l8ai.cn · https://mobile.l8ai.cn · https://<pod-key>.l8ai.cn (admin@agentsmesh.local / Ab123456)"
+  echo "==> deployed. https://dowork.l8ai.cn · https://market.l8ai.cn · https://mobile.l8ai.cn · https://<pod-key>.l8ai.cn (admin@agentcloud.local / Ab123456)"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then

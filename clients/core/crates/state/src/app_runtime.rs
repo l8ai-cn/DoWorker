@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use agentsmesh_events::subscription_manager::EventSubscriptionManager;
-use agentsmesh_events::types::{EventDispatchHook, RealtimeEvent};
+use agentcloud_events::subscription_manager::EventSubscriptionManager;
+use agentcloud_events::types::{EventDispatchHook, RealtimeEvent};
 use parking_lot::RwLock;
 
 use crate::app_state::AppState;

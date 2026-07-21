@@ -6,10 +6,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	skillSvc "github.com/anthropics/agentsmesh/backend/internal/service/skill"
-	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
+	skilldom "github.com/l8ai-cn/agentcloud/backend/internal/domain/skill"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	skillSvc "github.com/l8ai-cn/agentcloud/backend/internal/service/skill"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/apierr"
 )
 
 // ImportSkills imports one or more skills from an external git repo (single

@@ -36,7 +36,7 @@
   "runtime": {
     "image_slug": "do-agent-local",
     "image_id": 3,
-    "image_reference": "docker-daemon://agentsmesh-codex-loop-blockly-mvp-runner-do-agent:latest@sha256:55976d9ff21970af62034d932eb7be4d797472fe13a30d8b9adfa8458b87a32f",
+    "image_reference": "docker-daemon://agentcloud-codex-loop-blockly-mvp-runner-do-agent:latest@sha256:55976d9ff21970af62034d932eb7be4d797472fe13a30d8b9adfa8458b87a32f",
     "version_probe": "do-agent 0.2.7",
     "runner": {
       "node_id": "dev-runner-do-agent",

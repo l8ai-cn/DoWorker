@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
-	"github.com/anthropics/agentsmesh/backend/internal/service/gitops"
+	skilldom "github.com/l8ai-cn/agentcloud/backend/internal/domain/skill"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/gitops"
 )
 
 const skillConfigSchema = 2

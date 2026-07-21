@@ -1,4 +1,4 @@
-# AgentsMesh OnPremise Deployment
+# Agent Cloud OnPremise Deployment
 
 Private deployment solution for intranet environments with an application DNS
 name and a server IP for Runner connectivity.
@@ -9,8 +9,8 @@ name and a server IP for Runner connectivity.
 - Docker Compose V2
 - 4 GB+ RAM
 - 20 GB+ disk space
-- Application DNS, for example `app.agentsmesh.internal`
-- Wildcard preview DNS, for example `*.preview.agentsmesh.internal`
+- Application DNS, for example `app.agentcloud.internal`
+- Wildcard preview DNS, for example `*.preview.agentcloud.internal`
 
 ## Quick Start
 
@@ -18,14 +18,14 @@ name and a server IP for Runner connectivity.
 
 ```bash
 # Extract the deployment package
-tar -xzf agentsmesh-onpremise-*.tar.gz
-cd agentsmesh-onpremise
+tar -xzf agentcloud-onpremise-*.tar.gz
+cd agentcloud-onpremise
 
 # One-command install
-./scripts/install.sh --ip 192.168.1.100 --host app.agentsmesh.internal --preview-origin http://preview.agentsmesh.internal
+./scripts/install.sh --ip 192.168.1.100 --host app.agentcloud.internal --preview-origin http://preview.agentcloud.internal
 
 # Custom ports
-./scripts/install.sh --ip 192.168.1.100 --host app.agentsmesh.internal --preview-origin http://preview.agentsmesh.internal:8080 --http-port 8080 --grpc-port 9443
+./scripts/install.sh --ip 192.168.1.100 --host app.agentcloud.internal --preview-origin http://preview.agentcloud.internal:8080 --http-port 8080 --grpc-port 9443
 ```
 
 ### Option 2: Manual Installation
@@ -46,10 +46,10 @@ docker compose up -d
 
 # 5. Run database migrations
 docker compose exec backend migrate -path /app/migrations \
-    -database "postgres://agentsmesh:<DB_PASSWORD>@postgres:5432/agentsmesh?sslmode=disable" up
+    -database "postgres://agentcloud:<DB_PASSWORD>@postgres:5432/agentcloud?sslmode=disable" up
 
 # 6. Import seed data
-docker compose exec -T postgres psql -U agentsmesh -d agentsmesh < seed/onpremise-seed.sql
+docker compose exec -T postgres psql -U agentcloud -d agentcloud < seed/onpremise-seed.sql
 ```
 
 ## Access
@@ -74,13 +74,13 @@ On the machine where you want to run AI Agent tasks:
 
 ```bash
 # Install Runner (macOS / Linux)
-curl -fsSL https://agentsmesh.ai/install.sh | sh
+curl -fsSL https://agentcloud.ai/install.sh | sh
 
 # Register Runner
-agentsmesh-runner register --server http://192.168.1.100 --token onpremise-runner-token
+agentcloud-runner register --server http://192.168.1.100 --token onpremise-runner-token
 
 # Start Runner
-agentsmesh-runner run
+agentcloud-runner run
 ```
 
 ## Directory Structure
@@ -146,10 +146,10 @@ docker compose up -d
 
 ```bash
 # Backup
-docker compose exec postgres pg_dump -U agentsmesh agentsmesh > backup.sql
+docker compose exec postgres pg_dump -U agentcloud agentcloud > backup.sql
 
 # Restore
-docker compose exec -T postgres psql -U agentsmesh -d agentsmesh < backup.sql
+docker compose exec -T postgres psql -U agentcloud -d agentcloud < backup.sql
 ```
 
 ### Backup All Data
@@ -159,10 +159,10 @@ docker compose exec -T postgres psql -U agentsmesh -d agentsmesh < backup.sql
 docker compose down
 
 # Backup volumes
-docker run --rm -v agentsmesh_postgres_data:/data -v $(pwd):/backup alpine \
+docker run --rm -v agentcloud_postgres_data:/data -v $(pwd):/backup alpine \
     tar czf /backup/postgres_backup.tar.gz -C /data .
 
-docker run --rm -v agentsmesh_minio_data:/data -v $(pwd):/backup alpine \
+docker run --rm -v agentcloud_minio_data:/data -v $(pwd):/backup alpine \
     tar czf /backup/minio_backup.tar.gz -C /data .
 
 # Start services
@@ -188,7 +188,7 @@ netstat -tlnp | grep -E ':(80|9443|5432|6379|9000)\s'
 
 ```bash
 # Check PostgreSQL status
-docker compose exec postgres pg_isready -U agentsmesh
+docker compose exec postgres pg_isready -U agentcloud
 
 # View database logs
 docker compose logs postgres
@@ -222,7 +222,7 @@ docker compose up -d
 
 # 4. Run migrations (if needed)
 docker compose exec backend migrate -path /app/migrations \
-    -database "postgres://agentsmesh:${DB_PASSWORD}@postgres:5432/agentsmesh?sslmode=disable" up
+    -database "postgres://agentcloud:${DB_PASSWORD}@postgres:5432/agentcloud?sslmode=disable" up
 ```
 
 ## Support

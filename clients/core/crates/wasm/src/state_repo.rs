@@ -1,11 +1,11 @@
 use std::sync::Arc;
 
-use agentsmesh_state::app_state::AppState;
-use agentsmesh_types::proto_repo_state_v1::{
+use agentcloud_state::app_state::AppState;
+use agentcloud_types::proto_repo_state_v1::{
     InsertRepositoryRequest, PatchRepositoryRequest, ReplaceBranchesRequest,
     ReplaceCachedRepositoriesRequest, SetCurrentRepoRequest,
 };
-use agentsmesh_types::proto_repository_v1::ListRepositoriesResponse;
+use agentcloud_types::proto_repository_v1::ListRepositoriesResponse;
 use parking_lot::RwLock;
 use prost::Message;
 use wasm_bindgen::prelude::*;

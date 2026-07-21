@@ -5,7 +5,7 @@ const close = vi.hoisted(() => vi.fn());
 const factory = vi.hoisted(() => vi.fn());
 const rendered = vi.hoisted(() => [] as unknown[]);
 
-vi.mock("@do-worker/agent-ui", () => ({
+vi.mock("@agent-cloud/agent-ui", () => ({
   AgentWorkspace: (props: unknown) => {
     rendered.push(props);
     return <div>Shared Agent Workspace</div>;

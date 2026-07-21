@@ -19,7 +19,7 @@ import (
 
 	"connectrpc.com/connect"
 
-	envbundleservice "github.com/anthropics/agentsmesh/backend/internal/service/envbundle"
+	envbundleservice "github.com/l8ai-cn/agentcloud/backend/internal/service/envbundle"
 )
 
 const (

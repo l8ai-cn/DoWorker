@@ -3,10 +3,10 @@ package main
 import (
 	"log/slog"
 
-	"github.com/anthropics/agentsmesh/backend/internal/infra"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
-	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	coordinatorsvc "github.com/anthropics/agentsmesh/backend/internal/service/coordinator"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/eventbus"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
+	coordinatorsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/coordinator"
 	"gorm.io/gorm"
 )
 

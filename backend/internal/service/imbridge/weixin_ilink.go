@@ -86,7 +86,7 @@ func (c *ilinkClient) headers(bodyLen *int, token string) http.Header {
 		h.Set("AuthorizationType", ilinkAuthType)
 		h.Set("Authorization", "Bearer "+token)
 	}
-	if agent := strings.TrimSpace("DoWorker/1.0"); agent != "" {
+	if agent := strings.TrimSpace("AgentCloud/1.0"); agent != "" {
 		h.Set("bot_agent", agent)
 	}
 	return h

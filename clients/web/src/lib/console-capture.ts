@@ -1,7 +1,7 @@
 import { logger } from "./logger";
 
 // Mirrors console.warn / console.error (and optionally log/info under
-// AGENTSMESH_CONSOLE_CAPTURE=verbose) to the cross-platform `logger`. The
+// AGENTCLOUD_CONSOLE_CAPTURE=verbose) to the cross-platform `logger`. The
 // originals still fire so DevTools/console keep their normal output — we
 // only fan out an additional copy to the Rust subscriber.
 // PII surface: warn/error in this codebase are written defensively (status

@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use agentsmesh_state::app_state::AppState;
-use agentsmesh_state::expert_types::{ExpertEnvelope, ExpertListResponse};
+use agentcloud_state::app_state::AppState;
+use agentcloud_state::expert_types::{ExpertEnvelope, ExpertListResponse};
 use parking_lot::RwLock;
 use wasm_bindgen::prelude::*;
 

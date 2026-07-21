@@ -14,8 +14,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	relaysvc "github.com/anthropics/agentsmesh/backend/internal/service/relay"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	relaysvc "github.com/l8ai-cn/agentcloud/backend/internal/service/relay"
 )
 
 type mockPreviewRelaySelector struct{ info *relaysvc.RelayInfo }

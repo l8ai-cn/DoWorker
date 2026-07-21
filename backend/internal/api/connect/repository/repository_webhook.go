@@ -6,12 +6,12 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	repositoryservice "github.com/anthropics/agentsmesh/backend/internal/service/repository"
-	"github.com/anthropics/agentsmesh/backend/pkg/policy"
-	repositoryv1 "github.com/anthropics/agentsmesh/proto/gen/go/repository/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/gitprovider"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	repositoryservice "github.com/l8ai-cn/agentcloud/backend/internal/service/repository"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/policy"
+	repositoryv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/repository/v1"
 )
 
 // RegisterRepositoryWebhook mirrors REST handler `RegisterRepositoryWebhook`

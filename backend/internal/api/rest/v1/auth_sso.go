@@ -6,13 +6,13 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/backend/internal/config"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/sso"
-	userDomain "github.com/anthropics/agentsmesh/backend/internal/domain/user"
-	"github.com/anthropics/agentsmesh/backend/internal/service/auth"
-	ssoservice "github.com/anthropics/agentsmesh/backend/internal/service/sso"
-	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
-	ssoprovider "github.com/anthropics/agentsmesh/backend/pkg/auth/sso"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/sso"
+	userDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/user"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/auth"
+	ssoservice "github.com/l8ai-cn/agentcloud/backend/internal/service/sso"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/apierr"
+	ssoprovider "github.com/l8ai-cn/agentcloud/backend/pkg/auth/sso"
 	"github.com/gin-gonic/gin"
 )
 

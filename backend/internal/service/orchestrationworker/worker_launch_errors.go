@@ -1,6 +1,6 @@
 package orchestrationworker
 
-import controlservice "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
+import controlservice "github.com/l8ai-cn/agentcloud/backend/internal/service/orchestrationcontrol"
 
 var (
 	ErrWorkerLaunchInProgress = controlservice.ErrWorkerLaunchInProgress

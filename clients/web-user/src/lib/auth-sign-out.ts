@@ -1,8 +1,8 @@
 import { logout } from "@/lib/accountsApi";
 import {
-  clearDoWorkerSession,
+  clearAgentCloudSession,
   markSessionLoggedOut,
-} from "@/lib/do-worker/auth-session";
+} from "@/lib/agent-cloud/auth-session";
 import { resetIdentity } from "@/lib/identity";
 
 export async function signOutSession(accountsEnabled: boolean): Promise<void> {
@@ -10,7 +10,7 @@ export async function signOutSession(accountsEnabled: boolean): Promise<void> {
   if (accountsEnabled) {
     await logout();
   } else {
-    clearDoWorkerSession();
+    clearAgentCloudSession();
   }
   resetIdentity();
   window.location.href = accountsEnabled ? "/login" : "/auth/logout";

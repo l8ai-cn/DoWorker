@@ -15,7 +15,7 @@ const nextConfig: NextConfig = {
       }
     : {}),
 
-  transpilePackages: ["@do-worker/proto"],
+  transpilePackages: ["@agent-cloud/proto"],
 
   env: {
     NEXT_PUBLIC_PRIMARY_DOMAIN:

@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
+	podDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentsession"
 )
 
 type conversationListItem struct {

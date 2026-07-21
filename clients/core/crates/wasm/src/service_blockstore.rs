@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
-use agentsmesh_api_client::ApiClient;
-use agentsmesh_services::BlockstoreService;
-use agentsmesh_state::blockstore_state::BlockstoreState;
-use agentsmesh_types::proto_blockstore_state_v1::ApplyRemoteOpRequest;
+use agentcloud_api_client::ApiClient;
+use agentcloud_services::BlockstoreService;
+use agentcloud_state::blockstore_state::BlockstoreState;
+use agentcloud_types::proto_blockstore_state_v1::ApplyRemoteOpRequest;
 use prost::Message;
 use wasm_bindgen::prelude::*;
 

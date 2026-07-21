@@ -7,7 +7,7 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	"github.com/anthropics/agentsmesh/relay/internal/protocol"
+	"github.com/l8ai-cn/agentcloud/relay/internal/protocol"
 )
 
 const writeWait = 5 * time.Second

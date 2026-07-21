@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
-use agentsmesh_api_client::{ApiClient, AuthTokenStore};
-use agentsmesh_events::types::EventDispatchHook;
-use agentsmesh_events::{EventSubscriptionManager, EventType, RealtimeEvent};
+use agentcloud_api_client::{ApiClient, AuthTokenStore};
+use agentcloud_events::types::EventDispatchHook;
+use agentcloud_events::{EventSubscriptionManager, EventType, RealtimeEvent};
 use parking_lot::RwLock;
 
 use crate::app_state::{AppRuntime, AppState, AppStateDispatchHook};
@@ -117,7 +117,7 @@ fn shared_state_clone_observes_same_writes() {
     let state_b = Arc::clone(&state);
 
     state.write().pods.upsert_pod(
-        agentsmesh_types::proto_pod_v1::Pod {
+        agentcloud_types::proto_pod_v1::Pod {
             pod_key: "p".into(),
             status: "running".into(),
             agent_slug: "c".into(),

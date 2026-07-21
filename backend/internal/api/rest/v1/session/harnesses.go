@@ -40,7 +40,7 @@ func (d *Deps) handleListHarnesses(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list harnesses"})
 		return
 	}
-	includeInternal := os.Getenv("AGENTSMESH_INCLUDE_INTERNAL_AGENTS") == "true"
+	includeInternal := os.Getenv("AGENTCLOUD_INCLUDE_INTERNAL_AGENTS") == "true"
 	seen := make(map[string]struct{})
 	rows := make([]harnessWire, 0, len(builtin))
 	for _, a := range builtin {

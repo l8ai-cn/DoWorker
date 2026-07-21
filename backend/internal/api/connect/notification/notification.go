@@ -17,11 +17,11 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	notifDomain "github.com/anthropics/agentsmesh/backend/internal/domain/notification"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	notifService "github.com/anthropics/agentsmesh/backend/internal/service/notification"
-	notificationv1 "github.com/anthropics/agentsmesh/proto/gen/go/notification/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	notifDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/notification"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	notifService "github.com/l8ai-cn/agentcloud/backend/internal/service/notification"
+	notificationv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/notification/v1"
 )
 
 const ServiceName = "proto.notification.v1.NotificationService"

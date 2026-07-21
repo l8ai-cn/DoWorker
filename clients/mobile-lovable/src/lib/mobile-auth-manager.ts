@@ -1,4 +1,4 @@
-import initWasm, { WasmAuthManager } from "do-worker-wasm";
+import initWasm, { WasmAuthManager } from "agent-cloud-wasm";
 import { apiBaseUrl } from "./api-config";
 
 let managerPromise: Promise<WasmAuthManager> | undefined;
@@ -23,7 +23,7 @@ export function mobileAuthUrlSlug(baseUrl: string): string {
 }
 
 export function mobileAuthSessionStorageKey(): string {
-  return `do-worker-auth/${mobileAuthUrlSlug(mobileAuthBaseUrl())}/session`;
+  return `agent-cloud-auth/${mobileAuthUrlSlug(mobileAuthBaseUrl())}/session`;
 }
 
 export function getMobileAuthManager(): Promise<WasmAuthManager> {

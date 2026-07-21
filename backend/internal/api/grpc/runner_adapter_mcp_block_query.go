@@ -3,8 +3,8 @@ package grpc
 import (
 	"context"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	blockstoreservice "github.com/anthropics/agentsmesh/backend/internal/service/blockstore"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	blockstoreservice "github.com/l8ai-cn/agentcloud/backend/internal/service/blockstore"
 	"github.com/google/uuid"
 )
 

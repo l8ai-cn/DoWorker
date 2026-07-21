@@ -35,11 +35,11 @@ echo "Generating development certificates in ${SSL_DIR}..."
 
 openssl genrsa -out "${SSL_DIR}/ca.key" 2048
 openssl req -new -x509 -days 3650 -key "${SSL_DIR}/ca.key" -out "${SSL_DIR}/ca.crt" \
-    -subj "/CN=AgentsMesh Dev CA/O=AgentsMesh/OU=Development"
+    -subj "/CN=Agent Cloud Dev CA/O=Agent Cloud/OU=Development"
 
 openssl genrsa -out "${SSL_DIR}/server.key" 2048
 openssl req -new -key "${SSL_DIR}/server.key" -out "${SSL_DIR}/server.csr" \
-    -subj "/CN=localhost/O=AgentsMesh/OU=Backend"
+    -subj "/CN=localhost/O=Agent Cloud/OU=Backend"
 
 cat > "${SSL_DIR}/server_ext.cnf" << 'EOF'
 authorityKeyIdentifier=keyid,issuer

@@ -19,7 +19,7 @@ export default function ApiAccessPage() {
     <div className="flex h-full min-h-0 flex-col bg-background">
       <PageHeader
         title="API 接入"
-        subtitle="通过 API 启动和管理 Do Worker Pod"
+        subtitle="通过 API 启动和管理 Agent Cloud Pod"
       />
 
       <div className="flex-1 overflow-y-auto bg-surface-muted/25">

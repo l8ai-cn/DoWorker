@@ -8,9 +8,9 @@ import (
 	"connectrpc.com/connect"
 	"github.com/stretchr/testify/require"
 
-	airesourceservice "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
-	goalloopsvc "github.com/anthropics/agentsmesh/backend/internal/service/goalloop"
-	goalloopv1 "github.com/anthropics/agentsmesh/proto/gen/go/goalloop/v1"
+	airesourceservice "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
+	goalloopsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/goalloop"
+	goalloopv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/goalloop/v1"
 )
 
 func TestGenerateLoopProgramReturnsCompiledProposal(t *testing.T) {

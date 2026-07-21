@@ -1,10 +1,10 @@
 use std::time::Duration;
 
-use agentsmesh_protocol::{
+use agentcloud_protocol::{
     decode_message, encode_json_message, encode_message, encode_resize, MsgType,
 };
-use agentsmesh_transport::runtime::Runtime;
-use agentsmesh_transport::{WsMessage, WsReceiver, WsSender};
+use agentcloud_transport::runtime::Runtime;
+use agentcloud_transport::{WsMessage, WsReceiver, WsSender};
 use futures::channel::mpsc;
 use futures::{select_biased, FutureExt, StreamExt};
 use web_time::Instant;

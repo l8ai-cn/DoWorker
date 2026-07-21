@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	resourcesvc "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
+	resourcesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
 )
 
 func modelResourceEnvironment(agentSlug string, resource *resourcesvc.ResolvedResource) (map[string]string, error) {

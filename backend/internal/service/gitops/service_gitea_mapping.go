@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/anthropics/agentsmesh/backend/internal/infra/gitea"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/gitea"
 )
 
 func giteaAuthor(author Author) gitea.CommitAuthor {

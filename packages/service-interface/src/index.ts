@@ -1,4 +1,4 @@
-// Auto-generated from agentsmesh_wasm.d.ts
+// Auto-generated from agentcloud_wasm.d.ts
 // Service interfaces for cross-platform abstraction (Web WASM / Tauri Native)
 
 export interface IAcpSessionManager {

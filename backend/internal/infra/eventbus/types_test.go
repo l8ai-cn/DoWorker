@@ -6,7 +6,7 @@ import (
 
 	"google.golang.org/protobuf/encoding/protojson"
 
-	eventsv1 "github.com/anthropics/agentsmesh/proto/gen/go/events/v1"
+	eventsv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/events/v1"
 )
 
 func TestNewEntityEvent(t *testing.T) {

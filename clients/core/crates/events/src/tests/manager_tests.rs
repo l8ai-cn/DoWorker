@@ -1,7 +1,7 @@
 use std::sync::atomic::{AtomicU32, AtomicU64, Ordering};
 use std::sync::Arc;
 
-use agentsmesh_api_client::{ApiClient, AuthTokenStore};
+use agentcloud_api_client::{ApiClient, AuthTokenStore};
 
 use crate::{
     ConnectionState, EventHandler, EventSubscriptionManager, EventSubscriptionManagerOptions,

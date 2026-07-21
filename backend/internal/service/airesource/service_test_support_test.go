@@ -7,10 +7,10 @@ import (
 	"sync"
 	"time"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/organization"
-	"github.com/anthropics/agentsmesh/backend/pkg/audit"
-	"github.com/anthropics/agentsmesh/backend/pkg/crypto"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/organization"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/audit"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/crypto"
 )
 
 var errInjected = errors.New("injected failure")

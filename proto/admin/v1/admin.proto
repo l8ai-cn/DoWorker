@@ -42,7 +42,7 @@ package proto.admin.v1;
 
 import "codegen/v1/options.proto";
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/admin/v1;adminv1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/admin/v1;adminv1";
 
 // Convert codegen target — emits admin_convert.amesh.go into the backend
 // connect handler tree so it can reach the admin / organization / user /
@@ -148,7 +148,7 @@ message DashboardStats {
 
 message AdminUser {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/domain/user.User"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/user.User"
     generate_to_proto: true
     generate_from_proto: false
   };
@@ -172,7 +172,7 @@ message AdminUser {
 
 message AdminOrganization {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/domain/organization.Organization"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/organization.Organization"
     generate_to_proto: true
     generate_from_proto: false
   };
@@ -195,7 +195,7 @@ message AdminOrganization {
 // `Preload("User")` may fail to load for orphaned memberships.
 message AdminOrganizationMember {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/domain/organization.Member"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/organization.Member"
     generate_to_proto: true
     generate_from_proto: false
   };
@@ -210,7 +210,7 @@ message AdminOrganizationMember {
 
 message AdminUserSummary {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/domain/user.User"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/user.User"
     generate_to_proto: true
     generate_from_proto: false
   };
@@ -227,7 +227,7 @@ message AdminUserSummary {
 
 message AdminRunner {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/domain/runner.Runner"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/runner.Runner"
     generate_to_proto: true
     generate_from_proto: false
   };
@@ -258,7 +258,7 @@ message AdminRunner {
 
 message AdminOrganizationSummary {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/domain/organization.Organization"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/organization.Organization"
     generate_to_proto: true
     generate_from_proto: false
   };
@@ -270,7 +270,7 @@ message AdminOrganizationSummary {
 
 message AdminAuditLog {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/domain/admin.AuditLog"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/admin.AuditLog"
     generate_to_proto: true
     generate_from_proto: false
   };
@@ -449,7 +449,7 @@ message ListAuditLogsResponse {
 // REST parity (`relay_info.go:11`) — JSON struct tags match the wire names.
 message AdminRelay {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/service/relay.RelayInfo"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/service/relay.RelayInfo"
     generate_to_proto: true
     generate_from_proto: false
   };

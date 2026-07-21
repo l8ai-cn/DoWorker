@@ -12,10 +12,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/extension"
-	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/storage"
-	"github.com/anthropics/agentsmesh/backend/pkg/crypto"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/extension"
+	skilldom "github.com/l8ai-cn/agentcloud/backend/internal/domain/skill"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/storage"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/crypto"
 )
 
 // ---------------------------------------------------------------------------

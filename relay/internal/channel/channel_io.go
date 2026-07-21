@@ -3,7 +3,7 @@ package channel
 import (
 	"time"
 
-	"github.com/anthropics/agentsmesh/relay/internal/protocol"
+	"github.com/l8ai-cn/agentcloud/relay/internal/protocol"
 )
 
 func (c *Channel) writeToPublisher(data []byte) error {

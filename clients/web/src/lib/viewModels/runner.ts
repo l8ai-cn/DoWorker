@@ -10,4 +10,4 @@ export type {
   SandboxStatus,
   RunnerAuthStatus,
   RunnerAuthorizeResponse,
-} from "@do-worker/service-interface";
+} from "@agent-cloud/service-interface";

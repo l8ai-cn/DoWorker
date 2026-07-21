@@ -71,7 +71,7 @@
     }
   },
   "mesh": {
-    "title": "Do Worker",
+    "title": "Agent Cloud",
     "channels": "Channels",
     "newChannel": "New Channel",
     "topology": "Topology",
@@ -653,7 +653,7 @@
       }
     },
     "banner": {
-      "newUser": "New to Do Worker?",
+      "newUser": "New to Agent Cloud?",
       "watchIntro": "Watch the 2-minute intro →"
     },
     "hints": {
@@ -757,7 +757,7 @@
     "workspaceDescription": "Terminal workspace",
     "goToTickets": "Go to Tickets",
     "ticketsDescription": "View and manage tickets",
-    "goToMesh": "Go to Do Worker",
+    "goToMesh": "Go to Agent Cloud",
     "meshDescription": "Network topology",
     "goToChannels": "Go to Channels",
     "channelsDescription": "Team collaboration channels",

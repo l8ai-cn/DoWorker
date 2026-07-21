@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
-	extensionsvc "github.com/anthropics/agentsmesh/backend/internal/service/extension"
+	skilldom "github.com/l8ai-cn/agentcloud/backend/internal/domain/skill"
+	extensionsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/extension"
 )
 
 func (s *Service) Delete(ctx context.Context, orgID, id int64) error {

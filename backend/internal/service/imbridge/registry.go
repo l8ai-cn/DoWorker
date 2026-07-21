@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/imbridge"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/imbridge"
 )
 
 func NewRegistry(httpClient *http.Client) map[string]Provider {

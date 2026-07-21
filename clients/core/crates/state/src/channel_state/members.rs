@@ -1,6 +1,6 @@
 use super::ChannelState;
 use crate::channel_types::ChannelMember;
-use agentsmesh_types::proto_pod_v1::Pod;
+use agentcloud_types::proto_pod_v1::Pod;
 
 impl ChannelState {
     pub fn set_channel_members(&mut self, channel_id: i64, members: Vec<ChannelMember>) {

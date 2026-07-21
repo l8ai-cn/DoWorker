@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/billing"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/billing"
 )
 
 // TestUpdateSubscription_Downgrade tests downgrade scheduling

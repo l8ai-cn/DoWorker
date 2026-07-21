@@ -12,11 +12,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 
-	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	agentpodsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	expertsvc "github.com/anthropics/agentsmesh/backend/internal/service/expert"
+	expertdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/expert"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	agentpodsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
+	expertsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/expert"
 )
 
 func TestRunExpertMapsSnapshotMismatchToConflict(t *testing.T) {

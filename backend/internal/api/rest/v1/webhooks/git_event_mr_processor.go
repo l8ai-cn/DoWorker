@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/ticket"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
-	ticketsvc "github.com/anthropics/agentsmesh/backend/internal/service/ticket"
-	eventsv1 "github.com/anthropics/agentsmesh/proto/gen/go/events/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/ticket"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/eventbus"
+	ticketsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/ticket"
+	eventsv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/events/v1"
 )
 
 func (r *WebhookRouter) processMROrPipelineEvent(ctx *WebhookContext, objectKind string) (map[string]interface{}, error) {

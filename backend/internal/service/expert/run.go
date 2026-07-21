@@ -8,11 +8,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/anthropics/agentsmesh/agentfile/serialize"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	sessionDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
-	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
-	agentpodSvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	"github.com/l8ai-cn/agentcloud/agentfile/serialize"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	sessionDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentsession"
+	expertdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/expert"
+	agentpodSvc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
 )
 
 var (

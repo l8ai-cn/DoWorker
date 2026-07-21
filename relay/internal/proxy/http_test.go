@@ -8,8 +8,8 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/relay/internal/protocol/tunnelframe"
-	"github.com/anthropics/agentsmesh/relay/internal/tunnel"
+	"github.com/l8ai-cn/agentcloud/relay/internal/protocol/tunnelframe"
+	"github.com/l8ai-cn/agentcloud/relay/internal/tunnel"
 )
 
 // fakeTunnel is an in-memory tunnel that lets tests observe outbound frames and

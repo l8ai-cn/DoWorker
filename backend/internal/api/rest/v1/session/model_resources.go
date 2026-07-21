@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"slices"
 
-	airesourcedomain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	airesourcesvc "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
+	airesourcedomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	airesourcesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
 	"github.com/gin-gonic/gin"
 )
 

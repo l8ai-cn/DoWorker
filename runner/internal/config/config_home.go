@@ -6,13 +6,16 @@ import (
 	"runtime"
 )
 
-const (
-	userConfigDirName   = ".do-worker"
-	legacyConfigDirName = ".agentsmesh"
-)
+const userConfigDirName = ".agent-cloud"
+
+// Keep literal legacy brand directory names for installed runners.
+var legacyUserConfigDirNames = []string{
+	".do-worker",
+	".agentsmesh",
+}
 
 // UserConfigDir returns the runner config directory under the user's home.
-// Prefers ~/.do-worker; falls back to ~/.agentsmesh when only the legacy dir exists.
+// Prefers ~/.agent-cloud; falls back to known legacy dirs when only those exist.
 func UserConfigDir() string {
 	home, err := os.UserHomeDir()
 	if err != nil {
@@ -22,18 +25,20 @@ func UserConfigDir() string {
 }
 
 func userConfigDirForHome(home string) string {
-	newDir := filepath.Join(home, userConfigDirName)
-	legacyDir := filepath.Join(home, legacyConfigDirName)
-	if info, err := os.Stat(newDir); err == nil && info.IsDir() {
-		return newDir
+	preferred := filepath.Join(home, userConfigDirName)
+	if info, err := os.Stat(preferred); err == nil && info.IsDir() {
+		return preferred
 	}
-	if info, err := os.Stat(legacyDir); err == nil && info.IsDir() {
-		return legacyDir
+	for _, name := range legacyUserConfigDirNames {
+		dir := filepath.Join(home, name)
+		if info, err := os.Stat(dir); err == nil && info.IsDir() {
+			return dir
+		}
 	}
-	return newDir
+	return preferred
 }
 
-// PreferredUserConfigDir always returns ~/.do-worker for new writes.
+// PreferredUserConfigDir always returns ~/.agent-cloud for new writes.
 func PreferredUserConfigDir() string {
 	home, err := os.UserHomeDir()
 	if err != nil {
@@ -47,10 +52,11 @@ func userConfigSearchPaths() []string {
 	if err != nil {
 		return nil
 	}
-	return []string{
-		filepath.Join(home, userConfigDirName),
-		filepath.Join(home, legacyConfigDirName),
+	paths := []string{filepath.Join(home, userConfigDirName)}
+	for _, name := range legacyUserConfigDirNames {
+		paths = append(paths, filepath.Join(home, name))
 	}
+	return paths
 }
 
 func systemConfigSearchPaths() []string {
@@ -58,6 +64,7 @@ func systemConfigSearchPaths() []string {
 		return nil
 	}
 	return []string{
+		"/etc/agent-cloud",
 		"/etc/do-worker",
 		"/etc/agentsmesh",
 	}

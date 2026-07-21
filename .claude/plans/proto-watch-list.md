@@ -164,7 +164,7 @@ Each migrated service adds ~5 KB of Rust DTO + prost decoder to the wasm bundle.
 
 Two concerns:
 
-1. **Marketing pages must stay 0-wasm**. Already enforced by `clients/web/scripts/check-no-wasm-in-marketing.sh` (introduced in PR #349). Migration is invisible to this check **because** marketing pages don't import service modules. Still — a migration PR that accidentally imports `agentsmesh-wasm` from a marketing component would slip through if the check is bypassed.
+1. **Marketing pages must stay 0-wasm**. Already enforced by `clients/web/scripts/check-no-wasm-in-marketing.sh` (introduced in PR #349). Migration is invisible to this check **because** marketing pages don't import service modules. Still — a migration PR that accidentally imports `agentcloud-wasm` from a marketing component would slip through if the check is bypassed.
 2. **30% bundle-growth threshold**: ad-hoc rule. 22.5 MB / 21.3 MB = +5.6%. Well under 30%. But each new service is **monotonically additive** — no service will *reduce* bundle size — so the trajectory matters. If we add 100 more services post-migration, we hit the limit.
 
 ### Detection

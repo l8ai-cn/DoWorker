@@ -2,7 +2,7 @@ import { Moon, Sun } from "lucide-react";
 import { useEffect, useSyncExternalStore } from "react";
 
 type Theme = "light" | "dark";
-const themeChangeEvent = "do-worker-mobile-theme-change";
+const themeChangeEvent = "agent-cloud-mobile-theme-change";
 
 function getInitialTheme(): Theme {
   if (typeof window === "undefined") return "dark";

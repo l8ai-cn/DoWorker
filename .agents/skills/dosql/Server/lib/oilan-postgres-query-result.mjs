@@ -36,7 +36,7 @@ export function parseOilanPostgresQueryResult(queryName, line) {
   if (queryName === "asset-probe") {
     requireFieldCount(fields, 3, queryName);
     const [databaseName, serverVersionNum, schemaMigrationsPresent] = fields;
-    if (databaseName !== "agentsmesh") {
+    if (databaseName !== "agentcloud") {
       throw new Error("Oilan PostgreSQL probe returned the wrong database");
     }
     if (!/^[1-9][0-9]{4,5}$/.test(serverVersionNum)) {

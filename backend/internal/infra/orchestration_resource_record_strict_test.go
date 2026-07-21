@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
 	"github.com/stretchr/testify/require"
 )
 
@@ -14,7 +14,7 @@ func TestOrchestrationResourceRepositoryRejectsUnknownPlanJSONFields(t *testing.
 	require.NoError(t, repo.CreatePlan(context.Background(), plan))
 	require.NoError(t, db.Exec(`
 UPDATE orchestration_resource_plans
-SET resolved_refs = CAST('[{"apiVersion":"agentsmesh.io/v1alpha1",
+SET resolved_refs = CAST('[{"apiVersion":"agentcloud.io/v1alpha1",
 	"kind":"ModelBinding","namespace":"team-alpha","name":"coding-primary",
 	"uid":"33333333-3333-4333-8333-333333333333","revision":1,
 	"digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -33,7 +33,7 @@ func TestOrchestrationResourceRepositoryRejectsUnknownRevisionJSONFields(t *test
 	insertOrchestrationRevision(t, db, revision)
 	require.NoError(t, db.Exec(`
 UPDATE orchestration_resource_revisions
-SET resolved_refs = CAST('[{"apiVersion":"agentsmesh.io/v1alpha1",
+SET resolved_refs = CAST('[{"apiVersion":"agentcloud.io/v1alpha1",
 	"kind":"ModelBinding","namespace":"team-alpha","name":"coding-primary",
 	"uid":"33333333-3333-4333-8333-333333333333","revision":1,
 	"digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",

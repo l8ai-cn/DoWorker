@@ -6,10 +6,10 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	kbservice "github.com/anthropics/agentsmesh/backend/internal/service/knowledgebase"
-	kbv1 "github.com/anthropics/agentsmesh/proto/gen/go/knowledgebase/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	kbservice "github.com/l8ai-cn/agentcloud/backend/internal/service/knowledgebase"
+	kbv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/knowledgebase/v1"
 )
 
 func (s *Server) ListKnowledgeBases(

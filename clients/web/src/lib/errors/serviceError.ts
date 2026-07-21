@@ -1,5 +1,5 @@
 /**
- * ServiceError — typed mirror of Rust `agentsmesh-types::ServiceError`.
+ * ServiceError — typed mirror of Rust `agentcloud-types::ServiceError`.
  *
  * FFI wire format: Rust's `ServiceError::to_wire()` produces JSON that parses
  * directly into this discriminated union. Front-end catches see either a JSON
@@ -7,7 +7,7 @@
  * both and always returns a typed object so callers can discriminate on `kind`
  * instead of regex-matching error messages.
  */
-import { SERVICE_ERROR_KIND_SET } from "@do-worker/service-interface";
+import { SERVICE_ERROR_KIND_SET } from "@agent-cloud/service-interface";
 
 export type ServiceError =
   | { kind: "http"; status: number; code?: string; message: string }

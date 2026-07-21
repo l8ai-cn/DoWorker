@@ -1,7 +1,7 @@
 package autopilot
 
 import (
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 )
 
 // OnPodWaiting is called when the Pod transitions to waiting state.

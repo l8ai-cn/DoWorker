@@ -8,7 +8,7 @@ content, operations, sales, knowledge work, and product development.
 
 The first viewport must answer three questions within five seconds:
 
-1. What is Do Worker? An AI workforce platform.
+1. What is Agent Cloud? An AI workforce platform.
 2. What can it do? Assemble specialized Workers around a goal and deliver results.
 3. What should I do next? Watch a real task unfold.
 
@@ -52,7 +52,7 @@ Present six scenarios: research, content, operations, sales, knowledge work, and
 product development. Selecting a scenario updates the goal, Worker roles, workflow,
 and deliverable without changing the underlying platform model.
 
-This section communicates breadth without presenting Do Worker as a template
+This section communicates breadth without presenting Agent Cloud as a template
 library. The shared message is that one workforce system supports many outcomes.
 
 ### 4. Work Lifecycle
@@ -102,7 +102,7 @@ general business `SoftwareApplication` positioned as an AI workforce platform.
 
 ## Visual Direction
 
-Retain the recognizable dark Do Worker identity, mint accent, Space Grotesk display
+Retain the recognizable dark Agent Cloud identity, mint accent, Space Grotesk display
 type, and restrained glass surfaces. Replace the current star-field aesthetic with
 a warmer operational canvas:
 
@@ -146,7 +146,7 @@ or science-fiction control panel.
 
 ## Completion Criteria
 
-- The first viewport no longer identifies Do Worker as a coding or terminal tool.
+- The first viewport no longer identifies Agent Cloud as a coding or terminal tool.
 - All six scenarios resolve to the same credible workforce product model.
 - Product visuals are derived from existing capabilities rather than invented
   integrations.

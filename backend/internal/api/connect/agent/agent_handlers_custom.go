@@ -7,10 +7,10 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	agentservice "github.com/anthropics/agentsmesh/backend/internal/service/agent"
-	agentv1 "github.com/anthropics/agentsmesh/proto/gen/go/agent/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	agentservice "github.com/l8ai-cn/agentcloud/backend/internal/service/agent"
+	agentv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent/v1"
 )
 
 // UpdateCustomAgent mirrors REST `UpdateCustomAgent` (agents_custom.go:81).

@@ -9,7 +9,7 @@
 // JSON-bridge surface (channels_json, last_messages_json, etc.) keeps
 // working out of the box.
 
-pub use agentsmesh_types::proto_channel_state_v1::{
+pub use agentcloud_types::proto_channel_state_v1::{
     Channel, ChannelMember, ChannelMessage, MessagePreview, SenderAgentInfo, SenderPodInfo,
     SenderUser,
 };

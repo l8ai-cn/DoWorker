@@ -6,9 +6,9 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/billing"
-	billingsvc "github.com/anthropics/agentsmesh/backend/internal/service/billing"
-	billingv1 "github.com/anthropics/agentsmesh/proto/gen/go/billing/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/billing"
+	billingsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/billing"
+	billingv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/billing/v1"
 )
 
 // PublicServiceName is the unauthenticated pricing surface (proto §54). The

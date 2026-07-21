@@ -17,13 +17,13 @@ export function BackgroundModes() {
           title={t("service.title")}
           description={t("service.description")}
           startLabel={t("service.startLabel")}
-          startCode={`sudo do-worker-runner service install
-sudo do-worker-runner service start
-sudo do-worker-runner service status`}
+          startCode={`sudo agent-cloud-runner service install
+sudo agent-cloud-runner service start
+sudo agent-cloud-runner service status`}
           stopLabel={t("service.stopLabel")}
-          stopCode={`sudo do-worker-runner service stop
+          stopCode={`sudo agent-cloud-runner service stop
 # Remove from startup entirely:
-sudo do-worker-runner service uninstall`}
+sudo agent-cloud-runner service uninstall`}
           note={t("service.note")}
         />
         <ModeCard
@@ -31,15 +31,15 @@ sudo do-worker-runner service uninstall`}
           title={t("nohup.title")}
           description={t("nohup.description")}
           startLabel={t("nohup.startLabel")}
-          startCode={`nohup do-worker-runner run > ~/do-worker-runner.log 2>&1 &
-echo $! > ~/.agentsmesh/runner.pid
-tail -f ~/do-worker-runner.log`}
+          startCode={`nohup agent-cloud-runner run > ~/agent-cloud-runner.log 2>&1 &
+echo $! > ~/.agentcloud/runner.pid
+tail -f ~/agent-cloud-runner.log`}
           stopLabel={t("nohup.stopLabel")}
           stopCode={`# Graceful stop by PID file
-kill "$(cat ~/.agentsmesh/runner.pid)"
+kill "$(cat ~/.agentcloud/runner.pid)"
 
 # Fallback if PID was lost
-pkill -f do-worker-runner`}
+pkill -f agent-cloud-runner`}
           note={t("nohup.note")}
         />
       </div>

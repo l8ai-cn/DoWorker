@@ -73,7 +73,7 @@ async function applyDocument(
     TEST_ORG_SLUG,
     kind,
     JSON.stringify({
-      apiVersion: "agentsmesh.io/v1alpha1",
+      apiVersion: "agentcloud.io/v1alpha1",
       kind,
       metadata: {
         name,

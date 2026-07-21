@@ -1,8 +1,8 @@
 import type { ReleaseSummary, RunnerAsset } from "./asset-types";
 import { classifyRunner } from "./asset-classifier";
 
-const GITHUB_API = "https://api.github.com/repos/l8ai-cn/DoWorker/releases/latest";
-export const RELEASES_PAGE_URL = "https://github.com/l8ai-cn/DoWorker/releases";
+const GITHUB_API = "https://api.github.com/repos/l8ai-cn/AgentCloud/releases/latest";
+export const RELEASES_PAGE_URL = "https://github.com/l8ai-cn/AgentCloud/releases";
 
 interface GithubAsset {
   name: string;

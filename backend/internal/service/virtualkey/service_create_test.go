@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	airesourcesvc "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
+	airesourcesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

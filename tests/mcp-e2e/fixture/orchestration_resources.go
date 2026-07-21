@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/tests/mcp-e2e/client"
+	"github.com/l8ai-cn/agentcloud/tests/mcp-e2e/client"
 )
 
 type WorkflowResource struct {
@@ -144,7 +144,7 @@ func applyResource(
 ) client.AppliedOrchestrationResource {
 	t.Helper()
 	applied, err := rest.ApplyOrchestrationResource(ctx, orgSlug, kind, map[string]any{
-		"apiVersion": "agentsmesh.io/v1alpha1",
+		"apiVersion": "agentcloud.io/v1alpha1",
 		"kind":       kind,
 		"metadata": map[string]any{
 			"name": name, "namespace": orgSlug, "displayName": name,

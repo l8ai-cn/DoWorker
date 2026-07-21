@@ -6,13 +6,13 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/agentfile/capability"
-	"github.com/anthropics/agentsmesh/agentfile/extract"
-	"github.com/anthropics/agentsmesh/agentfile/parser"
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	agentservice "github.com/anthropics/agentsmesh/backend/internal/service/agent"
-	agentv1 "github.com/anthropics/agentsmesh/proto/gen/go/agent/v1"
+	"github.com/l8ai-cn/agentcloud/agentfile/capability"
+	"github.com/l8ai-cn/agentcloud/agentfile/extract"
+	"github.com/l8ai-cn/agentcloud/agentfile/parser"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	agentservice "github.com/l8ai-cn/agentcloud/backend/internal/service/agent"
+	agentv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent/v1"
 )
 
 // ListAgents mirrors REST `ListAgents` (agents_types.go:12). Returns the

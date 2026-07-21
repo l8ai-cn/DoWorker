@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/anthropics/agentsmesh/backend/internal/config"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/database"
-	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/database"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/workerdefinition"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )

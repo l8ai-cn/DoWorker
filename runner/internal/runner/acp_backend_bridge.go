@@ -3,8 +3,8 @@ package runner
 import (
 	"sync"
 
-	"github.com/anthropics/agentsmesh/runner/internal/acp"
-	"github.com/anthropics/agentsmesh/runner/internal/client"
+	"github.com/l8ai-cn/agentcloud/runner/internal/acp"
+	"github.com/l8ai-cn/agentcloud/runner/internal/client"
 )
 
 type acpBackendBridge struct {

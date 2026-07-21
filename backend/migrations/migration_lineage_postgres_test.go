@@ -207,7 +207,7 @@ WHERE attrelid = 'agents'::REGCLASS
 	if lineageMarker.Valid {
 		require.Equal(
 			t,
-			"agentsmesh-lineage:legacy-000209-bridged-at-000210",
+			"agentcloud-lineage:legacy-000209-bridged-at-000210",
 			lineageMarker.String,
 		)
 	}

@@ -4,7 +4,7 @@
   "definition_hash": "sha256:7723ccf2c9eb5c4d3566158d11a54468604ab7204c3eb5da8ccca4ac8faa57d5",
   "platform": "linux/amd64",
   "observed_at": "2026-07-16T16:32:30.060Z",
-  "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-aider:latest",
+  "image_reference": "agentcloud-codex-loop-blockly-mvp-runner-aider:latest",
   "image_id": "sha256:dc67337a330902f3b7896d6bd53cb41cfda23d0f15fcf0e73d316a24e4fa3d79",
   "probe_command": [
     "aider",

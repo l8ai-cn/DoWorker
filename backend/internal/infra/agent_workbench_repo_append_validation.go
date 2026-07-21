@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentworkbench"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentworkbench"
 )
 
 func validateAgentWorkbenchAppend(

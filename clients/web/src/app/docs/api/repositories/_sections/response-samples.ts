@@ -2,10 +2,10 @@ export const REPOS_LIST_JSON = `{
   "repositories": [
     {
       "id": 1,
-      "name": "agentsmesh",
-      "full_name": "org/agentsmesh",
+      "name": "agentcloud",
+      "full_name": "org/agentcloud",
       "provider": "gitlab",
-      "url": "https://gitlab.com/org/agentsmesh",
+      "url": "https://gitlab.com/org/agentcloud",
       "default_branch": "main",
       "created_at": "2025-01-01T00:00:00Z"
     }
@@ -15,10 +15,10 @@ export const REPOS_LIST_JSON = `{
 export const REPO_JSON = `{
   "repository": {
     "id": 1,
-    "name": "agentsmesh",
-    "full_name": "org/agentsmesh",
+    "name": "agentcloud",
+    "full_name": "org/agentcloud",
     "provider": "gitlab",
-    "url": "https://gitlab.com/org/agentsmesh",
+    "url": "https://gitlab.com/org/agentcloud",
     "default_branch": "main",
     "created_at": "2025-01-01T00:00:00Z"
   }

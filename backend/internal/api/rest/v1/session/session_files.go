@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"strings"
 
-	domainfile "github.com/anthropics/agentsmesh/backend/internal/domain/sessionfile"
-	fileservice "github.com/anthropics/agentsmesh/backend/internal/service/file"
-	sessionfilesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionfile"
+	domainfile "github.com/l8ai-cn/agentcloud/backend/internal/domain/sessionfile"
+	fileservice "github.com/l8ai-cn/agentcloud/backend/internal/service/file"
+	sessionfilesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/sessionfile"
 	"github.com/gin-gonic/gin"
 )
 

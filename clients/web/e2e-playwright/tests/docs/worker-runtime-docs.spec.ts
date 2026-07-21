@@ -66,7 +66,7 @@ test("docs header uses viewport padding on wide screens", async ({ page }) => {
   await page.setViewportSize({ width: 2048, height: 1200 });
   await page.goto("/docs/concepts/workers");
 
-  const logo = page.getByRole("link", { name: "Do Worker" });
+  const logo = page.getByRole("link", { name: "Agent Cloud" });
   const bounds = await logo.boundingBox();
   expect(bounds).not.toBeNull();
   expect(bounds?.x).toBeLessThanOrEqual(32);

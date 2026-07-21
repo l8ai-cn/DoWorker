@@ -6,8 +6,8 @@
 
 use std::sync::Arc;
 
-use agentsmesh_api_client::ApiClient;
-use agentsmesh_types::proto_user_credential_v1 as uc_proto;
+use agentcloud_api_client::ApiClient;
+use agentcloud_types::proto_user_credential_v1 as uc_proto;
 use prost::Message;
 
 pub struct UserCredentialService {

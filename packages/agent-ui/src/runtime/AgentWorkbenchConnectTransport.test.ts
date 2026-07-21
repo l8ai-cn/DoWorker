@@ -3,9 +3,9 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
   GetSessionSnapshotRequestSchema,
-} from "@do-worker/proto/agent_workbench/v2/service_pb";
-import { SessionSnapshotSchema } from "@do-worker/proto/agent_workbench/v2/session_pb";
-import { SessionStatus } from "@do-worker/proto/agent_workbench/v2/session_state_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/service_pb";
+import { SessionSnapshotSchema } from "@agent-cloud/proto/agent_workbench/v2/session_pb";
+import { SessionStatus } from "@agent-cloud/proto/agent_workbench/v2/session_state_pb";
 import { AgentWorkbenchConnectTransport } from "./AgentWorkbenchConnectTransport";
 
 describe("AgentWorkbenchConnectTransport", () => {

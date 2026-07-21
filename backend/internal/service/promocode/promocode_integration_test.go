@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/promocode"
-	svc "github.com/anthropics/agentsmesh/backend/internal/service/promocode"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/promocode"
+	svc "github.com/l8ai-cn/agentcloud/backend/internal/service/promocode"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

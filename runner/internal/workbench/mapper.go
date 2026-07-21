@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
+	agentworkbenchv2 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2"
 	"github.com/google/uuid"
 )
 
@@ -78,7 +78,7 @@ func (m *Mapper) batchLocked(
 	batch := &agentworkbenchv2.RunnerWorkbenchEventBatch{
 		PodKey:                m.podKey,
 		AdapterId:             m.adapterID,
-		SourceProtocolVersion: "agentsmesh-normalized-acp/1",
+		SourceProtocolVersion: "agentcloud-normalized-acp/1",
 		RunnerSessionEpoch:    m.epoch,
 		Mutations:             mutations,
 	}

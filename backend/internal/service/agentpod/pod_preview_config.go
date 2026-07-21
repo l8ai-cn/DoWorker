@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	relayservice "github.com/anthropics/agentsmesh/backend/internal/service/relay"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	relayservice "github.com/l8ai-cn/agentcloud/backend/internal/service/relay"
 	"gorm.io/gorm"
 )
 

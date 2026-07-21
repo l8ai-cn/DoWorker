@@ -1,5 +1,5 @@
 use crate::mesh_state::MeshState;
-use agentsmesh_types::proto_mesh_v1::{ChannelInfo, MeshEdge, MeshNode, MeshTopology, RunnerInfo};
+use agentcloud_types::proto_mesh_v1::{ChannelInfo, MeshEdge, MeshNode, MeshTopology, RunnerInfo};
 
 fn sample_topology() -> MeshTopology {
     MeshTopology {

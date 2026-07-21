@@ -1,12 +1,12 @@
 [package]
-name = "agentsmesh_transport"
+name = "agentcloud_transport"
 version.workspace = true
 edition.workspace = true
 publish.workspace = true
 
 [dependencies]
-agentsmesh_protocol = { workspace = true }
-agentsmesh_types = { workspace = true }
+agentcloud_protocol = { workspace = true }
+agentcloud_types = { workspace = true }
 futures = { workspace = true }
 futures-channel = { workspace = true }
 futures-util = { workspace = true }

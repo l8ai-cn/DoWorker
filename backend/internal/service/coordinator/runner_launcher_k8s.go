@@ -80,7 +80,7 @@ func (l *K8sLauncher) Launch(ctx context.Context, orgID int64, agentSlug string)
 }
 
 func writeTempManifest(data []byte) (string, error) {
-	file, err := os.CreateTemp("", "agentsmesh-runner-*.yaml")
+	file, err := os.CreateTemp("", "agentcloud-runner-*.yaml")
 	if err != nil {
 		return "", err
 	}

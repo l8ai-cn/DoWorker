@@ -3,7 +3,7 @@ package goalloop
 import (
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/backend/internal/loopscript"
+	"github.com/l8ai-cn/agentcloud/backend/internal/loopscript"
 )
 
 func enforceDraftMutationPolicy(

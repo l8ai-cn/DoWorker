@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	workflowv1 "github.com/anthropics/agentsmesh/proto/gen/go/workflow/v1"
+	workflowv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/workflow/v1"
 )
 
 func connectCodeOf(t *testing.T, err error) connect.Code {

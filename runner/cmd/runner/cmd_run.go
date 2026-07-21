@@ -12,17 +12,17 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/anthropics/agentsmesh/runner/internal/config"
-	"github.com/anthropics/agentsmesh/runner/internal/console"
-	"github.com/anthropics/agentsmesh/runner/internal/envpath"
-	"github.com/anthropics/agentsmesh/runner/internal/lifecycle"
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
-	"github.com/anthropics/agentsmesh/runner/internal/mcp"
-	otelinit "github.com/anthropics/agentsmesh/runner/internal/otel"
-	"github.com/anthropics/agentsmesh/runner/internal/pidfile"
-	"github.com/anthropics/agentsmesh/runner/internal/processmgr"
-	"github.com/anthropics/agentsmesh/runner/internal/runner"
-	"github.com/anthropics/agentsmesh/runner/internal/updater"
+	"github.com/l8ai-cn/agentcloud/runner/internal/config"
+	"github.com/l8ai-cn/agentcloud/runner/internal/console"
+	"github.com/l8ai-cn/agentcloud/runner/internal/envpath"
+	"github.com/l8ai-cn/agentcloud/runner/internal/lifecycle"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/mcp"
+	otelinit "github.com/l8ai-cn/agentcloud/runner/internal/otel"
+	"github.com/l8ai-cn/agentcloud/runner/internal/pidfile"
+	"github.com/l8ai-cn/agentcloud/runner/internal/processmgr"
+	"github.com/l8ai-cn/agentcloud/runner/internal/runner"
+	"github.com/l8ai-cn/agentcloud/runner/internal/updater"
 )
 
 // DefaultConsolePort is the default port for the web console.
@@ -30,23 +30,23 @@ const DefaultConsolePort = 19080
 
 func runRunner(args []string) {
 	fs := flag.NewFlagSet("run", flag.ExitOnError)
-	configFile := fs.String("config", "", "Path to config file (default: ~/.do-worker/config.yaml)")
+	configFile := fs.String("config", "", "Path to config file (default: ~/.agent-cloud/config.yaml)")
 	logLevel := fs.String("log-level", "", "Log level: debug, info, warn, error (overrides config)")
 	logPTY := fs.Bool("logpty", false, "Log raw PTY and aggregator output to files for debugging")
-	logPTYDir := fs.String("logpty-dir", "", "Directory for PTY logs (default: $TMPDIR/agentsmesh/pty-logs)")
+	logPTYDir := fs.String("logpty-dir", "", "Directory for PTY logs (default: $TMPDIR/agentcloud/pty-logs)")
 
 	fs.Usage = func() {
-		fmt.Println(`Start the AgentsMesh runner.
+		fmt.Println(`Start the Agent Cloud runner.
 
 Usage:
-  do-worker-runner run [options]
+  agent-cloud-runner run [options]
 
 Options:`)
 		fs.PrintDefaults()
 		fmt.Println(`
-The runner must be registered first using 'do-worker-runner register'.
-Configuration is loaded from ~/.do-worker/config.yaml by default.
-Log file is written to $TMPDIR/agentsmesh/runner.log by default (with rotation).
+The runner must be registered first using 'agent-cloud-runner register'.
+Configuration is loaded from ~/.agent-cloud/config.yaml by default.
+Log file is written to $TMPDIR/agentcloud/runner.log by default (with rotation).
 
 The runner uses gRPC/mTLS for secure communication with the server.`)
 	}
@@ -67,7 +67,7 @@ The runner uses gRPC/mTLS for secure communication with the server.`)
 
 	// Check if config exists
 	if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
-		fmt.Fprintln(os.Stderr, "Error: Runner not registered. Please run 'do-worker-runner register' first.")
+		fmt.Fprintln(os.Stderr, "Error: Runner not registered. Please run 'agent-cloud-runner register' first.")
 		os.Exit(1)
 	}
 
@@ -104,7 +104,7 @@ The runner uses gRPC/mTLS for secure communication with the server.`)
 	defer logger.Close()
 
 	// Initialize OpenTelemetry
-	otelProvider, err := otelinit.InitProvider(context.Background(), "do-worker-runner", version)
+	otelProvider, err := otelinit.InitProvider(context.Background(), "agent-cloud-runner", version)
 	if err != nil {
 		slog.Warn("OpenTelemetry initialization failed, continuing without tracing", "error", err)
 	} else {
@@ -127,7 +127,7 @@ The runner uses gRPC/mTLS for secure communication with the server.`)
 	}
 
 	if !cfg.UsesGRPC() {
-		log.Error("gRPC configuration is required. Please re-register the runner using 'do-worker-runner register'")
+		log.Error("gRPC configuration is required. Please re-register the runner using 'agent-cloud-runner register'")
 		os.Exit(1)
 	}
 
@@ -238,7 +238,7 @@ func startRunner(cfg *config.Config) (ok bool) {
 	}()
 
 	// Start runner
-	log.Info("Starting Do Worker Runner", "version", version)
+	log.Info("Starting Agent Cloud Runner", "version", version)
 
 	// Update console status when runner state changes
 	consoleServer.UpdateStatus(true, false, 0, 0, "")

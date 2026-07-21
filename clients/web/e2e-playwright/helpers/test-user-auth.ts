@@ -25,7 +25,7 @@ export async function authenticateE2ETestUser(browser: Browser): Promise<void> {
       const port = url.port ? `_${url.port}` : "";
       const raw = `${url.protocol.replace(":", "")}_${url.hostname.toLowerCase()}${port}`;
       const slug = raw.replace(/[^a-zA-Z0-9]/g, "_").slice(0, 64);
-      localStorage.setItem(`do-worker-auth/${slug}/session`, JSON.stringify({
+      localStorage.setItem(`agent-cloud-auth/${slug}/session`, JSON.stringify({
         access_token: accessToken,
         refresh_token: nextRefreshToken,
         expires_at: nextExpiresAt,

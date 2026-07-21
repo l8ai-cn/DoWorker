@@ -2,13 +2,13 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `subagent-driven-development` or `executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Rebuild the Do Worker Marketplace into a public outcome-oriented
+**Goal:** Rebuild the Agent Cloud Marketplace into a public outcome-oriented
 storefront with server-side taxonomy filtering and an authenticated
 organization application center that continues into first use.
 
 **Architecture:** Keep the Marketplace API and database as catalog and
 installation SSOT. Re-enable `clients/marketplace-web` as the standalone
-public storefront at `market.l8ai.cn`; use the Do Worker web application only
+public storefront at `market.l8ai.cn`; use the Agent Cloud web application only
 for authenticated acquisition and organization-owned applications. Extend API
 data before replacing frontend routes so both surfaces share the same contract.
 

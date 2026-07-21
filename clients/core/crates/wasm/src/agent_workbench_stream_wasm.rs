@@ -4,8 +4,8 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::Arc;
 
-use agentsmesh_api_client::{AgentWorkbenchAccessScope, ApiClient, WasmAbortHandle};
-use agentsmesh_state::app_state::AppState;
+use agentcloud_api_client::{AgentWorkbenchAccessScope, ApiClient, WasmAbortHandle};
+use agentcloud_state::app_state::AppState;
 use futures::StreamExt;
 use parking_lot::RwLock;
 use wasm_bindgen::prelude::*;

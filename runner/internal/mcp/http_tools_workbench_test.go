@@ -43,7 +43,7 @@ func TestWorkbenchPublishArtifactToolUsesExactPodScope(t *testing.T) {
 		"params":{
 			"name":"workbench.publish_artifact",
 			"arguments":{"declaration":{
-				"schema_version":"agentsmesh.agent-workbench.artifact/v1",
+				"schema_version":"agentcloud.agent-workbench.artifact/v1",
 				"artifact_id":"demo-video"
 			}}
 		}
@@ -58,7 +58,7 @@ func TestWorkbenchPublishArtifactToolUsesExactPodScope(t *testing.T) {
 	require.Equal(t, "test-pod", publisher.podKey)
 	require.NotEmpty(t, publisher.executionID)
 	require.JSONEq(t, `{
-		"schema_version":"agentsmesh.agent-workbench.artifact/v1",
+		"schema_version":"agentcloud.agent-workbench.artifact/v1",
 		"artifact_id":"demo-video"
 	}`, string(publisher.declaration))
 	var response MCPResponse

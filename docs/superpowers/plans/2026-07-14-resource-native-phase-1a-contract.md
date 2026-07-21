@@ -25,7 +25,7 @@ Cover the exact supported version and Kind grammar:
 
 ```go
 func TestTypeMetaAcceptsInitialAPIGroup(t *testing.T) {
-	meta := TypeMeta{APIVersion: "agentsmesh.io/v1alpha1", Kind: "WorkerTemplate"}
+	meta := TypeMeta{APIVersion: "agentcloud.io/v1alpha1", Kind: "WorkerTemplate"}
 	require.NoError(t, meta.Validate())
 }
 
@@ -37,7 +37,7 @@ func TestTypeMetaRejectsUnknownVersionAndMalformedKind(t *testing.T) {
 - [x] **Step 2: Implement the contract**
 
 ```go
-const APIVersionV1Alpha1 = "agentsmesh.io/v1alpha1"
+const APIVersionV1Alpha1 = "agentcloud.io/v1alpha1"
 
 type TypeMeta struct {
 	APIVersion string `json:"apiVersion" yaml:"apiVersion"`

@@ -1,9 +1,9 @@
 package ticketrelationsconnect
 
 import (
-	"github.com/anthropics/agentsmesh/backend/internal/domain/ticket"
-	"github.com/anthropics/agentsmesh/backend/pkg/protoconv"
-	ticketrelationsv1 "github.com/anthropics/agentsmesh/proto/gen/go/ticket_relations/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/ticket"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/protoconv"
+	ticketrelationsv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/ticket_relations/v1"
 )
 
 // toProtoRelation converts the GORM-backed domain model into proto. Preloaded

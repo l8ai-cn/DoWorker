@@ -7,7 +7,7 @@ import (
 
 	"github.com/lib/pq"
 
-	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
+	expertdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/expert"
 )
 
 func (s *Service) Create(ctx context.Context, req *CreateExpertRequest) (*expertdom.Expert, error) {

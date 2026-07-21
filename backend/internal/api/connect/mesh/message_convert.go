@@ -3,9 +3,9 @@ package meshconnect
 import (
 	"encoding/json"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agent"
-	"github.com/anthropics/agentsmesh/backend/pkg/protoconv"
-	meshv1 "github.com/anthropics/agentsmesh/proto/gen/go/mesh/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agent"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/protoconv"
+	meshv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/mesh/v1"
 )
 
 // toProtoMeshMessage converts the GORM-backed agent.AgentMessage to its

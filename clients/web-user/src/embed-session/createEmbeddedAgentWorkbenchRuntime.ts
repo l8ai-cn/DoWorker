@@ -2,7 +2,7 @@ import {
   AgentSessionConnection,
   AgentSessionRuntimeV2,
   AgentWorkbenchConnectTransport,
-} from "@do-worker/agent-ui";
+} from "@agent-cloud/agent-ui";
 
 import { createEmbedSessionClient } from "@/embed-session-api";
 import { EmbeddedTerminalRuntime } from "./EmbeddedTerminalRuntime";

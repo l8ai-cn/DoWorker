@@ -3,9 +3,9 @@ package v1
 import (
 	"context"
 
-	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
-	"github.com/anthropics/agentsmesh/backend/internal/service/gitops"
-	skillSvc "github.com/anthropics/agentsmesh/backend/internal/service/skill"
+	skilldom "github.com/l8ai-cn/agentcloud/backend/internal/domain/skill"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/gitops"
+	skillSvc "github.com/l8ai-cn/agentcloud/backend/internal/service/skill"
 )
 
 type createSkillRequest struct {

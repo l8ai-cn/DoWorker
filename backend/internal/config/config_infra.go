@@ -14,7 +14,7 @@ type PKIConfig struct {
 
 type GRPCConfig struct {
 	Address  string // gRPC server listen address (default: :9090)
-	Endpoint string // Public gRPC endpoint URL for Runners (e.g., grpcs://api.agentsmesh.cn:9443)
+	Endpoint string // Public gRPC endpoint URL for Runners (e.g., grpcs://api.agentcloud.cn:9443)
 }
 
 type AdminConfig struct {

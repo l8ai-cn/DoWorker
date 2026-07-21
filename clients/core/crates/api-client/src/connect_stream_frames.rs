@@ -176,7 +176,7 @@ fn take_one_frame(buf: &mut BytesMut) -> Option<ParsedFrame> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use agentsmesh_types::proto_events_v1::Event;
+    use agentcloud_types::proto_events_v1::Event;
     use futures::stream;
 
     fn frame(flags: u8, payload: &[u8]) -> Bytes {

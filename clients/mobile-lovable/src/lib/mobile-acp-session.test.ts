@@ -1,5 +1,5 @@
 import { create, fromBinary } from "@bufbuild/protobuf";
-import { AddPermissionRequestRequestSchema } from "@do-worker/proto/acp_state/v1/acp_state_pb";
+import { AddPermissionRequestRequestSchema } from "@agent-cloud/proto/acp_state/v1/acp_state_pb";
 import { describe, expect, it, vi } from "vitest";
 import {
   applyMobileAcpRelayMessage,

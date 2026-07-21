@@ -3,8 +3,8 @@ package grpc
 import (
 	"context"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/blockstore"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/blockstore"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
 )
 
 func (a *GRPCRunnerAdapter) mcpIndicatorDefine(ctx context.Context, tc *middleware.TenantContext, payload []byte) (interface{}, *mcpError) {

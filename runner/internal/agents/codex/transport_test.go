@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/runner/internal/acp"
+	"github.com/l8ai-cn/agentcloud/runner/internal/acp"
 )
 
 func TestTransport_Handshake(t *testing.T) {
@@ -286,7 +286,7 @@ func TestTransport_RespondToMcpElicitationUsesActionAndContent(t *testing.T) {
 
 	if err := tr.RespondToPermission("43", true, map[string]any{
 		"answers": map[string]any{
-			"project": []any{"AgentsMesh"},
+			"project": []any{"Agent Cloud"},
 			"targets": []any{"web", "embed"},
 		},
 	}); err != nil {
@@ -305,7 +305,7 @@ func TestTransport_RespondToMcpElicitationUsesActionAndContent(t *testing.T) {
 			t.Fatalf("action = %#v", msg.Result["action"])
 		}
 		content, ok := msg.Result["content"].(map[string]any)
-		if !ok || content["project"] != "AgentsMesh" {
+		if !ok || content["project"] != "Agent Cloud" {
 			t.Fatalf("content = %#v", msg.Result["content"])
 		}
 		targets, ok := content["targets"].([]any)

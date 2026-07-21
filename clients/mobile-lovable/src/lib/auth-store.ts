@@ -21,7 +21,7 @@ interface PersistedAuthSession {
 }
 
 let currentEmail: string | null = null;
-const authChangeEvent = "do-worker-mobile-auth-change";
+const authChangeEvent = "agent-cloud-mobile-auth-change";
 
 function notifyAuthChange() {
   if (typeof window !== "undefined") {
@@ -58,7 +58,7 @@ function parseWasmJson<T>(value: unknown): T | null {
 export function readAuthToken(): string | null {
   const env =
     (import.meta.env.VITE_DO_WORKER_JWT as string | undefined) ??
-    (import.meta.env.VITE_AGENTSMESH_JWT as string | undefined);
+    (import.meta.env.VITE_AGENTCLOUD_JWT as string | undefined);
   if (env) return env;
   const s = readRaw();
   if (!s?.access_token || s.expires_at * 1000 <= Date.now()) return null;
@@ -66,7 +66,7 @@ export function readAuthToken(): string | null {
 }
 
 export function readOrgSlug(): string | null {
-  const env = import.meta.env.VITE_AGENTSMESH_ORG_SLUG as string | undefined;
+  const env = import.meta.env.VITE_AGENTCLOUD_ORG_SLUG as string | undefined;
   if (env) return env;
   return readRaw()?.current_org_slug ?? null;
 }

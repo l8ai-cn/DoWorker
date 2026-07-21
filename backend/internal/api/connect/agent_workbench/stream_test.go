@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
-	workbenchdomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentworkbench"
-	workbenchsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentworkbench"
-	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
+	workbenchdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentworkbench"
+	workbenchsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentworkbench"
+	agentworkbenchv2 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2"
 	"github.com/stretchr/testify/require"
 )
 

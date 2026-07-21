@@ -8,9 +8,9 @@ import (
 
 	"connectrpc.com/connect"
 
-	authservice "github.com/anthropics/agentsmesh/backend/internal/service/auth"
-	"github.com/anthropics/agentsmesh/backend/pkg/auth/oauth"
-	authv1 "github.com/anthropics/agentsmesh/proto/gen/go/auth/v1"
+	authservice "github.com/l8ai-cn/agentcloud/backend/internal/service/auth"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/auth/oauth"
+	authv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/auth/v1"
 )
 
 // OAuthRedirect mirrors REST GET /api/v1/auth/oauth/:provider. The REST
@@ -170,7 +170,7 @@ func (s *Server) isAllowedRedirect(redirectTo string) bool {
 	if err != nil {
 		return false
 	}
-	if parsed.Scheme == "agentsmesh" {
+	if parsed.Scheme == "agentcloud" {
 		return parsed.Host == "oauth" && parsed.Path == "/callback"
 	}
 	allowedHost, _, _ := strings.Cut(s.config.PrimaryDomain, ":")

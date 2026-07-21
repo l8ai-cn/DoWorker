@@ -63,7 +63,7 @@ export function MarketplaceDetailPage({
             <p className="mt-1 text-sm text-foreground">{credits ?? "将在启用确认时核对"}</p>
             {canEnable ? (
               <Button asChild className="mt-6 w-full">
-                <Link href={`/${orgSlug}/marketplace/acquire?market=do-worker-market&listing=${listing.slug}&version=${listing.listing_version_id}`}>
+                <Link href={`/${orgSlug}/marketplace/acquire?market=agent-cloud-market&listing=${listing.slug}&version=${listing.listing_version_id}`}>
                   检查启用条件
                 </Link>
               </Button>

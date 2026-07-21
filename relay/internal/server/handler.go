@@ -10,8 +10,8 @@ import (
 	"github.com/gorilla/websocket"
 	"go.opentelemetry.io/otel"
 
-	"github.com/anthropics/agentsmesh/relay/internal/auth"
-	"github.com/anthropics/agentsmesh/relay/internal/channel"
+	"github.com/l8ai-cn/agentcloud/relay/internal/auth"
+	"github.com/l8ai-cn/agentcloud/relay/internal/channel"
 )
 
 var upgrader = websocket.Upgrader{
@@ -78,7 +78,7 @@ func (h *Handler) upgrade(w http.ResponseWriter, r *http.Request) (*websocket.Co
 // Path: /browser/relay?token=xxx
 // Channel is identified by pod_key from the token (not session_id)
 func (h *Handler) HandleBrowserWS(w http.ResponseWriter, r *http.Request) {
-	_, span := otel.Tracer("agentsmesh-relay").Start(r.Context(), "relay.ws.browser")
+	_, span := otel.Tracer("agentcloud-relay").Start(r.Context(), "relay.ws.browser")
 	defer span.End()
 
 	if !h.acceptingConnections.Load() {

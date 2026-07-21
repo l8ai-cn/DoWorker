@@ -7,9 +7,9 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/sso"
-	domainUser "github.com/anthropics/agentsmesh/backend/internal/domain/user"
-	ssov1 "github.com/anthropics/agentsmesh/proto/gen/go/sso/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/sso"
+	domainUser "github.com/l8ai-cn/agentcloud/backend/internal/domain/user"
+	ssov1 "github.com/l8ai-cn/agentcloud/proto/gen/go/sso/v1"
 )
 
 // domainRegexp mirrors auth_sso.go:21 — restricts the domain payload to

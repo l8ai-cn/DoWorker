@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
-	extensionsvc "github.com/anthropics/agentsmesh/backend/internal/service/extension"
-	"github.com/anthropics/agentsmesh/backend/internal/service/gitops"
+	skilldom "github.com/l8ai-cn/agentcloud/backend/internal/domain/skill"
+	extensionsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/extension"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/gitops"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

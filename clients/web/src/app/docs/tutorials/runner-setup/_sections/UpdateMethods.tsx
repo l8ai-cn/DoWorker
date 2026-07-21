@@ -21,10 +21,10 @@ export function UpdateMethods() {
         badge="B"
         title={t("command.title")}
         description={t("command.description")}
-        code={`do-worker-runner update              # ${t("command.hintInteractive")}
-do-worker-runner update --check      # ${t("command.hintCheck")}
-do-worker-runner update -y           # ${t("command.hintSilent")}
-do-worker-runner update -v v1.2.3    # ${t("command.hintVersion")}`}
+        code={`agent-cloud-runner update              # ${t("command.hintInteractive")}
+agent-cloud-runner update --check      # ${t("command.hintCheck")}
+agent-cloud-runner update -y           # ${t("command.hintSilent")}
+agent-cloud-runner update -v v1.2.3    # ${t("command.hintVersion")}`}
         note={t("command.note")}
       />
 
@@ -39,10 +39,10 @@ curl -fsSL ${serverUrl}/install.sh | sh
 irm ${serverUrl}/install.ps1 | iex`}
         extraCodeLabel={t("reinstall.restartLabel")}
         extraCode={`# System service
-sudo do-worker-runner service restart
+sudo agent-cloud-runner service restart
 
 # CLI mode
-pkill do-worker-runner && do-worker-runner run`}
+pkill agent-cloud-runner && agent-cloud-runner run`}
         note={t("reinstall.note")}
       />
     </div>

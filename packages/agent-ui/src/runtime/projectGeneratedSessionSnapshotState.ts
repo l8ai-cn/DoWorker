@@ -5,11 +5,11 @@ import type {
   SessionResource,
   SessionSnapshot,
   SupportCapabilities,
-} from "@do-worker/proto/agent_workbench/v2/session_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/session_pb";
 import {
   PermissionRequestState,
   TerminalControlMode,
-} from "@do-worker/proto/agent_workbench/v2/session_state_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/session_state_pb";
 
 import type {
   AgentActivityItem,

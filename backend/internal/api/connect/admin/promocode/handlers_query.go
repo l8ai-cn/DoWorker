@@ -5,10 +5,10 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/promocode"
-	adminservice "github.com/anthropics/agentsmesh/backend/internal/service/admin"
-	promocodev1 "github.com/anthropics/agentsmesh/proto/gen/go/promocode/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/promocode"
+	adminservice "github.com/l8ai-cn/agentcloud/backend/internal/service/admin"
+	promocodev1 "github.com/l8ai-cn/agentcloud/proto/gen/go/promocode/v1"
 )
 
 func (s *Server) ListPromoCodes(

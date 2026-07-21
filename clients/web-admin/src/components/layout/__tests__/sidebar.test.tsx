@@ -79,9 +79,9 @@ describe("SidebarContent", () => {
     mockUser.avatar_url = null;
   });
 
-  it("should render the Do Worker admin brand", () => {
+  it("should render the Agent Cloud admin brand", () => {
     render(<SidebarContent />);
-    expect(screen.getByText("Do Worker")).toBeInTheDocument();
+    expect(screen.getByText("Agent Cloud")).toBeInTheDocument();
     expect(screen.getByText("管理控制台")).toBeInTheDocument();
   });
 

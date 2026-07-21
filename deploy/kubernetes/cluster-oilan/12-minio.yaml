@@ -2,7 +2,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: minio-data
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   accessModes: ["ReadWriteOnce"]
   storageClassName: local-path
@@ -14,7 +14,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: minio
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   replicas: 1
   strategy:
@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
         - name: minio
-          image: repo.aiedulab.cn:8443/agentsmesh/minio:latest
+          image: repo.aiedulab.cn:8443/agentcloud/minio:latest
           imagePullPolicy: Always
           args: ["server", "/data", "--console-address", ":9001"]
           env:
@@ -38,7 +38,7 @@ spec:
             - name: MINIO_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: agentsmesh-secrets
+                  name: agentcloud-secrets
                   key: MINIO_ROOT_PASSWORD
             - name: MINIO_API_CORS_ALLOW_ORIGIN
               value: "*"
@@ -67,13 +67,13 @@ spec:
           persistentVolumeClaim:
             claimName: minio-data
       imagePullSecrets:
-        - name: agentsmesh-regcred
+        - name: agentcloud-regcred
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: minio
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   selector:
     app: minio

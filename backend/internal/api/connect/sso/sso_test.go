@@ -8,8 +8,8 @@ import (
 	"connectrpc.com/connect"
 	"github.com/stretchr/testify/require"
 
-	domainUser "github.com/anthropics/agentsmesh/backend/internal/domain/user"
-	ssov1 "github.com/anthropics/agentsmesh/proto/gen/go/sso/v1"
+	domainUser "github.com/l8ai-cn/agentcloud/backend/internal/domain/user"
+	ssov1 "github.com/l8ai-cn/agentcloud/proto/gen/go/sso/v1"
 )
 
 func connectCodeOf(t *testing.T, err error) connect.Code {

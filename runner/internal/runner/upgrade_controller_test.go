@@ -3,7 +3,7 @@ package runner
 import (
 	"testing"
 
-	"github.com/anthropics/agentsmesh/runner/internal/updater"
+	"github.com/l8ai-cn/agentcloud/runner/internal/updater"
 )
 
 func TestUpgradeControllerTryStartUpgrade(t *testing.T) {

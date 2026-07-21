@@ -14,7 +14,7 @@ Expert 有两个明确合同：
 声明：
 
 ```yaml
-apiVersion: agentsmesh.io/v1alpha1
+apiVersion: agentcloud.io/v1alpha1
 kind: Expert
 metadata:
   name: code-review-expert

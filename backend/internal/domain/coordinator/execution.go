@@ -3,7 +3,7 @@ package coordinator
 import "time"
 
 // Execution status lifecycle. Ported from auto-harness coordinator ExecutionStatus
-// but collapsed to the states AgentsMesh drives through PodOrchestrator.
+// but collapsed to the states Agent Cloud drives through PodOrchestrator.
 const (
 	ExecutionStatusPending        = "pending"
 	ExecutionStatusClaimed        = "claimed"
@@ -30,7 +30,7 @@ func IsTerminalStatus(status string) bool {
 }
 
 // Execution records one claim→dispatch→feedback cycle, linking a coordinator
-// project to the AgentsMesh ticket it materialized and the pod that ran it.
+// project to the Agent Cloud ticket it materialized and the pod that ran it.
 type Execution struct {
 	ID             int64 `gorm:"primaryKey" json:"id"`
 	OrganizationID int64 `gorm:"not null;index" json:"organization_id"`

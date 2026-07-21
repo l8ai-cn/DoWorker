@@ -1,4 +1,4 @@
-import type { AgentAttachmentReference } from "@do-worker/agent-ui";
+import type { AgentAttachmentReference } from "@agent-cloud/agent-ui";
 
 import { getApiBaseUrl } from "@/lib/env";
 import type { WebAgentWorkbenchAttachmentUploadInput } from "./webAgentWorkbenchRuntimeTypes";

@@ -6,9 +6,9 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/knowledgebase"
-	kbservice "github.com/anthropics/agentsmesh/backend/internal/service/knowledgebase"
-	kbv1 "github.com/anthropics/agentsmesh/proto/gen/go/knowledgebase/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/knowledgebase"
+	kbservice "github.com/l8ai-cn/agentcloud/backend/internal/service/knowledgebase"
+	kbv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/knowledgebase/v1"
 )
 
 func toProtoKnowledgeBase(kb *knowledgebase.KnowledgeBase) *kbv1.KnowledgeBase {

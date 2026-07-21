@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/anthropics/agentsmesh/runner/internal/acp"
+	"github.com/l8ai-cn/agentcloud/runner/internal/acp"
 )
 
 // Transport implements acp.Transport for the Codex CLI app-server
@@ -72,7 +72,7 @@ func (t *transport) Initialize(ctx context.Context, stdin io.Writer, stdout io.R
 func (t *transport) Handshake(_ context.Context) (string, error) {
 	params := initializeParams{
 		ClientInfo: initializeClientInfo{
-			Name:    "do-worker-runner",
+			Name:    "agent-cloud-runner",
 			Version: "1.0.0",
 		},
 		Capabilities: initializeCapabilities{

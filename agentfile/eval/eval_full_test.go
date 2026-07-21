@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/agentfile/parser"
+	"github.com/l8ai-cn/agentcloud/agentfile/parser"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -79,7 +79,7 @@ transformed = mcp_transform(servers, "gemini")
 
 	ctx := NewContext(map[string]interface{}{
 		"servers": map[string]interface{}{
-			"agentsmesh": map[string]interface{}{
+			"agentcloud": map[string]interface{}{
 				"type": "http",
 				"url":  "http://localhost:19000/mcp",
 			},
@@ -89,7 +89,7 @@ transformed = mcp_transform(servers, "gemini")
 
 	result, _ := ctx.Get("transformed")
 	m := result.(map[string]interface{})
-	srv := m["agentsmesh"].(map[string]interface{})
+	srv := m["agentcloud"].(map[string]interface{})
 	assert.Equal(t, "http://localhost:19000/mcp", srv["httpUrl"])
 	_, hasURL := srv["url"]
 	assert.False(t, hasURL, "url should be removed for gemini format")
@@ -190,14 +190,14 @@ if config.permission_mode != "default" and config.permission_mode != "plan" and 
 
 if mcp.enabled {
   mcp_cfg = json_merge(mcp.builtin, mcp.installed)
-  plugin_dir = sandbox.root + "/agentsmesh-plugin"
+  plugin_dir = sandbox.root + "/agentcloud-plugin"
 
   mkdir plugin_dir
   mkdir plugin_dir + "/.claude-plugin"
 
   file plugin_dir + "/.claude-plugin/plugin.json" json({
-    name: "agentsmesh",
-    description: "AgentsMesh collaboration plugin",
+    name: "agentcloud",
+    description: "Agent Cloud collaboration plugin",
     version: "1.0.0"
   })
 

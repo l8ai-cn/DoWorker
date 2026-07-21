@@ -6,11 +6,11 @@ import (
 	"sort"
 	"strings"
 
-	coordinatordom "github.com/anthropics/agentsmesh/backend/internal/domain/coordinator"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/git"
+	coordinatordom "github.com/l8ai-cn/agentcloud/backend/internal/domain/coordinator"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/git"
 )
 
-const claimMarkerPrefix = "agentsmesh-coordinator:claim"
+const claimMarkerPrefix = "agentcloud-coordinator:claim"
 
 // cnbPlatform implements TaskPlatform over the CNB issues REST API. Claiming is
 // a marker comment (ported from auto-harness cnb.Driver): the first comment that
@@ -128,7 +128,7 @@ func inferType(labels []string) string {
 }
 
 func claimBody(claimKey string, task ExternalTask) string {
-	return fmt.Sprintf("<!-- %s key=%q -->\nDo Worker Coordinator claimed this task (%s).",
+	return fmt.Sprintf("<!-- %s key=%q -->\nAgent Cloud Coordinator claimed this task (%s).",
 		claimMarkerPrefix, claimKey, task.ExternalID)
 }
 

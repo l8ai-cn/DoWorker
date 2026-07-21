@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"strconv"
 
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	sessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
+	podDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	sessionsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentsession"
 	"github.com/gin-gonic/gin"
 )
 

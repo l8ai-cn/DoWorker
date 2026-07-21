@@ -10,9 +10,9 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 
-	"github.com/anthropics/agentsmesh/runner/internal/client"
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
-	otelinit "github.com/anthropics/agentsmesh/runner/internal/otel"
+	"github.com/l8ai-cn/agentcloud/runner/internal/client"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
+	otelinit "github.com/l8ai-cn/agentcloud/runner/internal/otel"
 )
 
 // Build creates the pod.
@@ -20,7 +20,7 @@ import (
 // Runner only resolves path placeholders ({{sandbox_root}}, {{work_dir}}) and executes.
 func (b *PodBuilder) Build(ctx context.Context) (*Pod, error) {
 	buildStart := time.Now()
-	ctx, span := otel.Tracer("do-worker-runner").Start(ctx, "pod.build",
+	ctx, span := otel.Tracer("agent-cloud-runner").Start(ctx, "pod.build",
 		trace.WithAttributes(
 			attribute.String("pod.key", b.cmd.GetPodKey()),
 			attribute.String("pod.agent", b.cmd.GetLaunchCommand()),

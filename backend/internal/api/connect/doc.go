@@ -1,4 +1,4 @@
-// Package connect contains Connect-RPC handlers for AgentsMesh's data plane.
+// Package connect contains Connect-RPC handlers for Agent Cloud's data plane.
 //
 // Service handlers live in subpackages (e.g. `connect/extension/`,
 // `connect/pod/`), each mounting onto the shared http.ServeMux via the

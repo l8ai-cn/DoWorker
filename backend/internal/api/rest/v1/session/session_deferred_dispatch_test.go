@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	itemDomain "github.com/anthropics/agentsmesh/backend/internal/domain/conversationitem"
+	podDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	itemDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/conversationitem"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

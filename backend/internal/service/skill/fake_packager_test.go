@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	extensionsvc "github.com/anthropics/agentsmesh/backend/internal/service/extension"
+	extensionsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/extension"
 )
 
 type fakePackager struct {

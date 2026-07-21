@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	virtualkeydomain "github.com/anthropics/agentsmesh/backend/internal/domain/virtualkey"
-	airesourcesvc "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
+	virtualkeydomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/virtualkey"
+	airesourcesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

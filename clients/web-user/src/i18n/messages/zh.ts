@@ -1,13 +1,13 @@
 import type { MessageTree } from "./en";
 
 export const zh: MessageTree = {
-  brand: "Do Worker",
+  brand: "Agent Cloud",
   shell: {
     newSession: "新建会话",
     searchSessions: "搜索会话",
     sessions: "会话",
     settings: "设置",
-    backToApp: "返回 Do Worker",
+    backToApp: "返回 Agent Cloud",
   },
   composer: {
     heading: "想做什么？",
@@ -34,7 +34,7 @@ export const zh: MessageTree = {
     placeholderSkills: "描述任务，或试试技能",
   },
   auth: {
-    welcome: "欢迎使用 Do Worker。",
+    welcome: "欢迎使用 Agent Cloud。",
     devAccounts: "本地开发账号见 deploy/dev/seed/seed.sql",
     devUser: "开发用户",
     admin: "管理员",

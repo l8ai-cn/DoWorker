@@ -3,7 +3,7 @@
 - **Status**: Accepted (2026-05-12)
 - **Deciders**: backend / web / core team
 - **Branch**: `feat/proto-migration` (do **not** merge to `main` until 26 services complete)
-- **POC report**: `/Users/stone/Works/AIO/AgentsMesh/.claude/worktrees/agent-a3d7d9878ce9caca4/poc-report.md`
+- **POC report**: `/Users/stone/Works/AIO/Agent Cloud/.claude/worktrees/agent-a3d7d9878ce9caca4/poc-report.md`
 
 ## Context
 
@@ -14,7 +14,7 @@ The data plane (Browser/Desktop ↔ Backend REST) currently maintains the **same
 | Layer | File pattern | Count today |
 |---|---|---|
 | Backend Go DTO + `gin.H` wrapper | `backend/internal/api/rest/v1/*.go` | 26 service surfaces |
-| Rust DTO (`agentsmesh-types`) | `clients/core/crates/types/src/*.rs` | 30 files, ~3.6k LoC |
+| Rust DTO (`agentcloud-types`) | `clients/core/crates/types/src/*.rs` | 30 files, ~3.6k LoC |
 | Rust api-client method | `clients/core/crates/api-client/src/modules/*.rs` | 32 files |
 | Rust wasm service bridge | `clients/core/crates/wasm/src/service_*.rs` | 28 files |
 | Web TS DTO (some still duplicated) | `clients/web/src/lib/api/*Types.ts` | 24 files |

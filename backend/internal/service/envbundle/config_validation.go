@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	envbundledomain "github.com/anthropics/agentsmesh/backend/internal/domain/envbundle"
+	envbundledomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/envbundle"
 )
 
 func validateBundleData(kind string, data map[string]string) error {

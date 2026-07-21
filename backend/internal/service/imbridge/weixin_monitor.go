@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/imbridge"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/imbridge"
 )
 
 func (b *Bridge) StartMonitor(ctx context.Context) {

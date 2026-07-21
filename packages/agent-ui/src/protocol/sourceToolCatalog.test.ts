@@ -38,7 +38,7 @@ describe("source tool catalog", () => {
     "maps %s tool %s to its reviewed identity",
     (sourceProtocol, sourceToolName, semanticKey) => {
       expect(resolveSourceTool(sourceProtocol, sourceToolName)).toMatchObject({
-        namespace: `agentsmesh.${sourceProtocol}`,
+        namespace: `agentcloud.${sourceProtocol}`,
         semanticKey,
         schemaVersion: "1",
         sourceToolName,

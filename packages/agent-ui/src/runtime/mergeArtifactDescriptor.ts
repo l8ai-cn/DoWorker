@@ -5,7 +5,7 @@ import {
   ArtifactRevisionSchema,
   type ArtifactDescriptor,
   type ArtifactRevision,
-} from "@do-worker/proto/agent_workbench/v2/artifact_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/artifact_pb";
 
 export function mergeArtifactDescriptor(
   current: ArtifactDescriptor | undefined,

@@ -23,7 +23,7 @@ Cloud Relay 使用 JSON + Base64 转发完整 HTTP/WS 消息，存在：
 - 默认 WebUI 无密码
 
 lulu 的 “sandbox” 主要是 Codex 权限参数、Git worktree 和主机 PTY，
-不是 AgentsMesh 的持久 Pod 和隔离生命周期。
+不是 Agent Cloud 的持久 Pod 和隔离生命周期。
 
 ## 2. lulu 前端功能
 
@@ -53,7 +53,7 @@ Gateway 另提供二维码页、Playwright 截图式 Browser Preview、远程设
 
 | 方案 | UI | 控制面 | 数据面 | 重复风险 |
 |---|---|---|---|---|
-| lulu LAN | codexapp | codexapp HTTP RPC | codexapp WS/SSE | 绕开 AgentsMesh |
+| lulu LAN | codexapp | codexapp HTTP RPC | codexapp WS/SSE | 绕开 Agent Cloud |
 | lulu Cloud | codexapp | Cloud Relay JSON | 整站代理 | 双 Relay、双鉴权 |
 | 现有原型 | Web 单 Pod 页 | Backend | Cloud Relay | UI 不完整 |
 | 推荐 Phase 1 | Mobile Worker UI | Backend | 现有 Cloud Relay | 最少 |
@@ -89,7 +89,7 @@ Gateway 另提供二维码页、Playwright 截图式 Browser Preview、远程设
 - UDP/LAN IP 作为安全边界
 - 修改 vendored 构建产物注入 UI
 
-## 6. AgentsMesh 已有能力
+## 6. Agent Cloud 已有能力
 
 | 能力 | 当前实现 |
 |---|---|

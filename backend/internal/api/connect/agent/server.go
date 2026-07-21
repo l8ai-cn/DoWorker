@@ -19,8 +19,8 @@
 package agentconnect
 
 import (
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	agentservice "github.com/anthropics/agentsmesh/backend/internal/service/agent"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	agentservice "github.com/l8ai-cn/agentcloud/backend/internal/service/agent"
 )
 
 // AgentServiceName mirrors proto.agent.v1.AgentService exactly — Connect

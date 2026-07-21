@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: relay
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   replicas: 1
   selector:
@@ -14,10 +14,10 @@ spec:
         app: relay
     spec:
       imagePullSecrets:
-        - name: agentsmesh-regcred
+        - name: agentcloud-regcred
       containers:
         - name: relay
-          image: repo.aiedulab.cn:8443/agentsmesh/relay@sha256:c9ba960b7fd6f9d6456dc52c549cbbaf7f939b9d599c8d6e71600995db177d93
+          image: repo.aiedulab.cn:8443/agentcloud/relay@sha256:c9ba960b7fd6f9d6456dc52c549cbbaf7f939b9d599c8d6e71600995db177d93
           imagePullPolicy: Always
           ports:
             - containerPort: 8090
@@ -31,19 +31,19 @@ spec:
             - name: PREVIEW_PUBLIC_ORIGIN
               valueFrom:
                 configMapKeyRef:
-                  name: agentsmesh-config
+                  name: agentcloud-config
                   key: PREVIEW_PUBLIC_ORIGIN
             - name: PREVIEW_COOKIE_MODE
               valueFrom:
                 configMapKeyRef:
-                  name: agentsmesh-config
+                  name: agentcloud-config
                   key: PREVIEW_COOKIE_MODE
             - name: USE_HTTPS
               value: "true"
             - name: ALLOWED_ORIGINS
               valueFrom:
                 configMapKeyRef:
-                  name: agentsmesh-config
+                  name: agentcloud-config
                   key: RELAY_ALLOWED_ORIGINS
             - name: RELAY_ID
               value: "k8s-relay-1"
@@ -58,12 +58,12 @@ spec:
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: agentsmesh-secrets
+                  name: agentcloud-secrets
                   key: JWT_SECRET
             - name: INTERNAL_API_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: agentsmesh-secrets
+                  name: agentcloud-secrets
                   key: INTERNAL_API_SECRET
           readinessProbe:
             httpGet:
@@ -82,7 +82,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: relay
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   selector:
     app: relay

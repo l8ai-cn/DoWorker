@@ -3,8 +3,8 @@ package virtualkey
 import (
 	"context"
 
-	virtualkeydomain "github.com/anthropics/agentsmesh/backend/internal/domain/virtualkey"
-	airesourcesvc "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
+	virtualkeydomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/virtualkey"
+	airesourcesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
 )
 
 type callTrace struct{ calls []string }

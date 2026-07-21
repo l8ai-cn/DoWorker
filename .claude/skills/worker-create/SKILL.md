@@ -56,7 +56,7 @@ Cursor 的 `Task` 工具只有 `description` / `subagent_type` / `model` / `prom
 | 查 CI 失败原因 | 无需 skill 文件 | `ci-investigator`（内置） |
 | 探索代码库 / 回答「在哪」 | 无需 skill 文件 | `explore`（只读） |
 
-> `<repo>` = `/Users/wwyz/Documents/code/AgentsMesh`。项目 skill 用仓库相对/绝对路径都可，但 worker 可能在别的 cwd 启动，**优先写绝对路径**。
+> `<repo>` = `/Users/wwyz/Documents/code/Agent Cloud`。项目 skill 用仓库相对/绝对路径都可，但 worker 可能在别的 cwd 启动，**优先写绝对路径**。
 > `security-review` / `bugbot` / `ci-investigator` 是 Task 内置 subagent_type，本身即专业化，不需要额外绑定 skill 文件。
 
 ## 模型选择
@@ -84,7 +84,7 @@ prompt: |
   Skill: <绝对路径到 SKILL.md>
   在做任何事之前，先用 Read 工具读取上面的 skill 文件并严格遵循其流程。
 
-  仓库: /Users/wwyz/Documents/code/AgentsMesh
+  仓库: /Users/wwyz/Documents/code/Agent Cloud
   目标: <goal>
   范围: <scope，明确目录/文件边界；批次中此 worker 独占的 scope>
   约束: 不要改动 scope 之外的代码；不要 git commit（除非明确要求）。
@@ -121,7 +121,7 @@ prompt: |
   Skill: /Users/wwyz/.codex/skills/bug-hunter/SKILL.md
   在做任何事之前，先用 Read 读取上面的 skill 并按其 "Permission Completeness Mode Workflow" 执行。
 
-  仓库: /Users/wwyz/Documents/code/AgentsMesh
+  仓库: /Users/wwyz/Documents/code/Agent Cloud
   目标: 猎杀 backend 的权限完整性缺口（role-resource-action-state 覆盖、前后端权限漂移、缺失的后端强制、越权 affordance）。
   范围: 只看 backend/internal/api/ 与 backend/internal/service/、backend/internal/middleware/；排除 secret/API-key/TLS 处理。
   约束: 只读，不改代码，不 commit。
@@ -144,7 +144,7 @@ readonly: true
 prompt: |
   Skill: /Users/wwyz/.codex/skills/bug-hunter/SKILL.md
   先 Read skill，按 "Performance Mode Workflow" 执行。
-  仓库: /Users/wwyz/Documents/code/AgentsMesh
+  仓库: /Users/wwyz/Documents/code/Agent Cloud
   范围: backend/（N+1、缺失/无用索引、无界扫描、重复网络请求）。
   验收: 每条发现用 "Performance Report" 模板，需 code-path/基准证据。
 
@@ -157,7 +157,7 @@ readonly: true
 prompt: |
   Skill: /Users/wwyz/.codex/skills/bug-hunter/SKILL.md
   先 Read skill，按 "Frontend Visibility Mode Workflow" 执行。
-  仓库: /Users/wwyz/Documents/code/AgentsMesh
+  仓库: /Users/wwyz/Documents/code/Agent Cloud
   范围: clients/web/（title/meta/OG、favicon/PWA、badge/未读数）。
   验收: 每条发现用 "Frontend Visibility Report" 模板。
 
@@ -170,7 +170,7 @@ readonly: true
 prompt: |
   Skill: /Users/wwyz/.codex/skills/bug-hunter/SKILL.md
   先 Read skill，按 "Logging Completeness Mode Workflow" 执行。
-  仓库: /Users/wwyz/Documents/code/AgentsMesh
+  仓库: /Users/wwyz/Documents/code/Agent Cloud
   范围: runner/（关键变更/失败/后台任务/集成缺失的审计日志、correlation id）。
   验收: 每条发现用 "Logging Completeness Report" 模板。
 ```
@@ -186,16 +186,16 @@ description: 合并分支到 main
 subagent_type: shell
 run_in_background: false
 prompt: |
-  Skill: /Users/wwyz/Documents/code/AgentsMesh/.claude/skills/merge/SKILL.md
+  Skill: /Users/wwyz/Documents/code/Agent Cloud/.claude/skills/merge/SKILL.md
   先 Read skill 并严格按其流程执行（提交 → 建 MR → 监控 Pipeline → 修错直到通过 → 合并 → 清理）。
-  仓库: /Users/wwyz/Documents/code/AgentsMesh
+  仓库: /Users/wwyz/Documents/code/Agent Cloud
   目标: 把当前分支合并到 main。
   验收: MR 已合并、Pipeline 通过；按 skill 的「完成后输出」格式回报。
 ```
 
 ## 备选：MCP delegate_task
 
-若本会话启用了 `delegate_task` MCP 工具（见 `am-delegate` skill），可改用它把任务委派给 AgentsMesh 平台内的其他 agent；skill 绑定同样写进委派 prompt 首行。默认优先用 Cursor `Task` 工具。
+若本会话启用了 `delegate_task` MCP 工具（见 `am-delegate` skill），可改用它把任务委派给 Agent Cloud 平台内的其他 agent；skill 绑定同样写进委派 prompt 首行。默认优先用 Cursor `Task` 工具。
 
 ## 注意事项
 

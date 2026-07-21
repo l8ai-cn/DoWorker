@@ -8,9 +8,9 @@ import (
 const RuntimeImageReferencesEnv = "COORDINATOR_RUNNER_IMAGES"
 
 var coordinatorDefaultRuntimeImages = []CatalogRuntimeImage{
-	runtimeImage(1, "codex-cli", "Codex CLI", "repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1"),
-	runtimeImage(2, "claude-code", "Claude Code", "repo.aiedulab.cn:8443/agentsmesh/runner-claude-code@sha256:a9a02976dec14907be8eb6a7f68cd1adc5158099645244be733546b0f3e7041f"),
-	runtimeImage(3, "gemini-cli", "Gemini CLI", "repo.aiedulab.cn:8443/agentsmesh/runner-gemini-cli@sha256:852dba55bcc3213c72a7ee94e9c2da29a44e2ba0d5a9c0a8c15fea5adb8c6cd4"),
+	runtimeImage(1, "codex-cli", "Codex CLI", "repo.aiedulab.cn:8443/agentcloud/runner-codex-cli@sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1"),
+	runtimeImage(2, "claude-code", "Claude Code", "repo.aiedulab.cn:8443/agentcloud/runner-claude-code@sha256:a9a02976dec14907be8eb6a7f68cd1adc5158099645244be733546b0f3e7041f"),
+	runtimeImage(3, "gemini-cli", "Gemini CLI", "repo.aiedulab.cn:8443/agentcloud/runner-gemini-cli@sha256:852dba55bcc3213c72a7ee94e9c2da29a44e2ba0d5a9c0a8c15fea5adb8c6cd4"),
 }
 
 var configurableRuntimeImages = map[string]CatalogRuntimeImage{

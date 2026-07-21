@@ -10,7 +10,7 @@ syntax = "proto3";
 
 package amesh.codegen.test.v1;
 
-option go_package = "github.com/anthropics/agentsmesh/tools/protoc-gen-amesh-convert/testdata/gen;testdata";
+option go_package = "github.com/l8ai-cn/agentcloud/tools/protoc-gen-amesh-convert/testdata/gen;testdata";
 
 // Sample mirrors a hypothetical domain.Sample{ ID, Name, Note } struct.
 message Sample {

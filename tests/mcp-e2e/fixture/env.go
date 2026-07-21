@@ -41,9 +41,9 @@ func LoadEnv(t *testing.T) *Env {
 	mcpPort := envInt("MCP_PORT", defaultMCPPort)
 	backendPort := envInt("BACKEND_HTTP_PORT", defaultBackendHTTPPort)
 	pgPort := envInt("POSTGRES_PORT", defaultPostgresPort)
-	pgUser := envString("POSTGRES_USER", "agentsmesh")
-	pgPwd := envString("POSTGRES_PASSWORD", "agentsmesh_dev")
-	pgDB := envString("POSTGRES_DB", "agentsmesh")
+	pgUser := envString("POSTGRES_USER", "agentcloud")
+	pgPwd := envString("POSTGRES_PASSWORD", "agentcloud_dev")
+	pgDB := envString("POSTGRES_DB", "agentcloud")
 	secMCPPort := envInt("RUNNER_2_MCP_PORT", 0)
 
 	env := &Env{

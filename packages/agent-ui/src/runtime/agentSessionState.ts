@@ -1,4 +1,4 @@
-import type { SessionSnapshot } from "@do-worker/proto/agent_workbench/v2/session_pb";
+import type { SessionSnapshot } from "@agent-cloud/proto/agent_workbench/v2/session_pb";
 
 export type AgentSessionResyncReason =
   | "base_revision_mismatch"

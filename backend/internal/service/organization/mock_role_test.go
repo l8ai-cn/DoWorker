@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/organization"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/organization"
 )
 
 func TestMockIsAdmin(t *testing.T) {

@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
-use agentsmesh_state::app_state::AppState;
-use agentsmesh_types::proto_runner_api_v1::{ListAvailableRunnersResponse, ListRunnersResponse};
-use agentsmesh_types::proto_runner_state_v1::{
+use agentcloud_state::app_state::AppState;
+use agentcloud_types::proto_runner_api_v1::{ListAvailableRunnersResponse, ListRunnersResponse};
+use agentcloud_types::proto_runner_state_v1::{
     PatchCachedRunnerRequest, RemoveCachedRunnerRequest, ReplaceAvailableRunnersRequest,
     ReplaceCachedRunnersRequest, SetCurrentRunnerRequest,
 };
@@ -94,7 +94,7 @@ impl WasmRunnerState {
     // runner field — no TS runnerToProtoRunner round-trip. relay_connections /
     // latest_runner_version are detail-page-only (read off a separate fetch).
     pub fn apply_fetched_current_runner(&self, resp_bytes: &[u8]) -> Result<(), JsValue> {
-        let resp = agentsmesh_types::proto_runner_api_v1::GetRunnerResponse::decode(resp_bytes)
+        let resp = agentcloud_types::proto_runner_api_v1::GetRunnerResponse::decode(resp_bytes)
             .map_err(decode_err)?;
         self.state.write().runners.set_current_runner(resp.runner);
         Ok(())

@@ -21,7 +21,7 @@ const (
 )
 
 // ClaimPolicy decides which discovered external tasks become candidates. It is
-// the subset of auto-harness config.ClaimPolicySpec that AgentsMesh evaluates
+// the subset of auto-harness config.ClaimPolicySpec that Agent Cloud evaluates
 // in-process; persisted as JSONB on the project row.
 type ClaimPolicy struct {
 	Labels         []string `json:"labels,omitempty"`
@@ -35,7 +35,7 @@ type ClaimPolicy struct {
 }
 
 // Project is an org-scoped coordinator config bound to a single repository. It
-// maps onto auto-harness ProjectSpec but reuses AgentsMesh repository + ticket
+// maps onto auto-harness ProjectSpec but reuses Agent Cloud repository + ticket
 // primitives instead of carrying its own platform credentials.
 type Project struct {
 	ID             int64 `gorm:"primaryKey" json:"id"`

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/channel"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/channel"
 )
 
 func (s *Service) SendMessage(ctx context.Context, channelID int64, senderPod *string, senderUserID *int64, content channel.MessageContent, replyTo *int64) (*channel.Message, error) {

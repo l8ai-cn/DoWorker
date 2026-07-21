@@ -10,9 +10,9 @@ func TestFilterEnv(t *testing.T) {
 	input := []string{
 		"HOME=/home/user",
 		"PATH=/usr/bin",
-		"AGENTSMESH_NODE_ID=abc123",
-		"AGENTSMESH_ORG_SLUG=myorg",
-		"_AGENTSMESH_POD_DAEMON=/path/to/config",
+		"AGENTCLOUD_NODE_ID=abc123",
+		"AGENTCLOUD_ORG_SLUG=myorg",
+		"_AGENTCLOUD_POD_DAEMON=/path/to/config",
 		"GRPC_GO_LOG_VERBOSITY_LEVEL=99",
 		"GRPC_GO_LOG_SEVERITY_LEVEL=info",
 		"CODEX_THREAD_ID=parent-thread",

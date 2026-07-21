@@ -30,7 +30,7 @@
     }
   },
   "mesh": {
-    "title": "Do Worker",
+    "title": "Agent Cloud",
     "channels": "채널",
     "newChannel": "새 채널",
     "topology": "토폴로지",
@@ -309,7 +309,7 @@
     "workspaceDescription": "터미널 워크스페이스",
     "goToTickets": "티켓으로 이동",
     "ticketsDescription": "티켓 보기 및 관리",
-    "goToMesh": "Do Worker로 이동",
+    "goToMesh": "Agent Cloud로 이동",
     "meshDescription": "네트워크 토폴로지",
     "goToChannels": "Go to Channels",
     "channelsDescription": "Team collaboration channels",

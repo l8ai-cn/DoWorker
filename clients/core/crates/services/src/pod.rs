@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use agentsmesh_api_client::ApiClient;
-use agentsmesh_types::proto_pod_v1 as pod_proto;
+use agentcloud_api_client::ApiClient;
+use agentcloud_types::proto_pod_v1 as pod_proto;
 use prost::Message;
 
 // Networking-only service for the pod domain. The pod cache lives in the

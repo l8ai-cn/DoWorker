@@ -5,10 +5,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	orchestrationresourceconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/orchestration_resource"
-	controlservice "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
-	workerplanner "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationworker"
-	"github.com/anthropics/agentsmesh/backend/internal/service/organization"
+	orchestrationresourceconnect "github.com/l8ai-cn/agentcloud/backend/internal/api/connect/orchestration_resource"
+	controlservice "github.com/l8ai-cn/agentcloud/backend/internal/service/orchestrationcontrol"
+	workerplanner "github.com/l8ai-cn/agentcloud/backend/internal/service/orchestrationworker"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/organization"
 	"github.com/stretchr/testify/assert"
 )
 

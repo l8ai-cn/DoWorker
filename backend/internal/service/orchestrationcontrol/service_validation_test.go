@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationresource"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -72,7 +72,7 @@ func TestValidateReturnsSafeDeterministicIssueForInvalidSource(t *testing.T) {
 		Scope: fixture.scope,
 		Source: ResourceSource{
 			Format:  SourceFormatJSON,
-			Content: []byte(`{"apiVersion":"agentsmesh.io/v1alpha1","kind":"WorkerTemplate","metadata":{"name":"worker-one","namespace":"team-alpha"},"spec":{"unknownSecret":"sk-do-not-echo"}}`),
+			Content: []byte(`{"apiVersion":"agentcloud.io/v1alpha1","kind":"WorkerTemplate","metadata":{"name":"worker-one","namespace":"team-alpha"},"spec":{"unknownSecret":"sk-do-not-echo"}}`),
 		},
 	})
 	require.NoError(t, err)

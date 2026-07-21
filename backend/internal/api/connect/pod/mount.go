@@ -6,11 +6,11 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	"github.com/anthropics/agentsmesh/backend/internal/service/airesource"
-	"github.com/anthropics/agentsmesh/backend/internal/service/billing"
-	relayservice "github.com/anthropics/agentsmesh/backend/internal/service/relay"
-	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/billing"
+	relayservice "github.com/l8ai-cn/agentcloud/backend/internal/service/relay"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/runner"
 )
 
 // Mount registers all PodService procedures on mux behind the auth

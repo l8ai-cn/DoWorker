@@ -7,8 +7,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/marketplace/internal/service"
-	"github.com/anthropics/agentsmesh/marketplace/migrations"
+	"github.com/l8ai-cn/agentcloud/marketplace/internal/service"
+	"github.com/l8ai-cn/agentcloud/marketplace/migrations"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/require"
 	"gorm.io/driver/postgres"

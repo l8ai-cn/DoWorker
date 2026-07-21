@@ -8,7 +8,7 @@ import (
 	"github.com/lib/pq"
 	"github.com/stretchr/testify/require"
 
-	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
+	expertdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/expert"
 )
 
 func TestExpertRepositoryMarketUpdatePreservesConsumerFields(t *testing.T) {

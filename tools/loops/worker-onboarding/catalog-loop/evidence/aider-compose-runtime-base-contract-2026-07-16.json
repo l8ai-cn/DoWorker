@@ -19,7 +19,7 @@
       "exit_code": 0
     },
     {
-      "command": "docker compose --env-file deploy/dev/.env -f deploy/dev/docker-compose.yml -f deploy/dev/docker-compose.runners.yml -p agentsmesh-codex-loop-blockly-mvp config --quiet",
+      "command": "docker compose --env-file deploy/dev/.env -f deploy/dev/docker-compose.yml -f deploy/dev/docker-compose.runners.yml -p agentcloud-codex-loop-blockly-mvp config --quiet",
       "exit_code": 0
     },
     {

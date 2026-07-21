@@ -4,10 +4,10 @@
 // Conversions parse the JSON once at the boundary, matching what the legacy
 // REST path delivered.
 
-use agentsmesh_state::blockstore_types::{
+use agentcloud_state::blockstore_types::{
     ActorType, Block, BlockOp, BlockRef, OpEnvelope, OpKind, SearchHit, Workspace,
 };
-use agentsmesh_types::proto_blockstore_v1 as blockstore_proto;
+use agentcloud_types::proto_blockstore_v1 as blockstore_proto;
 use serde_json::Value;
 
 // Synthesize a BlockOp from an envelope when the server returned op_ids but

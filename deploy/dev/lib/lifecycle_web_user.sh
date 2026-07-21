@@ -48,7 +48,7 @@ web_user_launch_background() {
     (
         cd "$web_user_dir"
         DO_WORKER_API_URL="http://127.0.0.1:${BACKEND_HTTP_PORT}" \
-        AGENTSMESH_API_URL="http://127.0.0.1:${BACKEND_HTTP_PORT}" \
+        AGENTCLOUD_API_URL="http://127.0.0.1:${BACKEND_HTTP_PORT}" \
         VITE_PREVIEW_PUBLIC_ORIGIN="${PREVIEW_PUBLIC_ORIGIN}" \
             _launch_setsid web-user "$log_file" \
             npm run dev -- --port "$web_user_port" --host 127.0.0.1

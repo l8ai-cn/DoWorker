@@ -1,5 +1,5 @@
 // Package blockstore provides a thin HTTP client so Runner-side Agents can
-// push structured outputs into the AgentsMesh Block Store from within the
+// push structured outputs into the Agent Cloud Block Store from within the
 // sandbox process. Every Agent action (plan, file edit, build result, ticket
 // insight) can be recorded as a block with a stable ID and replayable op log.
 //
@@ -34,9 +34,9 @@ type Client struct {
 }
 
 // Config is the minimal set of fields a Runner needs to talk to the Block
-// Store. AgentsMesh bootstrap populates these from the registered agent pod.
+// Store. Agent Cloud bootstrap populates these from the registered agent pod.
 type Config struct {
-	BaseURL        string       // e.g. "https://api.agentsmesh.com"
+	BaseURL        string       // e.g. "https://api.agentcloud.com"
 	OrgSlug        string       // e.g. "acme"
 	Token          string       // bearer JWT minted for the agent
 	HTTPClient     *http.Client // optional

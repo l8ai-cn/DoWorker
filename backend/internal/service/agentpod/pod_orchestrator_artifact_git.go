@@ -5,9 +5,9 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/user"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
-	userService "github.com/anthropics/agentsmesh/backend/internal/service/user"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/user"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workerdependency"
+	userService "github.com/l8ai-cn/agentcloud/backend/internal/service/user"
 )
 
 type artifactGitCredential struct {

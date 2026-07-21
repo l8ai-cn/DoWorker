@@ -57,7 +57,7 @@ describe("mobile auth store", () => {
   });
 
   it("uses the Rust URL slug rules for API URLs with paths and trailing slashes", () => {
-    expect(mobileAuthUrlSlug("https://API.AgentsMesh.AI/api/")).toBe("https_api_agentsmesh_ai");
+    expect(mobileAuthUrlSlug("https://API.Agent Cloud.AI/api/")).toBe("https_api_agentcloud_ai");
     expect(mobileAuthUrlSlug("http://localhost:10015/")).toBe("http_localhost_10015");
   });
 
@@ -67,20 +67,20 @@ describe("mobile auth store", () => {
         token: "token-1",
         refresh_token: "refresh-1",
         expires_in: 3600,
-        user: { id: 7, email: "dev@agentsmesh.local" },
+        user: { id: 7, email: "dev@agentcloud.local" },
       }),
     );
     manager.fetch_organizations.mockResolvedValue("[]");
     manager.get_current_org_json.mockReturnValue(JSON.stringify({ slug: "dev-org" }));
 
-    await expect(login("dev@agentsmesh.local", "password")).resolves.toEqual({
+    await expect(login("dev@agentcloud.local", "password")).resolves.toEqual({
       token: "token-1",
       expiresIn: 3600,
       orgSlug: "dev-org",
       userId: "7",
-      email: "dev@agentsmesh.local",
+      email: "dev@agentcloud.local",
     });
-    expect(manager.login).toHaveBeenCalledWith("dev@agentsmesh.local", "password");
+    expect(manager.login).toHaveBeenCalledWith("dev@agentcloud.local", "password");
     expect(manager.fetch_organizations).toHaveBeenCalledOnce();
   });
 
@@ -89,7 +89,7 @@ describe("mobile auth store", () => {
       JSON.stringify({
         token: "token-1",
         expires_in: 3600,
-        user: { id: 7, email: "dev@agentsmesh.local" },
+        user: { id: 7, email: "dev@agentcloud.local" },
       }),
     );
     manager.fetch_organizations.mockResolvedValue("[]");
@@ -97,7 +97,7 @@ describe("mobile auth store", () => {
     const listener = vi.fn();
     const unsubscribe = subscribeAuthChanges(listener);
 
-    await login("dev@agentsmesh.local", "password");
+    await login("dev@agentcloud.local", "password");
 
     expect(listener).toHaveBeenCalledOnce();
     unsubscribe();
@@ -108,12 +108,12 @@ describe("mobile auth store", () => {
       JSON.stringify({
         token: "token-1",
         expires_in: 3600,
-        user: { id: 7, email: "dev@agentsmesh.local" },
+        user: { id: 7, email: "dev@agentcloud.local" },
       }),
     );
     manager.fetch_organizations.mockRejectedValue(new Error("organization service unavailable"));
 
-    await expect(login("dev@agentsmesh.local", "password")).rejects.toThrow(
+    await expect(login("dev@agentcloud.local", "password")).rejects.toThrow(
       "organization service unavailable",
     );
     expect(manager.clear_session).toHaveBeenCalledOnce();
@@ -123,14 +123,14 @@ describe("mobile auth store", () => {
     manager.bootstrap.mockResolvedValue(
       JSON.stringify({
         kind: "authenticated",
-        user: { email: "dev@agentsmesh.local" },
+        user: { email: "dev@agentcloud.local" },
         current_org: { slug: "dev-org" },
       }),
     );
 
     await expect(restoreAuthIdentity()).resolves.toEqual({
       authenticated: true,
-      email: "dev@agentsmesh.local",
+      email: "dev@agentcloud.local",
       orgSlug: "dev-org",
     });
   });

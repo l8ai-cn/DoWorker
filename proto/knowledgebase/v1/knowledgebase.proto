@@ -12,7 +12,7 @@ syntax = "proto3";
 
 package proto.knowledgebase.v1;
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/knowledgebase/v1;knowledgebasev1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/knowledgebase/v1;knowledgebasev1";
 
 service KnowledgeBaseService {
   rpc ListKnowledgeBases(ListKnowledgeBasesRequest) returns (ListKnowledgeBasesResponse);

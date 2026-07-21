@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/runner/internal/client"
-	"github.com/anthropics/agentsmesh/runner/internal/config"
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
-	"github.com/anthropics/agentsmesh/runner/internal/poddaemon"
-	"github.com/anthropics/agentsmesh/runner/internal/workspace"
+	"github.com/l8ai-cn/agentcloud/runner/internal/client"
+	"github.com/l8ai-cn/agentcloud/runner/internal/config"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/poddaemon"
+	"github.com/l8ai-cn/agentcloud/runner/internal/workspace"
 )
 
 // CreateDeps performs all I/O-heavy operations (certificate checks, workspace creation,
@@ -22,7 +22,7 @@ func CreateDeps(cfg *config.Config) (RunnerDeps, error) {
 		return RunnerDeps{}, fmt.Errorf("org_slug is required - please re-register the runner")
 	}
 	if !cfg.UsesGRPC() {
-		return RunnerDeps{}, fmt.Errorf("gRPC configuration is required - please re-register the runner using 'do-worker-runner register'")
+		return RunnerDeps{}, fmt.Errorf("gRPC configuration is required - please re-register the runner using 'agent-cloud-runner register'")
 	}
 
 	// Create workspace manager
@@ -61,7 +61,7 @@ func CreateDeps(cfg *config.Config) (RunnerDeps, error) {
 		return RunnerDeps{}, fmt.Errorf("failed to check certificate: %w", err)
 	}
 	if certInfo.IsExpired {
-		return RunnerDeps{}, fmt.Errorf("certificate has expired on %s. Please reactivate the runner using:\n  do-worker-runner reactivate --token <token>\nGet a reactivation token from the web UI",
+		return RunnerDeps{}, fmt.Errorf("certificate has expired on %s. Please reactivate the runner using:\n  agent-cloud-runner reactivate --token <token>\nGet a reactivation token from the web UI",
 			certInfo.ExpiresAt.Format("2006-01-02"))
 	}
 	if certInfo.NeedsRenewal {

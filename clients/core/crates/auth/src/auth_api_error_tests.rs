@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod auth_api_error_tests {
-    use agentsmesh_types::proto_auth_v1 as auth_proto;
+    use agentcloud_types::proto_auth_v1 as auth_proto;
     use prost::Message;
     use wiremock::matchers::{method, path};
     use wiremock::{Mock, MockServer, ResponseTemplate};
@@ -215,10 +215,10 @@ mod auth_api_error_tests {
     #[test]
     fn auth_state_clear() {
         let mut state = AuthState::default();
-        let session = agentsmesh_state::auth_types::AuthSession {
+        let session = agentcloud_state::auth_types::AuthSession {
             token: "t".into(),
             refresh_token: "r".into(),
-            user: agentsmesh_state::auth_types::User {
+            user: agentcloud_state::auth_types::User {
                 id: 1, email: "e".into(), username: "u".into(),
                 name: None, avatar_url: None, is_email_verified: None,
             },
@@ -235,9 +235,9 @@ mod auth_api_error_tests {
     #[test]
     fn auth_state_apply_session_writes_persisted() {
         let mut state = AuthState::default();
-        let session = agentsmesh_state::auth_types::AuthSession {
+        let session = agentcloud_state::auth_types::AuthSession {
             token: "t".into(), refresh_token: "r".into(),
-            user: agentsmesh_state::auth_types::User {
+            user: agentcloud_state::auth_types::User {
                 id: 1, email: "e".into(), username: "u".into(),
                 name: None, avatar_url: None, is_email_verified: None,
             },
@@ -256,9 +256,9 @@ mod auth_api_error_tests {
     #[test]
     fn auth_state_apply_tokens_updates_existing_session() {
         let mut state = AuthState::default();
-        let session = agentsmesh_state::auth_types::AuthSession {
+        let session = agentcloud_state::auth_types::AuthSession {
             token: "t1".into(), refresh_token: "r1".into(),
-            user: agentsmesh_state::auth_types::User {
+            user: agentcloud_state::auth_types::User {
                 id: 1, email: "e".into(), username: "u".into(),
                 name: None, avatar_url: None, is_email_verified: None,
             },
@@ -266,7 +266,7 @@ mod auth_api_error_tests {
         };
         state.apply_session(&session, "http://example", 1000);
 
-        let tokens = agentsmesh_state::auth_types::AuthTokens {
+        let tokens = agentcloud_state::auth_types::AuthTokens {
             token: "t2".into(),
             refresh_token: "r2".into(),
             expires_in: Some(7200),
@@ -282,7 +282,7 @@ mod auth_api_error_tests {
     #[test]
     fn auth_state_apply_tokens_creates_session_if_missing() {
         let mut state = AuthState::default();
-        let tokens = agentsmesh_state::auth_types::AuthTokens {
+        let tokens = agentcloud_state::auth_types::AuthTokens {
             token: "t".into(),
             refresh_token: "r".into(),
             expires_in: None,
@@ -296,14 +296,14 @@ mod auth_api_error_tests {
     #[test]
     fn url_slug_normalizes_host() {
         use crate::state::url_slug;
-        assert_eq!(url_slug("https://API.AgentsMesh.AI"), "https_api_agentsmesh_ai");
+        assert_eq!(url_slug("https://API.Agent Cloud.AI"), "https_api_agentcloud_ai");
         assert_eq!(
-            url_slug("https://agentsmesh.ai/"),
-            url_slug("https://agentsmesh.ai")
+            url_slug("https://agentcloud.ai/"),
+            url_slug("https://agentcloud.ai")
         );
         assert_ne!(
-            url_slug("https://agentsmesh.ai"),
-            url_slug("http://agentsmesh.ai")
+            url_slug("https://agentcloud.ai"),
+            url_slug("http://agentcloud.ai")
         );
         assert_ne!(
             url_slug("http://localhost:10000"),

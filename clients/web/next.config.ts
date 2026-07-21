@@ -49,10 +49,10 @@ const nextConfig: NextConfig = {
 
   // Workspace packages ship raw .ts sources; SWC must transpile them.
   transpilePackages: [
-    "@do-worker/agent-ui",
-    "@do-worker/service-runtime",
-    "@do-worker/service-interface",
-    "@do-worker/proto",
+    "@agent-cloud/agent-ui",
+    "@agent-cloud/service-runtime",
+    "@agent-cloud/service-interface",
+    "@agent-cloud/proto",
   ],
 
   webpack: (config, { isServer }) => {

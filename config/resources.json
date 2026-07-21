@@ -1,18 +1,18 @@
 {
   "schema": "dosuite.skill-resources.v1",
   "product": "DoSql",
-  "projectId": "agentsmesh",
+  "projectId": "agentcloud",
   "defaultDoopsTarget": {
     "name": "local-docker",
     "cluster": "local",
-    "instance": "agentsmesh-main"
+    "instance": "agentcloud-main"
   },
   "environmentMap": {
     "dev": {
       "alias": [
         "local",
         "docker",
-        "agentsmesh-main"
+        "agentcloud-main"
       ],
       "doopsTarget": "local-docker",
       "note": "Local Docker development environment only."
@@ -20,34 +20,34 @@
   },
   "resources": [
     {
-      "id": "db_agentsmesh_dev_postgres",
-      "name": "agentsmesh-dev-postgres",
+      "id": "db_agentcloud_dev_postgres",
+      "name": "agentcloud-dev-postgres",
       "kind": "PostgreSQL",
       "environmentId": "dev",
-      "logicalEndpoint": "postgresql://postgres/agentsmesh",
+      "logicalEndpoint": "postgresql://postgres/agentcloud",
       "host": "postgres",
       "port": 5432,
-      "databaseName": "agentsmesh",
+      "databaseName": "agentcloud",
       "doopsTarget": "local-docker",
-      "connectionRef": "docker-compose://deploy/dev/postgres#db=agentsmesh",
+      "connectionRef": "docker-compose://deploy/dev/postgres#db=agentcloud",
       "secretRef": "container-env://postgres#POSTGRES_PASSWORD",
-      "owner": "agentsmesh",
+      "owner": "agentcloud",
       "status": "registered",
       "risk": "development",
       "tags": [
-        "agentsmesh",
+        "agentcloud",
         "dev",
         "docker",
         "postgres"
       ],
       "aliases": [
-        "agentsmesh postgres",
-        "agentsmesh dev db",
-        "local agentsmesh"
+        "agentcloud postgres",
+        "agentcloud dev db",
+        "local agentcloud"
       ],
-      "note": "Local PostgreSQL for AgentsMesh development. Mutations require a DoSQL journal and post-change verification.",
-      "registeredAssetId": "db_agentsmesh_dev_postgres",
-      "displayName": "AgentsMesh Dev PostgreSQL"
+      "note": "Local PostgreSQL for Agent Cloud development. Mutations require a DoSQL journal and post-change verification.",
+      "registeredAssetId": "db_agentcloud_dev_postgres",
+      "displayName": "Agent Cloud Dev PostgreSQL"
     }
   ]
 }

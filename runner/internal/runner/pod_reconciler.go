@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
-	"github.com/anthropics/agentsmesh/runner/internal/process"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/process"
 )
 
 // PodReconciler periodically verifies that each pod's underlying process is

@@ -7,9 +7,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/anthropics/agentsmesh/runner/internal/fsutil"
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
-	"github.com/anthropics/agentsmesh/runner/internal/workspace"
+	"github.com/l8ai-cn/agentcloud/runner/internal/fsutil"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/workspace"
 )
 
 func cleanupPodSandbox(

@@ -2,7 +2,7 @@ import type {
   AgentAttachmentReference,
   AgentArtifactLoadRequest,
   AgentSessionRuntime,
-} from "@do-worker/agent-ui";
+} from "@agent-cloud/agent-ui";
 
 export interface WebAgentWorkbenchStream {
   close(): void;

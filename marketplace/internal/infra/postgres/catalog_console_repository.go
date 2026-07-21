@@ -3,8 +3,8 @@ package postgres
 import (
 	"context"
 
-	"github.com/anthropics/agentsmesh/marketplace/internal/domain/catalog"
-	"github.com/anthropics/agentsmesh/marketplace/internal/service"
+	"github.com/l8ai-cn/agentcloud/marketplace/internal/domain/catalog"
+	"github.com/l8ai-cn/agentcloud/marketplace/internal/service"
 	"gorm.io/gorm"
 )
 

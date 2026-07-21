@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use agentsmesh_types::proto_agent_workbench_v2 as v2;
+use agentcloud_types::proto_agent_workbench_v2 as v2;
 
 pub(crate) fn upsert_artifact(
     artifacts: &mut Vec<v2::ArtifactDescriptor>,

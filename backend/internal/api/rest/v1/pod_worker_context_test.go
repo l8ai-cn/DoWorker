@@ -11,9 +11,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	workerspecdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	workerspecservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	workerspecdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	workerspecservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
 )
 
 type workerContextSnapshots struct {

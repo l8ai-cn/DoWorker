@@ -7,7 +7,7 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	"github.com/anthropics/agentsmesh/relay/internal/protocol"
+	"github.com/l8ai-cn/agentcloud/relay/internal/protocol"
 )
 
 func TestChannel_AddSubscriber_PubDisconnected(t *testing.T) {

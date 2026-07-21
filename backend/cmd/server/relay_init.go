@@ -5,10 +5,10 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/anthropics/agentsmesh/backend/internal/config"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/acme"
-	"github.com/anthropics/agentsmesh/backend/internal/service/geo"
-	"github.com/anthropics/agentsmesh/backend/internal/service/relay"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/acme"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/geo"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/relay"
 )
 
 func initializeGeoResolver() geo.Resolver {

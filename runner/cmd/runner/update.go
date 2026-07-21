@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/anthropics/agentsmesh/runner/internal/updater"
+	"github.com/l8ai-cn/agentcloud/runner/internal/updater"
 )
 
 func runUpdate(args []string) {
@@ -29,21 +29,21 @@ func runUpdate(args []string) {
 	prerelease := fs.Bool("pre", false, "Allow updating to prerelease versions")
 
 	fs.Usage = func() {
-		fmt.Println(`Check and install updates for the Do Worker Runner.
+		fmt.Println(`Check and install updates for the Agent Cloud Runner.
 
 Usage:
-  do-worker-runner update [options]
+  agent-cloud-runner update [options]
 
 Options:`)
 		fs.PrintDefaults()
 		fmt.Println(`
 Examples:
-  do-worker-runner update              # Interactive update
-  do-worker-runner update --check      # Only check for updates
-  do-worker-runner update -y           # Silent update (wait for pods to finish)
-  do-worker-runner update -f           # Force immediate update (may interrupt pods)
-  do-worker-runner update -v v1.2.3    # Update to specific version
-  do-worker-runner update --pre        # Include prerelease versions`)
+  agent-cloud-runner update              # Interactive update
+  agent-cloud-runner update --check      # Only check for updates
+  agent-cloud-runner update -y           # Silent update (wait for pods to finish)
+  agent-cloud-runner update -f           # Force immediate update (may interrupt pods)
+  agent-cloud-runner update -v v1.2.3    # Update to specific version
+  agent-cloud-runner update --pre        # Include prerelease versions`)
 	}
 
 	if err := fs.Parse(args); err != nil {

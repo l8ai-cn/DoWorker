@@ -11,8 +11,8 @@ Read-only commands include:
 
 ## Oilan Production Read-Only Adapter
 
-AgentsMesh production PostgreSQL is fixed to the registered asset
-`db_agentsmesh_prod_postgres`. Use the dedicated entrypoint, not a local
+Agent Cloud production PostgreSQL is fixed to the registered asset
+`db_agentcloud_prod_postgres`. Use the dedicated entrypoint, not a local
 connection URI, local `psql`, or a locally invoked Kubernetes database command:
 
 ```bash
@@ -33,8 +33,8 @@ The request only accepts a unique DoOps `session` and an `operationId`.
 ```
 
 The adapter invokes only `doops -session <session> exec --target
-gw-oilan-node`, checks the fixed `agentsmesh/postgres` service and
-`agentsmesh-secrets#DB_PASSWORD` binding remotely, and emits a redacted,
+gw-oilan-node`, checks the fixed `agentcloud/postgres` service and
+`agentcloud-secrets#DB_PASSWORD` binding remotely, and emits a redacted,
 hash-verifiable evidence document. It fixes the canonical DoOps binary and
 config paths, validates the gateway/cluster/instance targeting line, and forces
 `default_transaction_read_only=on` plus a 15-second statement timeout. It never

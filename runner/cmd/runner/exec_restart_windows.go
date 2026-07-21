@@ -3,7 +3,7 @@
 package main
 
 import (
-	"github.com/anthropics/agentsmesh/runner/internal/service"
+	"github.com/l8ai-cn/agentcloud/runner/internal/service"
 )
 
 // execRestartFunc returns the platform restart function for Windows.

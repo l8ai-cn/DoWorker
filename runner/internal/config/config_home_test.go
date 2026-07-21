@@ -6,10 +6,10 @@ import (
 	"testing"
 )
 
-func TestUserConfigDirPrefersDoWorker(t *testing.T) {
+func TestUserConfigDirPrefersAgentCloud(t *testing.T) {
 	home := t.TempDir()
 
-	for _, dir := range []string{userConfigDirName, legacyConfigDirName} {
+	for _, dir := range []string{userConfigDirName, ".do-worker", ".agentsmesh"} {
 		if err := os.Mkdir(filepath.Join(home, dir), 0755); err != nil {
 			t.Fatal(err)
 		}
@@ -21,14 +21,27 @@ func TestUserConfigDirPrefersDoWorker(t *testing.T) {
 	}
 }
 
-func TestUserConfigDirUsesLegacyDirectoryWhenPreferredMissing(t *testing.T) {
+func TestUserConfigDirUsesDoWorkerLegacyWhenPreferredMissing(t *testing.T) {
 	home := t.TempDir()
 
-	if err := os.Mkdir(filepath.Join(home, legacyConfigDirName), 0755); err != nil {
+	if err := os.Mkdir(filepath.Join(home, ".do-worker"), 0755); err != nil {
 		t.Fatal(err)
 	}
 
-	want := filepath.Join(home, legacyConfigDirName)
+	want := filepath.Join(home, ".do-worker")
+	if got := userConfigDirForHome(home); got != want {
+		t.Fatalf("userConfigDirForHome() = %q, want %q", got, want)
+	}
+}
+
+func TestUserConfigDirUsesAgentsmeshLegacyWhenOthersMissing(t *testing.T) {
+	home := t.TempDir()
+
+	if err := os.Mkdir(filepath.Join(home, ".agentsmesh"), 0755); err != nil {
+		t.Fatal(err)
+	}
+
+	want := filepath.Join(home, ".agentsmesh")
 	if got := userConfigDirForHome(home); got != want {
 		t.Fatalf("userConfigDirForHome() = %q, want %q", got, want)
 	}

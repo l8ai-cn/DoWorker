@@ -1,4 +1,4 @@
-import { PermissionDecision } from "@do-worker/proto/agent_workbench/v2/command_pb";
+import { PermissionDecision } from "@agent-cloud/proto/agent_workbench/v2/command_pb";
 
 import type {
   AgentAttachmentReference,
@@ -24,7 +24,7 @@ export function sendPromptPayload(
       attachments: attachments.map((attachment) => ({
         contentId: attachment.id,
         identity: {
-          namespace: "agentsmesh.session-file",
+          namespace: "agentcloud.session-file",
           semanticKey: "attachment",
           schemaVersion: "1",
         },

@@ -7,10 +7,10 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/agentfile/capability"
-	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	agentpodservice "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	"github.com/l8ai-cn/agentcloud/agentfile/capability"
+	agentDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agent"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	agentpodservice "github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
 	"github.com/gin-gonic/gin"
 )
 
@@ -56,7 +56,7 @@ func (d *Deps) handleListAgents(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list agents"})
 		return
 	}
-	includeInternal := os.Getenv("AGENTSMESH_INCLUDE_INTERNAL_AGENTS") == "true"
+	includeInternal := os.Getenv("AGENTCLOUD_INCLUDE_INTERNAL_AGENTS") == "true"
 	rows, err := availableAgentRows(builtin, available, includeInternal)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "invalid agent interaction modes"})

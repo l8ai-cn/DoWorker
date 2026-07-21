@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	coordinatordom "github.com/anthropics/agentsmesh/backend/internal/domain/coordinator"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/git"
+	coordinatordom "github.com/l8ai-cn/agentcloud/backend/internal/domain/coordinator"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/git"
 )
 
 type fakeIssueClient struct {
@@ -92,7 +92,7 @@ func TestCNBPlatformClaimPostsMarkerAndIsIdempotent(t *testing.T) {
 func TestCNBPlatformClaimRejectsForeignClaim(t *testing.T) {
 	fake := newFakeIssueClient()
 	fake.comments[7] = []*git.IssueComment{
-		{Body: `<!-- agentsmesh-coordinator:claim key="project=2 ticket=3" -->`, CreatedAt: time.Now()},
+		{Body: `<!-- agentcloud-coordinator:claim key="project=2 ticket=3" -->`, CreatedAt: time.Now()},
 	}
 	platform := NewCNBPlatform(fake)
 	task := ExternalTask{ExternalID: "issue:7", Number: 7}

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
+	agentworkbenchv2 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2"
 )
 
 func attachmentFileIDs(
@@ -13,7 +13,7 @@ func attachmentFileIDs(
 	fileIDs := make([]string, 0, len(attachments))
 	for _, attachment := range attachments {
 		if attachment == nil || attachment.Identity == nil ||
-			attachment.Identity.Namespace != "agentsmesh.session-file" ||
+			attachment.Identity.Namespace != "agentcloud.session-file" ||
 			attachment.Identity.SemanticKey != "attachment" ||
 			attachment.Identity.SchemaVersion != "1" {
 			return nil, ErrInvalidCommand

@@ -109,7 +109,7 @@ implemented and verified.
 
 ## Implemented correction boundary
 
-`clients/web-user/src/embed.tsx` already exports `DoWorkerApp`, the actual
+`clients/web-user/src/embed.tsx` already exports `AgentCloudApp`, the actual
 React component integration point. It carries the complete Web User provider
 tree and reuses the existing Agent launch and session renderer. The replacement
 `worker.html` and `iframe.html` both mount it through `HashRouter`; direct

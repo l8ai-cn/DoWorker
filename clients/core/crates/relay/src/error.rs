@@ -1,4 +1,4 @@
-use agentsmesh_types::ServiceError;
+use agentcloud_types::ServiceError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -13,7 +13,7 @@ pub enum RelayError {
     Send(String),
 
     #[error("protocol error: {0}")]
-    Protocol(#[from] agentsmesh_protocol::ProtocolError),
+    Protocol(#[from] agentcloud_protocol::ProtocolError),
 }
 
 impl From<&RelayError> for ServiceError {

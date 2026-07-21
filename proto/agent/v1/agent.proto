@@ -35,7 +35,7 @@ package proto.agent.v1;
 
 import "codegen/v1/options.proto";
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/agent/v1;agentv1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/agent/v1;agentv1";
 
 // Convert codegen target — emits agent_convert.amesh.go into the backend
 // connect handler tree so it can reach the domain layer.
@@ -76,7 +76,7 @@ service UserAgentConfigService {
 // (no Executable / IsBuiltin / SupportedModes; organization_id mandatory).
 message Agent {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/domain/agent.Agent"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/agent.Agent"
   };
 
   string slug = 1;

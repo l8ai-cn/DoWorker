@@ -10,12 +10,12 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/anthropics/agentsmesh/relay/internal/auth"
-	"github.com/anthropics/agentsmesh/relay/internal/backend"
-	"github.com/anthropics/agentsmesh/relay/internal/channel"
-	"github.com/anthropics/agentsmesh/relay/internal/config"
-	otelinit "github.com/anthropics/agentsmesh/relay/internal/otel"
-	"github.com/anthropics/agentsmesh/relay/internal/tunnel"
+	"github.com/l8ai-cn/agentcloud/relay/internal/auth"
+	"github.com/l8ai-cn/agentcloud/relay/internal/backend"
+	"github.com/l8ai-cn/agentcloud/relay/internal/channel"
+	"github.com/l8ai-cn/agentcloud/relay/internal/config"
+	otelinit "github.com/l8ai-cn/agentcloud/relay/internal/otel"
+	"github.com/l8ai-cn/agentcloud/relay/internal/tunnel"
 )
 
 // Server is the main relay server

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 	"github.com/stretchr/testify/require"
 )
 
@@ -117,7 +117,7 @@ func TestRegistryDecodeRejectsUnknownTypeAfterStoredValidation(t *testing.T) {
 
 	t.Run("invalid version is rejected first", func(t *testing.T) {
 		manifest := validRegistryManifest()
-		manifest.APIVersion = "agentsmesh.io/v2"
+		manifest.APIVersion = "agentcloud.io/v2"
 		_, err := registry.DecodeAndValidate(manifest)
 		require.Error(t, err)
 		require.NotErrorIs(t, err, ErrUnknownSchema)

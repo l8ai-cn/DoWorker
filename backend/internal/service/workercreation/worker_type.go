@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"strings"
 
-	agentdomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
-	resourcedomain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	agentservice "github.com/anthropics/agentsmesh/backend/internal/service/agent"
-	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	agentdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agent"
+	resourcedomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	agentservice "github.com/l8ai-cn/agentcloud/backend/internal/service/agent"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/workerdefinition"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 const workerTypeSchemaVersion uint32 = 1

@@ -1,7 +1,7 @@
 package runner
 
 import (
-	"github.com/anthropics/agentsmesh/runner/internal/relay"
+	"github.com/l8ai-cn/agentcloud/runner/internal/relay"
 )
 
 // cloudRelayWriter adapts a relay.RelayClient to the aggregator's RelayWriter

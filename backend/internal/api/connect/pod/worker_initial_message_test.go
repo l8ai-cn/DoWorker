@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	sessiondomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
-	itemdomain "github.com/anthropics/agentsmesh/backend/internal/domain/conversationitem"
+	sessiondomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentsession"
+	itemdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/conversationitem"
 	"github.com/stretchr/testify/require"
 )
 

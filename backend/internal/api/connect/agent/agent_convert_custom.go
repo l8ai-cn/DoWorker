@@ -7,11 +7,11 @@ import (
 
 	"connectrpc.com/connect"
 
-	domainagent "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	agentservice "github.com/anthropics/agentsmesh/backend/internal/service/agent"
-	"github.com/anthropics/agentsmesh/backend/pkg/protoconv"
-	agentv1 "github.com/anthropics/agentsmesh/proto/gen/go/agent/v1"
+	domainagent "github.com/l8ai-cn/agentcloud/backend/internal/domain/agent"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	agentservice "github.com/l8ai-cn/agentcloud/backend/internal/service/agent"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/protoconv"
+	agentv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent/v1"
 )
 
 // requireUserID is the user-scoped equivalent of interceptors.ResolveOrgScope.

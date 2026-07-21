@@ -1,5 +1,5 @@
 [package]
-name = "do_worker_proto_gen"
+name = "agent_cloud_proto_gen"
 version.workspace = true
 edition.workspace = true
 publish.workspace = true

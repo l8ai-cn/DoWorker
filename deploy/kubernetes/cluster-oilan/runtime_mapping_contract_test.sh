@@ -38,7 +38,7 @@ assert re.fullmatch(r"\d+\.\d+\.\d+", build["rust_toolchain"])
 assert re.fullmatch(r"\d+\.\d+\.\d+", artifact["version"])
 assert re.fullmatch(r"sha256:[a-f0-9]{64}", artifact["binary_sha256"])
 assert release_image["repository"] == (
-    "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent"
+    "repo.aiedulab.cn:8443/agentcloud/runner-do-agent"
 )
 assert re.fullmatch(r"sha256:[a-f0-9]{64}", release_image["digest"])
 expected_remote = os.environ.get("EXPECTED_REMOTE_DIGEST")

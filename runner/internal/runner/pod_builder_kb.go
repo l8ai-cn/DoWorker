@@ -7,16 +7,16 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
-	"github.com/anthropics/agentsmesh/runner/internal/client"
-	"github.com/anthropics/agentsmesh/runner/internal/fsutil"
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
-	"github.com/anthropics/agentsmesh/runner/internal/workspace"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
+	"github.com/l8ai-cn/agentcloud/runner/internal/client"
+	"github.com/l8ai-cn/agentcloud/runner/internal/fsutil"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/workspace"
 )
 
 const (
-	knowledgeMountDeployKey       = "agentsmesh-kb-deploy-key"
-	knowledgeMountKnownHosts      = "agentsmesh-kb-known-hosts"
+	knowledgeMountDeployKey       = "agentcloud-kb-deploy-key"
+	knowledgeMountKnownHosts      = "agentcloud-kb-known-hosts"
 	temporaryKnownHostsFileSuffix = ".known-hosts"
 )
 

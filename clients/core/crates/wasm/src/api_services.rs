@@ -41,7 +41,7 @@ impl WasmApiClient {
     }
 
     pub fn create_blockstore_service(&self) -> crate::service_blockstore::WasmBlockstoreService {
-        let state = agentsmesh_state::blockstore_state::BlockstoreState::new();
+        let state = agentcloud_state::blockstore_state::BlockstoreState::new();
         crate::service_blockstore::WasmBlockstoreService::new(self.client.clone(), state)
     }
 

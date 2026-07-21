@@ -2,7 +2,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: operator-catalog-bootstrap
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   backoffLimit: 0
   template:
@@ -12,7 +12,7 @@ spec:
     spec:
       restartPolicy: Never
       imagePullSecrets:
-        - name: agentsmesh-regcred
+        - name: agentcloud-regcred
       containers:
         - name: bootstrap
           image: __BACKEND_IMAGE__
@@ -23,18 +23,18 @@ spec:
             - --organization
             - dev-org
             - --publisher
-            - admin@agentsmesh.local
+            - admin@agentcloud.local
             - --reviewer
-            - admin@agentsmesh.local
+            - admin@agentcloud.local
             - --model-resource-id
             - "1"
             - --runtime-image-id
             - "4"
           envFrom:
             - configMapRef:
-                name: agentsmesh-config
+                name: agentcloud-config
             - secretRef:
-                name: agentsmesh-secrets
+                name: agentcloud-secrets
           volumeMounts:
             - name: pki-ca
               mountPath: /app/ssl
@@ -47,9 +47,9 @@ spec:
       volumes:
         - name: pki-ca
           secret:
-            secretName: agentsmesh-pki-ca
+            secretName: agentcloud-pki-ca
         - name: access-token
           secret:
-            secretName: agentsmesh-access-token
+            secretName: agentcloud-access-token
         - name: data
           emptyDir: {}

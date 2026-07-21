@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/anthropics/agentsmesh/backend/internal/config"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/storage"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/storage"
 )
 
 func storageS3Config(cfg *config.Config) storage.S3Config {

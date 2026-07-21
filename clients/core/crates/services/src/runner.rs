@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use agentsmesh_api_client::ApiClient;
-use agentsmesh_types::proto_runner_api_v1 as runner_proto;
+use agentcloud_api_client::ApiClient;
+use agentcloud_types::proto_runner_api_v1 as runner_proto;
 use prost::Message;
 
 // Networking-only service for the runner domain. The runner cache lives in the

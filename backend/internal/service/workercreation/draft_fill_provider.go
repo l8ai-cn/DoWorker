@@ -11,8 +11,8 @@ import (
 	"net/url"
 	"strings"
 
-	resourceservice "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
+	resourceservice "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
 )
 
 const maxDraftFillProviderResponseBytes = 1 << 20

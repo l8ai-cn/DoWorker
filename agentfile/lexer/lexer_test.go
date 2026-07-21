@@ -219,7 +219,7 @@ PROMPT_POSITION prepend
 
 if mcp.enabled {
   mcp_cfg = json_merge(mcp.builtin, mcp.installed)
-  plugin_dir = sandbox.root + "/agentsmesh-plugin"
+  plugin_dir = sandbox.root + "/agentcloud-plugin"
   mkdir plugin_dir
 }
 `

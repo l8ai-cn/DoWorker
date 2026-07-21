@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
-use agentsmesh_api_client::ApiClient;
-use agentsmesh_types::proto_agent_v1 as agent_proto;
-use agentsmesh_types::proto_pod_v1 as pod_proto;
+use agentcloud_api_client::ApiClient;
+use agentcloud_types::proto_agent_v1 as agent_proto;
+use agentcloud_types::proto_pod_v1 as pod_proto;
 use prost::Message;
 use wasm_bindgen::prelude::*;
 
@@ -24,7 +24,7 @@ impl WasmAgentService {
             .client
             .get_agentpod_settings_connect()
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -38,7 +38,7 @@ impl WasmAgentService {
             .client
             .update_agentpod_settings_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -47,7 +47,7 @@ impl WasmAgentService {
             .client
             .list_agentpod_providers_connect()
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -61,7 +61,7 @@ impl WasmAgentService {
             .client
             .create_agentpod_provider_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -75,7 +75,7 @@ impl WasmAgentService {
             .client
             .update_agentpod_provider_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -89,7 +89,7 @@ impl WasmAgentService {
             .client
             .delete_agentpod_provider_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -103,7 +103,7 @@ impl WasmAgentService {
             .client
             .set_default_agentpod_provider_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -116,7 +116,7 @@ impl WasmAgentService {
             .client
             .list_agents_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -127,7 +127,7 @@ impl WasmAgentService {
             .client
             .get_agent_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -141,7 +141,7 @@ impl WasmAgentService {
             .client
             .get_agent_config_schema_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -155,7 +155,7 @@ impl WasmAgentService {
             .client
             .create_custom_agent_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -169,7 +169,7 @@ impl WasmAgentService {
             .client
             .update_custom_agent_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -183,7 +183,7 @@ impl WasmAgentService {
             .client
             .delete_custom_agent_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -192,7 +192,7 @@ impl WasmAgentService {
             .client
             .list_user_agent_configs_connect()
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -206,7 +206,7 @@ impl WasmAgentService {
             .client
             .get_user_agent_config_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -220,7 +220,7 @@ impl WasmAgentService {
             .client
             .set_user_agent_config_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -234,7 +234,7 @@ impl WasmAgentService {
             .client
             .delete_user_agent_config_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 }

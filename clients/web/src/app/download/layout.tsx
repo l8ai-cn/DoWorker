@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Download Do Worker Runner",
+  title: "Download Agent Cloud Runner",
   description:
-    "Download the Do Worker self-hosted Runner CLI for macOS, Windows, and Linux.",
+    "Download the Agent Cloud self-hosted Runner CLI for macOS, Windows, and Linux.",
   alternates: {
-    canonical: "https://agentsmesh.ai/download",
+    canonical: "https://agentcloud.ai/download",
   },
   openGraph: {
-    title: "Download Do Worker",
+    title: "Download Agent Cloud",
     description:
       "Download the self-hosted Runner that keeps your agents on your infrastructure.",
-    url: "https://agentsmesh.ai/download",
+    url: "https://agentcloud.ai/download",
   },
 };
 

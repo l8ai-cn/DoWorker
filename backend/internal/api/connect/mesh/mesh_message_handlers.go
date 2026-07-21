@@ -6,8 +6,8 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	meshv1 "github.com/anthropics/agentsmesh/proto/gen/go/mesh/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	meshv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/mesh/v1"
 )
 
 const (

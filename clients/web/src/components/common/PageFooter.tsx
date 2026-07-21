@@ -11,7 +11,7 @@ export function PageFooter() {
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} Do Worker.{" "}
+            &copy; {new Date().getFullYear()} Agent Cloud.{" "}
             {t("common.allRightsReserved")}
           </p>
           <div className="flex gap-6">

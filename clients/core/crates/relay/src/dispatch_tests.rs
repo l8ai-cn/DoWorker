@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex};
 
-use agentsmesh_protocol::MsgType;
+use agentcloud_protocol::MsgType;
 
 use crate::dispatch::{dispatch_message, DispatchAction, SnapshotPayload, ANSI_CLEAR};
 use crate::types::OutputCallback;

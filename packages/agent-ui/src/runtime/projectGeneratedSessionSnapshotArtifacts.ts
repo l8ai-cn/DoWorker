@@ -1,4 +1,4 @@
-import type { ArtifactDescriptor } from "@do-worker/proto/agent_workbench/v2/artifact_pb";
+import type { ArtifactDescriptor } from "@agent-cloud/proto/agent_workbench/v2/artifact_pb";
 
 import type { AgentActivityItem, AgentArtifactItem } from "../contracts";
 import {

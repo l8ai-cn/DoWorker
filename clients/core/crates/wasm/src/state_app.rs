@@ -1,5 +1,5 @@
-use agentsmesh_state::app_state::AppState;
-use agentsmesh_types::proto_app_state_v1::DispatchEventRequest;
+use agentcloud_state::app_state::AppState;
+use agentcloud_types::proto_app_state_v1::DispatchEventRequest;
 use prost::Message;
 use wasm_bindgen::prelude::*;
 

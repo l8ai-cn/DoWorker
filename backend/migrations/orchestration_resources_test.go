@@ -18,7 +18,7 @@ func TestMigration000211OrchestrationResourcesContract(t *testing.T) {
 		"CREATE TABLE orchestration_resources",
 		"uid UUID NOT NULL DEFAULT uuid_generate_v4()",
 		"api_version VARCHAR(64) NOT NULL",
-		"CHECK (api_version = 'agentsmesh.io/v1alpha1')",
+		"CHECK (api_version = 'agentcloud.io/v1alpha1')",
 		"CHECK (kind ~ '^[A-Z][A-Za-z0-9]{1,99}$')",
 		"CREATE FUNCTION orchestration_identifier_valid",
 		"value NOT IN ('about','admin','agents'",

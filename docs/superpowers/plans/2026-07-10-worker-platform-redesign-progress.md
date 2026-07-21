@@ -49,7 +49,7 @@ All conditions must hold:
 
 ## Environment State
 
-- Repository: `/Users/wwyz/Documents/code/AgentsMesh`
+- Repository: `/Users/wwyz/Documents/code/Agent Cloud`
 - Branch: `main`
 - Current branch tip must be read from `git rev-parse HEAD` each cycle; do not
   rely on a copied SHA in this file.

@@ -5,7 +5,7 @@
  * MembersPage, and any future profile-management UI share one
  * source of truth for the request/response shapes.
  *
- * Do Worker stores JWT in localStorage (`do-worker-auth`, legacy `agentsmesh-auth`) after
+ * Agent Cloud stores JWT in localStorage (`agent-cloud-auth`, legacy `agentcloud-auth`) after
  * login; authenticated procedures use Bearer auth.
  *
  * Errors: every helper resolves with a typed error object on
@@ -14,7 +14,7 @@
  * without try/catch every call site.
  */
 
-import { clearDoWorkerSession, readDoWorkerJWT } from "@/lib/do-worker/auth-session";
+import { clearAgentCloudSession, readAgentCloudJWT } from "@/lib/agent-cloud/auth-session";
 
 const LOGIN_PROCEDURE = "/proto.auth.v1.AuthService/Login";
 const LOGOUT_PROCEDURE = "/proto.auth.v1.AuthSessionService/Logout";
@@ -150,7 +150,7 @@ export async function login(body: LoginRequest): Promise<LoginResult> {
  */
 export async function logout(): Promise<void> {
   const headers: HeadersInit = {};
-  const jwt = readDoWorkerJWT();
+  const jwt = readAgentCloudJWT();
   if (jwt) headers.Authorization = `Bearer ${jwt}`;
   try {
     await fetch(LOGOUT_PROCEDURE, {
@@ -161,7 +161,7 @@ export async function logout(): Promise<void> {
   } catch {
     // Network error — clear local session anyway.
   }
-  clearDoWorkerSession();
+  clearAgentCloudSession();
 }
 
 /**
@@ -172,7 +172,7 @@ export async function logout(): Promise<void> {
  */
 export async function getMe(): Promise<CurrentAccount | null> {
   const headers: HeadersInit = {};
-  const jwt = readDoWorkerJWT();
+  const jwt = readAgentCloudJWT();
   if (jwt) headers.Authorization = `Bearer ${jwt}`;
   let res: Response;
   try {

@@ -6,9 +6,9 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/infra/git"
-	"github.com/anthropics/agentsmesh/backend/internal/service/user"
-	ucv1 "github.com/anthropics/agentsmesh/proto/gen/go/user_credential/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/git"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/user"
+	ucv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/user_credential/v1"
 )
 
 func (s *Server) ListRepositoryProviders(

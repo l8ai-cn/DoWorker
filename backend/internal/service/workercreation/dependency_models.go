@@ -5,12 +5,12 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
-	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	resourceservice "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
-	"github.com/anthropics/agentsmesh/backend/internal/service/workerdependencyartifact"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
+	control "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	resourceservice "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/workerdependencyartifact"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 func buildPrimaryModelResolution(

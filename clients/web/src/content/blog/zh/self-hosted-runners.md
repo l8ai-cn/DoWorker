@@ -2,14 +2,14 @@
 title: "为什么自托管 Runner 对企业 AI 开发至关重要"
 excerpt: "对于有严格安全和合规要求的企业，自托管 Runner 提供了他们所需的控制力和数据主权。"
 date: "2026-01-12"
-author: "Do Worker Team"
+author: "Agent Cloud Team"
 category: "Guide"
 readTime: 6
 ---
 
 在采用 AI 开发工具时，企业面临一个关键问题：代码去哪里了？
 
-使用 Do Worker 的自托管 Runner，答案很简单：你的代码留在你的基础设施中。这很重要的原因是：
+使用 Agent Cloud 的自托管 Runner，答案很简单：你的代码留在你的基础设施中。这很重要的原因是：
 
 - **数据主权：** 代码永远不会离开你的网络
 - **合规性：** 满足数据处理的监管要求
@@ -18,10 +18,10 @@ readTime: 6
 
 部署 Runner 非常简单：
 
-1. 在 Do Worker 控制台生成注册令牌
+1. 在 Agent Cloud 控制台生成注册令牌
 2. 在你的基础设施上运行 Runner 二进制文件
 3. 开始创建在你环境中执行的 Pod
 
-无论你是在裸机、虚拟机还是 Kubernetes 上运行，Do Worker Runner 都能适应你的基础设施。
+无论你是在裸机、虚拟机还是 Kubernetes 上运行，Agent Cloud Runner 都能适应你的基础设施。
 
 联系我们了解更多关于企业部署选项的信息。

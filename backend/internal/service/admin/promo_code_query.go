@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/organization"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/promocode"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/user"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/organization"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/promocode"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/user"
 )
 
 func (s *Service) ListPromoCodes(ctx context.Context, filter *PromoCodeListFilter) (*PromoCodeListResult, error) {

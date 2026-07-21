@@ -41,7 +41,7 @@ describe("ApplicationsPage", () => {
   it("uses the market application result and starts the mapped expert", async () => {
     applications = [{
       installation_id: "installation-1",
-      market_slug: "do-worker-market",
+      market_slug: "agent-cloud-market",
       listing_slug: "software-delivery-expert",
       display_name: "软件交付专家",
       tagline: "把需求变成可验证的代码交付",
@@ -63,7 +63,7 @@ describe("ApplicationsPage", () => {
   it("shows only the selected installation on its first-run route", async () => {
     applications = [{
       installation_id: "installation-1",
-      market_slug: "do-worker-market",
+      market_slug: "agent-cloud-market",
       listing_slug: "software-delivery-expert",
       display_name: "软件交付专家",
       tagline: "把需求变成可验证的代码交付",
@@ -74,7 +74,7 @@ describe("ApplicationsPage", () => {
       installed_at: "2026-07-12T08:00:00Z",
     }, {
       installation_id: "installation-2",
-      market_slug: "do-worker-market",
+      market_slug: "agent-cloud-market",
       listing_slug: "course-builder",
       display_name: "课程构建专家",
       tagline: "把教学目标变成课程任务",
@@ -95,7 +95,7 @@ describe("ApplicationsPage", () => {
   it("does not fabricate a runtime action when the app has no runtime reference", async () => {
     applications = [{
       installation_id: "installation-2",
-      market_slug: "do-worker-market",
+      market_slug: "agent-cloud-market",
       listing_slug: "connector",
       display_name: "仓库连接器",
       tagline: "把仓库授权接入工作流",

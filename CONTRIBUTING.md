@@ -1,4 +1,4 @@
-# Contributing to Do Worker
+# Contributing to Agent Cloud
 
 Thanks for your interest in contributing.
 

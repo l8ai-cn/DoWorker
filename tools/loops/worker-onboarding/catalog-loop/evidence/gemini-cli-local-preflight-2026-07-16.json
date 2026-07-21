@@ -10,7 +10,7 @@
     "terminal_data_plane": false
   },
   "image": {
-    "reference": "agentsmesh-codex-loop-blockly-mvp-runner-gemini-cli:latest",
+    "reference": "agentcloud-codex-loop-blockly-mvp-runner-gemini-cli:latest",
     "digest": "sha256:5b6a9baec9497a29ad19c4ad04c9e4b650ce5cf7634588d472bb2db7a1fbbabe",
     "probe": {
       "command": "docker run --rm --entrypoint gemini <image> --version",

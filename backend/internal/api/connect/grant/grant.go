@@ -23,11 +23,11 @@ import (
 
 	"connectrpc.com/connect"
 
-	poddom "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/runner"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	grantsvc "github.com/anthropics/agentsmesh/backend/internal/service/grant"
+	poddom "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/gitprovider"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/runner"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	grantsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/grant"
 )
 
 const ServiceName = "proto.grant.v1.GrantService"

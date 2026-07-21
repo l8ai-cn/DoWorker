@@ -1,12 +1,12 @@
 #!/bin/bash
 # =============================================================================
-# AgentsMesh OnPremise Installation Script
+# Agent Cloud OnPremise Installation Script
 # =============================================================================
 #
 # One-click installation for on-premise deployment.
 #
 # Usage:
-#   ./install.sh --ip 192.168.1.100 --host app.agentsmesh.internal --preview-origin http://preview.agentsmesh.internal
+#   ./install.sh --ip 192.168.1.100 --host app.agentcloud.internal --preview-origin http://preview.agentcloud.internal
 #
 # Options:
 #   --ip          Server IP address (required)
@@ -151,7 +151,7 @@ detect_docker_socket() {
 DOCKER_SOCKET=$(detect_docker_socket)
 
 echo "=============================================="
-echo "AgentsMesh OnPremise Installation"
+echo "Agent Cloud OnPremise Installation"
 echo "=============================================="
 echo ""
 echo "Configuration:"
@@ -241,7 +241,7 @@ fi
 # Create .env file
 cat > "${DEPLOY_DIR}/.env" << EOF
 # =============================================================================
-# AgentsMesh OnPremise Configuration
+# Agent Cloud OnPremise Configuration
 # Generated: $(date -Iseconds)
 # =============================================================================
 
@@ -262,7 +262,7 @@ PREVIEW_COOKIE_MODE=same-site
 DOCKER_SOCKET=${DOCKER_SOCKET}
 
 # Docker Compose
-COMPOSE_PROJECT_NAME=agentsmesh
+COMPOSE_PROJECT_NAME=agentcloud
 
 # Database
 DB_PASSWORD=${DB_PASSWORD}
@@ -329,7 +329,7 @@ echo ""
 echo "[Step 6/7] Running database migrations..."
 
 # Get database connection string
-DB_URL="postgres://agentsmesh:${DB_PASSWORD}@postgres:5432/agentsmesh?sslmode=disable"
+DB_URL="postgres://agentcloud:${DB_PASSWORD}@postgres:5432/agentcloud?sslmode=disable"
 
 # Run migrations using migrate tool in backend container
 docker compose exec -T backend migrate -path /app/migrations -database "${DB_URL}" up
@@ -343,7 +343,7 @@ echo ""
 echo "[Step 7/7] Importing initial data..."
 
 # Copy and execute seed SQL
-docker compose exec -T postgres psql -U agentsmesh -d agentsmesh < "${DEPLOY_DIR}/seed/onpremise-seed.sql"
+docker compose exec -T postgres psql -U agentcloud -d agentcloud < "${DEPLOY_DIR}/seed/onpremise-seed.sql"
 
 echo "  Seed data imported."
 echo ""
@@ -365,9 +365,9 @@ echo "  Email:    admin@localhost.local"
 echo "  Password: Admin@123"
 echo ""
 echo "Runner Registration:"
-echo "  curl -fsSL https://agentsmesh.ai/install.sh | sh"
-echo "  do-worker-runner register --server http://${SERVER_IP}:${HTTP_PORT} --token onpremise-runner-token"
-echo "  do-worker-runner run"
+echo "  curl -fsSL https://agentcloud.ai/install.sh | sh"
+echo "  agent-cloud-runner register --server http://${SERVER_IP}:${HTTP_PORT} --token onpremise-runner-token"
+echo "  agent-cloud-runner run"
 echo ""
 echo "Useful Commands:"
 echo "  View logs:    docker compose logs -f"

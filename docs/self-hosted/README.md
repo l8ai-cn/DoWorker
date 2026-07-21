@@ -1,10 +1,10 @@
-# Do Worker Self-Hosted Deployment Guide
+# Agent Cloud Self-Hosted Deployment Guide
 
-This guide covers deploying Do Worker on your own infrastructure for private/enterprise use.
+This guide covers deploying Agent Cloud on your own infrastructure for private/enterprise use.
 
 ## Overview
 
-Do Worker can be fully self-hosted, giving you complete control over your data and infrastructure. The self-hosted version includes all features of the cloud version.
+Agent Cloud can be fully self-hosted, giving you complete control over your data and infrastructure. The self-hosted version includes all features of the cloud version.
 
 ## System Requirements
 
@@ -34,9 +34,9 @@ Best for small teams or evaluation.
 
 ```bash
 # Download docker-compose files
-curl -O https://raw.githubusercontent.com/agentsmesh/agentsmesh/main/deploy/docker-compose.yml
-curl -O https://raw.githubusercontent.com/agentsmesh/agentsmesh/main/deploy/docker-compose.prod.yml
-curl -O https://raw.githubusercontent.com/agentsmesh/agentsmesh/main/.env.example
+curl -O https://raw.githubusercontent.com/agentcloud/agentcloud/main/deploy/docker-compose.yml
+curl -O https://raw.githubusercontent.com/agentcloud/agentcloud/main/deploy/docker-compose.prod.yml
+curl -O https://raw.githubusercontent.com/agentcloud/agentcloud/main/.env.example
 
 # Configure environment
 cp .env.example .env
@@ -52,21 +52,21 @@ Best for larger deployments with high availability requirements.
 
 ```bash
 # Add Helm repository
-helm repo add agentsmesh https://charts.agentsmesh.io
+helm repo add agentcloud https://charts.agentcloud.io
 helm repo update
 
 # Create namespace
-kubectl create namespace agentsmesh
+kubectl create namespace agentcloud
 
 # Create secrets
-kubectl create secret generic agentsmesh-secrets \
-  --namespace agentsmesh \
+kubectl create secret generic agentcloud-secrets \
+  --namespace agentcloud \
   --from-literal=jwt-secret=$(openssl rand -hex 32) \
   --from-literal=database-password=$(openssl rand -hex 16)
 
 # Install with custom values
-helm install agentsmesh agentsmesh/agentsmesh \
-  --namespace agentsmesh \
+helm install agentcloud agentcloud/agentcloud \
+  --namespace agentcloud \
   -f values.yaml
 ```
 
@@ -75,10 +75,10 @@ helm install agentsmesh agentsmesh/agentsmesh \
 ### values.yaml Example
 
 ```yaml
-# Do Worker Helm Values
+# Agent Cloud Helm Values
 
 global:
-  domain: agentsmesh.company.com
+  domain: agentcloud.company.com
 
 backend:
   replicas: 3
@@ -108,8 +108,8 @@ postgresql:
   # external:
   #   host: your-db-host
   #   port: 5432
-  #   database: agentsmesh
-  #   username: agentsmesh
+  #   database: agentcloud
+  #   username: agentcloud
   #   existingSecret: db-credentials
 
 redis:
@@ -148,12 +148,12 @@ Runners are self-hosted agents that execute AI pods. Each organization deploys t
    ```bash
    # Docker
    docker run -d \
-     --name agentsmesh-runner \
+     --name agentcloud-runner \
      -e REGISTRATION_TOKEN=<token> \
-     -e BACKEND_URL=https://agentsmesh.company.com \
+     -e BACKEND_URL=https://agentcloud.company.com \
      -e NODE_ID=runner-01 \
      -v /var/run/docker.sock:/var/run/docker.sock \
-     agentsmesh/runner:latest
+     agentcloud/runner:latest
 
    # Or using docker-compose
    docker compose -f runner-compose.yml up -d
@@ -171,8 +171,8 @@ version: '3.8'
 
 services:
   runner:
-    image: agentsmesh/runner:latest
-    container_name: agentsmesh-runner
+    image: agentcloud/runner:latest
+    container_name: agentcloud-runner
     restart: unless-stopped
     environment:
       - REGISTRATION_TOKEN=${REGISTRATION_TOKEN}
@@ -203,8 +203,8 @@ oauth:
 
 1. Create GitLab Application:
    - Go to Admin → Applications
-   - Name: Do Worker
-   - Redirect URI: `https://agentsmesh.company.com/api/v1/auth/oauth/gitlab/callback`
+   - Name: Agent Cloud
+   - Redirect URI: `https://agentcloud.company.com/api/v1/auth/oauth/gitlab/callback`
    - Scopes: `api`, `read_user`, `read_repository`
 
 ### GitHub Enterprise
@@ -228,7 +228,7 @@ ingress:
     cert-manager.io/cluster-issuer: letsencrypt-prod
   tls:
     enabled: true
-    secretName: agentsmesh-tls
+    secretName: agentcloud-tls
 ```
 
 ### Using Custom Certificates
@@ -243,7 +243,7 @@ ingress:
 kubectl create secret tls custom-tls-secret \
   --cert=path/to/cert.pem \
   --key=path/to/key.pem \
-  -n agentsmesh
+  -n agentcloud
 ```
 
 ## LDAP/SSO Integration
@@ -254,7 +254,7 @@ kubectl create secret tls custom-tls-secret \
 auth:
   saml:
     enabled: true
-    entityId: https://agentsmesh.company.com
+    entityId: https://agentcloud.company.com
     ssoUrl: https://idp.company.com/saml/sso
     certificate: |
       -----BEGIN CERTIFICATE-----
@@ -276,7 +276,7 @@ auth:
     port: 636
     useTLS: true
     baseDN: dc=company,dc=com
-    bindDN: cn=agentsmesh,ou=services,dc=company,dc=com
+    bindDN: cn=agentcloud,ou=services,dc=company,dc=com
     userFilter: (uid={0})
     groupFilter: (member={0})
 ```
@@ -287,10 +287,10 @@ auth:
 
 ```bash
 # Automated backup with cron
-0 2 * * * pg_dump -h localhost -U agentsmesh agentsmesh | gzip > /backups/agentsmesh-$(date +\%Y\%m\%d).sql.gz
+0 2 * * * pg_dump -h localhost -U agentcloud agentcloud | gzip > /backups/agentcloud-$(date +\%Y\%m\%d).sql.gz
 
 # Restore
-gunzip -c backup.sql.gz | psql -h localhost -U agentsmesh agentsmesh
+gunzip -c backup.sql.gz | psql -h localhost -U agentcloud agentcloud
 ```
 
 ### Full System Backup
@@ -302,10 +302,10 @@ Using Velero for Kubernetes:
 velero install --provider aws --bucket <bucket> ...
 
 # Create backup
-velero backup create agentsmesh-backup --include-namespaces agentsmesh
+velero backup create agentcloud-backup --include-namespaces agentcloud
 
 # Restore
-velero restore create --from-backup agentsmesh-backup
+velero restore create --from-backup agentcloud-backup
 ```
 
 ## Monitoring & Observability
@@ -322,8 +322,8 @@ monitoring:
   grafana:
     enabled: true
     dashboards:
-      - agentsmesh-overview
-      - agentsmesh-pods
+      - agentcloud-overview
+      - agentcloud-pods
 ```
 
 ### Log Aggregation
@@ -378,7 +378,7 @@ securityContext:
 
 ```bash
 # Helm
-helm upgrade agentsmesh agentsmesh/agentsmesh -n agentsmesh -f values.yaml
+helm upgrade agentcloud agentcloud/agentcloud -n agentcloud -f values.yaml
 
 # Docker Compose
 docker compose pull
@@ -396,5 +396,5 @@ docker compose up -d
 ## Support
 
 For enterprise support and consulting:
-- Email: enterprise@agentsmesh.io
-- Documentation: https://docs.agentsmesh.io/self-hosted
+- Email: enterprise@agentcloud.io
+- Documentation: https://docs.agentcloud.io/self-hosted

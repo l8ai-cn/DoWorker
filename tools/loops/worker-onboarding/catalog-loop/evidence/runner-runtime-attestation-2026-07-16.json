@@ -28,11 +28,11 @@
     {
       "runner_id": "dev-runner-codex",
       "harnesses": ["codex-cli"],
-      "container": "agentsmesh-main-runner-codex-cli-1",
+      "container": "agentcloud-main-runner-codex-cli-1",
       "container_image_id": "sha256:2fb8b9c273dce5e5da8e4ad42e8868625a989c736478ce9f41aeff18f6cad661",
       "runner": {
-        "path": "/usr/local/bin/do-worker-runner",
-        "version": "Do Worker Runner dev (built unknown)",
+        "path": "/usr/local/bin/agent-cloud-runner",
+        "version": "Agent Cloud Runner dev (built unknown)",
         "sha256": "2e6e696409c1fb3f8b2e3ee8285c9a90160c926f2d9a2d36dd30965b98afd0cf"
       },
       "worker_binary": {
@@ -43,11 +43,11 @@
     {
       "runner_id": "dev-runner-do-agent",
       "harnesses": ["do-agent", "seedance-expert"],
-      "container": "agentsmesh-main-runner-do-agent-1",
+      "container": "agentcloud-main-runner-do-agent-1",
       "container_image_id": "sha256:829180daccfa2428a908a2c12877e658ccaf4c9214fbf0269c40136a4c291f3f",
       "runner": {
-        "path": "/usr/local/bin/do-worker-runner",
-        "version": "Do Worker Runner dev (built unknown)",
+        "path": "/usr/local/bin/agent-cloud-runner",
+        "version": "Agent Cloud Runner dev (built unknown)",
         "sha256": "110c762c03c3684be4e2be37e9554e569bebecfe7f4f58b7c32eb7e8647699ce"
       },
       "worker_binary": {
@@ -58,11 +58,11 @@
     {
       "runner_id": "dev-runner-gemini",
       "harnesses": ["gemini-cli"],
-      "container": "agentsmesh-main-runner-gemini-cli-1",
+      "container": "agentcloud-main-runner-gemini-cli-1",
       "container_image_id": "sha256:b5d3cb4662e6ab57615d1ff1805305c5489ac3505ef06af9f6ea21f1cedc5233",
       "runner": {
-        "path": "/usr/local/bin/do-worker-runner",
-        "version": "Do Worker Runner dev (built unknown)",
+        "path": "/usr/local/bin/agent-cloud-runner",
+        "version": "Agent Cloud Runner dev (built unknown)",
         "sha256": "110c762c03c3684be4e2be37e9554e569bebecfe7f4f58b7c32eb7e8647699ce"
       },
       "worker_binary": {
@@ -73,11 +73,11 @@
     {
       "runner_id": "dev-runner-minimax",
       "harnesses": ["minimax-cli"],
-      "container": "agentsmesh-main-runner-minimax-cli-1",
+      "container": "agentcloud-main-runner-minimax-cli-1",
       "container_image_id": "sha256:21a4b56779e673ac8a1c43c894b38e464800c0a01401b6f5d0037ee6c0a7ba61",
       "runner": {
-        "path": "/usr/local/bin/do-worker-runner",
-        "version": "Do Worker Runner dev (built unknown)",
+        "path": "/usr/local/bin/agent-cloud-runner",
+        "version": "Agent Cloud Runner dev (built unknown)",
         "sha256": "7c6c0d09f45988297790c95059c9fa918c9088745fcaae15d83e4fa795647115"
       },
       "worker_binary": {
@@ -88,11 +88,11 @@
     {
       "runner_id": "dev-runner-openclaw",
       "harnesses": ["openclaw"],
-      "container": "agentsmesh-main-runner-openclaw-1",
+      "container": "agentcloud-main-runner-openclaw-1",
       "container_image_id": "sha256:9b39f542d943504931bfd38fc5aa6acaae90205b0be021409dc8ef5dd5453d2f",
       "runner": {
-        "path": "/usr/local/bin/do-worker-runner",
-        "version": "Do Worker Runner dev (built unknown)",
+        "path": "/usr/local/bin/agent-cloud-runner",
+        "version": "Agent Cloud Runner dev (built unknown)",
         "sha256": "110c762c03c3684be4e2be37e9554e569bebecfe7f4f58b7c32eb7e8647699ce"
       },
       "worker_binary": {

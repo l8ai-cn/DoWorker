@@ -10,8 +10,8 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	"github.com/anthropics/agentsmesh/relay/internal/auth"
-	relaybackend "github.com/anthropics/agentsmesh/relay/internal/backend"
+	"github.com/l8ai-cn/agentcloud/relay/internal/auth"
+	relaybackend "github.com/l8ai-cn/agentcloud/relay/internal/backend"
 )
 
 // TestPreviewE2E_WebSocket verifies WebSocket upgrades pass through the tunnel:

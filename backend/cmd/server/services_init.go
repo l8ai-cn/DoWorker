@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/anthropics/agentsmesh/backend/internal/config"
-	"github.com/anthropics/agentsmesh/backend/pkg/crypto"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/crypto"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )

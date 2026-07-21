@@ -11,11 +11,11 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/otel/trace"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	service "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
-	aiv1 "github.com/anthropics/agentsmesh/proto/gen/go/ai_resource/v1"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	service "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
+	aiv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/ai_resource/v1"
 )
 
 type fakeService struct {

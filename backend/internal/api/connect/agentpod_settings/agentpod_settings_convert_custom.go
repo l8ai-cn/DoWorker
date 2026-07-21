@@ -1,8 +1,8 @@
 package agentpodsettingsconnect
 
 import (
-	poddom "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	podv1 "github.com/anthropics/agentsmesh/proto/gen/go/pod/v1"
+	poddom "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	podv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/pod/v1"
 )
 
 // toProtoSettings preserves the REST contract: nil input → empty (not nil)

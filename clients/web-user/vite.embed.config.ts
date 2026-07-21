@@ -4,7 +4,7 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
 import { resolveExternalCjsRequire } from "./vite-embed-cjs-externals";
-import { scopeDoWorkerCss } from "./vite-embed-css-scope";
+import { scopeAgentCloudCss } from "./vite-embed-css-scope";
 
 const sharedExternals = [
   "react",
@@ -16,11 +16,11 @@ const sharedExternals = [
 
 export default defineConfig({
   base: "./",
-  plugins: [react(), tailwindcss(), scopeDoWorkerCss(), resolveExternalCjsRequire(sharedExternals)],
+  plugins: [react(), tailwindcss(), scopeAgentCloudCss(), resolveExternalCjsRequire(sharedExternals)],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      "@do-worker/agent-ui": path.resolve(__dirname, "../../packages/agent-ui/src/index.ts"),
+      "@agent-cloud/agent-ui": path.resolve(__dirname, "../../packages/agent-ui/src/index.ts"),
       "react-markdown": path.resolve(__dirname, "./node_modules/react-markdown/index.js"),
       "remark-gfm": path.resolve(__dirname, "./node_modules/remark-gfm/index.js"),
     },
@@ -41,11 +41,11 @@ export default defineConfig({
     rollupOptions: {
       external: sharedExternals,
       output: {
-        entryFileNames: "do-worker-embed.js",
+        entryFileNames: "agent-cloud-embed.js",
         chunkFileNames: "chunks/[name]-[hash].js",
         assetFileNames: (assetInfo) => {
           const name = assetInfo.names?.[0] ?? "";
-          return name.endsWith(".css") ? "do-worker-embed.css" : "assets/[name].[ext]";
+          return name.endsWith(".css") ? "agent-cloud-embed.css" : "assets/[name].[ext]";
         },
       },
     },

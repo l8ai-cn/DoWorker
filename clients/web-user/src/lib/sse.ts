@@ -1,4 +1,4 @@
-// Do Worker session stream protocol — typed event parser for
+// Agent Cloud session stream protocol — typed event parser for
 // `GET /v1/sessions/{id}/stream`. Turn-scoped events use the
 // `turn.*` namespace; session-scoped events use `session.*`.
 

@@ -6,9 +6,9 @@ import (
 	"errors"
 	"strings"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/goalloop"
-	workerspecdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/goalloop"
+	workerspecdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 func (s *Service) Create(ctx context.Context, req CreateRequest) (*domain.GoalLoop, error) {

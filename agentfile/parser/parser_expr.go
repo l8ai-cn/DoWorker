@@ -1,6 +1,6 @@
 package parser
 
-import "github.com/anthropics/agentsmesh/agentfile/lexer"
+import "github.com/l8ai-cn/agentcloud/agentfile/lexer"
 
 // parseExpr is the entry point for expression parsing.
 func (p *Parser) parseExpr() Expr     { return p.parseOr() }

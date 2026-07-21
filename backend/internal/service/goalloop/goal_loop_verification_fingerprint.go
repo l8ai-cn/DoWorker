@@ -6,7 +6,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 )
 
 func verificationFingerprints(result *runnerv1.VerificationResultEvent) (string, string) {

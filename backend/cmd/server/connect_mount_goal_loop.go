@@ -5,8 +5,8 @@ import (
 
 	"connectrpc.com/connect"
 
-	goalloopconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/goalloop"
-	goalloopsvc "github.com/anthropics/agentsmesh/backend/internal/service/goalloop"
+	goalloopconnect "github.com/l8ai-cn/agentcloud/backend/internal/api/connect/goalloop"
+	goalloopsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/goalloop"
 )
 
 func mountGoalLoopService(mux *http.ServeMux, svc *serviceContainer, opts []connect.HandlerOption) {

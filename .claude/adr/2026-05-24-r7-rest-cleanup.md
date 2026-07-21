@@ -11,7 +11,7 @@ R6 zero-REST 完成后，systematic cleanup 删除所有客户端 REST proxy 桥
 
 1. **`WasmApiClient` REST methods** (wasm/src/api.rs): 删除 `get`/`post`/`put`/`patch`/`delete`/`public_get`/`public_post`/`org_path` 共 8 个 方法 — renderer 端无调用方。
 2. **`ElectronApiClientProxy` REST methods** (electron-adapter/provider.ts): 删除 5 个 raw HTTP methods + `org_path` — renderer 端无调用方。保留 `create_events_manager` no-op 给 EventSubscriptionManager。
-3. **`AgentsMeshCore` API exposure** (ffi/src/api_ffi.rs): **整文件删除** — iOS 完全不调用，只走 typed UniFFI methods。
+3. **`Agent CloudCore` API exposure** (ffi/src/api_ffi.rs): **整文件删除** — iOS 完全不调用，只走 typed UniFFI methods。
 4. **`AppState` raw HTTP napi** (node-bridge/src/lib.rs): 删除 `api_get`/`api_post`/`api_put`/`api_patch`/`api_delete`/`api_org_path` 共 6 个 napi exports — desktop renderer 已无调用方。
 5. **`services/extension.rs::install_skill_from_upload`** (multipart): 迁移到 PresignSkillUpload + S3 PUT + InstallSkillFromUploadedFile 三步 Connect 流。
 

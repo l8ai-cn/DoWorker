@@ -1,14 +1,14 @@
-import { ArtifactStatus } from "@do-worker/proto/agent_workbench/v2/artifact_pb";
+import { ArtifactStatus } from "@agent-cloud/proto/agent_workbench/v2/artifact_pb";
 import {
   CommandReceiptState,
   PermissionDecision,
-} from "@do-worker/proto/agent_workbench/v2/command_pb";
-import type { SessionSnapshot } from "@do-worker/proto/agent_workbench/v2/session_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/command_pb";
+import type { SessionSnapshot } from "@agent-cloud/proto/agent_workbench/v2/session_pb";
 import {
   PermissionRequestState,
   SessionResourceStatus,
   SessionStatus,
-} from "@do-worker/proto/agent_workbench/v2/session_state_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/session_state_pb";
 import { AgentSessionReductionError } from "./agentSessionState";
 
 export function validateSessionSnapshot(snapshot: SessionSnapshot): void {

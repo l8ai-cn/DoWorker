@@ -11,14 +11,14 @@ import "@fontsource-variable/space-grotesk/wght.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://agentsmesh.ai"),
+  metadataBase: new URL("https://agentcloud.ai"),
   title: {
-    default: "Do Worker - Enterprise Agent Supply and OPC Incubation",
-    template: "%s | Do Worker",
+    default: "Agent Cloud - Enterprise Agent Supply and OPC Incubation",
+    template: "%s | Agent Cloud",
   },
   description: "Build, govern, distribute, and operate reusable Agents for enterprise teams, OPC founders, and higher-education digital employee pilots.",
   keywords: [
-    "do-worker", "do worker", "l8ai",
+    "agent-cloud", "do worker", "l8ai",
     "enterprise agent supply", "OPC incubation", "higher-education digital employee pilots",
     "AI partner platform", "internal agent marketplace",
     "AI agents", "AI coding", "Claude Code", "Codex CLI", "Gemini CLI", "Aider",
@@ -31,25 +31,25 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Do Worker",
+    title: "Agent Cloud",
   },
   formatDetection: {
     telephone: false,
   },
   openGraph: {
     type: "website",
-    siteName: "Do Worker",
-    title: "Do Worker - Enterprise Agent Supply and OPC Incubation",
+    siteName: "Agent Cloud",
+    title: "Agent Cloud - Enterprise Agent Supply and OPC Incubation",
     description: "Build, govern, distribute, and operate reusable Agents across organizations.",
-    url: "https://agentsmesh.ai",
+    url: "https://agentcloud.ai",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Do Worker - Enterprise Agent Supply and OPC Incubation",
+    title: "Agent Cloud - Enterprise Agent Supply and OPC Incubation",
     description: "Build, govern, distribute, and operate reusable Agents across organizations.",
   },
   alternates: {
-    canonical: "https://agentsmesh.ai",
+    canonical: "https://agentcloud.ai",
   },
 };
 

@@ -35,7 +35,7 @@ fi
 
 kubectl kustomize "${ROOT}/deploy/kubernetes/cluster-oilan" >"$RENDERED"
 test "$(grep -Fc 'path: /preview' "$RENDERED")" -eq 1
-preview_block="$(awk 'BEGIN { RS = "---" } /name: agentsmesh-preview/ { print }' "$RENDERED")"
+preview_block="$(awk 'BEGIN { RS = "---" } /name: agentcloud-preview/ { print }' "$RENDERED")"
 grep -Fq "host: '*.l8ai.cn'" <<<"$preview_block"
 grep -Fq 'secretName: l8ai-wildcard-tls' <<<"$preview_block"
 grep -Fq 'name: relay' <<<"$preview_block"

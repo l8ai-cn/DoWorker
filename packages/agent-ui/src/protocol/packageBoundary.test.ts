@@ -25,6 +25,6 @@ describe("agent-ui protocol package boundary", () => {
     const packageJson = JSON.parse(
       readFileSync(join(sourceRoot, "..", "package.json"), "utf8"),
     ) as { dependencies?: Record<string, string> };
-    expect(packageJson.dependencies?.["@do-worker/proto"]).toBe("workspace:*");
+    expect(packageJson.dependencies?.["@agent-cloud/proto"]).toBe("workspace:*");
   });
 });

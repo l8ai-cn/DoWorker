@@ -2,11 +2,11 @@
   "schema_version": 1,
   "worker_slug": "seedance-expert",
   "runtime_catalog_revision": "runtime-catalog-2026-07-16-61b505bd1dcd",
-  "image_reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653",
+  "image_reference": "repo.aiedulab.cn:8443/agentcloud/runner-do-agent@sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653",
   "image_digest": "sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653",
   "platform": "linux/amd64",
   "status": "available",
   "exit_code": 0,
-  "output": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653: Pulling from agentsmesh/runner-do-agent\n4f4fb700ef54: Pulling fs layer\n90f0781f205f: Pulling fs layer\n0cb0c95a8267: Pulling fs layer\n65145cd80694: Pulling fs layer\naaf726a6b9b6: Pulling fs layer\nc92312f062c7: Pulling fs layer\n3221382ffe77: Pulling fs layer\n976878a863e6: Pulling fs layer\na14c8bd7bcd1: Pulling fs layer\nDigest: sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653\nStatus: Image is up to date for repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653\nrepo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653",
+  "output": "repo.aiedulab.cn:8443/agentcloud/runner-do-agent@sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653: Pulling from agentcloud/runner-do-agent\n4f4fb700ef54: Pulling fs layer\n90f0781f205f: Pulling fs layer\n0cb0c95a8267: Pulling fs layer\n65145cd80694: Pulling fs layer\naaf726a6b9b6: Pulling fs layer\nc92312f062c7: Pulling fs layer\n3221382ffe77: Pulling fs layer\n976878a863e6: Pulling fs layer\na14c8bd7bcd1: Pulling fs layer\nDigest: sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653\nStatus: Image is up to date for repo.aiedulab.cn:8443/agentcloud/runner-do-agent@sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653\nrepo.aiedulab.cn:8443/agentcloud/runner-do-agent@sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653",
   "observed_at": "2026-07-18T08:28:08+08:00"
 }

@@ -1,5 +1,5 @@
-import { MessageRole } from "@do-worker/proto/agent_workbench/v2/session_state_pb";
-import type { PermissionRequest, TimelineItem } from "@do-worker/proto/agent_workbench/v2/session_pb";
+import { MessageRole } from "@agent-cloud/proto/agent_workbench/v2/session_state_pb";
+import type { PermissionRequest, TimelineItem } from "@agent-cloud/proto/agent_workbench/v2/session_pb";
 import type { AgentPlanStep, AgentTimelineItem } from "../contracts";
 import { projectArtifactReference, type ArtifactCatalog } from "./projectGeneratedSessionSnapshotArtifacts";
 import { projectTimelineContent } from "./projectGeneratedSessionSnapshotContent";

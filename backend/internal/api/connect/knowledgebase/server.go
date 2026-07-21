@@ -14,8 +14,8 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	kbservice "github.com/anthropics/agentsmesh/backend/internal/service/knowledgebase"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	kbservice "github.com/l8ai-cn/agentcloud/backend/internal/service/knowledgebase"
 )
 
 const ServiceName = "proto.knowledgebase.v1.KnowledgeBaseService"

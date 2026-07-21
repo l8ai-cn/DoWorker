@@ -43,7 +43,7 @@ package proto.license.v1;
 
 import "codegen/v1/options.proto";
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/license/v1;licensev1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/license/v1;licensev1";
 
 // Convert codegen target — emits license_convert.amesh.go into the backend
 // connect handler tree so it can reach domain/billing + service/license
@@ -88,7 +88,7 @@ service LicensePublicService {
 // surface (snake_case → camelCase getters in TS, prost tags pin order).
 message LicenseStatus {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/domain/billing.LicenseStatus"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/billing.LicenseStatus"
   };
 
   bool is_active = 1;
@@ -112,7 +112,7 @@ message LicenseStatus {
 // (the license isn't active yet).
 message ValidatedLicense {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/service/license.LicenseData"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/service/license.LicenseData"
   };
 
   // `valid` is derived (not stored in LicenseData) — set by the wrapper.
@@ -134,7 +134,7 @@ message ValidatedLicense {
 // license_types.go. -1 in any field encodes "unlimited".
 message LicenseLimits {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/service/license.LicenseLimits"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/service/license.LicenseLimits"
   };
 
   int32 max_users = 1 [(amesh.codegen.v1.field_convert) = "int_to_int32"];

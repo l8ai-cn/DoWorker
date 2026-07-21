@@ -5,7 +5,7 @@ import (
 
 	"connectrpc.com/connect"
 
-	resourcev1 "github.com/anthropics/agentsmesh/proto/gen/go/orchestration_resource/v1"
+	resourcev1 "github.com/l8ai-cn/agentcloud/proto/gen/go/orchestration_resource/v1"
 )
 
 func (server *Server) CreateGoalLoopFromPlan(

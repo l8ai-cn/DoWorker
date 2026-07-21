@@ -5,8 +5,8 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/backend/internal/service/auth"
-	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/auth"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/apierr"
 	"github.com/gin-gonic/gin"
 )
 
@@ -49,7 +49,7 @@ func (h *AuthHandler) isAllowedRedirect(redirectTo string) bool {
 		return false
 	}
 
-	if parsed.Scheme == "agentsmesh" {
+	if parsed.Scheme == "agentcloud" {
 		return parsed.Host == "oauth" && parsed.Path == "/callback"
 	}
 

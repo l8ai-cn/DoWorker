@@ -6,9 +6,9 @@ import (
 	"hash/fnv"
 	"log/slog"
 
-	"github.com/anthropics/agentsmesh/backend/internal/config"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/dns"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/dns"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 type DNSService struct {

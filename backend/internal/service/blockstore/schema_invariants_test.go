@@ -4,9 +4,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/blockstore"
-	blockstoreinfra "github.com/anthropics/agentsmesh/backend/internal/infra/blockstore"
-	"github.com/anthropics/agentsmesh/backend/internal/testkit"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/blockstore"
+	blockstoreinfra "github.com/l8ai-cn/agentcloud/backend/internal/infra/blockstore"
+	"github.com/l8ai-cn/agentcloud/backend/internal/testkit"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

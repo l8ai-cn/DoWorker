@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	channelDomain "github.com/anthropics/agentsmesh/backend/internal/domain/channel"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
+	channelDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/channel"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/eventbus"
 )
 
 func TestNewPodPromptHook_NilRouter(t *testing.T) {

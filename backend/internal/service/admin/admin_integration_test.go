@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	adminDomain "github.com/anthropics/agentsmesh/backend/internal/domain/admin"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/database"
-	"github.com/anthropics/agentsmesh/backend/internal/testkit"
+	adminDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/admin"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/database"
+	"github.com/l8ai-cn/agentcloud/backend/internal/testkit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

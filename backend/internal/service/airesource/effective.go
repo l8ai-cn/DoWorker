@@ -3,7 +3,7 @@ package airesource
 import (
 	"context"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
 )
 
 func (s *Service) ListOwnerConnections(ctx context.Context, actor Actor, scope domain.OwnerScope, ownerID int64) ([]ConnectionView, error) {

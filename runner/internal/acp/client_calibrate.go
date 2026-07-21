@@ -3,7 +3,7 @@ package acp
 import (
 	"encoding/json"
 
-	"github.com/anthropics/agentsmesh/agentfile/capability"
+	"github.com/l8ai-cn/agentcloud/agentfile/capability"
 )
 
 func (c *ACPClient) CalibrateDeclaredCapabilities(podKey string, declared map[string]string) {

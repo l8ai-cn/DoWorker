@@ -1,4 +1,4 @@
-import type { TerminalControlLease } from "@do-worker/agent-ui";
+import type { TerminalControlLease } from "@agent-cloud/agent-ui";
 
 import {
   clearPendingControl,

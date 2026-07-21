@@ -31,7 +31,7 @@ test("runs the fixed Oilan PostgreSQL probe through DoOps and writes redacted ev
       now: clock(),
       execute(value) {
         request = value;
-        return { status: 0, stdout: doopsOutput("agentsmesh|160014|t") };
+        return { status: 0, stdout: doopsOutput("agentcloud|160014|t") };
       },
     });
 
@@ -44,15 +44,15 @@ test("runs the fixed Oilan PostgreSQL probe through DoOps and writes redacted ev
       "gw-oilan-node",
       "--cmd",
     ]);
-    assert.match(request.args[6], /namespace=agentsmesh/);
+    assert.match(request.args[6], /namespace=agentcloud/);
     assert.match(request.args[6], /service=postgres/);
-    assert.match(request.args[6], /secret=agentsmesh-secrets/);
+    assert.match(request.args[6], /secret=agentcloud-secrets/);
     assert.match(request.args[6], /default_transaction_read_only=on/);
     assert.match(request.args[6], /statement_timeout=15000/);
     assert.equal(request.args[6].includes("postgresql://"), false);
     assert.equal(evidence.status, "verified");
     assert.deepEqual(evidence.result, {
-      databaseName: "agentsmesh",
+      databaseName: "agentcloud",
       serverVersionNum: "160014",
       schemaMigrationsPresent: true,
     });
@@ -144,7 +144,7 @@ test("evidence verifier rejects a fingerprint mismatch", async () => {
       auditRoot,
       registration: await loadOilanPostgresRegistration(),
       now: clock(),
-      execute: () => ({ status: 0, stdout: doopsOutput("agentsmesh|160014|t") }),
+      execute: () => ({ status: 0, stdout: doopsOutput("agentcloud|160014|t") }),
     });
     assert.throws(
       () => verifyOilanPostgresReadOnlyEvidence({ ...evidence, resultFingerprint: sha256("tampered") }),
@@ -179,7 +179,7 @@ test("rejects reuse of an existing operation audit path", async () => {
     const options = {
       auditRoot,
       registration: await loadOilanPostgresRegistration(),
-      execute: () => ({ status: 0, stdout: doopsOutput("agentsmesh|160014|t") }),
+      execute: () => ({ status: 0, stdout: doopsOutput("agentcloud|160014|t") }),
     };
     await executeOilanPostgresReadOnly(INPUT, options);
     await assert.rejects(

@@ -4,7 +4,7 @@
 
 **Goal:** deliver a reusable Agent conversation core that can mount as a React component, a standalone web island, or a controlled iframe surface.
 
-**Architecture:** `@do-worker/agent-ui` defines framework-neutral conversation
+**Architecture:** `@agent-cloud/agent-ui` defines framework-neutral conversation
 runtime contracts, React surfaces, DOM mounting, and strict postMessage bridge
 utilities. `clients/web-user` supplies one explicit adapter over its existing
 conversation state and an iframe entry to prove all three consumption forms.
@@ -50,7 +50,7 @@ Vite, Vitest, Testing Library.
   after a subscription notification and releases its listener on unmount.
 - [x] Implement the provider and hook with `useSyncExternalStore`; never copy
   runtime state into React state.
-- [x] Register `@do-worker/agent-ui` in the root workspace dependencies so
+- [x] Register `@agent-cloud/agent-ui` in the root workspace dependencies so
   first-party applications import a package name rather than a relative path.
 - [x] Run `pnpm exec vitest run packages/agent-ui/src/conversation-context.test.tsx`
   and `pnpm exec tsc --noEmit -p packages/agent-ui/tsconfig.json`.

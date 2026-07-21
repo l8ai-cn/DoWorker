@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log/slog"
 
-	kbservice "github.com/anthropics/agentsmesh/backend/internal/service/knowledgebase"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	kbservice "github.com/l8ai-cn/agentcloud/backend/internal/service/knowledgebase"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 )
 
 // resolveKnowledgeMounts merges three mount sources — agent default mounts

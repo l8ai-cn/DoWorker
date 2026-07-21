@@ -105,7 +105,7 @@ go test ./backend/internal/service/workerspec ./backend/internal/infra \
 - [ ] Run:
 
 ```bash
-AGENTSMESH_TEST_POSTGRES_DSN="$AGENTSMESH_TEST_POSTGRES_DSN" \
+AGENTCLOUD_TEST_POSTGRES_DSN="$AGENTCLOUD_TEST_POSTGRES_DSN" \
 go test ./backend/internal/infra \
   -run 'Orchestration.*Apply|WorkerTemplateApply|BindingApply' -count=1
 ```

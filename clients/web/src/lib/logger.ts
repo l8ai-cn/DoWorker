@@ -6,7 +6,7 @@ type Level = "trace" | "debug" | "info" | "warn" | "error";
 //   2. Native console — on Web the wasm-side tracing subscriber renders
 //      Rust events to console too, so the destination is the same.
 // Why not also push to the wasm subscriber from here: doing so requires
-// importing `wasm-core` (which depends on the `do-worker-wasm` package).
+// importing `wasm-core` (which depends on the `agent-cloud-wasm` package).
 // Keeping logger console-only avoids pulling wasm into static routes.
 function emit(level: Level, target: string, msg: string): void {
   const formatted = `[${target}] ${msg}`;

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"log/slog"
 
-	"github.com/anthropics/agentsmesh/runner/internal/acp"
+	"github.com/l8ai-cn/agentcloud/runner/internal/acp"
 )
 
 // scenario describes the ACP behavior for one named test profile.
@@ -19,7 +19,7 @@ type scenario struct {
 	handlePrompt    func(state *runtimeState, id int64, params json.RawMessage, logger *slog.Logger) error
 	artifactActions []string
 	// permissionModes, when non-empty, is advertised as
-	// agentsmeshExtensions.permissionModes at initialize — drives the frontend
+	// agentcloudExtensions.permissionModes at initialize — drives the frontend
 	// permission selector. Empty → selector falls back to the Claude set.
 	permissionModes []string
 }

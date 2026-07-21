@@ -7,8 +7,8 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
-	"github.com/anthropics/agentsmesh/runner/internal/process"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/process"
 )
 
 // executeUpdate creates a backup, downloads and replaces the binary, and restarts.

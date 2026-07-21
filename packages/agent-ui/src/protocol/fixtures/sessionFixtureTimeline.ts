@@ -3,27 +3,27 @@ import { create } from "@bufbuild/protobuf";
 import {
   ContentBlockSchema,
   UnsupportedReason,
-} from "@do-worker/proto/agent_workbench/v2/content_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/content_pb";
 import {
   MessageTimelineItemSchema,
   TimelineItemContentSchema,
   TimelineItemSchema,
   type TimelineItem,
-} from "@do-worker/proto/agent_workbench/v2/session_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/session_pb";
 import {
   MessageRole,
   TimelineItemStatus,
-} from "@do-worker/proto/agent_workbench/v2/session_state_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/session_state_pb";
 import {
   ToolExecutionSchema,
   ToolPhase,
-} from "@do-worker/proto/agent_workbench/v2/tool_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/tool_pb";
 
 const textEncoder = new TextEncoder();
 
 function fixtureIdentity(semanticKey: string, sourceType?: string) {
   return {
-    namespace: "agentsmesh.fixture",
+    namespace: "agentcloud.fixture",
     semanticKey,
     schemaVersion: "1",
     sourceType,
@@ -110,7 +110,7 @@ function createToolContent() {
   return create(ToolExecutionSchema, {
     executionId: "tool-execution-1",
     identity: {
-      namespace: "agentsmesh.claude",
+      namespace: "agentcloud.claude",
       semanticKey: "filesystem.read",
       schemaVersion: "1",
       sourceToolName: "Read",

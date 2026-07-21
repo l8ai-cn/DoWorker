@@ -6,7 +6,7 @@
 use crate::connect_call::connect_call;
 use crate::error::ApiError;
 use crate::ApiClient;
-use agentsmesh_types::proto_blockstore_v1 as blockstore_proto;
+use agentcloud_types::proto_blockstore_v1 as blockstore_proto;
 
 impl ApiClient {
     pub async fn blockstore_apply_ops_connect(

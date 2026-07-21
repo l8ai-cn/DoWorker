@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use agentsmesh_api_client::ApiClient;
+use agentcloud_api_client::ApiClient;
 use prost::Message as _;
 
 pub struct ChannelService {
@@ -27,7 +27,7 @@ impl ChannelService {
 // `*_connect` method on the shared ApiClient, and re-encodes the response.
 // =============================================================================
 
-use agentsmesh_types::proto_channel_v1 as channel_proto;
+use agentcloud_types::proto_channel_v1 as channel_proto;
 
 use crate::wire;
 

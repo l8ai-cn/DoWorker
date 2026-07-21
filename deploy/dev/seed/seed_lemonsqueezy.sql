@@ -2,8 +2,8 @@
 -- LemonSqueezy Variant IDs Configuration for Development
 -- =============================================================================
 --
--- These Variant IDs are specific to the AgentsMesh development LemonSqueezy account.
--- Store ID: 282541 (agentsmeshai.lemonsqueezy.com)
+-- These Variant IDs are specific to the Agent Cloud development LemonSqueezy account.
+-- Store ID: 282541 (agentcloudai.lemonsqueezy.com)
 --
 -- Product Structure:
 --   Based Monthly (Product 800605) -> Variant 1262536 ($9.90/month)

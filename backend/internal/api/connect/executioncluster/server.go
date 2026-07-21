@@ -6,9 +6,9 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	service "github.com/anthropics/agentsmesh/backend/internal/service/executioncluster"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	service "github.com/l8ai-cn/agentcloud/backend/internal/service/executioncluster"
 )
 
 const ServiceName = "proto.execution_cluster.v1.ExecutionClusterService"

@@ -4,8 +4,8 @@ import (
 	"context"
 	"sync"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/ticket"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/user"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/ticket"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/user"
 )
 
 // mockTicketRepoForCrossUnit captures CreateComment calls for assertion

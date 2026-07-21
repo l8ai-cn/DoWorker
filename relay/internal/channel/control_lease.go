@@ -5,7 +5,7 @@ import (
 	"encoding/hex"
 	"time"
 
-	"github.com/anthropics/agentsmesh/relay/internal/protocol"
+	"github.com/l8ai-cn/agentcloud/relay/internal/protocol"
 )
 
 func (c *Channel) handleControlLeaseRequest(subscriberID string, request protocol.ControlLeaseRequest) {

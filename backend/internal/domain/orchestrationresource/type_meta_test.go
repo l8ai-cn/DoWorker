@@ -19,6 +19,15 @@ func TestTypeMetaValidate(t *testing.T) {
 		require.NoError(t, meta.Validate())
 	})
 
+	t.Run("accepts legacy agentsmesh api version", func(t *testing.T) {
+		meta := TypeMeta{
+			APIVersion: LegacyAPIVersionV1Alpha1,
+			Kind:       "WorkerTemplate",
+		}
+
+		require.NoError(t, meta.Validate())
+	})
+
 	cases := []struct {
 		name  string
 		meta  TypeMeta

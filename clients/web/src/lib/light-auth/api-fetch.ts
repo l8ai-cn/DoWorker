@@ -1,4 +1,4 @@
-// Pure fetch wrapper for the (auth) route group — no wasm, no do-worker-wasm.
+// Pure fetch wrapper for the (auth) route group — no wasm, no agent-cloud-wasm.
 // Throws @/lib/api/api-types::ApiError on 4xx/5xx so existing UI code that
 // matches `err instanceof ApiError && err.hasCode(...)` keeps working
 // unchanged. Bearer tokens are pulled lazily from localStorage via

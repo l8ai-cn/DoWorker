@@ -15,8 +15,8 @@ import {
   WasmAIResourceService,
   WasmExecutionClusterService,
   WasmRelayManager,
-} from "do-worker-wasm";
-import { registerServiceProvider } from "@do-worker/service-runtime";
+} from "agent-cloud-wasm";
+import { registerServiceProvider } from "@agent-cloud/service-runtime";
 
 // AuthManager + ApiClient share the same token store (Plan I6).
 // Caller constructs AuthManager first, passes it to ApiClient, then both here.
@@ -109,4 +109,4 @@ export {
   getExecutionClusterService,
   getAgentWorkbenchService,
   getAgentWorkbenchState,
-} from "@do-worker/service-runtime";
+} from "@agent-cloud/service-runtime";

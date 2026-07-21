@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/billing"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/promocode"
-	svc "github.com/anthropics/agentsmesh/backend/internal/service/promocode"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/billing"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/promocode"
+	svc "github.com/l8ai-cn/agentcloud/backend/internal/service/promocode"
 )
 
 func TestService_Validate(t *testing.T) {

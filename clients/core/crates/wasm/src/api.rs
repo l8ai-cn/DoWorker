@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
-use agentsmesh_api_client::{ApiClient, AuthTokenStore};
-use agentsmesh_events::{EventSubscriptionManager, EventSubscriptionManagerOptions};
-use agentsmesh_state::app_state::AppRuntime;
-use agentsmesh_transport::runtime::PlatformRuntime;
+use agentcloud_api_client::{ApiClient, AuthTokenStore};
+use agentcloud_events::{EventSubscriptionManager, EventSubscriptionManagerOptions};
+use agentcloud_state::app_state::AppRuntime;
+use agentcloud_transport::runtime::PlatformRuntime;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]

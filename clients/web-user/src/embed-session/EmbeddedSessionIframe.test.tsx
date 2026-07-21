@@ -71,7 +71,7 @@ describe("EmbeddedSessionIframe", () => {
     expect(screen.getByText("正在等待嵌入页面建立连接…")).toBeInTheDocument();
     await waitFor(() =>
       expect(parent.postMessage).toHaveBeenCalledWith(
-        { type: "agentsmesh.embed.ready", version: 1 },
+        { type: "agentcloud.embed.ready", version: 1 },
         "http://portal.example",
       ),
     );
@@ -80,7 +80,7 @@ describe("EmbeddedSessionIframe", () => {
       window.dispatchEvent(
         new MessageEvent("message", {
           data: {
-            type: "agentsmesh.embed.open",
+            type: "agentcloud.embed.open",
             version: 1,
             redemptionProof: "parent-proof",
           },

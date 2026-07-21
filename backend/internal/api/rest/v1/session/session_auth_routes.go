@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	authservice "github.com/anthropics/agentsmesh/backend/internal/service/auth"
-	orgservice "github.com/anthropics/agentsmesh/backend/internal/service/organization"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	authservice "github.com/l8ai-cn/agentcloud/backend/internal/service/auth"
+	orgservice "github.com/l8ai-cn/agentcloud/backend/internal/service/organization"
 	"github.com/gin-gonic/gin"
 )
 

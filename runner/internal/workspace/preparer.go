@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/anthropics/agentsmesh/runner/internal/envfilter"
-	"github.com/anthropics/agentsmesh/runner/internal/envpath"
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/envfilter"
+	"github.com/l8ai-cn/agentcloud/runner/internal/envpath"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
 )
 
 // Module logger for workspace

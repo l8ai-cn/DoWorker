@@ -1,6 +1,6 @@
 package agent
 
-import "github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+import "github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 
 func (a *Agent) ValidateIdentifiers() error {
 	if err := slugkit.ValidateIdentifier("agents.slug", a.Slug); err != nil {

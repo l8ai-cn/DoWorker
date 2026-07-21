@@ -35,9 +35,9 @@ export function createPatternPreflightConfig() {
     runnerNodeId: process.env.PATTERN_WORKER_RUNNER_NODE_ID,
     chromiumExecutable: process.env.PATTERN_WORKER_CHROMIUM_EXECUTABLE,
     pgContainer: process.env.PATTERN_WORKER_POSTGRES_CONTAINER
-      ?? "agentsmesh-codex-loop-blockly-mvp-postgres-1",
-    pgUser: process.env.PATTERN_WORKER_POSTGRES_USER ?? "agentsmesh",
-    pgDatabase: process.env.PATTERN_WORKER_POSTGRES_DATABASE ?? "agentsmesh",
+      ?? "agentcloud-codex-loop-blockly-mvp-postgres-1",
+    pgUser: process.env.PATTERN_WORKER_POSTGRES_USER ?? "agentcloud",
+    pgDatabase: process.env.PATTERN_WORKER_POSTGRES_DATABASE ?? "agentcloud",
     evidenceDir: process.env.PATTERN_WORKER_EVIDENCE_DIR
       ?? path.join(process.cwd(), `deploy/dev/runtime/pattern-worker-evidence-${checkedAt}`),
   };

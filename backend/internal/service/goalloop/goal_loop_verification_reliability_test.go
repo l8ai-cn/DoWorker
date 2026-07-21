@@ -10,8 +10,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/goalloop"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/goalloop"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 )
 
 func TestVerificationSuccessKeepsLoopNonTerminalWhenPodStopFails(t *testing.T) {

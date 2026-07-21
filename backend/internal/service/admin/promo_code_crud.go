@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/admin"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/promocode"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/admin"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/promocode"
 )
 
 func (s *Service) GetPromoCode(ctx context.Context, id int64) (*promocode.PromoCode, error) {

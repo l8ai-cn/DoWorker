@@ -18,7 +18,7 @@ fi
 
 while IFS= read -r slug; do
   definition_dir="${REPO_ROOT}/config/worker-types/${slug}"
-  count="$(docker exec "$POSTGRES_CONTAINER" psql -U agentsmesh -d agentsmesh -Atc \
+  count="$(docker exec "$POSTGRES_CONTAINER" psql -U agentcloud -d agentcloud -Atc \
     "SELECT count(*) FROM agents WHERE slug = '${slug}'")"
   [[ "$count" == "1" ]] || {
     echo "expected one database registration for ${slug}, got ${count}" >&2
@@ -29,7 +29,7 @@ while IFS= read -r slug; do
   expected_adapter_id="$(jq -r '.adapter_id' "${definition_dir}/definition.json")"
   expected_modes="$(jq -r '.interaction_modes | join(",")' "${definition_dir}/definition.json")"
   read -r executable adapter_id supported_modes is_builtin is_active is_internal uses_legacy_columns \
-    < <(docker exec "$POSTGRES_CONTAINER" psql -U agentsmesh -d agentsmesh -At -F $'\t' -c \
+    < <(docker exec "$POSTGRES_CONTAINER" psql -U agentcloud -d agentcloud -At -F $'\t' -c \
       "SELECT executable, adapter_id, supported_modes, is_builtin, is_active, is_internal, uses_legacy_columns
        FROM agents WHERE slug = '${slug}'")
 
@@ -51,7 +51,7 @@ while IFS= read -r slug; do
   }
 
   diff -u \
-    <(docker exec "$POSTGRES_CONTAINER" psql -U agentsmesh -d agentsmesh -Atc \
+    <(docker exec "$POSTGRES_CONTAINER" psql -U agentcloud -d agentcloud -Atc \
       "SELECT agentfile_source FROM agents WHERE slug = '${slug}'" |
       perl -0pe 's/\n\z//') \
     "${definition_dir}/AgentFile"

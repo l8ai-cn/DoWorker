@@ -6,9 +6,9 @@ import (
 	"errors"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	domainitem "github.com/anthropics/agentsmesh/backend/internal/domain/conversationitem"
-	runnerservice "github.com/anthropics/agentsmesh/backend/internal/service/runner"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	domainitem "github.com/l8ai-cn/agentcloud/backend/internal/domain/conversationitem"
+	runnerservice "github.com/l8ai-cn/agentcloud/backend/internal/service/runner"
 	"gorm.io/gorm"
 )
 

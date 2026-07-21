@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	notifDomain "github.com/anthropics/agentsmesh/backend/internal/domain/notification"
+	notifDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/notification"
 )
 
 func TestDispatcher_DirectRecipients(t *testing.T) {

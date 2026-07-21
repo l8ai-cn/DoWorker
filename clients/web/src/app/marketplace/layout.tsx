@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     canonical: "https://market.l8ai.cn",
   },
   openGraph: {
-    title: "Agent Market | Do Worker",
+    title: "Agent Market | Agent Cloud",
     description:
       "Discover approved Agents and inspect their capabilities, permissions, and versions before installation.",
     url: "https://market.l8ai.cn",

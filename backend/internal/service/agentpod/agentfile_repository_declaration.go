@@ -3,7 +3,7 @@ package agentpod
 import (
 	"errors"
 
-	"github.com/anthropics/agentsmesh/agentfile/parser"
+	"github.com/l8ai-cn/agentcloud/agentfile/parser"
 )
 
 type repositoryDeclaration struct {

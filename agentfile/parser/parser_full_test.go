@@ -37,14 +37,14 @@ if config.permission == "bypass" {
 
 if mcp.enabled {
   mcp_cfg = json_merge(mcp.builtin, mcp.installed)
-  plugin_dir = sandbox.root + "/agentsmesh-plugin"
+  plugin_dir = sandbox.root + "/agentcloud-plugin"
 
   mkdir plugin_dir
   mkdir plugin_dir + "/.claude-plugin"
 
   file plugin_dir + "/.claude-plugin/plugin.json" json({
-    name: "agentsmesh",
-    description: "AgentsMesh collaboration plugin",
+    name: "agentcloud",
+    description: "Agent Cloud collaboration plugin",
     version: "1.0.0"
   })
 

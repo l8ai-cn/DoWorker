@@ -9,8 +9,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	grantsvc "github.com/anthropics/agentsmesh/backend/internal/service/grant"
-	grantv1 "github.com/anthropics/agentsmesh/proto/gen/go/grant/v1"
+	grantsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/grant"
+	grantv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/grant/v1"
 )
 
 func connectCodeOf(t *testing.T, err error) connect.Code {

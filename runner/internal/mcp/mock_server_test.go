@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/runner/internal/testutil"
+	"github.com/l8ai-cn/agentcloud/runner/internal/testutil"
 )
 
 // mockMCPServerScript returns a bash script that simulates an MCP server

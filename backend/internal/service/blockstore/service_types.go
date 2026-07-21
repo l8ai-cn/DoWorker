@@ -7,9 +7,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/blockstore"
-	blockstoreinfra "github.com/anthropics/agentsmesh/backend/internal/infra/blockstore"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/otel"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/blockstore"
+	blockstoreinfra "github.com/l8ai-cn/agentcloud/backend/internal/infra/blockstore"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/otel"
 )
 
 type Service struct {

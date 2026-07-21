@@ -1,10 +1,10 @@
 # auto-harness 整合（Coordinator）
 
-把 auto-harness 的「任务源驱动调度引擎」原生重写进 Do Worker backend：定时扫描外部任务源（CNB issue / Linear）→ 落成 **Ticket** → 认领 → 经 `PodOrchestrator` 起 **do-agent** Pod → Pod 终态后把结果回写到任务源评论。复用现有 Ticket/kanban、PodOrchestrator、eventbus、CNB token 体系。
+把 auto-harness 的「任务源驱动调度引擎」原生重写进 Agent Cloud backend：定时扫描外部任务源（CNB issue / Linear）→ 落成 **Ticket** → 认领 → 经 `PodOrchestrator` 起 **do-agent** Pod → Pod 终态后把结果回写到任务源评论。复用现有 Ticket/kanban、PodOrchestrator、eventbus、CNB token 体系。
 
 ## 架构映射
 
-| auto-harness | Do Worker 落点 |
+| auto-harness | Agent Cloud 落点 |
 |---|---|
 | `platform.Driver` | `coordinator.TaskPlatform` 接口 + CNB(HTTP) / Linear(GraphQL) 实现 |
 | `coordinator.Task` | 现有 **Ticket** + `ticket_external_links`（去重外部 issue） |
@@ -38,7 +38,7 @@ flowchart LR
 认领 = 在 issue 下发一条带 HTML marker 的评论：
 
 ```
-<!-- agentsmesh-coordinator:claim key="project=<id> task=<external_id>" -->
+<!-- agentcloud-coordinator:claim key="project=<id> task=<external_id>" -->
 ```
 
 最早一条未释放的 marker 获胜；coordinator 把自己的 key 视为幂等再认领。`ticket_external_links` 在 store 层先行去重，marker 解决跨实例竞态。
@@ -82,7 +82,7 @@ CNB / Linear 走 HTTP，不装 CLI。用户在 Settings 配 provider API key，c
 
 ## Runner 自动创建（auto-harness 对齐）
 
-auto-harness 在派发前会 `CreateInstance` 动态起 worker；Do Worker coordinator 在 `RunProject` 扫描前调用 **RunnerEnsurer**，无在线 runner 时走可插拔 **RunnerLauncher** 再轮询上线（默认 90s / 2s）。
+auto-harness 在派发前会 `CreateInstance` 动态起 worker；Agent Cloud coordinator 在 `RunProject` 扫描前调用 **RunnerEnsurer**，无在线 runner 时走可插拔 **RunnerLauncher** 再轮询上线（默认 90s / 2s）。
 
 | 组件 | 路径 |
 |---|---|
@@ -149,13 +149,13 @@ COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICES=claude-code=runner-claude-code,codex-
 
 ```bash
 COORDINATOR_RUNNER_LAUNCHER=k8s
-COORDINATOR_RUNNER_IMAGES=do-agent=registry.example.com/agentsmesh-runner-do-agent:1.2.3,codex-cli=registry.example.com/agentsmesh-runner-codex-cli:1.2.3
-COORDINATOR_RUNNER_BACKEND_URL=http://backend.agentsmesh.svc:8080
-COORDINATOR_RUNNER_GRPC_ENDPOINT=backend.agentsmesh.svc:9443
-COORDINATOR_RUNNER_RELAY_BASE_URL=ws://relay.agentsmesh.svc:8080/relay
+COORDINATOR_RUNNER_IMAGES=do-agent=registry.example.com/agentcloud-runner-do-agent:1.2.3,codex-cli=registry.example.com/agentcloud-runner-codex-cli:1.2.3
+COORDINATOR_RUNNER_BACKEND_URL=http://backend.agentcloud.svc:8080
+COORDINATOR_RUNNER_GRPC_ENDPOINT=backend.agentcloud.svc:9443
+COORDINATOR_RUNNER_RELAY_BASE_URL=ws://relay.agentcloud.svc:8080/relay
 COORDINATOR_RUNNER_ORG_SLUG=acme
-COORDINATOR_RUNNER_K8S_NAMESPACE=agentsmesh
-COORDINATOR_RUNNER_K8S_SSL_SECRET=agentsmesh-runner-ca
+COORDINATOR_RUNNER_K8S_NAMESPACE=agentcloud
+COORDINATOR_RUNNER_K8S_SSL_SECRET=agentcloud-runner-ca
 ```
 
 ```mermaid

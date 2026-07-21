@@ -40,7 +40,7 @@ async function seedLightSession(
       const raw = `${u.protocol.replace(":", "")}_${u.hostname.toLowerCase()}${port}`;
       const slug = raw.replace(/[^a-zA-Z0-9]/g, "_").slice(0, 64);
       window.localStorage.setItem(
-        `do-worker-auth/${slug}/session`,
+        `agent-cloud-auth/${slug}/session`,
         JSON.stringify(blob),
       );
     },

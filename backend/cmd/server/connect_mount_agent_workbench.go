@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"connectrpc.com/connect"
-	agentworkbenchconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/agent_workbench"
-	v1 "github.com/anthropics/agentsmesh/backend/internal/api/rest/v1"
-	workbenchsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentworkbench"
+	agentworkbenchconnect "github.com/l8ai-cn/agentcloud/backend/internal/api/connect/agent_workbench"
+	v1 "github.com/l8ai-cn/agentcloud/backend/internal/api/rest/v1"
+	workbenchsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentworkbench"
 )
 
 func mountAgentWorkbenchService(

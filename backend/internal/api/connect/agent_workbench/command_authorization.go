@@ -1,6 +1,6 @@
 package agentworkbenchconnect
 
-import agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
+import agentworkbenchv2 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2"
 
 func requireArtifactAuthorization(
 	snapshot *agentworkbenchv2.SessionSnapshot,

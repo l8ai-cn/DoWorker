@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/infra"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra"
 )
 
 func TestAuthenticate(t *testing.T) {

@@ -17,10 +17,10 @@ func runWebConsole(args []string) {
 	port := fs.Int("port", DefaultConsolePort, "Web console port")
 
 	fs.Usage = func() {
-		fmt.Println(`Open the Do Worker Runner web console in browser.
+		fmt.Println(`Open the Agent Cloud Runner web console in browser.
 
 Usage:
-  do-worker-runner webconsole [options]
+  agent-cloud-runner webconsole [options]
 
 Options:`)
 		fs.PrintDefaults()
@@ -31,7 +31,7 @@ The web console provides a web-based interface to:
   - View logs
   - Manage runner configuration
 
-Note: The runner must be running ('do-worker-runner run') for the web console to be accessible.`)
+Note: The runner must be running ('agent-cloud-runner run') for the web console to be accessible.`)
 	}
 
 	if err := fs.Parse(args); err != nil {
@@ -46,7 +46,7 @@ Note: The runner must be running ('do-worker-runner run') for the web console to
 	if err != nil {
 		fmt.Println("Error: Web console is not accessible.")
 		fmt.Println("")
-		fmt.Println("Make sure the runner is running with 'do-worker-runner run' first.")
+		fmt.Println("Make sure the runner is running with 'agent-cloud-runner run' first.")
 		fmt.Printf("The web console should be available at %s\n", url)
 		os.Exit(1)
 	}

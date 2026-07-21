@@ -9,7 +9,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/runner/internal/acp"
+	"github.com/l8ai-cn/agentcloud/runner/internal/acp"
 )
 
 // driveACP runs the ACP runtime on a goroutine and feeds it a sequence of

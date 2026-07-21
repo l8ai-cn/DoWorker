@@ -3,7 +3,7 @@ package coordinator
 import (
 	"testing"
 
-	workerruntime "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
+	workerruntime "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerruntime"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -13,7 +13,7 @@ func TestValidateManagedRunnerImagesRejectsUnreleasedFormalWorker(t *testing.T) 
 		workerruntime.DefaultCatalog(),
 		[]string{"aider"},
 		map[string]string{
-			"aider": "repo.aiedulab.cn:8443/agentsmesh/runner-aider@sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1",
+			"aider": "repo.aiedulab.cn:8443/agentcloud/runner-aider@sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1",
 		},
 	)
 
@@ -27,7 +27,7 @@ func TestValidateManagedRunnerImagesAllowsReleasedFormalWorker(t *testing.T) {
 		workerruntime.DefaultCatalog(),
 		[]string{"codex-cli"},
 		map[string]string{
-			"codex-cli": "repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:854952254d5f7ce25db3258034bc71a07169a5730dfe0670243fc10ea437bacd",
+			"codex-cli": "repo.aiedulab.cn:8443/agentcloud/runner-codex-cli@sha256:854952254d5f7ce25db3258034bc71a07169a5730dfe0670243fc10ea437bacd",
 		},
 	)
 
@@ -39,7 +39,7 @@ func TestValidateManagedRunnerImagesAllowsNonFormalWorker(t *testing.T) {
 		workerruntime.DefaultCatalog(),
 		[]string{"aider"},
 		map[string]string{
-			"e2e-echo": "repo.aiedulab.cn:8443/agentsmesh/runner-e2e-echo@sha256:077eb4511113ddb80dd8e09d7b46ffe3668d6b69d1840c1cbe849e97595087fa",
+			"e2e-echo": "repo.aiedulab.cn:8443/agentcloud/runner-e2e-echo@sha256:077eb4511113ddb80dd8e09d7b46ffe3668d6b69d1840c1cbe849e97595087fa",
 		},
 	)
 

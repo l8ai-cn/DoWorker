@@ -1,4 +1,4 @@
-# Do Worker Expert 平台能力地图
+# Agent Cloud Expert 平台能力地图
 
 - 状态：持续维护
 - 基线日期：2026-07-13
@@ -7,7 +7,7 @@
 
 ## 产品定位
 
-Do Worker 是以 Expert 为业务入口的 AI 工作平台。用户描述一个目标，Expert 在
+Agent Cloud 是以 Expert 为业务入口的 AI 工作平台。用户描述一个目标，Expert 在
 后台选择并协调 Worker、模型、Skills、知识、工具与 Workflow，经过人工确认后
 交付可查验结果。底层可以由一个或多个 Worker 执行，但用户不需要管理一组割裂
 的聊天角色。

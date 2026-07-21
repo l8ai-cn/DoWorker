@@ -6,10 +6,10 @@ import (
 	"encoding/hex"
 	"encoding/json"
 
-	agentpod "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	sessiondomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
-	sessionmessagesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionmessage"
-	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
+	agentpod "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	sessiondomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentsession"
+	sessionmessagesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/sessionmessage"
+	agentworkbenchv2 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2"
 )
 
 func (dispatcher *CommandDispatcher) deliver(

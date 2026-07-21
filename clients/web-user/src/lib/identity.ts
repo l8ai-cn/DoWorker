@@ -1,7 +1,7 @@
 /**
  * User identity discovery and session-expiry redirects.
  *
- * API transport lives in `lib/do-worker/`; this module owns `/v1/me` caching
+ * API transport lives in `lib/agent-cloud/`; this module owns `/v1/me` caching
  * and login redirect policy.
  */
 
@@ -10,10 +10,10 @@ import {
   getCachedServerInfo,
   hostFetch,
   isEmbeddedHost,
-  patchDoWorkerOrgSlug,
-  readDoWorkerJWT,
-  readDoWorkerOrgSlug,
-} from "./do-worker";
+  patchAgentCloudOrgSlug,
+  readAgentCloudJWT,
+  readAgentCloudOrgSlug,
+} from "./agent-cloud";
 
 const RESERVED_USER_LOCAL = "local";
 
@@ -35,16 +35,16 @@ function reconcileOrgSlug(
   preferred: string | undefined,
   allowed: string[] | undefined,
 ): void {
-  const stored = readDoWorkerOrgSlug();
+  const stored = readAgentCloudOrgSlug();
   const slugs = allowed ?? (preferred ? [preferred] : []);
   if (slugs.length === 0) {
-    if (!stored && preferred) patchDoWorkerOrgSlug(preferred);
+    if (!stored && preferred) patchAgentCloudOrgSlug(preferred);
     return;
   }
   if (stored && slugs.includes(stored)) return;
   const next =
     preferred && slugs.includes(preferred) ? preferred : slugs.find(Boolean) ?? null;
-  if (next) patchDoWorkerOrgSlug(next);
+  if (next) patchAgentCloudOrgSlug(next);
 }
 
 function _isOnLoginPath(): boolean {
@@ -58,7 +58,7 @@ export async function resolveIdentity(): Promise<string | null> {
   _resolvePromise = (async () => {
     try {
       const headers = new Headers();
-      const jwt = readDoWorkerJWT();
+      const jwt = readAgentCloudJWT();
       if (jwt) {
         headers.set("Authorization", `Bearer ${jwt}`);
       }

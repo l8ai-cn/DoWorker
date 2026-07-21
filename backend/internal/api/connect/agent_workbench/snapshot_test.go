@@ -7,9 +7,9 @@ import (
 	"testing"
 
 	"connectrpc.com/connect"
-	sessiondomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
-	workbenchdomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentworkbench"
-	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
+	sessiondomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentsession"
+	workbenchdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentworkbench"
+	agentworkbenchv2 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2"
 	"github.com/stretchr/testify/require"
 )
 

@@ -120,7 +120,7 @@ export default function AboutPage() {
             {t("about.contact.content")}
           </p>
           <div className="flex gap-4 justify-center">
-            <Link href="mailto:contact@agentsmesh.ai">
+            <Link href="mailto:contact@agentcloud.ai">
               <Button size="lg">{t("about.contact.email")}</Button>
             </Link>
             <Link href="/careers">

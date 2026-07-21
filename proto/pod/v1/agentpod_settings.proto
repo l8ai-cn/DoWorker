@@ -16,7 +16,7 @@ package proto.pod.v1;
 
 import "codegen/v1/options.proto";
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/pod/v1;podv1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/pod/v1;podv1";
 
 // Convert codegen target — emits agentpod_settings_convert.amesh.go into the
 // handler tree so converters can reach `backend/internal/domain/agentpod`.
@@ -37,7 +37,7 @@ service AgentPodSettingsService {
 
 message AgentPodSettings {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod.UserAgentPodSettings"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod.UserAgentPodSettings"
   };
 
   optional string default_agent_slug = 1;
@@ -50,7 +50,7 @@ message AgentPodSettings {
 
 message AIProvider {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod.UserAIProvider"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod.UserAIProvider"
   };
 
   int64 id = 1 [(amesh.codegen.v1.field_rename) = "ID"];

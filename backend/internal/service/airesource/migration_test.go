@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/testkit"
-	"github.com/anthropics/agentsmesh/backend/pkg/crypto"
+	"github.com/l8ai-cn/agentcloud/backend/internal/testkit"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/crypto"
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
 )

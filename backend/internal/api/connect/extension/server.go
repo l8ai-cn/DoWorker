@@ -9,8 +9,8 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	extensionservice "github.com/anthropics/agentsmesh/backend/internal/service/extension"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	extensionservice "github.com/l8ai-cn/agentcloud/backend/internal/service/extension"
 )
 
 // Server carries the shared dependencies for the extension sub-services

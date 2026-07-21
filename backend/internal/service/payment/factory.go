@@ -3,14 +3,14 @@ package payment
 import (
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/backend/internal/config"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/billing"
-	alipayprovider "github.com/anthropics/agentsmesh/backend/internal/service/payment/alipay"
-	lemonsqueezyprovider "github.com/anthropics/agentsmesh/backend/internal/service/payment/lemonsqueezy"
-	licenseprovider "github.com/anthropics/agentsmesh/backend/internal/service/payment/license"
-	mockprovider "github.com/anthropics/agentsmesh/backend/internal/service/payment/mock"
-	stripeprovider "github.com/anthropics/agentsmesh/backend/internal/service/payment/stripe"
-	wechatprovider "github.com/anthropics/agentsmesh/backend/internal/service/payment/wechat"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/billing"
+	alipayprovider "github.com/l8ai-cn/agentcloud/backend/internal/service/payment/alipay"
+	lemonsqueezyprovider "github.com/l8ai-cn/agentcloud/backend/internal/service/payment/lemonsqueezy"
+	licenseprovider "github.com/l8ai-cn/agentcloud/backend/internal/service/payment/license"
+	mockprovider "github.com/l8ai-cn/agentcloud/backend/internal/service/payment/mock"
+	stripeprovider "github.com/l8ai-cn/agentcloud/backend/internal/service/payment/stripe"
+	wechatprovider "github.com/l8ai-cn/agentcloud/backend/internal/service/payment/wechat"
 )
 
 type Factory struct {

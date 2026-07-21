@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROJ="registry.example/agentsmesh"
+PROJ="registry.example/agentcloud"
 MODE="valid"
 
 docker() {
@@ -39,7 +39,7 @@ ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
 DOCKERFILE="${ROOT}/docker/agent-runtime/Dockerfile"
 BUILD_SCRIPT="${ROOT}/docker/agent-runtime/build.sh"
 grep -Fq "ARG RUNTIME_SHARED_BASE=base" "${DOCKERFILE}"
-grep -Fq 'BASE_IMAGE="${BASE_IMAGE:-${RUNTIME_BUILD_BASE:-do-worker/runner-base:latest}}"' "${BUILD_SCRIPT}"
+grep -Fq 'BASE_IMAGE="${BASE_IMAGE:-${RUNTIME_BUILD_BASE:-agent-cloud/runner-base:latest}}"' "${BUILD_SCRIPT}"
 verify_runner_build_base
 
 for failure_mode in inspect-error wrong-digest single invalid-json; do

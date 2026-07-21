@@ -148,7 +148,7 @@ export async function restoreLoopResourceProgram(
   loopSlug: string,
 ): Promise<LoopWorkbenchSnapshot> {
   const content = await exportResource(orgSlug, {
-    apiVersion: "agentsmesh.io/v1alpha1",
+    apiVersion: "agentcloud.io/v1alpha1",
     kind: "GoalLoop",
     namespace: orgSlug,
     name: loopSlug,

@@ -9,7 +9,7 @@ import remarkEmoji from "remark-emoji";
 import rehypeRaw from "rehype-raw";
 import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 import { rehypeGithubAlerts } from "rehype-github-alerts";
-import { markdownImageSource } from "@do-worker/agent-ui";
+import { markdownImageSource } from "@agent-cloud/agent-ui";
 
 const MARKDOWN_REMARK_PLUGINS = [remarkGfm, remarkEmoji];
 const ALERT_CLASS = /^markdown-alert(-\w+)?$/;

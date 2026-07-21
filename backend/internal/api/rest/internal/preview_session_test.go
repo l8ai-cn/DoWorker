@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	previewsvc "github.com/anthropics/agentsmesh/backend/internal/service/preview"
+	previewsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/preview"
 	"github.com/gin-gonic/gin"
 )
 

@@ -5,7 +5,7 @@ import { TEST_USER, TEST_ORG_SLUG, getWebBaseUrl, getApiBaseUrl } from "../../he
  * Regression guard for the light-auth rollout:
  *   /login, /register, /forgot-password, /reset-password, /verify-email,
  *   /onboarding, /invite/*, /runners/authorize and both OAuth callbacks
- *   must NEVER load the 40MB do-worker-wasm bundle.
+ *   must NEVER load the 40MB agent-cloud-wasm bundle.
  *
  * Wasm only kicks in once the user crosses into (dashboard).
  *
@@ -17,9 +17,9 @@ import { TEST_USER, TEST_ORG_SLUG, getWebBaseUrl, getApiBaseUrl } from "../../he
  */
 
 function isWasmRequest(url: string): boolean {
-  // Both the .wasm asset itself and the JS chunk wrapping do-worker-wasm
+  // Both the .wasm asset itself and the JS chunk wrapping agent-cloud-wasm
   // are indicators that wasm boot has started.
-  return url.endsWith(".wasm") || /agentsmesh[-_]wasm/.test(url);
+  return url.endsWith(".wasm") || /agentcloud[-_]wasm/.test(url);
 }
 
 test.describe("Pre-dashboard routes are wasm-zero", () => {
@@ -83,7 +83,7 @@ test.describe("Dashboard still loads wasm after login", () => {
         const raw = `${u.protocol.replace(":", "")}_${u.hostname.toLowerCase()}${port}`;
         const slug = raw.replace(/[^a-zA-Z0-9]/g, "_").slice(0, 64);
         localStorage.setItem(
-          `do-worker-auth/${slug}/session`,
+          `agent-cloud-auth/${slug}/session`,
           JSON.stringify({
             access_token: token,
             refresh_token,

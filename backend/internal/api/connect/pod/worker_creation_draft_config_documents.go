@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	podv1 "github.com/anthropics/agentsmesh/proto/gen/go/pod/v1"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	podv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/pod/v1"
 )
 
 func workerConfigDocumentBindingsFromProto(

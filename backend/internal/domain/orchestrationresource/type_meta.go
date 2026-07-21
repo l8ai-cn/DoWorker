@@ -7,7 +7,10 @@ import (
 	"strings"
 )
 
-const APIVersionV1Alpha1 = "agentsmesh.io/v1alpha1"
+const APIVersionV1Alpha1 = "agentcloud.io/v1alpha1"
+
+// LegacyAPIVersionV1Alpha1 remains accepted for existing resources and plans.
+const LegacyAPIVersionV1Alpha1 = "agentsmesh.io/v1alpha1"
 
 var pascalCaseIdentifierPattern = regexp.MustCompile(`^[A-Z][A-Za-z0-9]{1,99}$`)
 
@@ -16,8 +19,12 @@ type TypeMeta struct {
 	Kind       string `json:"kind" yaml:"kind"`
 }
 
+func IsSupportedAPIVersion(apiVersion string) bool {
+	return apiVersion == APIVersionV1Alpha1 || apiVersion == LegacyAPIVersionV1Alpha1
+}
+
 func (meta TypeMeta) Validate() error {
-	if meta.APIVersion != APIVersionV1Alpha1 {
+	if !IsSupportedAPIVersion(meta.APIVersion) {
 		return fmt.Errorf("typeMeta.APIVersion is invalid: %s", summarizeValue(meta.APIVersion))
 	}
 	if !pascalCaseIdentifierPattern.MatchString(meta.Kind) {

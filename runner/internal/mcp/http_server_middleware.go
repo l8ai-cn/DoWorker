@@ -78,7 +78,7 @@ func (s *HTTPServer) registerTools() {
 func (s *HTTPServer) GenerateMCPConfig(podKey string) map[string]interface{} {
 	return map[string]interface{}{
 		"mcpServers": map[string]interface{}{
-			"agentsmesh-collaboration": map[string]interface{}{
+			"agentcloud-collaboration": map[string]interface{}{
 				"command": "curl",
 				"args": []string{
 					"-X", "POST",

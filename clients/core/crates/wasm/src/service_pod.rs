@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use agentsmesh_api_client::ApiClient;
-use agentsmesh_services::PodService;
+use agentcloud_api_client::ApiClient;
+use agentcloud_services::PodService;
 use wasm_bindgen::prelude::*;
 
 // Networking-only wasm handle for the pod domain. The pod cache lives in the

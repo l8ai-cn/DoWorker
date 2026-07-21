@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: runner-e2e-echo-2-mcp
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   ports:
   - name: mcp
@@ -17,7 +17,7 @@ metadata:
   labels:
     app: runner-e2e-echo
   name: runner-e2e-echo-mcp
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   ports:
   - name: mcp
@@ -29,8 +29,8 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: runner-claude-agentsmesh-config
-  namespace: agentsmesh
+  name: runner-claude-agentcloud-config
+  namespace: agentcloud
 spec:
   accessModes:
   - ReadWriteOnce
@@ -42,7 +42,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: runner-claude-config
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   accessModes:
   - ReadWriteOnce
@@ -54,7 +54,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: runner-claude-workspace
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   accessModes:
   - ReadWriteOnce
@@ -65,8 +65,8 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: runner-codex-agentsmesh-config
-  namespace: agentsmesh
+  name: runner-codex-agentcloud-config
+  namespace: agentcloud
 spec:
   accessModes:
   - ReadWriteOnce
@@ -78,7 +78,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: runner-codex-config
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   accessModes:
   - ReadWriteOnce
@@ -90,7 +90,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: runner-codex-workspace
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   accessModes:
   - ReadWriteOnce
@@ -101,8 +101,8 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: runner-cursor-agentsmesh-config
-  namespace: agentsmesh
+  name: runner-cursor-agentcloud-config
+  namespace: agentcloud
 spec:
   accessModes:
   - ReadWriteOnce
@@ -114,7 +114,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: runner-cursor-config
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   accessModes:
   - ReadWriteOnce
@@ -126,7 +126,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: runner-cursor-workspace
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   accessModes:
   - ReadWriteOnce
@@ -138,7 +138,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: runner-e2e-echo-2-config
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   accessModes:
   - ReadWriteOnce
@@ -150,7 +150,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: runner-e2e-echo-2-workspace
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   accessModes:
   - ReadWriteOnce
@@ -162,7 +162,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: runner-e2e-echo-config
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   accessModes:
   - ReadWriteOnce
@@ -174,10 +174,10 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   labels:
-    agentsmesh.io/runtime: e2e-echo
-    app.kubernetes.io/name: agentsmesh-runner
+    agentcloud.io/runtime: e2e-echo
+    app.kubernetes.io/name: agentcloud-runner
   name: runner-e2e-echo-workspace
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   accessModes:
   - ReadWriteOnce
@@ -188,8 +188,8 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: runner-gemini-agentsmesh-config
-  namespace: agentsmesh
+  name: runner-gemini-agentcloud-config
+  namespace: agentcloud
 spec:
   accessModes:
   - ReadWriteOnce
@@ -201,7 +201,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: runner-gemini-config
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   accessModes:
   - ReadWriteOnce
@@ -213,7 +213,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: runner-gemini-workspace
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   accessModes:
   - ReadWriteOnce
@@ -224,8 +224,8 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: runner-loopal-agentsmesh-config
-  namespace: agentsmesh
+  name: runner-loopal-agentcloud-config
+  namespace: agentcloud
 spec:
   accessModes:
   - ReadWriteOnce
@@ -237,7 +237,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: runner-loopal-config
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   accessModes:
   - ReadWriteOnce
@@ -249,7 +249,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: runner-loopal-workspace
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   accessModes:
   - ReadWriteOnce
@@ -260,8 +260,8 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: runner-openclaw-agentsmesh-config
-  namespace: agentsmesh
+  name: runner-openclaw-agentcloud-config
+  namespace: agentcloud
 spec:
   accessModes:
   - ReadWriteOnce
@@ -273,7 +273,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: runner-openclaw-config
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   accessModes:
   - ReadWriteOnce
@@ -285,7 +285,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: runner-openclaw-workspace
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   accessModes:
   - ReadWriteOnce
@@ -296,8 +296,8 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: runner-hermes-agentsmesh-config
-  namespace: agentsmesh
+  name: runner-hermes-agentcloud-config
+  namespace: agentcloud
 spec:
   accessModes:
   - ReadWriteOnce
@@ -309,7 +309,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: runner-hermes-config
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   accessModes:
   - ReadWriteOnce
@@ -321,7 +321,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: runner-hermes-workspace
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   accessModes:
   - ReadWriteOnce
@@ -332,8 +332,8 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: runner-minimax-agentsmesh-config
-  namespace: agentsmesh
+  name: runner-minimax-agentcloud-config
+  namespace: agentcloud
 spec:
   accessModes:
   - ReadWriteOnce
@@ -345,7 +345,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: runner-minimax-workspace
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   accessModes:
   - ReadWriteOnce
@@ -357,9 +357,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    agentsmesh.io/runtime: claude-code
+    agentcloud.io/runtime: claude-code
   name: runner-claude-code
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   replicas: 1
   selector:
@@ -368,7 +368,7 @@ spec:
   template:
     metadata:
       labels:
-        agentsmesh.io/runtime: claude-code
+        agentcloud.io/runtime: claude-code
         app: runner-claude-code
     spec:
       containers:
@@ -383,9 +383,9 @@ spec:
           value: claude-code
         envFrom:
         - configMapRef:
-            name: agentsmesh-runner-env
+            name: agentcloud-runner-env
         - secretRef:
-            name: agentsmesh-runner-api-keys
+            name: agentcloud-runner-api-keys
             optional: true
         image: __COMPOSE_PROJECT_NAME__-runner-claude-code:latest
         imagePullPolicy: Never
@@ -400,8 +400,8 @@ spec:
           subPath: runner-entrypoint.sh
         - mountPath: /workspace
           name: workspace
-        - mountPath: /home/runner/.do-worker
-          name: agentsmesh-config
+        - mountPath: /home/runner/.agent-cloud
+          name: agentcloud-config
         - mountPath: /home/runner/.claude
           name: agent-config
         - mountPath: /run/runner-ssh-source
@@ -414,7 +414,7 @@ spec:
       volumes:
       - name: ssl
         secret:
-          secretName: agentsmesh-dev-ca
+          secretName: agentcloud-dev-ca
       - configMap:
           defaultMode: 493
           name: runner-entrypoint
@@ -422,24 +422,24 @@ spec:
       - name: workspace
         persistentVolumeClaim:
           claimName: runner-claude-workspace
-      - name: agentsmesh-config
+      - name: agentcloud-config
         persistentVolumeClaim:
-          claimName: runner-claude-agentsmesh-config
+          claimName: runner-claude-agentcloud-config
       - name: agent-config
         persistentVolumeClaim:
           claimName: runner-claude-config
       - name: runner-ssh
         secret:
           defaultMode: 384
-          secretName: agentsmesh-runner-ssh
+          secretName: agentcloud-runner-ssh
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    agentsmesh.io/runtime: cursor-cli
+    agentcloud.io/runtime: cursor-cli
   name: runner-cursor-cli
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   replicas: 1
   selector:
@@ -448,7 +448,7 @@ spec:
   template:
     metadata:
       labels:
-        agentsmesh.io/runtime: cursor-cli
+        agentcloud.io/runtime: cursor-cli
         app: runner-cursor-cli
     spec:
       containers:
@@ -463,9 +463,9 @@ spec:
           value: cursor-cli
         envFrom:
         - configMapRef:
-            name: agentsmesh-runner-env
+            name: agentcloud-runner-env
         - secretRef:
-            name: agentsmesh-runner-api-keys
+            name: agentcloud-runner-api-keys
             optional: true
         image: __COMPOSE_PROJECT_NAME__-runner-cursor-cli:latest
         imagePullPolicy: Never
@@ -480,8 +480,8 @@ spec:
           subPath: runner-entrypoint.sh
         - mountPath: /workspace
           name: workspace
-        - mountPath: /home/runner/.do-worker
-          name: agentsmesh-config
+        - mountPath: /home/runner/.agent-cloud
+          name: agentcloud-config
         - mountPath: /home/runner/.cursor
           name: agent-config
         - mountPath: /run/runner-ssh-source
@@ -494,7 +494,7 @@ spec:
       volumes:
       - name: ssl
         secret:
-          secretName: agentsmesh-dev-ca
+          secretName: agentcloud-dev-ca
       - configMap:
           defaultMode: 493
           name: runner-entrypoint
@@ -502,24 +502,24 @@ spec:
       - name: workspace
         persistentVolumeClaim:
           claimName: runner-cursor-workspace
-      - name: agentsmesh-config
+      - name: agentcloud-config
         persistentVolumeClaim:
-          claimName: runner-cursor-agentsmesh-config
+          claimName: runner-cursor-agentcloud-config
       - name: agent-config
         persistentVolumeClaim:
           claimName: runner-cursor-config
       - name: runner-ssh
         secret:
           defaultMode: 384
-          secretName: agentsmesh-runner-ssh
+          secretName: agentcloud-runner-ssh
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    agentsmesh.io/runtime: minimax-cli
+    agentcloud.io/runtime: minimax-cli
   name: runner-minimax-cli
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   replicas: 1
   selector:
@@ -528,7 +528,7 @@ spec:
   template:
     metadata:
       labels:
-        agentsmesh.io/runtime: minimax-cli
+        agentcloud.io/runtime: minimax-cli
         app: runner-minimax-cli
     spec:
       containers:
@@ -543,9 +543,9 @@ spec:
           value: minimax-cli
         envFrom:
         - configMapRef:
-            name: agentsmesh-runner-env
+            name: agentcloud-runner-env
         - secretRef:
-            name: agentsmesh-runner-api-keys
+            name: agentcloud-runner-api-keys
             optional: true
         image: __COMPOSE_PROJECT_NAME__-runner-minimax-cli:latest
         imagePullPolicy: Never
@@ -560,8 +560,8 @@ spec:
           subPath: runner-entrypoint.sh
         - mountPath: /workspace
           name: workspace
-        - mountPath: /home/runner/.do-worker
-          name: agentsmesh-config
+        - mountPath: /home/runner/.agent-cloud
+          name: agentcloud-config
         - mountPath: /run/runner-ssh-source
           name: runner-ssh
           readOnly: true
@@ -572,7 +572,7 @@ spec:
       volumes:
       - name: ssl
         secret:
-          secretName: agentsmesh-dev-ca
+          secretName: agentcloud-dev-ca
       - configMap:
           defaultMode: 493
           name: runner-entrypoint
@@ -580,21 +580,21 @@ spec:
       - name: workspace
         persistentVolumeClaim:
           claimName: runner-minimax-workspace
-      - name: agentsmesh-config
+      - name: agentcloud-config
         persistentVolumeClaim:
-          claimName: runner-minimax-agentsmesh-config
+          claimName: runner-minimax-agentcloud-config
       - name: runner-ssh
         secret:
           defaultMode: 384
-          secretName: agentsmesh-runner-ssh
+          secretName: agentcloud-runner-ssh
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    agentsmesh.io/runtime: openclaw
+    agentcloud.io/runtime: openclaw
   name: runner-openclaw
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   replicas: 1
   selector:
@@ -603,7 +603,7 @@ spec:
   template:
     metadata:
       labels:
-        agentsmesh.io/runtime: openclaw
+        agentcloud.io/runtime: openclaw
         app: runner-openclaw
     spec:
       containers:
@@ -618,9 +618,9 @@ spec:
           value: openclaw
         envFrom:
         - configMapRef:
-            name: agentsmesh-runner-env
+            name: agentcloud-runner-env
         - secretRef:
-            name: agentsmesh-runner-api-keys
+            name: agentcloud-runner-api-keys
             optional: true
         image: __COMPOSE_PROJECT_NAME__-runner-openclaw:latest
         imagePullPolicy: Never
@@ -635,8 +635,8 @@ spec:
           subPath: runner-entrypoint.sh
         - mountPath: /workspace
           name: workspace
-        - mountPath: /home/runner/.do-worker
-          name: agentsmesh-config
+        - mountPath: /home/runner/.agent-cloud
+          name: agentcloud-config
         - mountPath: /home/runner/.openclaw
           name: agent-config
         - mountPath: /run/runner-ssh-source
@@ -649,7 +649,7 @@ spec:
       volumes:
       - name: ssl
         secret:
-          secretName: agentsmesh-dev-ca
+          secretName: agentcloud-dev-ca
       - configMap:
           defaultMode: 493
           name: runner-entrypoint
@@ -657,24 +657,24 @@ spec:
       - name: workspace
         persistentVolumeClaim:
           claimName: runner-openclaw-workspace
-      - name: agentsmesh-config
+      - name: agentcloud-config
         persistentVolumeClaim:
-          claimName: runner-openclaw-agentsmesh-config
+          claimName: runner-openclaw-agentcloud-config
       - name: agent-config
         persistentVolumeClaim:
           claimName: runner-openclaw-config
       - name: runner-ssh
         secret:
           defaultMode: 384
-          secretName: agentsmesh-runner-ssh
+          secretName: agentcloud-runner-ssh
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    agentsmesh.io/runtime: hermes
+    agentcloud.io/runtime: hermes
   name: runner-hermes
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   replicas: 1
   selector:
@@ -683,7 +683,7 @@ spec:
   template:
     metadata:
       labels:
-        agentsmesh.io/runtime: hermes
+        agentcloud.io/runtime: hermes
         app: runner-hermes
     spec:
       containers:
@@ -698,9 +698,9 @@ spec:
           value: hermes
         envFrom:
         - configMapRef:
-            name: agentsmesh-runner-env
+            name: agentcloud-runner-env
         - secretRef:
-            name: agentsmesh-runner-api-keys
+            name: agentcloud-runner-api-keys
             optional: true
         image: __COMPOSE_PROJECT_NAME__-runner-hermes:latest
         imagePullPolicy: Never
@@ -715,8 +715,8 @@ spec:
           subPath: runner-entrypoint.sh
         - mountPath: /workspace
           name: workspace
-        - mountPath: /home/runner/.do-worker
-          name: agentsmesh-config
+        - mountPath: /home/runner/.agent-cloud
+          name: agentcloud-config
         - mountPath: /home/runner/.hermes
           name: agent-config
         - mountPath: /run/runner-ssh-source
@@ -729,7 +729,7 @@ spec:
       volumes:
       - name: ssl
         secret:
-          secretName: agentsmesh-dev-ca
+          secretName: agentcloud-dev-ca
       - configMap:
           defaultMode: 493
           name: runner-entrypoint
@@ -737,24 +737,24 @@ spec:
       - name: workspace
         persistentVolumeClaim:
           claimName: runner-hermes-workspace
-      - name: agentsmesh-config
+      - name: agentcloud-config
         persistentVolumeClaim:
-          claimName: runner-hermes-agentsmesh-config
+          claimName: runner-hermes-agentcloud-config
       - name: agent-config
         persistentVolumeClaim:
           claimName: runner-hermes-config
       - name: runner-ssh
         secret:
           defaultMode: 384
-          secretName: agentsmesh-runner-ssh
+          secretName: agentcloud-runner-ssh
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    agentsmesh.io/runtime: codex-cli
+    agentcloud.io/runtime: codex-cli
   name: runner-codex-cli
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   replicas: 1
   selector:
@@ -763,7 +763,7 @@ spec:
   template:
     metadata:
       labels:
-        agentsmesh.io/runtime: codex-cli
+        agentcloud.io/runtime: codex-cli
         app: runner-codex-cli
     spec:
       containers:
@@ -778,9 +778,9 @@ spec:
           value: codex-cli
         envFrom:
         - configMapRef:
-            name: agentsmesh-runner-env
+            name: agentcloud-runner-env
         - secretRef:
-            name: agentsmesh-runner-api-keys
+            name: agentcloud-runner-api-keys
             optional: true
         image: __COMPOSE_PROJECT_NAME__-runner-codex-cli:latest
         imagePullPolicy: Never
@@ -795,8 +795,8 @@ spec:
           subPath: runner-entrypoint.sh
         - mountPath: /workspace
           name: workspace
-        - mountPath: /home/runner/.do-worker
-          name: agentsmesh-config
+        - mountPath: /home/runner/.agent-cloud
+          name: agentcloud-config
         - mountPath: /home/runner/.codex
           name: agent-config
         - mountPath: /run/runner-ssh-source
@@ -809,7 +809,7 @@ spec:
       volumes:
       - name: ssl
         secret:
-          secretName: agentsmesh-dev-ca
+          secretName: agentcloud-dev-ca
       - configMap:
           defaultMode: 493
           name: runner-entrypoint
@@ -817,25 +817,25 @@ spec:
       - name: workspace
         persistentVolumeClaim:
           claimName: runner-codex-workspace
-      - name: agentsmesh-config
+      - name: agentcloud-config
         persistentVolumeClaim:
-          claimName: runner-codex-agentsmesh-config
+          claimName: runner-codex-agentcloud-config
       - name: agent-config
         persistentVolumeClaim:
           claimName: runner-codex-config
       - name: runner-ssh
         secret:
           defaultMode: 384
-          secretName: agentsmesh-runner-ssh
+          secretName: agentcloud-runner-ssh
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    agentsmesh.io/runtime: e2e-echo
-    app.kubernetes.io/name: agentsmesh-runner
+    agentcloud.io/runtime: e2e-echo
+    app.kubernetes.io/name: agentcloud-runner
   name: runner-e2e-echo
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   replicas: 1
   selector:
@@ -844,7 +844,7 @@ spec:
   template:
     metadata:
       labels:
-        agentsmesh.io/runtime: e2e-echo
+        agentcloud.io/runtime: e2e-echo
         app: runner-e2e-echo
     spec:
       containers:
@@ -859,9 +859,9 @@ spec:
           value: e2e-echo
         envFrom:
         - configMapRef:
-            name: agentsmesh-runner-env
+            name: agentcloud-runner-env
         - secretRef:
-            name: agentsmesh-runner-api-keys
+            name: agentcloud-runner-api-keys
             optional: true
         image: __COMPOSE_PROJECT_NAME__-runner-e2e-echo:latest
         imagePullPolicy: Never
@@ -880,8 +880,8 @@ spec:
           subPath: runner-entrypoint.sh
         - mountPath: /workspace
           name: workspace
-        - mountPath: /home/runner/.do-worker
-          name: agentsmesh-config
+        - mountPath: /home/runner/.agent-cloud
+          name: agentcloud-config
         - mountPath: /run/runner-ssh-source
           name: runner-ssh
           readOnly: true
@@ -892,7 +892,7 @@ spec:
       volumes:
       - name: ssl
         secret:
-          secretName: agentsmesh-dev-ca
+          secretName: agentcloud-dev-ca
       - configMap:
           defaultMode: 493
           name: runner-entrypoint
@@ -900,21 +900,21 @@ spec:
       - name: workspace
         persistentVolumeClaim:
           claimName: runner-e2e-echo-workspace
-      - name: agentsmesh-config
+      - name: agentcloud-config
         persistentVolumeClaim:
           claimName: runner-e2e-echo-config
       - name: runner-ssh
         secret:
           defaultMode: 384
-          secretName: agentsmesh-runner-ssh
+          secretName: agentcloud-runner-ssh
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    agentsmesh.io/runtime: e2e-echo
+    agentcloud.io/runtime: e2e-echo
   name: runner-e2e-echo-2
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   replicas: 1
   selector:
@@ -923,7 +923,7 @@ spec:
   template:
     metadata:
       labels:
-        agentsmesh.io/runtime: e2e-echo
+        agentcloud.io/runtime: e2e-echo
         app: runner-e2e-echo-2
     spec:
       containers:
@@ -938,9 +938,9 @@ spec:
           value: e2e-echo
         envFrom:
         - configMapRef:
-            name: agentsmesh-runner-env
+            name: agentcloud-runner-env
         - secretRef:
-            name: agentsmesh-runner-api-keys
+            name: agentcloud-runner-api-keys
             optional: true
         image: __COMPOSE_PROJECT_NAME__-runner-e2e-echo:latest
         imagePullPolicy: Never
@@ -959,8 +959,8 @@ spec:
           subPath: runner-entrypoint.sh
         - mountPath: /workspace
           name: workspace
-        - mountPath: /home/runner/.do-worker
-          name: agentsmesh-config
+        - mountPath: /home/runner/.agent-cloud
+          name: agentcloud-config
         - mountPath: /run/runner-ssh-source
           name: runner-ssh
           readOnly: true
@@ -971,7 +971,7 @@ spec:
       volumes:
       - name: ssl
         secret:
-          secretName: agentsmesh-dev-ca
+          secretName: agentcloud-dev-ca
       - configMap:
           defaultMode: 493
           name: runner-entrypoint
@@ -979,21 +979,21 @@ spec:
       - name: workspace
         persistentVolumeClaim:
           claimName: runner-e2e-echo-2-workspace
-      - name: agentsmesh-config
+      - name: agentcloud-config
         persistentVolumeClaim:
           claimName: runner-e2e-echo-2-config
       - name: runner-ssh
         secret:
           defaultMode: 384
-          secretName: agentsmesh-runner-ssh
+          secretName: agentcloud-runner-ssh
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    agentsmesh.io/runtime: gemini-cli
+    agentcloud.io/runtime: gemini-cli
   name: runner-gemini-cli
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   replicas: 1
   selector:
@@ -1002,7 +1002,7 @@ spec:
   template:
     metadata:
       labels:
-        agentsmesh.io/runtime: gemini-cli
+        agentcloud.io/runtime: gemini-cli
         app: runner-gemini-cli
     spec:
       containers:
@@ -1017,9 +1017,9 @@ spec:
           value: gemini-cli
         envFrom:
         - configMapRef:
-            name: agentsmesh-runner-env
+            name: agentcloud-runner-env
         - secretRef:
-            name: agentsmesh-runner-api-keys
+            name: agentcloud-runner-api-keys
             optional: true
         image: __COMPOSE_PROJECT_NAME__-runner-gemini-cli:latest
         imagePullPolicy: Never
@@ -1034,8 +1034,8 @@ spec:
           subPath: runner-entrypoint.sh
         - mountPath: /workspace
           name: workspace
-        - mountPath: /home/runner/.do-worker
-          name: agentsmesh-config
+        - mountPath: /home/runner/.agent-cloud
+          name: agentcloud-config
         - mountPath: /home/runner/.gemini
           name: agent-config
         - mountPath: /run/runner-ssh-source
@@ -1048,7 +1048,7 @@ spec:
       volumes:
       - name: ssl
         secret:
-          secretName: agentsmesh-dev-ca
+          secretName: agentcloud-dev-ca
       - configMap:
           defaultMode: 493
           name: runner-entrypoint
@@ -1056,24 +1056,24 @@ spec:
       - name: workspace
         persistentVolumeClaim:
           claimName: runner-gemini-workspace
-      - name: agentsmesh-config
+      - name: agentcloud-config
         persistentVolumeClaim:
-          claimName: runner-gemini-agentsmesh-config
+          claimName: runner-gemini-agentcloud-config
       - name: agent-config
         persistentVolumeClaim:
           claimName: runner-gemini-config
       - name: runner-ssh
         secret:
           defaultMode: 384
-          secretName: agentsmesh-runner-ssh
+          secretName: agentcloud-runner-ssh
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    agentsmesh.io/runtime: loopal
+    agentcloud.io/runtime: loopal
   name: runner-loopal
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   replicas: 1
   selector:
@@ -1082,7 +1082,7 @@ spec:
   template:
     metadata:
       labels:
-        agentsmesh.io/runtime: loopal
+        agentcloud.io/runtime: loopal
         app: runner-loopal
     spec:
       containers:
@@ -1097,9 +1097,9 @@ spec:
           value: loopal
         envFrom:
         - configMapRef:
-            name: agentsmesh-runner-env
+            name: agentcloud-runner-env
         - secretRef:
-            name: agentsmesh-runner-api-keys
+            name: agentcloud-runner-api-keys
             optional: true
         image: __COMPOSE_PROJECT_NAME__-runner-loopal:latest
         imagePullPolicy: Never
@@ -1114,8 +1114,8 @@ spec:
           subPath: runner-entrypoint.sh
         - mountPath: /workspace
           name: workspace
-        - mountPath: /home/runner/.do-worker
-          name: agentsmesh-config
+        - mountPath: /home/runner/.agent-cloud
+          name: agentcloud-config
         - mountPath: /home/runner/.loopal
           name: agent-config
         - mountPath: /run/runner-ssh-source
@@ -1128,7 +1128,7 @@ spec:
       volumes:
       - name: ssl
         secret:
-          secretName: agentsmesh-dev-ca
+          secretName: agentcloud-dev-ca
       - configMap:
           defaultMode: 493
           name: runner-entrypoint
@@ -1136,13 +1136,13 @@ spec:
       - name: workspace
         persistentVolumeClaim:
           claimName: runner-loopal-workspace
-      - name: agentsmesh-config
+      - name: agentcloud-config
         persistentVolumeClaim:
-          claimName: runner-loopal-agentsmesh-config
+          claimName: runner-loopal-agentcloud-config
       - name: agent-config
         persistentVolumeClaim:
           claimName: runner-loopal-config
       - name: runner-ssh
         secret:
           defaultMode: 384
-          secretName: agentsmesh-runner-ssh
+          secretName: agentcloud-runner-ssh

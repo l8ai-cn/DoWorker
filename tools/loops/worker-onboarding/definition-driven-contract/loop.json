@@ -571,7 +571,7 @@
     "channel": "Codex thread",
     "condition": "approval, credential, browser, budget, or no-progress gate is reached",
     "message_template": "Definition-driven Worker loop stopped: {reason}. Evidence: {evidence_ref}.",
-    "owner": "Do Worker maintainer"
+    "owner": "Agent Cloud maintainer"
   },
   "execution_adapters": [
     {

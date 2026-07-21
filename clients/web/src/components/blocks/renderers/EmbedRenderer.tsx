@@ -91,7 +91,7 @@ function detectEmbedProvider(url: string): { name: string; iframe: string | null
   if (/figma\.com/.test(url)) {
     return {
       name: "figma",
-      iframe: `https://www.figma.com/embed?embed_host=agentsmesh&url=${encodeURIComponent(url)}`,
+      iframe: `https://www.figma.com/embed?embed_host=agentcloud&url=${encodeURIComponent(url)}`,
     };
   }
   if (/loom\.com/.test(url)) {

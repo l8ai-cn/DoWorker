@@ -1,10 +1,10 @@
 use std::sync::Arc;
 
-use agentsmesh_api_client::ApiClient;
-use agentsmesh_events::{
+use agentcloud_api_client::ApiClient;
+use agentcloud_events::{
     EventSubscriptionManager, EventSubscriptionManagerOptions, EventType, SubscriptionId,
 };
-use agentsmesh_transport::runtime::PlatformRuntime;
+use agentcloud_transport::runtime::PlatformRuntime;
 use wasm_bindgen::prelude::*;
 
 use crate::js_bridge::{make_event_handler, make_state_listener};

@@ -3,8 +3,8 @@ package agentpod
 import (
 	"context"
 
-	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
-	resourcesvc "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
+	agentDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agent"
+	resourcesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
 )
 
 type ModelResourceResolver interface {

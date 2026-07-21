@@ -3,7 +3,7 @@ package invitation
 import (
 	"context"
 
-	invitationDomain "github.com/anthropics/agentsmesh/backend/internal/domain/invitation"
+	invitationDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/invitation"
 )
 
 type AcceptResult struct {

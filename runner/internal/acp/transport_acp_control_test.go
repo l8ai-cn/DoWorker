@@ -8,7 +8,7 @@ import (
 
 func TestParseAgentsmeshExtensions(t *testing.T) {
 	t.Run("agent advertises exact control capabilities", func(t *testing.T) {
-		raw := json.RawMessage(`{"agentsmeshExtensions":{"controlRequest":true,"permissionModes":["bypass","ask_dangerous"],"artifactActions":["image.edit","presentation.export"]}}`)
+		raw := json.RawMessage(`{"agentcloudExtensions":{"controlRequest":true,"permissionModes":["bypass","ask_dangerous"],"artifactActions":["image.edit","presentation.export"]}}`)
 		extensions, err := parseAgentsmeshExtensions(raw)
 		if err != nil {
 			t.Fatal(err)
@@ -38,7 +38,7 @@ func TestParseAgentsmeshExtensions(t *testing.T) {
 
 	t.Run("artifact actions require control request support", func(t *testing.T) {
 		_, err := parseAgentsmeshExtensions(json.RawMessage(
-			`{"agentsmeshExtensions":{"artifactActions":["image.edit"]}}`,
+			`{"agentcloudExtensions":{"artifactActions":["image.edit"]}}`,
 		))
 		if err == nil {
 			t.Fatal("expected validation error")
@@ -47,8 +47,8 @@ func TestParseAgentsmeshExtensions(t *testing.T) {
 
 	t.Run("invalid actions fail the handshake", func(t *testing.T) {
 		for _, raw := range []json.RawMessage{
-			json.RawMessage(`{"agentsmeshExtensions":{"controlRequest":true,"artifactActions":["image.edit","image.edit"]}}`),
-			json.RawMessage(`{"agentsmeshExtensions":{"controlRequest":true,"artifactActions":["Image Edit"]}}`),
+			json.RawMessage(`{"agentcloudExtensions":{"controlRequest":true,"artifactActions":["image.edit","image.edit"]}}`),
+			json.RawMessage(`{"agentcloudExtensions":{"controlRequest":true,"artifactActions":["Image Edit"]}}`),
 			json.RawMessage(`not json`),
 		} {
 			if _, err := parseAgentsmeshExtensions(raw); err == nil {

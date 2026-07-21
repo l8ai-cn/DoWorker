@@ -1,8 +1,8 @@
 package agentpod
 
 import (
-	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	agentDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agent"
+	podDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
 )
 
 // Precondition: sourceAgent MUST be the Agent for sourcePod.AgentSlug (handleResumeMode

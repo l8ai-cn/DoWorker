@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use agentsmesh_persistence::StorageBackend;
-use agentsmesh_types::proto_repository_v1::{Branch, Repository};
+use agentcloud_persistence::StorageBackend;
+use agentcloud_types::proto_repository_v1::{Branch, Repository};
 
 use crate::persist_helpers::JsonStore;
 

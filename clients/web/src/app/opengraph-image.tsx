@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Do Worker - The AI Agent Workforce Platform | Ship like a team of fifty";
+export const alt = "Agent Cloud - The AI Agent Workforce Platform | Ship like a team of fifty";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -72,7 +72,7 @@ export default async function Image() {
             DW
           </div>
           <span style={{ fontSize: 48, fontWeight: 800, color: "#ede9e1" }}>
-            Do Worker
+            Agent Cloud
           </span>
         </div>
         {/* Tagline */}

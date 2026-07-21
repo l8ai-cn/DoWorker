@@ -10,7 +10,7 @@
     "terminal_data_plane": false
   },
   "image": {
-    "reference": "agentsmesh-codex-loop-blockly-mvp-runner-claude-code:latest",
+    "reference": "agentcloud-codex-loop-blockly-mvp-runner-claude-code:latest",
     "digest": "sha256:b0089edbdb297bf9961c0144ac8891d398e78324e7936fbbb10e211c51526eec",
     "probe": {
       "command": "docker run --rm --user 1000:1000 --entrypoint claude <image> --version",

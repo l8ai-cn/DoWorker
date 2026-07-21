@@ -5,8 +5,8 @@ import (
 
 	"connectrpc.com/connect"
 
-	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	service "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
+	control "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
+	service "github.com/l8ai-cn/agentcloud/backend/internal/service/orchestrationcontrol"
 )
 
 func mapServiceError(err error) error {

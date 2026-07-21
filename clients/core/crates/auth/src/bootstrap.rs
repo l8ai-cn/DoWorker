@@ -1,4 +1,4 @@
-use agentsmesh_state::auth_types::{Organization, User};
+use agentcloud_state::auth_types::{Organization, User};
 use serde::{Deserialize, Serialize};
 
 use crate::error::AuthError;

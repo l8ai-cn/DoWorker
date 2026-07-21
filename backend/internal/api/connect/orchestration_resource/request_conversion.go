@@ -6,11 +6,11 @@ import (
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
 
-	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	resource "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
-	service "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
-	resourcev1 "github.com/anthropics/agentsmesh/proto/gen/go/orchestration_resource/v1"
+	control "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
+	resource "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationresource"
+	service "github.com/l8ai-cn/agentcloud/backend/internal/service/orchestrationcontrol"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
+	resourcev1 "github.com/l8ai-cn/agentcloud/proto/gen/go/orchestration_resource/v1"
 )
 
 const (

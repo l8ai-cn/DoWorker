@@ -32,7 +32,7 @@ React 负责运行环境选择对话框和中文积木投影。
 涉及 Rust Core Loop 状态测试、Web Connect 客户端和视图模型。
 
 - [x] 更新 Rust Core 测试数据，使用与运行环境无关的 `LoopProgram`。
-- [x] 运行 `cargo test -p agentsmesh_state loop_builder -- --nocapture`。
+- [x] 运行 `cargo test -p agentcloud_state loop_builder -- --nocapture`。
 - [x] 将 `runLoopProgram` 改为必须接收运行环境快照标识，并生成无 Worker 的默认 LoopScript。
 - [x] 运行 Rust 状态测试和 `pnpm run web:typecheck`。
 

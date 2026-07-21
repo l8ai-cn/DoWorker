@@ -2,10 +2,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: runner-e2e-echo
-  namespace: agentsmesh
+  namespace: agentcloud
   labels:
-    app.kubernetes.io/name: agentsmesh-runner
-    agentsmesh.io/runtime: e2e-echo
+    app.kubernetes.io/name: agentcloud-runner
+    agentcloud.io/runtime: e2e-echo
 spec:
   replicas: 1
   selector:
@@ -15,18 +15,18 @@ spec:
     metadata:
       labels:
         app: runner-e2e-echo
-        app.kubernetes.io/name: agentsmesh-runner
-        agentsmesh.io/runtime: e2e-echo
+        app.kubernetes.io/name: agentcloud-runner
+        agentcloud.io/runtime: e2e-echo
     spec:
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
       imagePullSecrets:
-        - name: agentsmesh-regcred
+        - name: agentcloud-regcred
       containers:
         - name: runner
-          image: repo.aiedulab.cn:8443/agentsmesh/runner-e2e-echo@sha256:077eb4511113ddb80dd8e09d7b46ffe3668d6b69d1840c1cbe849e97595087fa
+          image: repo.aiedulab.cn:8443/agentcloud/runner-e2e-echo@sha256:077eb4511113ddb80dd8e09d7b46ffe3668d6b69d1840c1cbe849e97595087fa
           imagePullPolicy: Always
           command: ["/usr/local/bin/runner-entrypoint.sh"]
           env:
@@ -67,7 +67,7 @@ spec:
       volumes:
         - name: ssl
           secret:
-            secretName: agentsmesh-pki-ca
+            secretName: agentcloud-pki-ca
         - name: home
           emptyDir: {}
         - name: workspace

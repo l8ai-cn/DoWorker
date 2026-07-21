@@ -13,14 +13,14 @@ func TestMergeTomlMcpServers_NoExistingConfig(t *testing.T) {
 	dir := t.TempDir()
 	configPath := filepath.Join(dir, "config.toml")
 
-	platformContent := "[mcp_servers.agentsmesh]\nurl = \"http://localhost:19000/mcp\"\n"
+	platformContent := "[mcp_servers.agentcloud]\nurl = \"http://localhost:19000/mcp\"\n"
 
 	err := mergeTomlMcpServers(configPath, platformContent)
 	require.NoError(t, err)
 
 	data, err := os.ReadFile(configPath)
 	require.NoError(t, err)
-	assert.Contains(t, string(data), "agentsmesh")
+	assert.Contains(t, string(data), "agentcloud")
 	assert.Contains(t, string(data), "localhost:19000")
 }
 
@@ -37,7 +37,7 @@ args = ["serve"]
 `
 	require.NoError(t, os.WriteFile(configPath, []byte(existingContent), 0644))
 
-	platformContent := "[mcp_servers.agentsmesh]\nurl = \"http://localhost:19000/mcp\"\n"
+	platformContent := "[mcp_servers.agentcloud]\nurl = \"http://localhost:19000/mcp\"\n"
 
 	err := mergeTomlMcpServers(configPath, platformContent)
 	require.NoError(t, err)
@@ -49,7 +49,7 @@ args = ["serve"]
 	assert.Contains(t, content, "gpt-4")
 	assert.Contains(t, content, "user_github")
 	assert.Contains(t, content, "gh-mcp")
-	assert.Contains(t, content, "agentsmesh")
+	assert.Contains(t, content, "agentcloud")
 	assert.Contains(t, content, "localhost:19000")
 }
 
@@ -57,12 +57,12 @@ func TestMergeTomlMcpServers_OverridesSameKey(t *testing.T) {
 	dir := t.TempDir()
 	configPath := filepath.Join(dir, "config.toml")
 
-	existingContent := `[mcp_servers.agentsmesh]
+	existingContent := `[mcp_servers.agentcloud]
 url = "http://old-server:9000/mcp"
 `
 	require.NoError(t, os.WriteFile(configPath, []byte(existingContent), 0644))
 
-	platformContent := `[mcp_servers.agentsmesh]
+	platformContent := `[mcp_servers.agentcloud]
 url = "http://localhost:19000/mcp"
 `
 	err := mergeTomlMcpServers(configPath, platformContent)
@@ -81,14 +81,14 @@ func TestMergeTomlMcpServers_EmptyExistingFile(t *testing.T) {
 	configPath := filepath.Join(dir, "config.toml")
 	require.NoError(t, os.WriteFile(configPath, nil, 0644))
 
-	platformContent := "[mcp_servers.agentsmesh]\nurl = \"http://localhost:19000/mcp\"\n"
+	platformContent := "[mcp_servers.agentcloud]\nurl = \"http://localhost:19000/mcp\"\n"
 
 	err := mergeTomlMcpServers(configPath, platformContent)
 	require.NoError(t, err)
 
 	data, err := os.ReadFile(configPath)
 	require.NoError(t, err)
-	assert.Contains(t, string(data), "agentsmesh")
+	assert.Contains(t, string(data), "agentcloud")
 }
 
 func TestMergeTomlMcpServers_EmptyPlatformContent(t *testing.T) {

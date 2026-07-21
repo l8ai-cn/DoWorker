@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/knowledgebase"
-	"github.com/anthropics/agentsmesh/backend/internal/service/knowledgebase/connector"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/knowledgebase"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/knowledgebase/connector"
 )
 
 // SyncWorker periodically materializes external sources (feishu / dingtalk /

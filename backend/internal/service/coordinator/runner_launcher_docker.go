@@ -90,7 +90,7 @@ func (l *DockerLauncher) launchRun(ctx context.Context, orgID int64, agentSlug s
 		"-e", "RUNNER_NODE_ID=" + nodeID,
 		"-e", "RUNNER_ORG_SLUG=" + l.cfg.ContainerEnv.OrgSlug,
 		"-e", "MAX_CONCURRENT_PODS=" + strconv.Itoa(l.cfg.ContainerEnv.MaxConcurrentPods),
-		"-e", "AGENTSMESH_MCP_BIND=0.0.0.0",
+		"-e", "AGENTCLOUD_MCP_BIND=0.0.0.0",
 	}
 	if network := strings.TrimSpace(l.cfg.Network); network != "" {
 		args = append(args, "--network", network)

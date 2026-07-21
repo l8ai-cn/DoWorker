@@ -14,7 +14,7 @@ const (
 
 	contextLifetime = 5 * time.Minute
 	sessionLifetime = 15 * time.Minute
-	issuer          = "agentsmesh-agent-embed"
+	issuer          = "agentcloud-agent-embed"
 )
 
 var (

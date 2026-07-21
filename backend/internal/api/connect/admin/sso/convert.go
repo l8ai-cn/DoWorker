@@ -1,8 +1,8 @@
 package ssoadminconnect
 
 import (
-	ssoservice "github.com/anthropics/agentsmesh/backend/internal/service/sso"
-	ssov1 "github.com/anthropics/agentsmesh/proto/gen/go/sso/v1"
+	ssoservice "github.com/l8ai-cn/agentcloud/backend/internal/service/sso"
+	ssov1 "github.com/l8ai-cn/agentcloud/proto/gen/go/sso/v1"
 )
 
 // toProtoAdminSSOConfig mirrors REST's `ToConfigResponse` output (the

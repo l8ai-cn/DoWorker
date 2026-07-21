@@ -129,7 +129,7 @@ Run:
 
 ```bash
 cd clients/core
-cargo test -p agentsmesh-relay
+cargo test -p agentcloud-relay
 ```
 
 Expected: RED 后增加 typed projection，GREEN 全通过。

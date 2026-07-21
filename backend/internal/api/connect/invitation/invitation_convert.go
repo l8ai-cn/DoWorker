@@ -1,10 +1,10 @@
 package invitationconnect
 
 import (
-	invitationdomain "github.com/anthropics/agentsmesh/backend/internal/domain/invitation"
-	invitationsvc "github.com/anthropics/agentsmesh/backend/internal/service/invitation"
-	"github.com/anthropics/agentsmesh/backend/pkg/protoconv"
-	invitationv1 "github.com/anthropics/agentsmesh/proto/gen/go/invitation/v1"
+	invitationdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/invitation"
+	invitationsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/invitation"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/protoconv"
+	invitationv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/invitation/v1"
 )
 
 // toProtoInvitation converts the GORM-backed domain model into the wire

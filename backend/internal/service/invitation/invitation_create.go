@@ -7,8 +7,8 @@ import (
 	"log/slog"
 	"time"
 
-	invitationDomain "github.com/anthropics/agentsmesh/backend/internal/domain/invitation"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/organization"
+	invitationDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/invitation"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/organization"
 )
 
 type CreateRequest struct {

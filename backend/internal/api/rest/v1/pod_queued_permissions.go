@@ -1,8 +1,8 @@
 package v1
 
 import (
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
 )
 
 func (h *PodHandler) canCancelQueuedPod(tenant *middleware.TenantContext, pod *agentpod.Pod) bool {

@@ -7,9 +7,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	service "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
-	resourcev1 "github.com/anthropics/agentsmesh/proto/gen/go/orchestration_resource/v1"
+	service "github.com/l8ai-cn/agentcloud/backend/internal/service/orchestrationcontrol"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
+	resourcev1 "github.com/l8ai-cn/agentcloud/proto/gen/go/orchestration_resource/v1"
 )
 
 func TestGetResourceConvertsCompleteHeadAndUsesResolvedScope(t *testing.T) {
@@ -346,7 +346,7 @@ func TestGetResourcePlanRejectsInvalidPlanID(t *testing.T) {
 func protoTarget(namespace string) *resourcev1.ResourceTarget {
 	return &resourcev1.ResourceTarget{
 		TypeMeta: &resourcev1.TypeMeta{
-			ApiVersion: "agentsmesh.io/v1alpha1",
+			ApiVersion: "agentcloud.io/v1alpha1",
 			Kind:       "WorkerTemplate",
 		},
 		Namespace: namespace,

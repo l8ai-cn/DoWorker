@@ -20,7 +20,7 @@ syntax = "proto3";
 
 package proto.grant.v1;
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/grant/v1;grantv1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/grant/v1;grantv1";
 
 service GrantService {
   rpc ListGrants(ListGrantsRequest) returns (ListGrantsResponse);

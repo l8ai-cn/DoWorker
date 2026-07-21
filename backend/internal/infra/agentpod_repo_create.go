@@ -3,7 +3,7 @@ package infra
 import (
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
 	"gorm.io/gorm"
 )
 

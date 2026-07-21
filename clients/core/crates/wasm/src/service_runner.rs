@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use agentsmesh_api_client::ApiClient;
-use agentsmesh_services::RunnerService;
+use agentcloud_api_client::ApiClient;
+use agentcloud_services::RunnerService;
 use wasm_bindgen::prelude::*;
 
 // Networking-only wasm handle for the runner domain. The runner cache lives in

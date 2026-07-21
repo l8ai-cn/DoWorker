@@ -1,5 +1,5 @@
 import type { NodeViewRenderer } from "@tiptap/core";
-import { markdownImageSource } from "@do-worker/agent-ui";
+import { markdownImageSource } from "@agent-cloud/agent-ui";
 import {
   fetchFileContent,
   fileContentToBlob,

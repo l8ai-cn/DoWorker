@@ -1,0 +1,16 @@
+{
+  "name": "agent-cloud-wasm",
+  "type": "module",
+  "version": "0.1.0",
+  "main": "wasm_pkg.js",
+  "types": "wasm_pkg.d.ts",
+  "files": [
+    "wasm_pkg_bg.wasm",
+    "wasm_pkg.js",
+    "wasm_pkg.d.ts"
+  ],
+  "sideEffects": [
+    "./snippets/*"
+  ],
+  "private": true
+}

@@ -5,8 +5,8 @@ import (
 	"errors"
 	"strings"
 
-	sessiondomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
-	itemservice "github.com/anthropics/agentsmesh/backend/internal/service/conversationitem"
+	sessiondomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentsession"
+	itemservice "github.com/l8ai-cn/agentcloud/backend/internal/service/conversationitem"
 )
 
 func (s *Server) prepareWorkerInitialMessage(

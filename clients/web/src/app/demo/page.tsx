@@ -38,7 +38,7 @@ export default function DemoRequestPage() {
       const body = encodeURIComponent(
         `Name: ${formData.name}\nEmail: ${formData.email}\nCompany: ${formData.company}\nHow did you hear about us: ${formData.referral}\n\nMessage:\n${formData.message}`,
       );
-      window.location.href = `mailto:bd@agentsmesh.ai?subject=${subject}&body=${body}`;
+      window.location.href = `mailto:bd@agentcloud.ai?subject=${subject}&body=${body}`;
       setSubmitted(true);
     } catch {
       setError(t("landing.demo.error"));

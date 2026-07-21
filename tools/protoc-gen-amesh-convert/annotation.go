@@ -16,7 +16,7 @@ package main
 import (
 	"strings"
 
-	codegenv1 "github.com/anthropics/agentsmesh/proto/gen/go/codegen/v1"
+	codegenv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/codegen/v1"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/descriptorpb"

@@ -3,7 +3,7 @@ package agentpod
 import (
 	"strings"
 
-	resourcesvc "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
+	resourcesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
 )
 
 func opencodeModelSelector(resource *resourcesvc.ResolvedResource) string {

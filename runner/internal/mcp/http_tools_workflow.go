@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/runner/internal/mcp/tools"
+	"github.com/l8ai-cn/agentcloud/runner/internal/mcp/tools"
 )
 
 // Workflow Tools
@@ -57,7 +57,7 @@ func (s *HTTPServer) createListWorkflowsTool() *MCPTool {
 func (s *HTTPServer) createCreateWorkflowTool() *MCPTool {
 	return &MCPTool{
 		Name: "create_workflow",
-		Description: "Validate, plan, and apply an agentsmesh.io/v1alpha1 Workflow resource after clarifying it with the user. " +
+		Description: "Validate, plan, and apply an agentcloud.io/v1alpha1 Workflow resource after clarifying it with the user. " +
 			"Follow the looper methodology: (1) workflow-worthiness gate — only create a workflow when fresh observations can change the next action across runs; recommend a one-time task otherwise; " +
 			"(2) pick the smallest trigger in the Workflow spec; " +
 			"(3) clarify goal, acceptance criteria and schedule with the user BEFORE calling this tool; " +

@@ -7,7 +7,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
 )
 
 // PreviewRoute is the resolved routing target for a pod preview request. Target

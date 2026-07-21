@@ -3,7 +3,7 @@ import { marketingRoutes } from "@/components/landing/marketing-routes";
 import { getAllPosts } from "@/lib/blog";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://agentsmesh.ai";
+  const baseUrl = "https://agentcloud.ai";
 
   const staticPages: MetadataRoute.Sitemap = [
     {

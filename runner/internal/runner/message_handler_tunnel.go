@@ -3,9 +3,9 @@ package runner
 import (
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/runner/internal/client"
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
-	"github.com/anthropics/agentsmesh/runner/internal/tunnel"
+	"github.com/l8ai-cn/agentcloud/runner/internal/client"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/tunnel"
 )
 
 // tunnelRunner is the minimal surface of the outbound tunnel client the handler

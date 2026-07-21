@@ -1,6 +1,6 @@
 import type { WorkerSpecDraft } from "@/lib/api/facade/podConnect";
 
-const STORAGE_PREFIX = "agentsmesh.worker-create-draft.v1";
+const STORAGE_PREFIX = "agentcloud.worker-create-draft.v1";
 const SENSITIVE_FIELD = /(api[-_]?key|access[-_]?key|token|secret|password|credential|private[-_]?key)/i;
 
 export interface PersistedWorkerCreateDraft {

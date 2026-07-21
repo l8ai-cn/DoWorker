@@ -1,7 +1,7 @@
 # Worker Onboarding Recursive Loop Design
 
 ## Goal
-Generate a reusable engineering loop that brings every formal Do Worker type to
+Generate a reusable engineering loop that brings every formal Agent Cloud type to
 a verifiable state. It covers upstream research, Worker definition, credentials,
 configuration documents, frontend forms, backend contracts, Runner adapters,
 runtime images, and deterministic verification.

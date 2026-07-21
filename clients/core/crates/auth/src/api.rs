@@ -1,6 +1,6 @@
-use agentsmesh_state::auth_types::{AuthSession, AuthTokens, RegisterRequest, User};
-use agentsmesh_types::proto_auth_v1 as auth_proto;
-use agentsmesh_types::proto_user_v1 as user_proto;
+use agentcloud_state::auth_types::{AuthSession, AuthTokens, RegisterRequest, User};
+use agentcloud_types::proto_auth_v1 as auth_proto;
+use agentcloud_types::proto_user_v1 as user_proto;
 
 use crate::connect::connect_call;
 use crate::error::AuthError;

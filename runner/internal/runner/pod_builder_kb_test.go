@@ -12,8 +12,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
-	"github.com/anthropics/agentsmesh/runner/internal/client"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
+	"github.com/l8ai-cn/agentcloud/runner/internal/client"
 )
 
 func initKBOriginRepo(t *testing.T) string {
@@ -374,7 +374,7 @@ if [ "${1:-}" != "clone" ]; then
 fi
 
 key=
-for candidate in "$KB_SANDBOX"/.agentsmesh-kb-key-*; do
+for candidate in "$KB_SANDBOX"/.agentcloud-kb-key-*; do
 	[ -f "$candidate" ] || continue
 	key=$candidate
 	break

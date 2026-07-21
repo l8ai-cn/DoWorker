@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"time"
 
-	domainitem "github.com/anthropics/agentsmesh/backend/internal/domain/conversationitem"
-	itemsvc "github.com/anthropics/agentsmesh/backend/internal/service/conversationitem"
+	domainitem "github.com/l8ai-cn/agentcloud/backend/internal/domain/conversationitem"
+	itemsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/conversationitem"
 )
 
 func (p *SessionStreamPublisher) handlePermissionRequest(sessionID, payloadJSON string) {

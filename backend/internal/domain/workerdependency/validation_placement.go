@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	resource "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	resource "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationresource"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
 	"github.com/distribution/reference"
 )
 

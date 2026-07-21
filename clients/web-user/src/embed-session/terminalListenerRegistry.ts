@@ -1,4 +1,4 @@
-import type { AgentConnectionStatus } from "@do-worker/agent-ui";
+import type { AgentConnectionStatus } from "@agent-cloud/agent-ui";
 
 type OutputListener = (bytes: Uint8Array) => void;
 type StatusListener = (status: AgentConnectionStatus) => void;

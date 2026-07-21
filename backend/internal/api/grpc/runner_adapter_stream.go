@@ -11,8 +11,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/runner"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 )
 
 const (
@@ -98,7 +98,7 @@ func (a *GRPCRunnerAdapter) receiveLoop(ctx context.Context, runnerID int64, con
 		if isHighFrequencyMessage(msgType) {
 			a.handleProtoMessage(ctx, runnerID, conn, msg)
 		} else {
-			msgCtx, span := otel.Tracer("do-worker-backend").Start(ctx, "grpc.recv."+msgType,
+			msgCtx, span := otel.Tracer("agent-cloud-backend").Start(ctx, "grpc.recv."+msgType,
 				trace.WithAttributes(attribute.Int64("runner.id", runnerID)),
 			)
 			a.handleProtoMessage(msgCtx, runnerID, conn, msg)

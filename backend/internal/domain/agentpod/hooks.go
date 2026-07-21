@@ -1,6 +1,6 @@
 package agentpod
 
-import "github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+import "github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 
 // ValidateIdentifiers validates pod_key (backend-generated, format-stable)
 // and agent_slug (reference to an existing agents row). Both checked

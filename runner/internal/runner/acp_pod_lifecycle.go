@@ -3,8 +3,8 @@ package runner
 import (
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/runner/internal/acp"
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/acp"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
 )
 
 func (h *RunnerMessageHandler) abortACPPodStartup(

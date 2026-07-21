@@ -7,7 +7,7 @@ package proto.workflow_state.v1;
 
 import "workflow/v1/workflow.proto";
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/workflow_state/v1;workflowstatev1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/workflow_state/v1;workflowstatev1";
 
 message ReplaceCachedWorkflowsRequest {
   repeated proto.workflow.v1.Workflow workflows = 1;

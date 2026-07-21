@@ -90,7 +90,7 @@ duplicate or mutate domain state.
 ### Service Interface
 
 Add `IAgentSessionService` and `ITerminalRuntime` to
-`@do-worker/service-interface`. Web WASM and future native adapters implement
+`@agent-cloud/service-interface`. Web WASM and future native adapters implement
 the same interface. Components receive these interfaces through
 `AgentRuntimeProvider`; they never import `wasm-core`, fetch, Relay, or auth
 stores directly.

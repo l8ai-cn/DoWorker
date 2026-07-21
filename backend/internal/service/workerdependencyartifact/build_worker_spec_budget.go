@@ -3,8 +3,8 @@ package workerdependencyartifact
 import (
 	"reflect"
 
-	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	control "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
 )
 
 func consumePlanReferencesBudget(

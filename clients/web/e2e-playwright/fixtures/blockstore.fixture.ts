@@ -308,7 +308,7 @@ async function installApiProxy(target: BrowserContext | Page): Promise<void> {
 // Inject the JWT into localStorage before Next.js boots so the Rust auth
 // manager (clients/core/crates/auth/src/state.rs) restores from storage and
 // hydrates as logged-in on first render. Storage is namespaced per
-// `base_url`: `do-worker-auth/<url_slug>/session`. The slug derivation
+// `base_url`: `agent-cloud-auth/<url_slug>/session`. The slug derivation
 // (`http_localhost_25357` from `http://localhost:25357`) mirrors Rust's
 // `url_slug()` in state.rs — non-alphanumerics → `_`, max 64 chars.
 function urlSlug(url: string): string {
@@ -343,7 +343,7 @@ async function seedAuth(target: BrowserContext | Page, token: string): Promise<v
   // Storage key + base_url field must agree, otherwise bootstrap's
   // BaseUrlMismatch cleanup wipes the session and the test redirects to /login.
   const webOrigin = getWebBaseUrl();
-  const storageKey = `do-worker-auth/${urlSlug(webOrigin)}/session`;
+  const storageKey = `agent-cloud-auth/${urlSlug(webOrigin)}/session`;
 
   await target.addInitScript(
     ({ tok, user, org, key, baseUrl }) => {

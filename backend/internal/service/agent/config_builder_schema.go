@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/agentfile/schema"
+	"github.com/l8ai-cn/agentcloud/agentfile/schema"
 )
 
 // ResolveConfigSchema returns the config + credential schema for an agent.

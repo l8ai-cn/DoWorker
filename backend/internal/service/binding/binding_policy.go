@@ -3,7 +3,7 @@ package binding
 import (
 	"context"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/channel"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/channel"
 )
 
 func (s *Service) evaluatePolicy(ctx context.Context, initiatorPod, targetPod, policy string) (bool, string) {

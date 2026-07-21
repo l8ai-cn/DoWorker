@@ -25,8 +25,8 @@ require_dosql_database_evidence() {
   require_text_env DOSQL_RELEASE_DB_SESSION
   require_text_env DOSQL_RELEASE_CHANGE_ID
   require_text_env DOSQL_RELEASE_OPERATION_ID
-  if [[ "${DOSQL_RELEASE_DB_TARGET}" != "db_agentsmesh_prod_postgres" ]]; then
-    echo "DOSQL_RELEASE_DB_TARGET must equal db_agentsmesh_prod_postgres" >&2
+  if [[ "${DOSQL_RELEASE_DB_TARGET}" != "db_agentcloud_prod_postgres" ]]; then
+    echo "DOSQL_RELEASE_DB_TARGET must equal db_agentcloud_prod_postgres" >&2
     return 1
   fi
   if [[ -n "${DOSQL_RELEASE_MIGRATION_VERSION:-}" &&

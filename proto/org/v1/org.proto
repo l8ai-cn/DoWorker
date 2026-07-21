@@ -29,7 +29,7 @@ syntax = "proto3";
 
 package proto.org.v1;
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/org/v1;orgv1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/org/v1;orgv1";
 
 service OrgService {
   // User-scoped: returns the caller's organizations. Auth interceptor supplies

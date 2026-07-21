@@ -4,8 +4,8 @@
 
 use std::sync::Arc;
 
-use agentsmesh_api_client::ApiClient;
-use agentsmesh_types::proto_binding_v1 as bp;
+use agentcloud_api_client::ApiClient;
+use agentcloud_types::proto_binding_v1 as bp;
 use prost::Message;
 
 use crate::wire;

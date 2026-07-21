@@ -16,7 +16,7 @@ API_PORT="${BACKEND_HTTP_PORT:-10015}"
 HTTP_PORT="${HTTP_PORT:-10000}"
 PRIMARY="${PRIMARY_DOMAIN:-localhost:${HTTP_PORT}}"
 ORG="dev-org"
-USER="dev@agentsmesh.local"
+USER="dev@agentcloud.local"
 PASS="AdminAb123456"
 RUN_TASK=false
 [[ "${1:-}" == "--run-task" ]] && RUN_TASK=true
@@ -97,7 +97,7 @@ RUNNER_UP=$(docker ps --format '{{.Names}}' | grep -c 'runner-codex-cli' || true
 [[ "$RUNNER_UP" -ge 1 ]] && pass "$RUNNER_UP codex runner container(s) up" || fail "no codex runner containers"
 
 step 3 "模型池（ai_models — Worker 创建时引用并注入配置）"
-MODEL_ROW=$(docker exec agentsmesh-main-postgres-1 psql -U agentsmesh -d agentsmesh -tAc \
+MODEL_ROW=$(docker exec agentcloud-main-postgres-1 psql -U agentcloud -d agentcloud -tAc \
   "SELECT id||'|'||name||'|'||provider_type FROM ai_models WHERE organization_id=1 AND provider_type='openai' AND is_enabled=true ORDER BY is_default DESC, id LIMIT 1" 2>/dev/null | tr -d ' ' || true)
 [[ -n "$MODEL_ROW" ]] && pass "openai model in pool: $MODEL_ROW" || fail "no openai model in ai_models - run deploy/dev/scripts/seed-model-pool-from-local.py"
 
@@ -150,7 +150,7 @@ esac
 [[ "$API_CHECK" -eq 1 ]] || true
 
 step 4 "创建 Worker（codex-cli + 模型池）"
-OPENAI_MODEL_ID=$(docker exec agentsmesh-main-postgres-1 psql -U agentsmesh -d agentsmesh -tAc \
+OPENAI_MODEL_ID=$(docker exec agentcloud-main-postgres-1 psql -U agentcloud -d agentcloud -tAc \
   "SELECT id FROM ai_models WHERE organization_id=1 AND provider_type='openai' AND is_enabled=true ORDER BY is_default DESC, id LIMIT 1" 2>/dev/null | tr -d ' ' || true)
 CREATE_BODY='{"agent_id":"codex-cli","title":"Codex pipeline verify"}'
 if [[ -n "$OPENAI_MODEL_ID" ]]; then
@@ -160,7 +160,7 @@ CREATE=$(curl -sS --max-time 60 "${HDR[@]}" -X POST "$BASE/v1/sessions" -d "$CRE
 SID=$(echo "$CREATE" | python3 -c 'import sys,json; print(json.load(sys.stdin).get("id",""))' 2>/dev/null || true)
 [[ -n "$SID" ]] && pass "session $SID" || { fail "create session: $CREATE"; exit 1; }
 
-POD=$(docker exec agentsmesh-main-postgres-1 psql -U agentsmesh -d agentsmesh -tAc \
+POD=$(docker exec agentcloud-main-postgres-1 psql -U agentcloud -d agentcloud -tAc \
   "SELECT pod_key FROM agent_sessions WHERE id='$SID'" 2>/dev/null | tr -d ' ' || true)
 [[ -n "$POD" ]] && pass "pod $POD" || fail "no pod_key in DB"
 
@@ -278,5 +278,5 @@ if [[ "$FAILED" -eq 0 ]]; then
 fi
 echo "Pipeline check failed. SID=$SID POD=$POD BASE=$BASE"
 echo "Hints: tail -f deploy/dev/runtime/backend/backend.log"
-echo "       docker logs agentsmesh-main-runner-codex-cli-2-1 --since 5m"
+echo "       docker logs agentcloud-main-runner-codex-cli-2-1 --since 5m"
 exit 1

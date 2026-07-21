@@ -5,7 +5,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TMP="$(mktemp -d)"
 trap 'rm -rf "${TMP}"' EXIT
 DIGEST="sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-REGISTRY="repo.aiedulab.cn:8443/agentsmesh"
+REGISTRY="repo.aiedulab.cn:8443/agentcloud"
 GITEA_REGISTRY="repo.aiedulab.cn:8443/library"
 GITEA_DIGEST="sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
 LOCK="${TMP}/release-kustomization.yaml"
@@ -22,7 +22,7 @@ printf 'images:\n  - name: %s/gitea\n    digest: %s\n' \
     printf '        image: %s/%s@%s\n' "${REGISTRY}" "${image}" "${DIGEST}"
   done
   printf '        image: %s/gitea@%s\n' "${GITEA_REGISTRY}" "${GITEA_DIGEST}"
-  printf '    agentsmesh.ai/verified-image-digest: "%s"\n' "${DIGEST}"
+  printf '    agentcloud.ai/verified-image-digest: "%s"\n' "${DIGEST}"
 } > "${VALID}"
 
 VERIFY_RELEASE_LOCK="${LOCK}" bash "${ROOT}/verify_release_images.sh" "${VALID}"

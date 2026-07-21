@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/anthropics/agentsmesh/runner/internal/acp"
+	"github.com/l8ai-cn/agentcloud/runner/internal/acp"
 )
 
 const apiKeyAuthMethod = "xai.api_key"

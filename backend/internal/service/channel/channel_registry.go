@@ -3,7 +3,7 @@ package channel
 import (
 	"context"
 
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 // EnsureUniqueSlug derives a slug for a new channel from its display name.

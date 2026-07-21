@@ -2,7 +2,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: postgres-data
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   accessModes: ["ReadWriteOnce"]
   storageClassName: local-path
@@ -14,7 +14,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: postgres
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   replicas: 1
   strategy:
@@ -29,17 +29,17 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: repo.aiedulab.cn:8443/agentsmesh/pgvector:pg16
+          image: repo.aiedulab.cn:8443/agentcloud/pgvector:pg16
           imagePullPolicy: Always
           env:
             - name: POSTGRES_USER
-              value: agentsmesh
+              value: agentcloud
             - name: POSTGRES_DB
-              value: agentsmesh
+              value: agentcloud
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: agentsmesh-secrets
+                  name: agentcloud-secrets
                   key: DB_PASSWORD
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata
@@ -50,7 +50,7 @@ spec:
               mountPath: /var/lib/postgresql/data
           readinessProbe:
             exec:
-              command: ["sh", "-c", "pg_isready -U agentsmesh"]
+              command: ["sh", "-c", "pg_isready -U agentcloud"]
             initialDelaySeconds: 10
             periodSeconds: 10
           resources:
@@ -64,13 +64,13 @@ spec:
           persistentVolumeClaim:
             claimName: postgres-data
       imagePullSecrets:
-        - name: agentsmesh-regcred
+        - name: agentcloud-regcred
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: postgres
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   selector:
     app: postgres

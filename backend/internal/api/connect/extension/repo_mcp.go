@@ -10,10 +10,10 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	extdom "github.com/anthropics/agentsmesh/backend/internal/domain/extension"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	extensionv1 "github.com/anthropics/agentsmesh/proto/gen/go/extension/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	extdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/extension"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	extensionv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/extension/v1"
 )
 
 const RepoMcpServiceName = "proto.extension.v1.RepoMcpService"

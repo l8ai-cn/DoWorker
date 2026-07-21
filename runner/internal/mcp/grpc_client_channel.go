@@ -3,7 +3,7 @@ package mcp
 import (
 	"context"
 
-	"github.com/anthropics/agentsmesh/runner/internal/mcp/tools"
+	"github.com/l8ai-cn/agentcloud/runner/internal/mcp/tools"
 )
 
 // ==================== ChannelClient ====================

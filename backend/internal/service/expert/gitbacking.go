@@ -5,8 +5,8 @@ import (
 	"errors"
 	"strings"
 
-	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
-	"github.com/anthropics/agentsmesh/backend/internal/service/gitops"
+	expertdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/expert"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/gitops"
 )
 
 // ErrGitBackingDisabled is returned by the repo-content read methods when the

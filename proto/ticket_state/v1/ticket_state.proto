@@ -9,7 +9,7 @@ package proto.ticket_state.v1;
 
 import "ticket/v1/ticket.proto";
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/ticket_state/v1;ticketstatev1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/ticket_state/v1;ticketstatev1";
 
 // Realtime ticket:status_changed event. The optional previous_status is
 // used for the kanban-board transition animation.

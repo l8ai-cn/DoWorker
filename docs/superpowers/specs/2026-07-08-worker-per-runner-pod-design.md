@@ -120,7 +120,7 @@ The dedicated K8s pod should include labels that make lifecycle, debugging, and 
 
 ```yaml
 labels:
-  app.kubernetes.io/name: agentsmesh-runner
+  app.kubernetes.io/name: agentcloud-runner
   app.kubernetes.io/component: dedicated-worker
   doworker.io/pod-key: <podKey>
   doworker.io/agent-slug: <agentSlug>

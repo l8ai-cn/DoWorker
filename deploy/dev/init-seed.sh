@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-# AgentsMesh Seed Data 初始化脚本
+# Agent Cloud Seed Data 初始化脚本
 # =============================================================================
 #
 # 此脚本在数据库迁移后执行，创建开发环境所需的初始数据。
@@ -13,9 +13,9 @@
 # 环境变量：
 #   POSTGRES_HOST     - PostgreSQL 主机 (默认: localhost)
 #   POSTGRES_PORT     - PostgreSQL 端口 (默认: 5432)
-#   POSTGRES_USER     - PostgreSQL 用户 (默认: agentsmesh)
-#   POSTGRES_PASSWORD - PostgreSQL 密码 (默认: agentsmesh_dev)
-#   POSTGRES_DB       - PostgreSQL 数据库 (默认: agentsmesh)
+#   POSTGRES_USER     - PostgreSQL 用户 (默认: agentcloud)
+#   POSTGRES_PASSWORD - PostgreSQL 密码 (默认: agentcloud_dev)
+#   POSTGRES_DB       - PostgreSQL 数据库 (默认: agentcloud)
 #
 # =============================================================================
 
@@ -50,9 +50,9 @@ get_db_params() {
 
     DB_HOST="${POSTGRES_HOST:-localhost}"
     DB_PORT="${POSTGRES_PORT:-5432}"
-    DB_USER="${POSTGRES_USER:-agentsmesh}"
-    DB_PASSWORD="${POSTGRES_PASSWORD:-agentsmesh_dev}"
-    DB_NAME="${POSTGRES_DB:-agentsmesh}"
+    DB_USER="${POSTGRES_USER:-agentcloud}"
+    DB_PASSWORD="${POSTGRES_PASSWORD:-agentcloud_dev}"
+    DB_NAME="${POSTGRES_DB:-agentcloud}"
 
     export PGPASSWORD="$DB_PASSWORD"
 }
@@ -104,7 +104,7 @@ apply_seed() {
         success "Seed 数据应用成功!"
         echo ""
         echo "测试账号信息："
-        echo "  Email:    dev@agentsmesh.local"
+        echo "  Email:    dev@agentcloud.local"
         echo "  Password: AdminAb123456"
         echo "  Org:      dev-org"
         echo ""
@@ -125,10 +125,10 @@ check_status() {
     # 检查用户
     echo "用户:"
     psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c \
-        "SELECT id, email, username, is_active FROM users WHERE email = 'dev@agentsmesh.local'" \
+        "SELECT id, email, username, is_active FROM users WHERE email = 'dev@agentcloud.local'" \
         --tuples-only 2>/dev/null | while read line; do
         if [[ -n "$line" ]]; then
-            echo "  ✓ dev@agentsmesh.local 已存在"
+            echo "  ✓ dev@agentcloud.local 已存在"
         fi
     done
 
@@ -184,7 +184,7 @@ DELETE FROM runners WHERE organization_id IN (SELECT id FROM organizations WHERE
 DELETE FROM runner_grpc_registration_tokens WHERE organization_id IN (SELECT id FROM organizations WHERE slug = 'dev-org');
 DELETE FROM organization_members WHERE organization_id IN (SELECT id FROM organizations WHERE slug = 'dev-org');
 DELETE FROM organizations WHERE slug = 'dev-org';
-DELETE FROM users WHERE email = 'dev@agentsmesh.local';
+DELETE FROM users WHERE email = 'dev@agentcloud.local';
 EOF
 
     success "现有 seed 数据已删除"
@@ -208,9 +208,9 @@ show_help() {
     echo "环境变量:"
     echo "  POSTGRES_HOST     PostgreSQL 主机 (默认: localhost)"
     echo "  POSTGRES_PORT     PostgreSQL 端口 (默认: 5432)"
-    echo "  POSTGRES_USER     PostgreSQL 用户 (默认: agentsmesh)"
-    echo "  POSTGRES_PASSWORD PostgreSQL 密码 (默认: agentsmesh_dev)"
-    echo "  POSTGRES_DB       PostgreSQL 数据库 (默认: agentsmesh)"
+    echo "  POSTGRES_USER     PostgreSQL 用户 (默认: agentcloud)"
+    echo "  POSTGRES_PASSWORD PostgreSQL 密码 (默认: agentcloud_dev)"
+    echo "  POSTGRES_DB       PostgreSQL 数据库 (默认: agentcloud)"
 }
 
 # 主函数

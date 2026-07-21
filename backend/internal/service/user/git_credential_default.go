@@ -4,8 +4,8 @@ import (
 	"context"
 	"log/slog"
 
-	domainUser "github.com/anthropics/agentsmesh/backend/internal/domain/user"
-	"github.com/anthropics/agentsmesh/backend/pkg/crypto"
+	domainUser "github.com/l8ai-cn/agentcloud/backend/internal/domain/user"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/crypto"
 )
 
 func (s *Service) SetDefaultGitCredential(ctx context.Context, userID, credentialID int64) error {

@@ -1,6 +1,6 @@
 package runner
 
-import runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+import runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 
 func (h *RunnerMessageHandler) isDuplicatePrompt(
 	command *runnerv1.SendPromptCommand,

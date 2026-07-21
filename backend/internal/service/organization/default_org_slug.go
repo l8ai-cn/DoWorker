@@ -1,6 +1,6 @@
 package organization
 
-import orgDomain "github.com/anthropics/agentsmesh/backend/internal/domain/organization"
+import orgDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/organization"
 
 const internalAdminWorkspaceSlug = "admin-workspace"
 

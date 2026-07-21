@@ -4,7 +4,7 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
 
 ## Project Overview
 
-Do Worker is **The AI Agent Workforce Platform** — where teams scale beyond headcount. It supports Codex, Codex CLI, Gemini CLI, Aider, and more.
+Agent Cloud is **The AI Agent Workforce Platform** — where teams scale beyond headcount. It supports Codex, Codex CLI, Gemini CLI, Aider, and more.
 
 ### Components
 
@@ -15,7 +15,7 @@ Server-side (Go):
 
 Client-side:
 - **Rust Core** (`clients/core/`): **Business-logic SSOT.** Rust crates compiled to WASM for Web. Owns the authoritative cache, DTOs, and services — auth, blockstore, channels, tickets, mesh, autopilot. Front-ends are thin views over it. **Modify state in Rust, not in Zustand.**
-- **Web** (`clients/web/`): Next.js (App Router + TS + Tailwind). Loads `agentsmesh-wasm` at boot; UI state mirrors Rust selectors via `_tick` triggers.
+- **Web** (`clients/web/`): Next.js (App Router + TS + Tailwind). Loads `agentcloud-wasm` at boot; UI state mirrors Rust selectors via `_tick` triggers.
 - **Web-Admin** (`clients/web-admin/`): Next.js admin console mounted at `/admin`. Internal-only — gated on `is_system_admin`.
 
 ## Development Environment
@@ -80,8 +80,8 @@ The dev pipeline automatically:
 Each worktree adds offset×50 to every slot.
 
 Test accounts:
-- **User**: dev@agentsmesh.local / AdminAb123456
-- **Admin**: admin@agentsmesh.local / Ab123456
+- **User**: dev@agentcloud.local / AdminAb123456
+- **Admin**: admin@agentcloud.local / Ab123456
 
 ### Logs
 
@@ -160,7 +160,7 @@ pnpm run web-admin:build
 | 其它营销/文档 (`/`、`/docs`、`/about`、`/blog`、`/changelog`、`/demo`、`/enterprise`、`/privacy`、`/terms`、`/mock-checkout` 等) | ❌ | 通过 `lib/light-session.ts` 直读 localStorage 判 auth；公开 API 走 `lib/public-api.ts` 的 fetch |
 
 **约束**（违反会让营销页重新加载 wasm）：
-- 营销页组件**不要 import** `@/lib/wasm-core` / `@agentsmesh/service-runtime` / `agentsmesh-wasm` / `@/stores/auth`（任意一个会通过依赖图把 21MB 拉进 chunk）
+- 营销页组件**不要 import** `@/lib/wasm-core` / `@agentcloud/service-runtime` / `agentcloud-wasm` / `@/stores/auth`（任意一个会通过依赖图把 21MB 拉进 chunk）
 - 需要"已登录吗 + 当前 org slug"用 `useLightSession`（来自 `@/hooks/useLightSession`）
 - 需要 CTA 用 `LightAuthButtons`（不是 `AuthButtons`）
 - 需要公开 API（pricing 等）用 `fetch` 或 `lib/public-api.ts` 包装，不走 wasm
@@ -396,7 +396,7 @@ runner/
 
 **Development** (Docker): Run `./deploy/dev/dev.sh` — auto-generates all configs
 
-**Runner**: `~/.agentsmesh/config.yaml` (created after `runner register`)
+**Runner**: `~/.agentcloud/config.yaml` (created after `runner register`)
 
 ## Testing Patterns
 

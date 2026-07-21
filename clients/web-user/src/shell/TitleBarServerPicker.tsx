@@ -43,7 +43,7 @@ function originOf(url: string): string | null {
  * re-points the whole window via the shell) plus "Connect to new server…",
  * which returns the window to the shell's setup page.
  *
- * When a thread is open, its title replaces the "Do Worker" brand label
+ * When a thread is open, its title replaces the "Agent Cloud" brand label
  * (becoming "<title> — <host>") so the window title tracks what the user
  * is looking at, like a document window.
  *
@@ -55,7 +55,7 @@ export function TitleBarServerPicker({
   threadTitle,
 }: {
   /** Title of the currently open thread, or null/undefined when no thread
-      is selected or it has no title yet (falls back to "Do Worker"). */
+      is selected or it has no title yet (falls back to "Agent Cloud"). */
   threadTitle?: string | null;
 }) {
   const [info, setInfo] = useState<ServerPickerInfo | null>(null);
@@ -90,7 +90,7 @@ export function TitleBarServerPicker({
           title="Switch server"
         >
           <span className="truncate font-medium">
-            {threadTitle || "Do Worker"} — {hostOf(info.currentOrigin)}
+            {threadTitle || "Agent Cloud"} — {hostOf(info.currentOrigin)}
           </span>
           <ChevronDownIcon className="size-3 shrink-0" />
         </DropdownMenuTrigger>

@@ -1,6 +1,6 @@
 import { TriangleAlertIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { DoWorkerLogo } from "@/components/icons/DoWorkerLogo";
+import { AgentCloudLogo } from "@/components/icons/AgentCloudLogo";
 import { ConnectHostInstructions } from "./ConnectHostInstructions";
 import { HarnessWarningMessage } from "./newChatHarnessWarning";
 import { NewChatComposerCard } from "./NewChatComposerCard";
@@ -17,7 +17,7 @@ export function NewChatLandingView({ state }: { state: NewChatLandingController 
     >
       <div className="flex w-full max-w-[840px] flex-col items-center gap-8 px-4 pt-8 pb-16 md:select-none md:px-10">
         <div className="flex flex-col items-center gap-3.5 sm:flex-row">
-          <DoWorkerLogo className="h-14 w-14 shrink-0" title="Do Worker" />
+          <AgentCloudLogo className="h-14 w-14 shrink-0" title="Agent Cloud" />
           <h1 className="text-center text-3xl font-medium tracking-[-0.03em] text-foreground sm:text-left">
             {state.title}
           </h1>

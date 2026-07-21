@@ -13,7 +13,7 @@ syntax = "proto3";
 
 package proto.acp_state.v1;
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/acp_state/v1;acpstatev1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/acp_state/v1;acpstatev1";
 
 // Realtime tool_call_update event — wire payload is opaque AST.
 message UpdateToolCallRequest {

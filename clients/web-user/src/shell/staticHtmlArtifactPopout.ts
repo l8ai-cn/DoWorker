@@ -1,4 +1,4 @@
-import { openStaticHtmlInNewWindow } from "@do-worker/agent-ui";
+import { openStaticHtmlInNewWindow } from "@agent-cloud/agent-ui";
 import { showToast } from "@/components/ui/toast";
 
 function popupBlockedMessage(): string {

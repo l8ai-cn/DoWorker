@@ -5,10 +5,10 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	ticketservice "github.com/anthropics/agentsmesh/backend/internal/service/ticket"
-	ticketv1 "github.com/anthropics/agentsmesh/proto/gen/go/ticket/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	ticketservice "github.com/l8ai-cn/agentcloud/backend/internal/service/ticket"
+	ticketv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/ticket/v1"
 )
 
 // AddAssignee mirrors REST handler `AddAssignee` (ticket_assignees.go:21).

@@ -49,7 +49,7 @@ function NewProject() {
 
         <div className="flex-1 space-y-4 px-5 py-5">
           <p className="text-[12px] text-muted-foreground">
-            项目名会作为会话标签（omni_project）同步到 Do Worker 服务端。首个任务创建后出现在项目列表。
+            项目名会作为会话标签（omni_project）同步到 Agent Cloud 服务端。首个任务创建后出现在项目列表。
           </p>
           <Field label="项目名称" required>
             <input

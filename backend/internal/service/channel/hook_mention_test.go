@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	channelDomain "github.com/anthropics/agentsmesh/backend/internal/domain/channel"
+	channelDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/channel"
 )
 
 // --- Mocks ---

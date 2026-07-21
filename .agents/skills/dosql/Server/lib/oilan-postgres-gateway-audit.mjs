@@ -136,7 +136,7 @@ async function queryCanonicalGatewayAudit(filter) {
 
 function queryCanonicalWorkspaceAudit(expected) {
   const sessions = expected.map((item) => item.session);
-  const session = `agentsmesh-pg-registration-gate-${process.pid}-${Date.now()}`;
+  const session = `agentcloud-pg-registration-gate-${process.pid}-${Date.now()}`;
   const command = [
     "set -euo pipefail",
     ...sessions.map((value) => [
