@@ -13,12 +13,12 @@ test.describe("Worker resource editor", () => {
       name: /Model binding|模型绑定/i,
     })).toBeVisible();
 
-    const createButton = editor.getByRole("button", {
-      name: /^(Create Worker|创建 Worker)$/i,
+    const applyButton = editor.getByRole("button", {
+      name: /^(Apply template|应用模板)$/i,
     });
-    await expect(createButton).toBeDisabled();
+    await expect(applyButton).toBeDisabled();
 
     await editor.getByLabel(/Resource name|资源名称/i).fill("e2e-worker-invocation");
-    await expect(createButton).toBeDisabled();
+    await expect(applyButton).toBeDisabled();
   });
 });
