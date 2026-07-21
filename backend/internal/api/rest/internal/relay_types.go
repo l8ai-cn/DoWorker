@@ -2,9 +2,9 @@ package internal
 
 type RegisterRequest struct {
 	RelayID   string `json:"relay_id" binding:"required,max=128"`
-	RelayName string `json:"relay_name" binding:"max=128"`              // Name for DNS auto-registration (e.g., "us-east-1")
-	IP        string `json:"ip" binding:"omitempty,ip"`                 // Public IP for DNS and geo-aware selection. Required for geo; if omitted and URL uses a hostname, relay won't have geo coords.
-	URL       string `json:"url" binding:"omitempty"`                   // Public URL via reverse proxy (e.g. wss://example.com/relay). Scheme validated by parseRelayURL (ws/wss only).
+	RelayName string `json:"relay_name" binding:"max=128"` // Name for DNS auto-registration (e.g., "us-east-1")
+	IP        string `json:"ip" binding:"omitempty,ip"`    // Public IP for DNS and geo-aware selection. Required for geo; if omitted and URL uses a hostname, relay won't have geo coords.
+	URL       string `json:"url" binding:"omitempty"`      // Public URL via reverse proxy (e.g. wss://example.com/relay). Scheme validated by parseRelayURL (ws/wss only).
 	Region    string `json:"region" binding:"max=64"`
 	Capacity  int    `json:"capacity" binding:"min=0,max=100000"`
 }
@@ -20,12 +20,12 @@ type RegisterResponse struct {
 }
 
 type HeartbeatRequest struct {
-	RelayID       string  `json:"relay_id" binding:"required,max=128"`
-	Connections   int     `json:"connections" binding:"min=0,max=1000000"`
-	CPUUsage      float64 `json:"cpu_usage" binding:"min=0,max=100"`
-	MemoryUsage   float64 `json:"memory_usage" binding:"min=0,max=100"`
-	LatencyMs     int     `json:"latency_ms,omitempty" binding:"min=0,max=60000"`
-	NeedCert      bool    `json:"need_cert,omitempty"`
+	RelayID     string  `json:"relay_id" binding:"required,max=128"`
+	Connections int     `json:"connections" binding:"min=0,max=1000000"`
+	CPUUsage    float64 `json:"cpu_usage" binding:"min=0,max=100"`
+	MemoryUsage float64 `json:"memory_usage" binding:"min=0,max=100"`
+	LatencyMs   int     `json:"latency_ms,omitempty" binding:"min=0,max=60000"`
+	NeedCert    bool    `json:"need_cert,omitempty"`
 	// ActiveTunnels/ActiveStreams report the gateway's HTTP data-plane load
 	// (relay/internal/tunnel.Registry.Stats). Omitted by relays with the
 	// tunnel feature disabled; not yet persisted, logged for observability

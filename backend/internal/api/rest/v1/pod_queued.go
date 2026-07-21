@@ -10,13 +10,13 @@ import (
 )
 
 type QueuedPodItem struct {
-	PodKey         string `json:"pod_key"`
-	RunnerID       int64  `json:"runner_id"`
-	AgentSlug      string `json:"agent_slug"`
-	Alias          string `json:"alias,omitempty"`
-	QueuePosition  int    `json:"queue_position"`
-	CreatedAt      string `json:"created_at"`
-	ExpiresAt      string `json:"expires_at"`
+	PodKey        string `json:"pod_key"`
+	RunnerID      int64  `json:"runner_id"`
+	AgentSlug     string `json:"agent_slug"`
+	Alias         string `json:"alias,omitempty"`
+	QueuePosition int    `json:"queue_position"`
+	CreatedAt     string `json:"created_at"`
+	ExpiresAt     string `json:"expires_at"`
 }
 
 // ListQueuedPods GET /api/v1/orgs/:slug/pods/queued

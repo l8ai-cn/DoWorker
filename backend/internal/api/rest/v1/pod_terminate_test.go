@@ -19,11 +19,11 @@ import (
 
 // mockPodStoreForTerminate implements runner.PodStore for terminate handler tests.
 type mockPodStoreForTerminate struct {
-	pod            *agentpod.Pod
-	err            error
-	updateErr      error
-	updatePodKey   string
-	updateStatus   string
+	pod          *agentpod.Pod
+	err          error
+	updateErr    error
+	updatePodKey string
+	updateStatus string
 }
 
 func (m *mockPodStoreForTerminate) GetByKey(_ context.Context, _ string) (*agentpod.Pod, error) {

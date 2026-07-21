@@ -7,9 +7,9 @@ import (
 
 	"github.com/anthropics/agentsmesh/backend/internal/config"
 	"github.com/anthropics/agentsmesh/backend/internal/infra"
-	"github.com/anthropics/agentsmesh/backend/internal/testkit"
 	billingService "github.com/anthropics/agentsmesh/backend/internal/service/billing"
 	"github.com/anthropics/agentsmesh/backend/internal/service/payment"
+	"github.com/anthropics/agentsmesh/backend/internal/testkit"
 	"gorm.io/gorm"
 )
 

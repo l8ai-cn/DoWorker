@@ -62,9 +62,9 @@ func (m *mockProvider) GetCustomerPortalURL(ctx context.Context, customerID, ret
 
 // mockBillingService implements BillingServiceInterface for testing
 type mockBillingService struct {
-	paymentSucceededErr   error
-	paymentFailedErr      error
-	subscriptionCanceled  error
+	paymentSucceededErr    error
+	paymentFailedErr       error
+	subscriptionCanceled   error
 	subscriptionUpdatedErr error
 }
 

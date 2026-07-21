@@ -74,9 +74,9 @@ func TestReplaceURLHost(t *testing.T) {
 
 func TestParseRelayURL(t *testing.T) {
 	tests := []struct {
-		name    string
-		rawURL  string
-		wantOK  bool
+		name   string
+		rawURL string
+		wantOK bool
 	}{
 		{"valid wss with host", "wss://relay.example.com:8443", true},
 		{"valid ws with host", "ws://192.168.1.1:8090", true},

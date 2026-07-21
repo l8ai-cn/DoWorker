@@ -266,4 +266,3 @@ func TestUnregisterHandler_NotFound_Idempotent(t *testing.T) {
 	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 	assert.Equal(t, "not_found", resp.Status)
 }
-

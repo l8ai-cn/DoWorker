@@ -146,6 +146,8 @@ deploy/dev/runtime/
 # Bazel-built runner binary copied into the runner docker build context
 deploy/dev/runner-binary
 deploy/dev/minimax-cli-wrapper.sh
+deploy/dev/binaries/
+# Locally-built do-agent/e2e-mock binaries staged for agent-runtime image builds
 # Bazel-built e2e-mock-agent binary (same copy-into-build-context pattern)
 deploy/dev/e2e-mock-agent-binary
 # Locally-built loopal binary (Loopal repo: bazel build //:loopal --config=linux-x86)
