@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/anthropics/agentsmesh/agentfile/eval"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	"github.com/l8ai-cn/agentcloud/agentfile/eval"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 )
 
 // buildEvalContext creates the AgentFile eval context with placeholder sandbox paths.
@@ -126,7 +126,7 @@ func buildSandboxConfig(req *ConfigBuildRequest) *runnerv1.SandboxConfig {
 // buildMCPContext loads MCP server configurations.
 func (b *ConfigBuilder) buildMCPContext(ctx context.Context, req *ConfigBuildRequest, agentSlug string) (map[string]interface{}, map[string]interface{}) {
 	builtinMCP := map[string]interface{}{
-		"agentsmesh": map[string]interface{}{
+		"agentcloud": map[string]interface{}{
 			"type": "http",
 			"url":  fmt.Sprintf("http://127.0.0.1:%d/mcp", req.MCPPort),
 			"headers": map[string]interface{}{

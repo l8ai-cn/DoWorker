@@ -1,9 +1,9 @@
 package sessionapi
 
 import (
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
-	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentsession"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
+	workercreation "github.com/l8ai-cn/agentcloud/backend/internal/service/workercreation"
 )
 
 func buildForkSnapshotPodRequest(

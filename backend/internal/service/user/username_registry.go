@@ -6,7 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 // EnsureUniqueUsername coerces arbitrary external strings (OAuth login,

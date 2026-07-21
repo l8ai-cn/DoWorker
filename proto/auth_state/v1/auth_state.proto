@@ -22,7 +22,7 @@ package proto.auth_state.v1;
 import "auth/v1/auth.proto";
 import "org/v1/org.proto";
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/auth_state/v1;authstatev1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/auth_state/v1;authstatev1";
 
 // AuthManager::bootstrap() outcome. Mirrors the Rust enum
 // `BootstrapResult` (clients/core/crates/auth/src/bootstrap.rs) — kept as

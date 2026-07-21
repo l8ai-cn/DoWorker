@@ -5,11 +5,11 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	"github.com/anthropics/agentsmesh/backend/internal/infra"
-	envbundleservice "github.com/anthropics/agentsmesh/backend/internal/service/envbundle"
-	"github.com/anthropics/agentsmesh/backend/internal/testkit"
-	"github.com/anthropics/agentsmesh/backend/pkg/crypto"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra"
+	envbundleservice "github.com/l8ai-cn/agentcloud/backend/internal/service/envbundle"
+	"github.com/l8ai-cn/agentcloud/backend/internal/testkit"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/crypto"
 	"gorm.io/gorm"
 )
 

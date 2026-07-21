@@ -15,7 +15,7 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	"github.com/anthropics/agentsmesh/relay/internal/config"
+	"github.com/l8ai-cn/agentcloud/relay/internal/config"
 )
 
 func testConfig() *config.Config {

@@ -1,4 +1,4 @@
-module github.com/anthropics/agentsmesh
+module github.com/l8ai-cn/agentcloud
 
 go 1.25.0
 

@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/blockstore"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/blockstore"
 )
 
 const allowedHostsEnv = "BLOCKSTORE_WEBHOOK_ALLOW_HOSTS"

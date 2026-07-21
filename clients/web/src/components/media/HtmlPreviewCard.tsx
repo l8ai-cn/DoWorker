@@ -8,7 +8,7 @@ import {
   STATIC_HTML_SANDBOX,
   openStaticHtmlInNewWindow,
   staticHtmlDocument,
-} from "@do-worker/agent-ui";
+} from "@agent-cloud/agent-ui";
 import { cn } from "@/lib/utils";
 
 type Tab = "preview" | "code";

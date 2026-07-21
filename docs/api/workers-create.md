@@ -26,7 +26,7 @@ Resource Apply 失败时不会调用 Direct WorkerSpec 或 External REST。Exter
 ModelBinding、Prompt 等依赖。
 
 ```yaml
-apiVersion: agentsmesh.io/v1alpha1
+apiVersion: agentcloud.io/v1alpha1
 kind: Worker
 metadata:
   name: release-review-20260715

@@ -6,11 +6,11 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/skill"
-	repositoryservice "github.com/anthropics/agentsmesh/backend/internal/service/repository"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/gitprovider"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/skill"
+	repositoryservice "github.com/l8ai-cn/agentcloud/backend/internal/service/repository"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 func (resolver *workspaceResolver) resolveRepository(

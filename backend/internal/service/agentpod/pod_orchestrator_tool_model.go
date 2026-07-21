@@ -4,9 +4,9 @@ import (
 	"context"
 	"strings"
 
-	resourcedomain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	resourcesvc "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
+	resourcedomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	resourcesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
 )
 
 func (o *PodOrchestrator) applyWorkerToolModels(

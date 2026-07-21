@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
-	expertsvc "github.com/anthropics/agentsmesh/backend/internal/service/expert"
+	expertdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/expert"
+	expertsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/expert"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
 )

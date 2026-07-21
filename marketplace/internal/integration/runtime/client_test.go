@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/marketplace/internal/service"
+	"github.com/l8ai-cn/agentcloud/marketplace/internal/service"
 	"github.com/stretchr/testify/require"
 )
 

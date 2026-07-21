@@ -1,11 +1,11 @@
 import {
   VideoStage,
   type ArtifactManifest,
-} from "@do-worker/proto/agent_workbench/v2/artifact_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/artifact_pb";
 import {
   UnsupportedReason,
   type StructuredPayload,
-} from "@do-worker/proto/agent_workbench/v2/content_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/content_pb";
 
 import type {
   AgentArtifactManifest,

@@ -4,7 +4,7 @@
     {
       "id": "do-agent-cli",
       "kind": "captured_command",
-      "command": "docker exec agentsmesh-codex-loop-blockly-mvp-runner-do-agent-1 do-agent --version && do-agent --help && do-agent acp --help && do-agent config --help && do-agent memory --help && do-agent resume --help",
+      "command": "docker exec agentcloud-codex-loop-blockly-mvp-runner-do-agent-1 do-agent --version && do-agent --help && do-agent acp --help && do-agent config --help && do-agent memory --help && do-agent resume --help",
       "checked_at": "2026-07-17T13:38:01Z",
       "evidence_hash": "sha256:bcef1f4995b404f4ceedb66762b33f6b42b7302950361f1df02b1dbd7790a715"
     },

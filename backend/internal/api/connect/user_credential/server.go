@@ -18,7 +18,7 @@ import (
 
 	"connectrpc.com/connect"
 
-	userservice "github.com/anthropics/agentsmesh/backend/internal/service/user"
+	userservice "github.com/l8ai-cn/agentcloud/backend/internal/service/user"
 )
 
 const (

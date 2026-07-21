@@ -16,7 +16,7 @@ const pin = {
 describe("GoalLoop resource snapshot", () => {
   it("restores the exact persisted custom block pin", () => {
     const snapshot = parseGoalLoopProgramSnapshot(new TextEncoder().encode(JSON.stringify({
-      apiVersion: "agentsmesh.io/v1alpha1",
+      apiVersion: "agentcloud.io/v1alpha1",
       kind: "GoalLoop",
       metadata: { name: "checkout-loop", namespace: "acme" },
       spec: {

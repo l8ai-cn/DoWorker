@@ -1,4 +1,4 @@
-import { mountEmbeddedAgentWorkspace } from "../dist-embed/do-worker-embed.js";
+import { mountEmbeddedAgentWorkspace } from "../dist-embed/agent-cloud-embed.js";
 
 const root = document.getElementById("agent-workspace");
 if (!root) throw new Error("agent workspace root is missing");

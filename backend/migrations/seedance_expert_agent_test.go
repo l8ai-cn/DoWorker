@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/agentfile/parser"
+	"github.com/l8ai-cn/agentcloud/agentfile/parser"
 )
 
 func TestMigration000210SeedanceExpertAgent(t *testing.T) {

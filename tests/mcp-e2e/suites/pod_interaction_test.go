@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/tests/mcp-e2e/fixture"
+	"github.com/l8ai-cn/agentcloud/tests/mcp-e2e/fixture"
 )
 
 // TestPodInteraction_RoundTrip exercises the 3 pod-interaction tools on an

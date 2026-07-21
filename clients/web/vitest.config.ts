@@ -42,8 +42,8 @@ export default defineConfig({
       // Resolves to the same path tsconfig.json's `@proto/*` alias points to,
       // keeping vitest, ESLint, and Next.js in lockstep.
       '@proto': resolve(__dirname, '../../proto/gen/ts'),
-      '@do-worker/proto': resolve(__dirname, '../../proto/gen/ts'),
-      '@do-worker/agent-ui': resolve(__dirname, '../../packages/agent-ui/src/index.ts'),
+      '@agent-cloud/proto': resolve(__dirname, '../../proto/gen/ts'),
+      '@agent-cloud/agent-ui': resolve(__dirname, '../../packages/agent-ui/src/index.ts'),
     },
     // Force a single copy of React across the workspace. Without this,
     // vitest's forked pool workers walk pnpm's virtual store from each

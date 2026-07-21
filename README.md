@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="docs/images/logo.svg" alt="Do Worker" height="72" />
+  <img src="docs/images/logo.svg" alt="Agent Cloud" height="72" />
 </p>
 
-<h1 align="center">Do Worker</h1>
+<h1 align="center">Agent Cloud</h1>
 
 <h3 align="center">Where teams scale beyond headcount.</h3>
 
@@ -12,24 +12,24 @@
 </p>
 
 <p align="center">
-  <a href="https://agentsmesh.ai">Website</a> ·
-  <a href="https://agentsmesh.ai/docs">Docs</a> ·
+  <a href="https://agentcloud.ai">Website</a> ·
+  <a href="https://agentcloud.ai/docs">Docs</a> ·
   <a href="#quick-start">Quick Start</a> ·
-  <a href="https://github.com/l8ai-cn/DoWorker">GitHub</a> ·
+  <a href="https://github.com/l8ai-cn/AgentCloud">GitHub</a> ·
   <a href="https://discord.gg/3RcX7VBbH9">Discord</a> ·
-  <a href="https://x.com/agentsmeshai">X</a> · <a href="https://x.com/stone0dong">X (founder)</a> ·
-  <a href="https://www.linkedin.com/company/agentsmesh">LinkedIn</a>
+  <a href="https://x.com/agentcloudai">X</a> · <a href="https://x.com/stone0dong">X (founder)</a> ·
+  <a href="https://www.linkedin.com/company/agentcloud">LinkedIn</a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/l8ai-cn/DoWorker/actions/workflows/ci.yml"><img src="https://github.com/l8ai-cn/DoWorker/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI" /></a>
-  <a href="https://github.com/l8ai-cn/DoWorker/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-BSL--1.1-blue" alt="License" /></a>
-  <a href="https://hub.docker.com/u/agentsmesh"><img src="https://img.shields.io/badge/docker-hub-blue?logo=docker" alt="Docker Hub" /></a>
+  <a href="https://github.com/l8ai-cn/AgentCloud/actions/workflows/ci.yml"><img src="https://github.com/l8ai-cn/AgentCloud/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI" /></a>
+  <a href="https://github.com/l8ai-cn/AgentCloud/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-BSL--1.1-blue" alt="License" /></a>
+  <a href="https://hub.docker.com/u/agentcloud"><img src="https://img.shields.io/badge/docker-hub-blue?logo=docker" alt="Docker Hub" /></a>
 </p>
 
 <p align="center">
   <a href="https://youtu.be/FZrUO0tim0U">
-    <img src="https://img.youtube.com/vi/FZrUO0tim0U/maxresdefault.jpg" alt="Do Worker Demo Video" width="720" />
+    <img src="https://img.youtube.com/vi/FZrUO0tim0U/maxresdefault.jpg" alt="Agent Cloud Demo Video" width="720" />
   </a>
 </p>
 
@@ -49,13 +49,13 @@ That ambition breaks the moment you try it for real:
 
 What's missing isn't the agent. It's the **control layer** that turns one operator into the director of an agent workforce — the layer that schedules agents onto machines, isolates them, keeps them alive, lets them collaborate, and puts all of it on one screen.
 
-**Do Worker is that layer.**
+**Agent Cloud is that layer.**
 
 ## From problem to platform
 
-Every part of Do Worker exists to answer one question: *how does a single person reliably run, watch, and steer a hundred agents?* Each capability is the direct answer to a wall you hit when you scale.
+Every part of Agent Cloud exists to answer one question: *how does a single person reliably run, watch, and steer a hundred agents?* Each capability is the direct answer to a wall you hit when you scale.
 
-| The wall you hit | What Do Worker gives you |
+| The wall you hit | What Agent Cloud gives you |
 |---|---|
 | 100 agents won't run on one machine | **Runner fleet** — install self-hosted runners across any number of machines. Each advertises its capacity (`max_concurrent_pods`), and agents are scheduled onto the runner you pick or an available one from the pool. Your code never leaves your infrastructure. |
 | Every agent needs a clean, isolated environment | **Workspace isolation** — each agent runs in its own pod with a dedicated Git worktree sandbox (`sandboxes/{pod}/workspace/`), private credentials, and its own branch. Concurrent agents never step on each other. |
@@ -76,10 +76,10 @@ The rest is plumbing built so that chain holds up under load: a **control-plane 
 
 ## Architecture
 
-Do Worker separates the **control plane** from the **data plane**: orchestration commands travel over gRPC with mTLS, while terminal I/O streams through a stateless Relay cluster. The backend never touches a single PTY byte — which is what lets the fleet scale.
+Agent Cloud separates the **control plane** from the **data plane**: orchestration commands travel over gRPC with mTLS, while terminal I/O streams through a stateless Relay cluster. The backend never touches a single PTY byte — which is what lets the fleet scale.
 
 <p align="center">
-  <img src="docs/images/architecture.svg" alt="Do Worker Architecture" width="680" />
+  <img src="docs/images/architecture.svg" alt="Agent Cloud Architecture" width="680" />
 </p>
 
 **Server-side (Go)**
@@ -100,14 +100,14 @@ Do Worker separates the **control plane** from the **data plane**: orchestration
 
 ## Getting Started
 
-The fastest way to use Do Worker is the hosted service at **[agentsmesh.ai](https://agentsmesh.ai)** — sign up, connect your Git provider, and start running agents in minutes. Bring your own AI API keys (**BYOK**): no usage caps, full cost control.
+The fastest way to use Agent Cloud is the hosted service at **[agentcloud.ai](https://agentcloud.ai)** — sign up, connect your Git provider, and start running agents in minutes. Bring your own AI API keys (**BYOK**): no usage caps, full cost control.
 
 ### 1. Install a Runner
 
 The Runner is a lightweight daemon that runs on your machine and executes AI agents locally. Your code stays on your infrastructure. Install one per machine you want in the fleet.
 
 ```bash
-curl -fsSL https://agentsmesh.ai/install.sh | sh
+curl -fsSL https://agentcloud.ai/install.sh | sh
 ```
 
 > See the [Runner README](runner/) for more installation options (deb, rpm, Windows, etc.)
@@ -115,32 +115,32 @@ curl -fsSL https://agentsmesh.ai/install.sh | sh
 ### 2. Login
 
 ```bash
-do-worker-runner register
+agent-cloud-runner register
 ```
 
 This opens your browser to authenticate. For headless environments (SSH, remote server):
 
 ```bash
-do-worker-runner register --headless
+agent-cloud-runner register --headless
 ```
 
 For self-hosted deployments, add `--server`:
 
 ```bash
-do-worker-runner register --server https://your-server.com
+agent-cloud-runner register --server https://your-server.com
 ```
 
 ### 3. Run
 
 ```bash
-do-worker-runner run
+agent-cloud-runner run
 ```
 
 Or install as a system service for always-on operation:
 
 ```bash
-do-worker-runner service install
-do-worker-runner service start
+agent-cloud-runner service install
+agent-cloud-runner service start
 ```
 
 Once the runner is online, create a **Worker** from the web console. The wizard preflights the selected Worker type, model resource, credentials, workspace, and Runner before creation.
@@ -150,8 +150,8 @@ Once the runner is online, create a **Worker** from the web console. The wizard 
 Run the whole stack locally with one command.
 
 ```bash
-git clone https://github.com/l8ai-cn/DoWorker.git
-cd DoWorker
+git clone https://github.com/l8ai-cn/AgentCloud.git
+cd AgentCloud
 ./deploy/dev/dev.sh
 ```
 
@@ -169,8 +169,8 @@ This starts the full stack: PostgreSQL, Redis, MinIO, Backend, Relay, Traefik, a
 
 | Role | Email | Password |
 |------|-------|----------|
-| User | dev@agentsmesh.local | AdminAb123456 |
-| Admin | admin@agentsmesh.local | Ab123456 |
+| User | dev@agentcloud.local | AdminAb123456 |
+| Admin | admin@agentcloud.local | Ab123456 |
 
 > Ports are dynamically allocated per worktree. Check `deploy/dev/.env` for actual values.
 
@@ -199,17 +199,17 @@ tail -f deploy/dev/web.log
 Docker images are published to Docker Hub on every push to `main`:
 
 ```
-agentsmesh/backend:sha-xxxxxxx
-agentsmesh/web:sha-xxxxxxx
-agentsmesh/web-admin:sha-xxxxxxx
-agentsmesh/relay:sha-xxxxxxx
+agentcloud/backend:sha-xxxxxxx
+agentcloud/web:sha-xxxxxxx
+agentcloud/web-admin:sha-xxxxxxx
+agentcloud/relay:sha-xxxxxxx
 ```
 
 Tagged releases (`v*`) get semver tags:
 
 ```
-agentsmesh/backend:1.0.0
-agentsmesh/backend:1.0
+agentcloud/backend:1.0.0
+agentcloud/backend:1.0
 ```
 
 See [deploy/selfhost/](deploy/selfhost/) for the self-hosted deployment guide.
@@ -218,7 +218,7 @@ See [deploy/selfhost/](deploy/selfhost/) for the self-hosted deployment guide.
 
 ## Worker Runtime Status
 
-Do Worker does not treat an arbitrary terminal command as an integrated Worker.
+Agent Cloud does not treat an arbitrary terminal command as an integrated Worker.
 Each formal type needs a Definition, explicit adapter, a published immutable
 runtime image that can be pulled by digest, credential or model-resource
 mapping, and product-path evidence before it is marked supported.
@@ -261,7 +261,7 @@ and `clients/web/src/generated/worker-runtime-catalog.json`.
 ## Project Structure
 
 ```
-DoWorker/
+AgentCloud/
 ├── backend/          # Go API server
 ├── relay/            # Terminal relay server (Go)
 ├── runner/           # Self-hosted runner daemon (Go)

@@ -5,7 +5,7 @@ import (
 	"math"
 	"time"
 
-	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
+	agentworkbenchv2 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -110,7 +110,7 @@ func userMessageEvent(
 		content = append(content, &agentworkbenchv2.ContentBlock{
 			ContentId: command.CommandId + ":text",
 			Identity: &agentworkbenchv2.ContentIdentity{
-				Namespace: "agentsmesh", SemanticKey: "text", SchemaVersion: "1",
+				Namespace: "agentcloud", SemanticKey: "text", SchemaVersion: "1",
 			},
 			Content: &agentworkbenchv2.ContentBlock_Text{
 				Text: &agentworkbenchv2.TextContent{Text: prompt.Text},

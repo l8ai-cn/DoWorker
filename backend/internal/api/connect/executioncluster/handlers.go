@@ -6,9 +6,9 @@ import (
 
 	"connectrpc.com/connect"
 
-	service "github.com/anthropics/agentsmesh/backend/internal/service/executioncluster"
-	"github.com/anthropics/agentsmesh/backend/pkg/protoconv"
-	executionclusterv1 "github.com/anthropics/agentsmesh/proto/gen/go/execution_cluster/v1"
+	service "github.com/l8ai-cn/agentcloud/backend/internal/service/executioncluster"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/protoconv"
+	executionclusterv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/execution_cluster/v1"
 )
 
 func (s *Server) ListExecutionClusters(

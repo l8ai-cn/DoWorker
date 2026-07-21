@@ -9,7 +9,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/user"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/user"
 )
 
 func (s *Service) GenerateTokenPair(u *user.User, orgID int64, role string) (*TokenPair, error) {

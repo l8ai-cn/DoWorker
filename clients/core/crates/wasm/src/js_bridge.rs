@@ -28,7 +28,7 @@ fn to_js(val: &serde_json::Value) -> JsValue {
     }
 }
 
-pub(crate) fn make_output_callback(f: js_sys::Function) -> agentsmesh_relay::OutputCallback {
+pub(crate) fn make_output_callback(f: js_sys::Function) -> agentcloud_relay::OutputCallback {
     let f = JsFunction(f);
     Arc::new(move |data: Vec<u8>| {
         let arr = Uint8Array::from(data.as_slice());
@@ -36,9 +36,9 @@ pub(crate) fn make_output_callback(f: js_sys::Function) -> agentsmesh_relay::Out
     })
 }
 
-pub(crate) fn make_status_callback(f: js_sys::Function) -> agentsmesh_relay::StatusCallback {
+pub(crate) fn make_status_callback(f: js_sys::Function) -> agentcloud_relay::StatusCallback {
     let f = JsFunction(f);
-    Arc::new(move |info: agentsmesh_relay::RelayStatusInfo| {
+    Arc::new(move |info: agentcloud_relay::RelayStatusInfo| {
         let obj = js_sys::Object::new();
         let _ = js_sys::Reflect::set(&obj, &"status".into(), &info.status.to_string().into());
         let _ = js_sys::Reflect::set(
@@ -65,10 +65,10 @@ pub(crate) fn make_status_callback(f: js_sys::Function) -> agentsmesh_relay::Sta
     })
 }
 
-pub(crate) fn make_acp_callback(f: js_sys::Function) -> agentsmesh_relay::AcpCallback {
+pub(crate) fn make_acp_callback(f: js_sys::Function) -> agentcloud_relay::AcpCallback {
     let f = JsFunction(f);
     Arc::new(
-        move |msg_type: agentsmesh_protocol::MsgType, payload: serde_json::Value| {
+        move |msg_type: agentcloud_protocol::MsgType, payload: serde_json::Value| {
             let mt = JsValue::from(msg_type as u8);
             let pl = to_js(&payload);
             f.call2(&mt, &pl);
@@ -78,16 +78,16 @@ pub(crate) fn make_acp_callback(f: js_sys::Function) -> agentsmesh_relay::AcpCal
 
 pub(crate) fn make_disconnect_callback(
     f: js_sys::Function,
-) -> agentsmesh_relay::DisconnectCallback {
+) -> agentcloud_relay::DisconnectCallback {
     let f = JsFunction(f);
     Arc::new(move |pod_key: String| {
         f.call1(&pod_key.into());
     })
 }
 
-pub(crate) fn make_event_handler(f: js_sys::Function) -> agentsmesh_events::EventHandler {
+pub(crate) fn make_event_handler(f: js_sys::Function) -> agentcloud_events::EventHandler {
     let f = JsFunction(f);
-    Arc::new(move |event: &agentsmesh_events::RealtimeEvent| {
+    Arc::new(move |event: &agentcloud_events::RealtimeEvent| {
         // The TS-side callback signature is `(eventJson: string) => void`
         // (see clients/web/src/lib/realtime/EventSubscriptionManager.ts —
         // it calls `JSON.parse(eventJson)`). Pass the raw JSON string,
@@ -101,9 +101,9 @@ pub(crate) fn make_event_handler(f: js_sys::Function) -> agentsmesh_events::Even
     })
 }
 
-pub(crate) fn make_state_listener(f: js_sys::Function) -> agentsmesh_events::StateListener {
+pub(crate) fn make_state_listener(f: js_sys::Function) -> agentcloud_events::StateListener {
     let f = JsFunction(f);
-    Arc::new(move |state: agentsmesh_events::ConnectionState| {
+    Arc::new(move |state: agentcloud_events::ConnectionState| {
         f.call1(&state.to_string().into());
     })
 }

@@ -7,10 +7,10 @@ import (
 	"strings"
 	"testing"
 
-	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/expertmarket"
-	expertsvc "github.com/anthropics/agentsmesh/backend/internal/service/expert"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
+	expertdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/expert"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/expertmarket"
+	expertsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/expert"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
 )

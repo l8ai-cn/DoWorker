@@ -5,8 +5,8 @@ import (
 
 	"connectrpc.com/connect"
 
-	service "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
-	resourcev1 "github.com/anthropics/agentsmesh/proto/gen/go/orchestration_resource/v1"
+	service "github.com/l8ai-cn/agentcloud/backend/internal/service/orchestrationcontrol"
+	resourcev1 "github.com/l8ai-cn/agentcloud/proto/gen/go/orchestration_resource/v1"
 )
 
 func (server *Server) GetResource(

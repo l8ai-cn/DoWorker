@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Coordinate every formal Do Worker type through a runtime-evidence queue.
+Coordinate every formal Agent Cloud type through a runtime-evidence queue.
 
 User goal: Create varied Workers with their own connections, adapters, credentials,
 and configuration documents, then prove every product path with real evidence.
@@ -124,6 +124,6 @@ Protected paths:
 ## Escalation
 
 - Condition: A human gate, blocker, budget exit, or no-progress exit is reached.
-- Owner: Do Worker maintainer
+- Owner: Agent Cloud maintainer
 - Channel: Codex thread
 - Message template: Worker catalog loop stopped: {reason}. Evidence: {evidence_ref}.

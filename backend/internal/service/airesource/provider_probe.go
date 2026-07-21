@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"strings"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
 )
 
 type HTTPDoer interface {

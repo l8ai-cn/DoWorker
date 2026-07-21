@@ -4,7 +4,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/anthropics/agentsmesh/relay/internal/protocol/tunnelframe"
+	"github.com/l8ai-cn/agentcloud/relay/internal/protocol/tunnelframe"
 )
 
 // creditWindow implements per-stream, per-direction flow control. A sender

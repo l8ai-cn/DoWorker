@@ -101,15 +101,15 @@ line_number() {
   grep -n -F "$1" "$LOG" | head -1 | cut -d: -f1
 }
 
-backend_image="$(awk '$1 == "image:" && $2 ~ /agentsmesh\/backend@sha256:/ { print $2; exit }' "$ROOT/30-backend.yaml")"
+backend_image="$(awk '$1 == "image:" && $2 ~ /agentcloud\/backend@sha256:/ { print $2; exit }' "$ROOT/30-backend.yaml")"
 require_command "${backend_image}"
 require_command '23-worker-definition-sync-job.yaml | kubectl apply -f -'
-require_command 'kubectl -n agentsmesh wait --for=condition=complete job/worker-definition-sync --timeout=300s'
-require_command 'kubectl apply -f /tmp/agentsmesh-release.yaml'
+require_command 'kubectl -n agentcloud wait --for=condition=complete job/worker-definition-sync --timeout=300s'
+require_command 'kubectl apply -f /tmp/agentcloud-release.yaml'
 
 sync_apply="$(line_number '23-worker-definition-sync-job.yaml | kubectl apply -f -')"
 sync_wait="$(line_number 'job/worker-definition-sync --timeout=300s')"
-workloads="$(line_number 'kubectl apply -f /tmp/agentsmesh-release.yaml')"
+workloads="$(line_number 'kubectl apply -f /tmp/agentcloud-release.yaml')"
 
 (( workloads < sync_apply &&
    sync_apply < sync_wait )) || {

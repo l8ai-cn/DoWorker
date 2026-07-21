@@ -7,13 +7,13 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET="${DOOPS_TARGET:-gw-oilan-node}"
 SESSION="${DOOPS_SESSION:-$(doops session | tr -d '[:space:]')}"
 WORKSPACE="/root/ws/${SESSION}"
-NAMESPACE=agentsmesh
+NAMESPACE=agentcloud
 
 # shellcheck source=dosql_release_gate.sh
 source "${DIR}/dosql_release_gate.sh"
 
 require_pinned_images() {
-  grep -A1 -F 'name: repo.aiedulab.cn:8443/agentsmesh/backend' \
+  grep -A1 -F 'name: repo.aiedulab.cn:8443/agentcloud/backend' \
     "${DIR}/release/kustomization.yaml" |
     grep -Eq 'digest: sha256:[a-f0-9]{64}$' || {
     echo "immutable backend image digest required" >&2
@@ -26,7 +26,7 @@ dexec() {
 }
 
 backend_image() {
-  awk '$1 == "image:" && $2 ~ /agentsmesh\/backend@sha256:/ { print $2; exit }' \
+  awk '$1 == "image:" && $2 ~ /agentcloud\/backend@sha256:/ { print $2; exit }' \
     "${DIR}/30-backend.yaml"
 }
 
@@ -51,7 +51,7 @@ main() {
     dexec "kubectl -n ${NAMESPACE} rollout status deploy/${deployment} --timeout=240s"
   done
 
-  dexec "kubectl -n ${NAMESPACE} get ingress agentsmesh-mobile"
+  dexec "kubectl -n ${NAMESPACE} get ingress agentcloud-mobile"
   echo "==> deployed mobile access: https://mobile.l8ai.cn"
 }
 

@@ -1,4 +1,4 @@
-# SSH Configuration for AgentsMesh Dev Runner
+# SSH Configuration for Agent Cloud Dev Runner
 
 # Local Gitea Git server (Docker network)
 Host gitea

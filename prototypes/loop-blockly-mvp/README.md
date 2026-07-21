@@ -1,7 +1,7 @@
 # Loop Blockly MVP
 
 独立浏览器原型，用 Blockly 编排单 Worker Goal Loop，并生成可预览的
-canonical Loop JSON。该目录拥有自己的依赖和锁文件，不接入 AgentsMesh
+canonical Loop JSON。该目录拥有自己的依赖和锁文件，不接入 Agent Cloud
 后端、Runner 或真实 AI。
 
 ## 运行

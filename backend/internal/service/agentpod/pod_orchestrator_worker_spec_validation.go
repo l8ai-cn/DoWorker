@@ -5,9 +5,9 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/gitprovider"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	workercreation "github.com/l8ai-cn/agentcloud/backend/internal/service/workercreation"
 )
 
 func validatePreparedWorkerSnapshot(

@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/anthropics/agentsmesh/backend/internal/infra"
-	airesourceservice "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
-	organizationservice "github.com/anthropics/agentsmesh/backend/internal/service/organization"
-	"github.com/anthropics/agentsmesh/backend/pkg/crypto"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra"
+	airesourceservice "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
+	organizationservice "github.com/l8ai-cn/agentcloud/backend/internal/service/organization"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/crypto"
 	"gorm.io/gorm"
 )
 

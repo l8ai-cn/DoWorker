@@ -2,10 +2,10 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: migration-222-repair
-  namespace: agentsmesh
+  namespace: agentcloud
   annotations:
-    kubernetes.io/change-cause: "AgentsMesh release __RELEASE_COMMIT__"
-    agentsmesh.ai/verified-image-digest: "__BACKEND_DIGEST__"
+    kubernetes.io/change-cause: "Agent Cloud release __RELEASE_COMMIT__"
+    agentcloud.ai/verified-image-digest: "__BACKEND_DIGEST__"
 spec:
   backoffLimit: 0
   template:
@@ -13,11 +13,11 @@ spec:
       labels:
         app: migration-222-repair
       annotations:
-        agentsmesh.ai/verified-image-digest: "__BACKEND_DIGEST__"
+        agentcloud.ai/verified-image-digest: "__BACKEND_DIGEST__"
     spec:
       restartPolicy: Never
       imagePullSecrets:
-        - name: agentsmesh-regcred
+        - name: agentcloud-regcred
       containers:
         - name: repair
           image: __BACKEND_IMAGE__
@@ -35,6 +35,6 @@ spec:
               printf '%s\n' "$state"
           envFrom:
             - configMapRef:
-                name: agentsmesh-config
+                name: agentcloud-config
             - secretRef:
-                name: agentsmesh-secrets
+                name: agentcloud-secrets

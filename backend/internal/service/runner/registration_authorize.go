@@ -6,7 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	runnerdomain "github.com/anthropics/agentsmesh/backend/internal/domain/runner"
+	runnerdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/runner"
 )
 
 func (s *Service) AuthorizeRunner(ctx context.Context, authKey string, orgID, userID, clusterID int64, nodeID string) (*runnerdomain.Runner, error) {

@@ -23,7 +23,7 @@ export interface FileViewPreferences {
   hideWhitespace: boolean;
 }
 
-const STORAGE_KEY = "do-worker:file-view-preferences";
+const STORAGE_KEY = "agent-cloud:file-view-preferences";
 
 export const DEFAULT_FILE_VIEW_PREFERENCES: FileViewPreferences = {
   diffActive: false,

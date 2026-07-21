@@ -14,7 +14,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/anthropics/agentsmesh/runner/internal/processmgr"
+	"github.com/l8ai-cn/agentcloud/runner/internal/processmgr"
 )
 
 // TestMain wires the test process so it can both initialize processmgr (every

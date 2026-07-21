@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/sso"
-	ssoprovider "github.com/anthropics/agentsmesh/backend/pkg/auth/sso"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/sso"
+	ssoprovider "github.com/l8ai-cn/agentcloud/backend/pkg/auth/sso"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"

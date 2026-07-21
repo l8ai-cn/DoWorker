@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
-use agentsmesh_api_client::AuthTokenStore;
-use agentsmesh_auth::{AuthManager, PersistentStorage};
-use agentsmesh_state::auth_types::{AuthSession, Organization as AuthOrg};
-use agentsmesh_types::proto_auth_state_v1 as auth_state;
+use agentcloud_api_client::AuthTokenStore;
+use agentcloud_auth::{AuthManager, PersistentStorage};
+use agentcloud_state::auth_types::{AuthSession, Organization as AuthOrg};
+use agentcloud_types::proto_auth_state_v1 as auth_state;
 use prost::Message;
 use wasm_bindgen::prelude::*;
 
@@ -107,15 +107,15 @@ impl WasmAuthManager {
             .manager
             .login(&username, &password)
             .await
-            .map_err(agentsmesh_services::wire)?;
-        serde_json::to_string(&session).map_err(agentsmesh_services::wire)
+            .map_err(agentcloud_services::wire)?;
+        serde_json::to_string(&session).map_err(agentcloud_services::wire)
     }
 
     pub async fn logout(&self) -> Result<(), String> {
         self.manager
             .logout()
             .await
-            .map_err(agentsmesh_services::wire)
+            .map_err(agentcloud_services::wire)
     }
 
     pub async fn refresh_token(&self) -> Result<String, String> {
@@ -123,13 +123,13 @@ impl WasmAuthManager {
             .manager
             .refresh_token()
             .await
-            .map_err(agentsmesh_services::wire)?;
-        serde_json::to_string(&tokens).map_err(agentsmesh_services::wire)
+            .map_err(agentcloud_services::wire)?;
+        serde_json::to_string(&tokens).map_err(agentcloud_services::wire)
     }
 
     pub async fn bootstrap(&self) -> Result<String, String> {
         let result = self.manager.bootstrap().await;
-        serde_json::to_string(&result).map_err(agentsmesh_services::wire)
+        serde_json::to_string(&result).map_err(agentcloud_services::wire)
     }
 
     pub async fn fetch_organizations(&self) -> Result<String, String> {
@@ -137,14 +137,14 @@ impl WasmAuthManager {
             .manager
             .fetch_organizations()
             .await
-            .map_err(agentsmesh_services::wire)?;
-        serde_json::to_string(&orgs).map_err(agentsmesh_services::wire)
+            .map_err(agentcloud_services::wire)?;
+        serde_json::to_string(&orgs).map_err(agentcloud_services::wire)
     }
 
     pub fn switch_org(&self, slug: &str) -> Result<(), String> {
         self.manager
             .switch_org(slug)
-            .map_err(agentsmesh_services::wire)
+            .map_err(agentcloud_services::wire)
     }
 
     pub fn is_authenticated(&self) -> bool {

@@ -30,7 +30,7 @@ wait_for_service() {
 # Detects + repairs dirty state; refuses to force a fresh DB so a broken
 # migration surfaces loudly rather than getting masked.
 run_migrations() {
-    local db_url="postgres://agentsmesh:agentsmesh_dev@localhost:5432/agentsmesh?sslmode=disable"
+    local db_url="postgres://agentcloud:agentcloud_dev@localhost:5432/agentcloud?sslmode=disable"
     local compose_run="docker compose run --rm --no-deps migrate"
 
     info "执行数据库迁移 (docker oneshot migrate)..."
@@ -79,7 +79,7 @@ run_migrations() {
 run_marketplace_migrations() {
     source "$ENV_FILE"
     local repo_root="$SCRIPT_DIR/../.."
-    export MARKETPLACE_MIGRATION_DATABASE_URL="postgres://agentsmesh:${POSTGRES_PASSWORD:-agentsmesh_dev}@localhost:${POSTGRES_PORT}/agentsmesh?sslmode=disable&x-migrations-table=marketplace_schema_migrations"
+    export MARKETPLACE_MIGRATION_DATABASE_URL="postgres://agentcloud:${POSTGRES_PASSWORD:-agentcloud_dev}@localhost:${POSTGRES_PORT}/agentcloud?sslmode=disable&x-migrations-table=marketplace_schema_migrations"
     info "执行 Marketplace 数据库迁移..."
     (cd "$repo_root" && go run ./marketplace/cmd/server migrate)
     success "Marketplace 数据库迁移完成"
@@ -89,22 +89,22 @@ init_seed() {
     local pg_container="$1"
 
     local user_exists
-    user_exists=$(docker exec "$pg_container" psql -U agentsmesh -d agentsmesh -t -c \
-        "SELECT COUNT(*) FROM users WHERE email = 'dev@agentsmesh.local'" 2>/dev/null | tr -d ' ')
+    user_exists=$(docker exec "$pg_container" psql -U agentcloud -d agentcloud -t -c \
+        "SELECT COUNT(*) FROM users WHERE email = 'dev@agentcloud.local'" 2>/dev/null | tr -d ' ')
 
     if [[ "$user_exists" -gt 0 ]]; then
         info "重放幂等基础 seed，修复开发运行时配置..."
     else
         info "初始化基础 seed..."
     fi
-    if ! docker exec -i "$pg_container" psql -v ON_ERROR_STOP=1 -U agentsmesh -d agentsmesh < "$SEED_FILE"; then
+    if ! docker exec -i "$pg_container" psql -v ON_ERROR_STOP=1 -U agentcloud -d agentcloud < "$SEED_FILE"; then
         error "基础 seed 失败（常见原因：seed.sql 引用了已删除的表）"
         return 1
     fi
 
     if [[ -f "$LEMONSQUEEZY_SEED_FILE" ]]; then
         info "配置 LemonSqueezy Variant IDs..."
-        if ! docker exec -i "$pg_container" psql -v ON_ERROR_STOP=1 -U agentsmesh -d agentsmesh < "$LEMONSQUEEZY_SEED_FILE"; then
+        if ! docker exec -i "$pg_container" psql -v ON_ERROR_STOP=1 -U agentcloud -d agentcloud < "$LEMONSQUEEZY_SEED_FILE"; then
             error "LemonSqueezy seed 失败"
             return 1
         fi
@@ -117,7 +117,7 @@ init_seed() {
     # touch this row (see ADR 2026-05-26-test-fixture-isolation).
     if [[ -f "$E2E_ECHO_SEED_FILE" ]]; then
         info "初始化 e2e-echo 测试 agent seed..."
-        docker exec -i "$pg_container" psql -U agentsmesh -d agentsmesh < "$E2E_ECHO_SEED_FILE" &>/dev/null
+        docker exec -i "$pg_container" psql -U agentcloud -d agentcloud < "$E2E_ECHO_SEED_FILE" &>/dev/null
         success "e2e-echo seed 应用完成"
     fi
 }
@@ -130,9 +130,9 @@ sync_worker_definition_projections() {
         cd "$repo_root"
         DB_HOST=localhost \
         DB_PORT="$POSTGRES_PORT" \
-        DB_USER=agentsmesh \
-        DB_PASSWORD="${POSTGRES_PASSWORD:-agentsmesh_dev}" \
-        DB_NAME=agentsmesh \
+        DB_USER=agentcloud \
+        DB_PASSWORD="${POSTGRES_PASSWORD:-agentcloud_dev}" \
+        DB_NAME=agentcloud \
         DB_SSLMODE=disable \
         PREVIEW_PUBLIC_ORIGIN="$PREVIEW_PUBLIC_ORIGIN" \
         WORKER_DEFINITIONS_DIR=config/worker-types \
@@ -180,8 +180,8 @@ setup_gitea_ssh_config() {
     local ssh_config="$ssh_dir/config"
     local gitea_ssh_port="${GITEA_SSH_PORT:-2222}"
     local identity_file="$SCRIPT_DIR/runner-ssh/id_ed25519"
-    local marker_start="# BEGIN AgentsMesh dev gitea"
-    local marker_end="# END AgentsMesh dev gitea"
+    local marker_start="# BEGIN Agent Cloud dev gitea"
+    local marker_end="# END Agent Cloud dev gitea"
 
     mkdir -p "$ssh_dir"
     chmod 700 "$ssh_dir"

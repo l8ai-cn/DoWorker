@@ -6,8 +6,8 @@ import (
 
 	"connectrpc.com/connect"
 
-	domainagent "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
-	agentv1 "github.com/anthropics/agentsmesh/proto/gen/go/agent/v1"
+	domainagent "github.com/l8ai-cn/agentcloud/backend/internal/domain/agent"
+	agentv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent/v1"
 )
 
 // ListUserAgentConfigs mirrors REST `ListUserAgentConfigs`

@@ -3,7 +3,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 
-const STORAGE_KEY = "do-worker:recent-workspaces";
+const STORAGE_KEY = "agent-cloud:recent-workspaces";
 const MAX_PER_HOST = 8;
 
 // Map of host_id -> most-recent-first list of absolute paths.

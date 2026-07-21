@@ -1,13 +1,13 @@
 [package]
-name = "agentsmesh_events"
+name = "agentcloud_events"
 version.workspace = true
 edition.workspace = true
 publish.workspace = true
 
 [dependencies]
-agentsmesh_api_client = { workspace = true }
-agentsmesh_transport = { workspace = true }
-agentsmesh_types = { workspace = true }
+agentcloud_api_client = { workspace = true }
+agentcloud_transport = { workspace = true }
+agentcloud_types = { workspace = true }
 futures = { workspace = true }
 futures-channel = { workspace = true }
 parking_lot = { workspace = true }

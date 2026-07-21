@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"connectrpc.com/connect"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	authpkg "github.com/anthropics/agentsmesh/backend/pkg/auth"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	authpkg "github.com/l8ai-cn/agentcloud/backend/pkg/auth"
 )
 
 func NewAuthInterceptor(

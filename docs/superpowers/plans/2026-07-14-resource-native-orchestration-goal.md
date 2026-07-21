@@ -2,7 +2,7 @@
 
 ## Objective
 
-Deliver a resource-native orchestration module for AgentsMesh that keeps
+Deliver a resource-native orchestration module for Agent Cloud that keeps
 `WorkerSpecSnapshot` as the runtime SSOT while adding:
 
 - a typed resource envelope and immutable `ResourceRef` resolution;

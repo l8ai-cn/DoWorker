@@ -6,8 +6,8 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/service/user"
-	userv1 "github.com/anthropics/agentsmesh/proto/gen/go/user/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/user"
+	userv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/user/v1"
 )
 
 // ListIdentities — REST analogue: GET /api/v1/users/me/identities.

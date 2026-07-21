@@ -21,9 +21,9 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/infra/database"
-	adminservice "github.com/anthropics/agentsmesh/backend/internal/service/admin"
-	"github.com/anthropics/agentsmesh/backend/internal/service/supportticket"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/database"
+	adminservice "github.com/l8ai-cn/agentcloud/backend/internal/service/admin"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/supportticket"
 )
 
 const ServiceName = "proto.support_ticket.v1.SupportTicketAdminService"

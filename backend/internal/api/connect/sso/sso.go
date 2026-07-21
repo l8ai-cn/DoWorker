@@ -31,11 +31,11 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/sso"
-	authservice "github.com/anthropics/agentsmesh/backend/internal/service/auth"
-	ssoservice "github.com/anthropics/agentsmesh/backend/internal/service/sso"
-	userService "github.com/anthropics/agentsmesh/backend/internal/service/user"
-	ssov1 "github.com/anthropics/agentsmesh/proto/gen/go/sso/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/sso"
+	authservice "github.com/l8ai-cn/agentcloud/backend/internal/service/auth"
+	ssoservice "github.com/l8ai-cn/agentcloud/backend/internal/service/sso"
+	userService "github.com/l8ai-cn/agentcloud/backend/internal/service/user"
+	ssov1 "github.com/l8ai-cn/agentcloud/proto/gen/go/sso/v1"
 )
 
 const ServiceName = "proto.sso.v1.SSOService"

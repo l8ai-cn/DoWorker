@@ -8,9 +8,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	resourcedomain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
-	resourceservice "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	resourcedomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
+	resourceservice "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

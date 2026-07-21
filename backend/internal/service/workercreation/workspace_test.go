@@ -5,12 +5,12 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/envbundle"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/skill"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	repositoryservice "github.com/anthropics/agentsmesh/backend/internal/service/repository"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/envbundle"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/skill"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	repositoryservice "github.com/l8ai-cn/agentcloud/backend/internal/service/repository"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

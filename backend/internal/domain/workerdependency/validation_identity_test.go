@@ -3,8 +3,8 @@ package workerdependency
 import (
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/envbundle"
-	resource "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/envbundle"
+	resource "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationresource"
 	"github.com/stretchr/testify/require"
 )
 
@@ -132,7 +132,7 @@ func TestRuntimeImageRequiresNamedDigestReference(t *testing.T) {
 func TestRuntimeImageAcceptsLocalDockerDaemonDigestReference(t *testing.T) {
 	document := validDocument(t)
 	document.Placement.RuntimeImage.Reference =
-		"docker-daemon://agentsmesh-runner-e2e-echo:latest@" +
+		"docker-daemon://agentcloud-runner-e2e-echo:latest@" +
 			document.Placement.RuntimeImage.Digest
 
 	require.NoError(t, Validate(document))
@@ -141,7 +141,7 @@ func TestRuntimeImageAcceptsLocalDockerDaemonDigestReference(t *testing.T) {
 func TestRuntimeImageRejectsMutableLocalDockerDaemonReference(t *testing.T) {
 	document := validDocument(t)
 	document.Placement.RuntimeImage.Reference =
-		"docker-daemon://agentsmesh-runner-e2e-echo:latest"
+		"docker-daemon://agentcloud-runner-e2e-echo:latest"
 
 	err := Validate(document)
 

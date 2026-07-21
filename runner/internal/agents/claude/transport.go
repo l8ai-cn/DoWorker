@@ -9,7 +9,7 @@ import (
 	"log/slog"
 	"sync"
 
-	"github.com/anthropics/agentsmesh/runner/internal/acp"
+	"github.com/l8ai-cn/agentcloud/runner/internal/acp"
 )
 
 type transport struct {

@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/tests/mcp-e2e/client"
+	"github.com/l8ai-cn/agentcloud/tests/mcp-e2e/client"
 )
 
 // loginCache memoises tokens per (email, password) pair so each user logs
@@ -45,7 +45,7 @@ func SharedREST(t *testing.T, env *Env) *client.REST {
 }
 
 // SecondaryREST returns a REST client authenticated as the second dev user
-// (dev2@agentsmesh.local in seed.sql). Used for tests that need two distinct
+// (dev2@agentcloud.local in seed.sql). Used for tests that need two distinct
 // users in the same org — primarily binding pending → accept flows where the
 // initiator and target must be different humans for binding to start in
 // `pending` state instead of auto-activating.

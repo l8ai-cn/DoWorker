@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/user"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/user"
 )
 
 func (s *Service) UpdateAssignees(ctx context.Context, ticketID int64, userIDs []int64) error {

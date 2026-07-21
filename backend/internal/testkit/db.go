@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	"github.com/anthropics/agentsmesh/backend/internal/infra/gormvalidate"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/gormvalidate"
 )
 
 func SetupTestDB(t *testing.T) *gorm.DB {

@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/tls/certprovider"
 	"google.golang.org/grpc/credentials/tls/certprovider/pemfile"
@@ -20,7 +20,7 @@ import (
 //
 // Uses CertVerification (chain-only, no hostname check) because:
 //   - Private PKI: both server and client certs are signed by our own CA
-//   - Server cert SANs may not include the public hostname (e.g., api.agentsmesh.cn)
+//   - Server cert SANs may not include the public hostname (e.g., api.agentcloud.cn)
 //   - grpcAuthority overrides SNI to a non-routable hostname to avoid proxy interception
 func (c *GRPCConnection) createAdvancedTLSCredentials() (credentials.TransportCredentials, error) {
 	// Create identity certificate provider with file watching

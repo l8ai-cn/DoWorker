@@ -14,12 +14,12 @@ package repositoryconnect
 import (
 	"context"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/grant"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	billingservice "github.com/anthropics/agentsmesh/backend/internal/service/billing"
-	grantservice "github.com/anthropics/agentsmesh/backend/internal/service/grant"
-	repositoryservice "github.com/anthropics/agentsmesh/backend/internal/service/repository"
-	"github.com/anthropics/agentsmesh/backend/pkg/policy"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/grant"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	billingservice "github.com/l8ai-cn/agentcloud/backend/internal/service/billing"
+	grantservice "github.com/l8ai-cn/agentcloud/backend/internal/service/grant"
+	repositoryservice "github.com/l8ai-cn/agentcloud/backend/internal/service/repository"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/policy"
 )
 
 // ServiceName mirrors proto.repository.v1.RepositoryService exactly —

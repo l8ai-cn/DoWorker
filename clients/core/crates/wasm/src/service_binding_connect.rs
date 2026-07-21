@@ -14,7 +14,7 @@
 // so introducing a separate BindingService indirection here during the
 // dual-track window would not pull its weight.
 
-use agentsmesh_types::proto_binding_v1 as bp;
+use agentcloud_types::proto_binding_v1 as bp;
 use prost::Message;
 use wasm_bindgen::prelude::*;
 
@@ -30,7 +30,7 @@ impl WasmBindingService {
             .client_ref()
             .request_binding_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -42,7 +42,7 @@ impl WasmBindingService {
             .client_ref()
             .accept_binding_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -54,7 +54,7 @@ impl WasmBindingService {
             .client_ref()
             .reject_binding_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -66,7 +66,7 @@ impl WasmBindingService {
             .client_ref()
             .unbind_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -78,7 +78,7 @@ impl WasmBindingService {
             .client_ref()
             .request_binding_scopes_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -90,7 +90,7 @@ impl WasmBindingService {
             .client_ref()
             .approve_binding_scopes_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -102,7 +102,7 @@ impl WasmBindingService {
             .client_ref()
             .list_bindings_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -114,7 +114,7 @@ impl WasmBindingService {
             .client_ref()
             .get_pending_bindings_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -126,7 +126,7 @@ impl WasmBindingService {
             .client_ref()
             .get_bound_pods_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -138,7 +138,7 @@ impl WasmBindingService {
             .client_ref()
             .check_binding_connect(&req)
             .await
-            .map_err(agentsmesh_services::wire)?;
+            .map_err(agentcloud_services::wire)?;
         Ok(resp.encode_to_vec())
     }
 }

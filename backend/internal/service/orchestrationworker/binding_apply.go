@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	resource "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
-	controlservice "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
+	control "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
+	resource "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationresource"
+	controlservice "github.com/l8ai-cn/agentcloud/backend/internal/service/orchestrationcontrol"
 )
 
 type BindingApplyService struct {

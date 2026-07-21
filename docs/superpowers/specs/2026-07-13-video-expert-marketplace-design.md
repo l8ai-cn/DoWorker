@@ -2,7 +2,7 @@
 
 ## Goal
 
-Deliver the first operator-owned video expert suite in AgentsMesh:
+Deliver the first operator-owned video expert suite in Agent Cloud:
 
 - flexible Skill grouping through tags;
 - video production, video editing, and directing experts;

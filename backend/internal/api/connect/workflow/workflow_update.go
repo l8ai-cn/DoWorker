@@ -6,10 +6,10 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	workflowsvc "github.com/anthropics/agentsmesh/backend/internal/service/workflow"
-	workflowv1 "github.com/anthropics/agentsmesh/proto/gen/go/workflow/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	workflowsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/workflow"
+	workflowv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/workflow/v1"
 )
 
 func (s *Server) UpdateWorkflow(

@@ -3,15 +3,15 @@ package workercreation
 import (
 	"context"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
-	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
-	runtimedomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
-	"github.com/anthropics/agentsmesh/backend/internal/service/workerdependencyartifact"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/gitprovider"
+	control "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workerdependency"
+	runtimedomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerruntime"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/workerdefinition"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/workerdependencyartifact"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 type WorkerDefinitionProvider interface {

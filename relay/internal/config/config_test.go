@@ -98,7 +98,7 @@ func TestLoad_WithRequiredEnvVars(t *testing.T) {
 	if cfg.Server.ReadTimeout != 30*time.Second || cfg.Server.WriteTimeout != 30*time.Second {
 		t.Error("Server timeout defaults wrong")
 	}
-	if cfg.JWT.Issuer != "agentsmesh-relay" {
+	if cfg.JWT.Issuer != "agentcloud-relay" {
 		t.Error("JWT issuer default wrong")
 	}
 	if cfg.Backend.URL != "http://backend:8080" || cfg.Backend.HeartbeatInterval != 10*time.Second {
@@ -204,13 +204,13 @@ func TestLoad_PrimaryDomain_WSS(t *testing.T) {
 	setPreviewOrigin(t)
 	_ = os.Setenv("JWT_SECRET", "test-jwt")
 	_ = os.Setenv("INTERNAL_API_SECRET", "test-internal")
-	_ = os.Setenv("PRIMARY_DOMAIN", "agentsmesh.ai")
+	_ = os.Setenv("PRIMARY_DOMAIN", "agentcloud.ai")
 	_ = os.Setenv("USE_HTTPS", "true")
 	cfg, err := Load()
 	if err != nil {
 		t.Fatalf("Load failed: %v", err)
 	}
-	want := "wss://agentsmesh.ai/relay"
+	want := "wss://agentcloud.ai/relay"
 	if cfg.Relay.URL != want {
 		t.Errorf("Relay.URL: got %q, want %q", cfg.Relay.URL, want)
 	}

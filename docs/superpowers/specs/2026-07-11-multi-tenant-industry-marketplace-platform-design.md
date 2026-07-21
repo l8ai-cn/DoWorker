@@ -2,10 +2,10 @@
 
 - **Date:** 2026-07-11
 - **Status:** Approved product design; implementation has not started
-- **Product:** Do Worker Marketplace Platform
+- **Product:** Agent Cloud Marketplace Platform
 ## 1. Purpose and Boundaries
 
-Do Worker Marketplace Platform lets an enterprise, university, or industry
+Agent Cloud Marketplace Platform lets an enterprise, university, or industry
 operator create and run a branded marketplace for AI applications and resources.
 Each marketplace owns its storefront, spaces, catalog, users, publishing policy,
 entitlements, quotas, and reports. This is a B2B2C marketplace platform, not a
@@ -15,7 +15,7 @@ This document uses **Skill** as the capability-package term and does not define 
 separate `Scale` resource type.
 The marketplace platform owns marketplace provisioning, brand and domain,
 Spaces, listings, publishing, membership, entitlement, quota, ledger, storefront,
-and management experiences. The Do Worker runtime continues to own Worker,
+and management experiences. The Agent Cloud runtime continues to own Worker,
 WorkerSpec, Expert, Skill, model, Runner, repository, secrets, MCP connection
 instances, dispatch, and execution evidence. Marketplace APIs call controlled
 runtime APIs and do not duplicate runtime business state.
@@ -139,7 +139,7 @@ Execution must not silently switch to a cheaper model or resource.
 | `marketplace-storefront` | Branded public and authenticated consumer experience |
 | `marketplace-console` | Owner, administrator, maintainer, publisher, and quota administration |
 | `marketplace-api` | Market, Space, catalog, listing, entitlement, quota, ledger, and reporting APIs |
-| Do Worker backend | Runtime resources, installation execution, and usage evidence |
+| Agent Cloud backend | Runtime resources, installation execution, and usage evidence |
 
 All customers use a multi-tenant marketplace backend by default. Dedicated
 deployment is an explicit enterprise isolation mode, not a fallback.

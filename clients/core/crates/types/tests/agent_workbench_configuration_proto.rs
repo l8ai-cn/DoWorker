@@ -1,4 +1,4 @@
-use agentsmesh_types::proto_agent_workbench_v2 as v2;
+use agentcloud_types::proto_agent_workbench_v2 as v2;
 
 #[test]
 fn configuration_contract_is_generated_across_snapshot_events_and_runner_ingress() {

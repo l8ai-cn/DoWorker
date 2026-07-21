@@ -2,7 +2,7 @@ DELETE FROM marketplace.marketplace_listing_version_tags relation
 USING marketplace.marketplaces market,
       marketplace.marketplace_listings listing,
       marketplace.marketplace_taxonomy_tags tag
-WHERE market.slug = 'do-worker-market'
+WHERE market.slug = 'agent-cloud-market'
   AND listing.marketplace_id = market.id
   AND listing.slug = 'software-delivery-expert'
   AND relation.marketplace_id = market.id
@@ -17,7 +17,7 @@ WHERE market.slug = 'do-worker-market'
 
 DELETE FROM marketplace.marketplace_taxonomy_tags tag
 USING marketplace.marketplaces market
-WHERE market.slug = 'do-worker-market'
+WHERE market.slug = 'agent-cloud-market'
   AND tag.marketplace_id = market.id
   AND tag.slug IN (
       'software-delivery',

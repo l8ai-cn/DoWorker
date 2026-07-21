@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/runner/internal/workbench"
+	"github.com/l8ai-cn/agentcloud/runner/internal/workbench"
 )
 
 func (r *Runner) PublishWorkbenchArtifact(

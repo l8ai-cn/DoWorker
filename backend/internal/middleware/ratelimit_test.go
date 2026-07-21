@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/apierr"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/assert"

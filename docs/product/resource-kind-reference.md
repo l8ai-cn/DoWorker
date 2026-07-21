@@ -1,6 +1,6 @@
 # 资源 Kind 声明参考
 
-所有资源使用 `agentsmesh.io/v1alpha1`。`metadata.namespace` 必须等于当前组织
+所有资源使用 `agentcloud.io/v1alpha1`。`metadata.namespace` 必须等于当前组织
 slug；同组织 ResourceRef 可以省略 namespace。
 
 ## 基础引用资源

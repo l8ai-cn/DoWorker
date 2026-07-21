@@ -5,10 +5,10 @@ import (
 
 	"connectrpc.com/connect"
 
-	podconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/pod"
-	runnerconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/runner"
-	v1 "github.com/anthropics/agentsmesh/backend/internal/api/rest/v1"
-	"github.com/anthropics/agentsmesh/backend/internal/config"
+	podconnect "github.com/l8ai-cn/agentcloud/backend/internal/api/connect/pod"
+	runnerconnect "github.com/l8ai-cn/agentcloud/backend/internal/api/connect/runner"
+	v1 "github.com/l8ai-cn/agentcloud/backend/internal/api/rest/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
 )
 
 // Runner and Pod share runtime collaborators sourced from the same REST

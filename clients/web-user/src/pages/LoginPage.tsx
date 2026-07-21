@@ -7,10 +7,10 @@ import { useI18n } from "@/i18n/I18nProvider";
 import { AuthPageShell } from "@/components/auth/AuthPageShell";
 import { DevCredentialsPanel } from "@/components/auth/DevCredentialsPanel";
 import { getMe, listMyOrgSlug, login as loginRequest } from "@/lib/accountsApi";
-import { persistDoWorkerSession } from "@/lib/do-worker-auth";
+import { persistAgentCloudSession } from "@/lib/agent-cloud-auth";
 import { sanitizeReturnTo } from "@/lib/auth-return-to";
 
-const LAST_USERNAME_KEY = "do-worker.lastLoginUsername";
+const LAST_USERNAME_KEY = "agent-cloud.lastLoginUsername";
 
 function readLastUsername(): string {
   try {
@@ -78,7 +78,7 @@ export function LoginPage() {
       rememberUsername(username.trim());
       try {
         const orgSlug = await listMyOrgSlug(result.token);
-        persistDoWorkerSession({
+        persistAgentCloudSession({
           accessToken: result.token,
           refreshToken: result.refresh_token,
           expiresIn: result.expires_in,

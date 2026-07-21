@@ -9,10 +9,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	billingsvc "github.com/anthropics/agentsmesh/backend/internal/service/billing"
-	invitationsvc "github.com/anthropics/agentsmesh/backend/internal/service/invitation"
-	invitationv1 "github.com/anthropics/agentsmesh/proto/gen/go/invitation/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	billingsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/billing"
+	invitationsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/invitation"
+	invitationv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/invitation/v1"
 )
 
 // fakeOrg satisfies middleware.OrganizationGetter for ResolveOrgScope tests.

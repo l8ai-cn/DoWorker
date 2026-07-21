@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/goalloop"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/goalloop"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 )
 
 func (s *Service) HandlePodAgentStatus(

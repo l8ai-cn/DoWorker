@@ -1,7 +1,7 @@
 package interfaces
 
 import (
-	"github.com/anthropics/agentsmesh/backend/internal/infra/pki"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/pki"
 )
 
 type PKICertificateIssuer interface {

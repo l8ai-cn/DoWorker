@@ -1,4 +1,4 @@
-# Do Worker 整改计划
+# Agent Cloud 整改计划
 
 基于 10 批次 bug-hunter 结论，分阶段修复 P0/P1 缺陷并对齐前端架构演进方向。
 
@@ -58,7 +58,7 @@
 **目标**：relay 独立为 Gateway 隧道服务；mobile 客户端对接同一 Rust core。
 
 - relay：控制面注册保留 backend，数据面可独立部署与扩缩
-- mobile：复用 `agentsmesh-wasm` 或 native FFI over Rust core
+- mobile：复用 `agentcloud-wasm` 或 native FFI over Rust core
 - 每步保持 backend ↔ runner gRPC 契约不变
 - [x] **隧道 Gateway 已落地**（2026-07-08，`feat/gateway-module`）：relay 新增 HTTP 数据面
   `/runner/tunnel`（Runner 出站注册，Runner 粒度隧道，`tunnel.Registry` 负责重连/迁移/离线清理）

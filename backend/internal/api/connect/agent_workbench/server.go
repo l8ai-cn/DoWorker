@@ -5,11 +5,11 @@ import (
 	"net/http"
 
 	"connectrpc.com/connect"
-	sessiondomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
-	workbenchdomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentworkbench"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	workbenchsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentworkbench"
-	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
+	sessiondomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentsession"
+	workbenchdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentworkbench"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	workbenchsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentworkbench"
+	agentworkbenchv2 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2"
 )
 
 const ServiceName = "proto.agent_workbench.v2.AgentWorkbenchService"

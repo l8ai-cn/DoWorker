@@ -3,7 +3,7 @@ package grpc
 import (
 	"context"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
 )
 
 func (a *GRPCRunnerAdapter) mcpRequestBinding(ctx context.Context, tc *middleware.TenantContext, podKey string, payload []byte) (interface{}, *mcpError) {

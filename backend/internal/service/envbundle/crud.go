@@ -3,7 +3,7 @@ package envbundle
 import (
 	"context"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/envbundle"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/envbundle"
 )
 
 // CreateParams is the input shape for creating a new bundle.

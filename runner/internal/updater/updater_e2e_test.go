@@ -95,7 +95,7 @@ func (s *SimulatedDetector) UpdateBinary(_ context.Context, _ *ReleaseInfo, exec
 // check → update binary in-place → verify new binary at exec path.
 func TestE2E_UpdateNow_FullCycle(t *testing.T) {
 	tmpDir := t.TempDir()
-	execPath := filepath.Join(tmpDir, "agentsmesh-runner")
+	execPath := filepath.Join(tmpDir, "agentcloud-runner")
 	if runtime.GOOS == "windows" {
 		execPath += ".exe"
 	}
@@ -129,7 +129,7 @@ func TestE2E_UpdateNow_FullCycle(t *testing.T) {
 // TestE2E_UpdateToVersion_FullCycle tests updating to a specific version.
 func TestE2E_UpdateToVersion_FullCycle(t *testing.T) {
 	tmpDir := t.TempDir()
-	execPath := filepath.Join(tmpDir, "agentsmesh-runner")
+	execPath := filepath.Join(tmpDir, "agentcloud-runner")
 	if runtime.GOOS == "windows" {
 		execPath += ".exe"
 	}
@@ -160,7 +160,7 @@ func TestE2E_UpdateToVersion_FullCycle(t *testing.T) {
 // TestE2E_UpdateBinary_Error ensures errors from UpdateBinary are propagated.
 func TestE2E_UpdateBinary_Error(t *testing.T) {
 	tmpDir := t.TempDir()
-	execPath := filepath.Join(tmpDir, "agentsmesh-runner")
+	execPath := filepath.Join(tmpDir, "agentcloud-runner")
 	err := os.WriteFile(execPath, []byte("old"), 0755)
 	require.NoError(t, err)
 
@@ -212,7 +212,7 @@ func TestE2E_UpdateBinary_ExecPathError(t *testing.T) {
 // TestE2E_BackupAndRollback_FullCycle tests backup → update → rollback.
 func TestE2E_BackupAndRollback_FullCycle(t *testing.T) {
 	tmpDir := t.TempDir()
-	execPath := filepath.Join(tmpDir, "agentsmesh-runner")
+	execPath := filepath.Join(tmpDir, "agentcloud-runner")
 	if runtime.GOOS == "windows" {
 		execPath += ".exe"
 	}
@@ -268,7 +268,7 @@ func TestE2E_BackupAndRollback_FullCycle(t *testing.T) {
 // Updater always operates on the canonical binary path, not the stale one.
 func TestE2E_ConsecutiveUpgrades(t *testing.T) {
 	tmpDir := t.TempDir()
-	execPath := filepath.Join(tmpDir, "agentsmesh-runner")
+	execPath := filepath.Join(tmpDir, "agentcloud-runner")
 	err := os.WriteFile(execPath, []byte("v1 binary"), 0755)
 	require.NoError(t, err)
 
@@ -323,7 +323,7 @@ func TestE2E_ConsecutiveUpgrades(t *testing.T) {
 // full update path (regression for #44).
 func TestE2E_VersionNormalization(t *testing.T) {
 	tmpDir := t.TempDir()
-	execPath := filepath.Join(tmpDir, "agentsmesh-runner")
+	execPath := filepath.Join(tmpDir, "agentcloud-runner")
 	err := os.WriteFile(execPath, []byte("old"), 0755)
 	require.NoError(t, err)
 

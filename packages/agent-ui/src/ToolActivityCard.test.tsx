@@ -47,7 +47,7 @@ describe("ToolActivityCard", () => {
 
     expect(screen.queryByText("Registered summary")).not.toBeInTheDocument();
     expect(screen.getByTestId("unsupported-tool-preview")).toBeVisible();
-    expect(screen.getByText("agentsmesh.acp/generate_image@2")).toBeVisible();
+    expect(screen.getByText("agentcloud.acp/generate_image@2")).toBeVisible();
   });
 
   it("does not infer specialized UI from an unregistered title", () => {
@@ -55,7 +55,7 @@ describe("ToolActivityCard", () => {
       <ToolActivityCard
         item={tool({
           identity: {
-            namespace: "agentsmesh.acp",
+            namespace: "agentcloud.acp",
             semanticKey: "image.generate",
             schemaVersion: "1",
           },
@@ -94,7 +94,7 @@ describe("ToolActivityCard", () => {
 
 function identity(schemaVersion: string) {
   return {
-    namespace: "agentsmesh.acp",
+    namespace: "agentcloud.acp",
     semanticKey: "generate_image",
     schemaVersion,
   };

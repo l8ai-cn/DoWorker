@@ -13,7 +13,7 @@ syntax = "proto3";
 
 package proto.file.v1;
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/file/v1;filev1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/file/v1;filev1";
 
 service FileService {
   rpc PresignUpload(PresignUploadRequest) returns (PresignUploadResponse);

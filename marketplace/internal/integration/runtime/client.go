@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/marketplace/internal/service"
+	"github.com/l8ai-cn/agentcloud/marketplace/internal/service"
 )
 
 type Client struct {

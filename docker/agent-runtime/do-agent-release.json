@@ -19,7 +19,7 @@
     "binary_sha256": "sha256:c85adf835e14f00c882c7d8957817d09e5470409bee9e45c1446594c567d26cd"
   },
   "image": {
-    "repository": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent",
+    "repository": "repo.aiedulab.cn:8443/agentcloud/runner-do-agent",
     "tag": "4e17ae3f40f1-runner-61b505bd1dcd",
     "digest": "sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653"
   }

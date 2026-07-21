@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package proto.ai_resource.v1;
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/ai_resource/v1;airesourcev1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/ai_resource/v1;airesourcev1";
 
 message CredentialField {
   string key = 1;

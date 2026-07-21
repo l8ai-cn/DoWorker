@@ -2,7 +2,7 @@ import {
   ArtifactStatus,
   type ArtifactDescriptor,
   type ArtifactRepresentation,
-} from "@do-worker/proto/agent_workbench/v2/artifact_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/artifact_pb";
 
 export function selectArtifactRepresentation(
   descriptor: ArtifactDescriptor,

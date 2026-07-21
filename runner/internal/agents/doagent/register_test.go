@@ -4,10 +4,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/runner/internal/acp"
-	"github.com/anthropics/agentsmesh/runner/internal/agentkit"
-	doagentfixture "github.com/anthropics/agentsmesh/runner/internal/agents/doagent/testsupport"
-	"github.com/anthropics/agentsmesh/runner/internal/tokenusage"
+	"github.com/l8ai-cn/agentcloud/runner/internal/acp"
+	"github.com/l8ai-cn/agentcloud/runner/internal/agentkit"
+	doagentfixture "github.com/l8ai-cn/agentcloud/runner/internal/agents/doagent/testsupport"
+	"github.com/l8ai-cn/agentcloud/runner/internal/tokenusage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

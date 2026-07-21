@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	podDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
 )
 
 func TestCreatePod_ResumeMode_PreservesACPInteractionMode(t *testing.T) {
@@ -45,7 +45,7 @@ func TestCreatePod_ResumeMode_PreservesACPInteractionMode(t *testing.T) {
 	assert.Equal(t, podDomain.InteractionModeACP, resumed.Pod.InteractionMode)
 	assert.Equal(t, podDomain.InteractionModeACP, coord.lastCmd.InteractionMode)
 	assert.Equal(t, []string{"app-server"}, coord.lastCmd.LaunchArgs)
-	assert.Equal(t, externalID, coord.lastCmd.EnvVars["AGENTSMESH_RESUME_EXTERNAL_SESSION"])
+	assert.Equal(t, externalID, coord.lastCmd.EnvVars["AGENTCLOUD_RESUME_EXTERNAL_SESSION"])
 }
 
 func TestCreatePod_ResumeMode_InheritsAncestorExternalSessionID(t *testing.T) {
@@ -93,5 +93,5 @@ func TestCreatePod_ResumeMode_InheritsAncestorExternalSessionID(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	assert.Equal(t, externalID, coord.lastCmd.EnvVars["AGENTSMESH_RESUME_EXTERNAL_SESSION"])
+	assert.Equal(t, externalID, coord.lastCmd.EnvVars["AGENTCLOUD_RESUME_EXTERNAL_SESSION"])
 }

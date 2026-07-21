@@ -4,15 +4,15 @@ const RESOURCE_URL = new URL("../../config/resources.json", import.meta.url);
 const INVENTORY_URL = new URL("../../config/assets.json", import.meta.url);
 
 export const OILAN_POSTGRES = Object.freeze({
-  databaseAssetId: "db_agentsmesh_prod_postgres",
-  projectId: "agentsmesh",
+  databaseAssetId: "db_agentcloud_prod_postgres",
+  projectId: "agentcloud",
   environmentId: "prod",
   engine: "postgresql",
-  namespace: "agentsmesh",
+  namespace: "agentcloud",
   serviceName: "postgres",
-  databaseName: "agentsmesh",
+  databaseName: "agentcloud",
   doopsTarget: "gw-oilan-node",
-  secretRef: "secret://agentsmesh/agentsmesh-secrets#DB_PASSWORD",
+  secretRef: "secret://agentcloud/agentcloud-secrets#DB_PASSWORD",
 });
 
 const QUERIES = Object.freeze({
@@ -53,7 +53,7 @@ export function validateOilanPostgresRegistration(resources, inventory) {
   requireEqual(resource?.environmentId, OILAN_POSTGRES.environmentId, "resource.environmentId");
   requireEqual(resource?.doopsTarget, OILAN_POSTGRES.doopsTarget, "resource.doopsTarget");
   requireEqual(resource?.secretRef, OILAN_POSTGRES.secretRef, "resource.secretRef");
-  requireEqual(resource?.connectionRef, "k8s://doops-oilan/oilan-node/agentsmesh/service/postgres:5432#db=agentsmesh", "resource.connectionRef");
+  requireEqual(resource?.connectionRef, "k8s://doops-oilan/oilan-node/agentcloud/service/postgres:5432#db=agentcloud", "resource.connectionRef");
   requireEqual(asset?.projectId, OILAN_POSTGRES.projectId, "asset.projectId");
   requireEqual(asset?.environmentId, OILAN_POSTGRES.environmentId, "asset.environmentId");
   requireEqual(asset?.engine, OILAN_POSTGRES.engine, "asset.engine");
@@ -101,9 +101,9 @@ export function buildOilanPostgresRemoteCommand(query) {
   const encodedQuery = Buffer.from(query.sql, "utf8").toString("base64");
   return [
     "set -euo pipefail",
-    "namespace=agentsmesh",
+    "namespace=agentcloud",
     "service=postgres",
-    "secret=agentsmesh-secrets",
+    "secret=agentcloud-secrets",
     'kubectl -n "$namespace" get service "$service" >/dev/null',
     'kubectl -n "$namespace" get secret "$secret" >/dev/null',
     `pod="$(kubectl -n "$namespace" get pods -l app=postgres -o jsonpath='{.items[0].metadata.name}')"`,

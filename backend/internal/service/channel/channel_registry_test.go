@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 func TestEnsureUniqueSlug_SanitizesName(t *testing.T) {

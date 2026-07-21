@@ -6,12 +6,12 @@ import (
 	"testing"
 	"time"
 
-	authpkg "github.com/anthropics/agentsmesh/backend/pkg/auth"
+	authpkg "github.com/l8ai-cn/agentcloud/backend/pkg/auth"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/require"
 )
 
-const testAccessTokenAudience = "agentsmesh-api"
+const testAccessTokenAudience = "agentcloud-api"
 
 type testAccessTokenFixture struct {
 	manager    *authpkg.AccessTokenManager

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )

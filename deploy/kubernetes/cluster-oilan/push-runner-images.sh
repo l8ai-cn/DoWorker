@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 REG="repo.aiedulab.cn:8443"
-PROJ="${REG}/agentsmesh"
+PROJ="${REG}/agentcloud"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 TARGET="${1:-all}"; RUNNER_SOURCE_METADATA_MODE="${2:-write}"
@@ -55,14 +55,14 @@ build_do_agent() {
 push_runtime() {
   local runtime="$1"
   verify_runtime_source_revision "${runtime}"
-  docker tag "do-worker/runner-${runtime}:latest" "${PROJ}/runner-${runtime}:latest"
+  docker tag "agent-cloud/runner-${runtime}:latest" "${PROJ}/runner-${runtime}:latest"
   docker push "${PROJ}/runner-${runtime}:latest"
 }
 
 verify_runtime_source_revision() {
   local runtime="$1"
   local revision
-  revision="$(docker image inspect "do-worker/runner-${runtime}:latest" \
+  revision="$(docker image inspect "agent-cloud/runner-${runtime}:latest" \
     --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}')"
   [[ "${revision}" == "${RELEASE_SOURCE_COMMIT}" ]] || {
     echo "runner-${runtime} source revision mismatch: ${revision}" >&2
@@ -74,10 +74,10 @@ verify_do_agent_labels() {
   local source_commit expected_hash actual_source actual_hash
   source_commit="$(do_agent_release_value source.commit)"
   expected_hash="$(do_agent_release_value artifact.binary_sha256)"
-  actual_source="$(docker image inspect do-worker/runner-do-agent:latest \
-    --format '{{ index .Config.Labels "ai.agentsmesh.do-agent.source-revision" }}')"
-  actual_hash="$(docker image inspect do-worker/runner-do-agent:latest \
-    --format '{{ index .Config.Labels "ai.agentsmesh.do-agent.binary-sha256" }}')"
+  actual_source="$(docker image inspect agent-cloud/runner-do-agent:latest \
+    --format '{{ index .Config.Labels "ai.agentcloud.do-agent.source-revision" }}')"
+  actual_hash="$(docker image inspect agent-cloud/runner-do-agent:latest \
+    --format '{{ index .Config.Labels "ai.agentcloud.do-agent.binary-sha256" }}')"
   [[ "${actual_source}" == "${source_commit}" && "${actual_hash}" == "${expected_hash}" ]] || {
     echo "do-agent image labels do not match the trusted artifact manifest" >&2
     return 1
@@ -98,11 +98,11 @@ publish_do_agent() {
 
   verify_runtime_source_revision do-agent
   verify_do_agent_labels
-  docker tag "do-worker/runner-do-agent:latest" "${repository}:${candidate_tag}"
+  docker tag "agent-cloud/runner-do-agent:latest" "${repository}:${candidate_tag}"
   docker push "${repository}:${candidate_tag}"
   candidate_digest="$(platform_manifest_digest "${repository}:${candidate_tag}")"
 
-  harbor_ensure_immutable_tag "${REG}" agentsmesh runner-do-agent "${release_tag}"
+  harbor_ensure_immutable_tag "${REG}" agentcloud runner-do-agent "${release_tag}"
   if release_digest="$(docker buildx imagetools inspect "${repository}:${release_tag}" \
     --format '{{.Manifest.Digest}}' 2>/dev/null)"; then
     [[ "${release_digest}" == "${candidate_digest}" ]] || {
@@ -167,7 +167,7 @@ push_all() {
     -f "${REPO_ROOT}/docker/agent-runtime/Dockerfile" \
     --build-arg AGENT_RUNTIME=e2e-echo \
     --build-arg "RUNTIME_SHARED_BASE=${RUNTIME_BUILD_BASE}" \
-    -t do-worker/runner-e2e-echo:latest \
+    -t agent-cloud/runner-e2e-echo:latest \
     "${REPO_ROOT}/docker/agent-runtime/_context"
   for runtime in claude-code codex-cli video-studio gemini-cli grok-build minimax-cli openclaw hermes e2e-echo; do
     push_runtime "${runtime}"

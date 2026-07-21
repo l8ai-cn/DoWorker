@@ -1,4 +1,4 @@
-import { SessionResourceImage } from "@do-worker/agent-ui";
+import { SessionResourceImage } from "@agent-cloud/agent-ui";
 
 import { authenticatedFetch } from "@/lib/identity";
 

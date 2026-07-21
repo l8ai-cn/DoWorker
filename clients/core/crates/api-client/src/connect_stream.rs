@@ -1,4 +1,4 @@
-use agentsmesh_types::proto_events_v1::{Event, SubscribeRequest};
+use agentcloud_types::proto_events_v1::{Event, SubscribeRequest};
 use futures::stream::Stream;
 
 use crate::{ApiClient, ApiError};

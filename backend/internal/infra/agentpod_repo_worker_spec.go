@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	workerspecservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	workerspecservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
 	"gorm.io/gorm"
 )
 

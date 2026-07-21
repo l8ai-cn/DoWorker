@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
-	"github.com/anthropics/agentsmesh/runner/internal/workbench"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
+	"github.com/l8ai-cn/agentcloud/runner/internal/workbench"
 )
 
 const maxSandboxFsReadChunkBytes int64 = 4 << 20

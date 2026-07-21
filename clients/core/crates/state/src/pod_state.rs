@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use agentsmesh_persistence::{PodRepo, StorageBackend};
-use agentsmesh_types::proto_pod_v1::Pod;
+use agentcloud_persistence::{PodRepo, StorageBackend};
+use agentcloud_types::proto_pod_v1::Pod;
 
 // PodStatus values are wire-strings from proto (proto3 stores enum status
-// as `string` field). Replace previous `agentsmesh_types::PodStatus` enum
+// as `string` field). Replace previous `agentcloud_types::PodStatus` enum
 // comparisons with string comparisons against these constants.
 pub mod pod_status {
     pub const PENDING: &str = "pending";

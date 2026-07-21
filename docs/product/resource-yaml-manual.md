@@ -104,7 +104,7 @@ hexLabel: "0x10"
 字段名区分大小写：
 
 ```yaml
-apiVersion: agentsmesh.io/v1alpha1
+apiVersion: agentcloud.io/v1alpha1
 kind: WorkerTemplate
 metadata:
   displayName: Example

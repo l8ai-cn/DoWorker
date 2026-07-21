@@ -5,8 +5,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/billing"
-	"github.com/anthropics/agentsmesh/backend/internal/service/promocode"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/billing"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/promocode"
 	"gorm.io/gorm"
 )
 

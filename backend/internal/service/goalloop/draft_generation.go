@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/backend/internal/loopscript"
-	airesourceservice "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
-	"github.com/anthropics/agentsmesh/backend/pkg/secretguard"
+	"github.com/l8ai-cn/agentcloud/backend/internal/loopscript"
+	airesourceservice "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/secretguard"
 )
 
 const (

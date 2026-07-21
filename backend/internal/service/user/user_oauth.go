@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/user"
-	"github.com/anthropics/agentsmesh/backend/pkg/crypto"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/user"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/crypto"
 )
 
 func (s *Service) GetOrCreateByOAuth(ctx context.Context, provider, providerUserID, providerUsername, email, name, avatarURL string) (*user.User, bool, error) {
@@ -41,7 +41,7 @@ func (s *Service) getOrCreateByOAuthOnce(ctx context.Context, provider, provider
 	if u == nil {
 		userEmail := email
 		if userEmail == "" || emailTaken {
-			userEmail = fmt.Sprintf("%s_%s@noemail.agentsmesh.placeholder", provider, providerUserID)
+			userEmail = fmt.Sprintf("%s_%s@noemail.agentcloud.placeholder", provider, providerUserID)
 		}
 
 		username, err := s.EnsureUniqueUsername(ctx, usernameSeeds(providerUsername, email, name))

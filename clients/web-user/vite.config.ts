@@ -14,7 +14,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      "@do-worker/agent-ui": path.resolve(__dirname, "../../packages/agent-ui/src/index.ts"),
+      "@agent-cloud/agent-ui": path.resolve(__dirname, "../../packages/agent-ui/src/index.ts"),
       "react-markdown": path.resolve(__dirname, "./node_modules/react-markdown/index.js"),
       "remark-gfm": path.resolve(__dirname, "./node_modules/remark-gfm/index.js"),
     },

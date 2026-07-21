@@ -6,8 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	authpkg "github.com/anthropics/agentsmesh/backend/pkg/auth"
-	"github.com/anthropics/agentsmesh/marketplace/internal/service"
+	authpkg "github.com/l8ai-cn/agentcloud/backend/pkg/auth"
+	"github.com/l8ai-cn/agentcloud/marketplace/internal/service"
 	"github.com/stretchr/testify/require"
 )
 

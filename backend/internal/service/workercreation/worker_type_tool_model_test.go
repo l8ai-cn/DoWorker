@@ -3,8 +3,8 @@ package workercreation
 import (
 	"testing"
 
-	resourcedomain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
-	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
+	resourcedomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/workerdefinition"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

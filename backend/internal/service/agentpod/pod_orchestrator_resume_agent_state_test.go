@@ -7,8 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	agentDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agent"
+	podDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
 )
 
 func TestCreatePod_ResumeMode_SessionReused(t *testing.T) {

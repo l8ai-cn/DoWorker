@@ -7,13 +7,13 @@ import (
 	"encoding/pem"
 	"fmt"
 
-	kbdomain "github.com/anthropics/agentsmesh/backend/internal/domain/knowledgebase"
+	kbdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/knowledgebase"
 	"golang.org/x/crypto/ssh"
 )
 
 const (
-	readOnlyDeployKeyConfig  = "_agentsmesh_deploy_key_ro"
-	readWriteDeployKeyConfig = "_agentsmesh_deploy_key_rw"
+	readOnlyDeployKeyConfig  = "_agentcloud_deploy_key_ro"
+	readWriteDeployKeyConfig = "_agentcloud_deploy_key_rw"
 )
 
 type mountDeployKeys struct {

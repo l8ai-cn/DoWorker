@@ -3,8 +3,8 @@ package runner
 import (
 	"encoding/json"
 
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
-	"github.com/anthropics/agentsmesh/runner/internal/policy"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
+	"github.com/l8ai-cn/agentcloud/runner/internal/policy"
 )
 
 func policyRulesFromProto(rules []*runnerv1.PolicyRuleSnapshot) []policy.Rule {

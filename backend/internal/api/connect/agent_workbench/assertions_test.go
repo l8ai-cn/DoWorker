@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	"connectrpc.com/connect"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	"github.com/anthropics/agentsmesh/backend/pkg/embedtoken"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/embedtoken"
 	"github.com/stretchr/testify/require"
 )
 

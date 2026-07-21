@@ -3,7 +3,7 @@ package tokenquota
 import (
 	"context"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/tokenquota"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/tokenquota"
 )
 
 // ScopeUsage is consumption for one aggregation bucket, optionally paired with

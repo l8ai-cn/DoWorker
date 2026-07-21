@@ -3,7 +3,7 @@ package coordinator
 import (
 	"context"
 
-	coordinatordom "github.com/anthropics/agentsmesh/backend/internal/domain/coordinator"
+	coordinatordom "github.com/l8ai-cn/agentcloud/backend/internal/domain/coordinator"
 )
 
 // ExternalTask is the platform-agnostic view of a discovered task. It carries

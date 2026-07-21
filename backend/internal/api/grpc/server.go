@@ -11,11 +11,11 @@ import (
 	"google.golang.org/grpc"
 	"gorm.io/gorm"
 
-	"github.com/anthropics/agentsmesh/backend/internal/config"
-	runnerDomain "github.com/anthropics/agentsmesh/backend/internal/domain/runner"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/pki"
-	"github.com/anthropics/agentsmesh/backend/internal/interfaces"
-	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
+	runnerDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/runner"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/pki"
+	"github.com/l8ai-cn/agentcloud/backend/internal/interfaces"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/runner"
 )
 
 const grpcGracefulStopTimeout = 5 * time.Second

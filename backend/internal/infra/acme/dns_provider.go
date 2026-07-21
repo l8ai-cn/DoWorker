@@ -8,7 +8,7 @@ import (
 
 	"github.com/go-acme/lego/v4/challenge/dns01"
 
-	"github.com/anthropics/agentsmesh/backend/internal/infra/dns"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/dns"
 )
 
 type dnsProviderAdapter struct {

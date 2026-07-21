@@ -1,10 +1,10 @@
 import { HashRouter } from "react-router-dom";
-import { DoWorkerApp, type DoWorkerAppProps } from "./embed";
+import { AgentCloudApp, type AgentCloudAppProps } from "./embed";
 
-export function DoWorkerStandaloneApp(props: DoWorkerAppProps = {}) {
+export function AgentCloudStandaloneApp(props: AgentCloudAppProps = {}) {
   return (
     <HashRouter>
-      <DoWorkerApp {...props} />
+      <AgentCloudApp {...props} />
     </HashRouter>
   );
 }

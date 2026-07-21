@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/anthropics/agentsmesh/backend/internal/service/gitops"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/gitops"
 )
 
 func TestMaterializeRepo_RoundTripAndCleanup(t *testing.T) {

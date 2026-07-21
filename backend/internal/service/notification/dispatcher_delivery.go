@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"time"
 
-	notifDomain "github.com/anthropics/agentsmesh/backend/internal/domain/notification"
+	notifDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/notification"
 )
 
 // notificationWireEvent mirrors the frontend RealtimeEvent interface for backward compatibility.

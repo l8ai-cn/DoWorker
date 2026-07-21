@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	podv1 "github.com/anthropics/agentsmesh/proto/gen/go/pod/v1"
+	podv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/pod/v1"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
 )

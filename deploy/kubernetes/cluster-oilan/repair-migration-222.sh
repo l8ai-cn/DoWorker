@@ -6,7 +6,7 @@ REPO_ROOT="$(cd "${DIR}/../../.." && pwd)"
 TARGET="${DOOPS_TARGET:-gw-oilan-node}"
 SESSION="${DOOPS_SESSION:-$(doops session | tr -d '[:space:]')}"
 WS="/root/ws/${SESSION}"
-NS=agentsmesh
+NS=agentcloud
 ACK="${MIGRATION_REPAIR_ACK:-}"
 REG="repo.aiedulab.cn:8443"
 REMOTE_WORKSPACE_MAY_EXIST=false
@@ -42,7 +42,7 @@ migration_state() {
 }
 
 backup_database() {
-  dexec "set -eu; dir=/root/backups/agentsmesh; stamp=\$(date -u +%Y%m%dT%H%M%SZ); file=\${dir}/pre-repair-222-$(git -C "${REPO_ROOT}" rev-parse --short=12 HEAD)-\${stamp}.dump; umask 077; mkdir -p \"\${dir}\"; kubectl -n ${NS} exec deploy/postgres -- sh -ceu 'PGPASSWORD=\"\$POSTGRES_PASSWORD\" exec pg_dump --format=custom --no-owner --no-privileges --username=\"\$POSTGRES_USER\" --dbname=\"\$POSTGRES_DB\"' > \"\${file}.tmp\"; test -s \"\${file}.tmp\"; mv \"\${file}.tmp\" \"\${file}\"; sha256sum \"\${file}\" > \"\${file}.sha256\"; sha256sum -c \"\${file}.sha256\"; echo \"database backup: \${file}\""
+  dexec "set -eu; dir=/root/backups/agentcloud; stamp=\$(date -u +%Y%m%dT%H%M%SZ); file=\${dir}/pre-repair-222-$(git -C "${REPO_ROOT}" rev-parse --short=12 HEAD)-\${stamp}.dump; umask 077; mkdir -p \"\${dir}\"; kubectl -n ${NS} exec deploy/postgres -- sh -ceu 'PGPASSWORD=\"\$POSTGRES_PASSWORD\" exec pg_dump --format=custom --no-owner --no-privileges --username=\"\$POSTGRES_USER\" --dbname=\"\$POSTGRES_DB\"' > \"\${file}.tmp\"; test -s \"\${file}.tmp\"; mv \"\${file}.tmp\" \"\${file}\"; sha256sum \"\${file}\" > \"\${file}.sha256\"; sha256sum -c \"\${file}.sha256\"; echo \"database backup: \${file}\""
 }
 
 push_repair_manifest() {
@@ -86,9 +86,9 @@ main() {
   dexec "kubectl -n ${NS} wait --for=delete pod -l app=marketplace --timeout=180s"
   backup_database
 
-  backend_digest="$(awk '$1 == "-" && $2 == "name:" && $3 ~ /agentsmesh\/backend$/ { found=1; next } found && $1 == "digest:" { print $2; exit }' "${DIR}/release/kustomization.yaml")"
+  backend_digest="$(awk '$1 == "-" && $2 == "name:" && $3 ~ /agentcloud\/backend$/ { found=1; next } found && $1 == "digest:" { print $2; exit }' "${DIR}/release/kustomization.yaml")"
   [[ "${backend_digest}" =~ ^sha256:[a-f0-9]{64}$ ]]
-  backend_image="${REG}/agentsmesh/backend@${backend_digest}"
+  backend_image="${REG}/agentcloud/backend@${backend_digest}"
   expected_version="$(find "${REPO_ROOT}/backend/migrations" -name '*.up.sql' -exec basename {} \; |
     sed -E 's/^0*([0-9]+)_.*/\1/' | sort -n | tail -n 1)"
   push_repair_manifest

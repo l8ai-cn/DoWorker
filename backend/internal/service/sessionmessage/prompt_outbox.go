@@ -8,10 +8,10 @@ import (
 	"hash/fnv"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	domainitem "github.com/anthropics/agentsmesh/backend/internal/domain/conversationitem"
-	runnerservice "github.com/anthropics/agentsmesh/backend/internal/service/runner"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	domainitem "github.com/l8ai-cn/agentcloud/backend/internal/domain/conversationitem"
+	runnerservice "github.com/l8ai-cn/agentcloud/backend/internal/service/runner"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 	"google.golang.org/protobuf/proto"
 	"gorm.io/gorm"
 )

@@ -6,22 +6,22 @@ export default function Home() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    name: "Do Worker",
+    name: "Agent Cloud",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web, Linux, macOS, Windows",
     description:
-      "Do Worker builds, governs, distributes, and operates reusable Agents for enterprise teams, OPC founders, and higher-education digital employee pilots.",
-    url: "https://agentsmesh.ai",
+      "Agent Cloud builds, governs, distributes, and operates reusable Agents for enterprise teams, OPC founders, and higher-education digital employee pilots.",
+    url: "https://agentcloud.ai",
     keywords:
       "enterprise Agent supply, OPC incubation, higher-education digital employees, internal Agent marketplace, AI partners, self-hosted AI agents",
     publisher: {
       "@type": "Organization",
-      name: "Do Worker",
-      url: "https://agentsmesh.ai",
-      logo: "https://agentsmesh.ai/icons/icon-512.png",
+      name: "Agent Cloud",
+      url: "https://agentcloud.ai",
+      logo: "https://agentcloud.ai/icons/icon-512.png",
       sameAs: [
-        "https://github.com/l8ai-cn/DoWorker",
-        "https://x.com/agentsmeshai",
+        "https://github.com/l8ai-cn/AgentCloud",
+        "https://x.com/agentcloudai",
         "https://discord.gg/3RcX7VBbH9",
       ],
     },

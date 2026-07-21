@@ -3,8 +3,8 @@ package infra
 import (
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentworkbench"
-	sessionfiledomain "github.com/anthropics/agentsmesh/backend/internal/domain/sessionfile"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentworkbench"
+	sessionfiledomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/sessionfile"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )

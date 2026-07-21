@@ -4,9 +4,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	billingdomain "github.com/anthropics/agentsmesh/backend/internal/domain/billing"
-	"github.com/anthropics/agentsmesh/backend/internal/infra"
-	"github.com/anthropics/agentsmesh/backend/internal/testkit"
+	billingdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/billing"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra"
+	"github.com/l8ai-cn/agentcloud/backend/internal/testkit"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )

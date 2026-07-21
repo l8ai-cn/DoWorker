@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/runner/internal/agents/claude"
+	"github.com/l8ai-cn/agentcloud/runner/internal/agents/claude"
 )
 
 //go:embed testdata/session.jsonl

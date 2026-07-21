@@ -3,7 +3,7 @@ package admin
 import (
 	"errors"
 
-	"github.com/anthropics/agentsmesh/backend/internal/infra/database"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/database"
 )
 
 var (

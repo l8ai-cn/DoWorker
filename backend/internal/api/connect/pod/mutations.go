@@ -8,13 +8,13 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/grant"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	"github.com/anthropics/agentsmesh/backend/pkg/policy"
-	eventsv1 "github.com/anthropics/agentsmesh/proto/gen/go/events/v1"
-	podv1 "github.com/anthropics/agentsmesh/proto/gen/go/pod/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/grant"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/eventbus"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/policy"
+	eventsv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/events/v1"
+	podv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/pod/v1"
 )
 
 // TerminatePod — REST analogue: POST /api/v1/organizations/:slug/pods/:key/terminate.

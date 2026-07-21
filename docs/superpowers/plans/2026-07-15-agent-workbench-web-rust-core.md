@@ -33,7 +33,7 @@ Add duplicate same-digest, duplicate conflicting digest, sequence gap, epoch cha
 
 - [ ] **Step 2: Verify failure**
 
-Run: `(cd clients/core && cargo test -p agentsmesh_state agent_workbench)`
+Run: `(cd clients/core && cargo test -p agentcloud_state agent_workbench)`
 Expected: FAIL because the Workbench state modules do not exist.
 
 - [ ] **Step 3: Implement generated-type state**
@@ -42,7 +42,7 @@ Expected: FAIL because the Workbench state modules do not exist.
 
 - [ ] **Step 4: Run and commit**
 
-Run: `(cd clients/core && cargo test -p agentsmesh_state agent_workbench)`
+Run: `(cd clients/core && cargo test -p agentcloud_state agent_workbench)`
 Expected: PASS.
 
 ```bash
@@ -75,7 +75,7 @@ Add distinct message types for V2 snapshot, delta batch, command receipt, and co
 
 - [ ] **Step 3: Run and commit**
 
-Run: `(cd clients/core && cargo test -p agentsmesh_protocol -p agentsmesh_relay agent_workbench)`
+Run: `(cd clients/core && cargo test -p agentcloud_protocol -p agentcloud_relay agent_workbench)`
 Expected: PASS for binary decode, wrong schema, batch dispatch, and reconnect cursor.
 
 ```bash
@@ -108,11 +108,11 @@ Expose `apply_snapshot`, `apply_delta_batch`, `snapshot_bytes`, `revision`, `sen
 
 - [ ] **Step 3: Run and commit**
 
-Run: `(cd clients/core && cargo test -p agentsmesh_wasm state_agent_workbench) && pnpm run build:wasm`
+Run: `(cd clients/core && cargo test -p agentcloud_wasm state_agent_workbench) && pnpm run build:wasm`
 Expected: PASS and regenerated WASM TypeScript declarations expose all six methods.
 
 ```bash
-git add clients/core/crates/wasm packages/do-worker-wasm
+git add clients/core/crates/wasm packages/agent-cloud-wasm
 git commit -m "feat(wasm): expose agent workbench runtime"
 ```
 
@@ -185,7 +185,7 @@ git commit -m "refactor(web): read agent workbench state from rust"
 Run: `rg "acp_state_proto|proto_acp_state_v1|WasmAcpSessionManager|AcpSessionManager" clients proto`
 Expected: only files listed for deletion appear.
 - [ ] **Step 2: Delete and regenerate**
-Run: `pnpm proto:gen-ts && pnpm proto:gen-go && pnpm proto:gen-amesh && (cd clients/core && cargo run -p do_worker_proto_gen)`
+Run: `pnpm proto:gen-ts && pnpm proto:gen-go && pnpm proto:gen-amesh && (cd clients/core && cargo run -p agent_cloud_proto_gen)`
 Expected: no generated `acp_state/v1` output remains.
 
 - [ ] **Step 3: Run full Core/Web checks and commit**

@@ -3,8 +3,8 @@ package sessionapi
 import (
 	"net/http"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/sessioncomment"
-	commentsvc "github.com/anthropics/agentsmesh/backend/internal/service/sessioncomment"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/sessioncomment"
+	commentsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/sessioncomment"
 	"github.com/gin-gonic/gin"
 )
 

@@ -84,8 +84,8 @@
       "generate": "生成令牌",
       "generating": "生成中...",
       "generateHint": "点击下方按钮生成一次性注册令牌，用于连接新的集群。",
-      "installTitle": "安装 do-worker-runner CLI",
-      "installHint": "如果尚未安装 do-worker-runner，请运行以下命令：",
+      "installTitle": "安装 agent-cloud-runner CLI",
+      "installHint": "如果尚未安装 agent-cloud-runner，请运行以下命令：",
       "serviceTitle": "以后台服务方式运行（推荐）",
       "serviceHint": "将集群安装为系统服务，使其自动启动并在重启后持续运行：",
       "clusterLabel": "执行集群",
@@ -244,7 +244,7 @@
       "fields": {
         "mcp_enabled": {
           "label": "启用 MCP 集成",
-          "description": "允许 Agent 通过 MCP 协议与 Do Worker 平台通信"
+          "description": "允许 Agent 通过 MCP 协议与 Agent Cloud 平台通信"
         },
         "model": {
           "label": "模型",
@@ -273,7 +273,7 @@
       "fields": {
         "mcp_enabled": {
           "label": "启用 MCP 集成",
-          "description": "允许 Agent 通过 MCP 协议与 Do Worker 平台通信"
+          "description": "允许 Agent 通过 MCP 协议与 Agent Cloud 平台通信"
         },
         "sandbox_mode": {
           "label": "沙盒模式",
@@ -316,7 +316,7 @@
       "fields": {
         "mcp_enabled": {
           "label": "启用 MCP 集成",
-          "description": "允许 Agent 通过 MCP 协议与 Do Worker 平台通信"
+          "description": "允许 Agent 通过 MCP 协议与 Agent Cloud 平台通信"
         },
         "skip_permissions": {
           "label": "跳过权限检查",

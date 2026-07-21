@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	workerplanner "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationworker"
+	control "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
+	workerplanner "github.com/l8ai-cn/agentcloud/backend/internal/service/orchestrationworker"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	coordinatordom "github.com/anthropics/agentsmesh/backend/internal/domain/coordinator"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/git"
+	coordinatordom "github.com/l8ai-cn/agentcloud/backend/internal/domain/coordinator"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/git"
 )
 
 type defaultPlatformFactory struct {

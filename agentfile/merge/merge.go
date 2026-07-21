@@ -10,7 +10,7 @@
 package merge
 
 import (
-	"github.com/anthropics/agentsmesh/agentfile/parser"
+	"github.com/l8ai-cn/agentcloud/agentfile/parser"
 )
 
 // Merge combines a base Program with a slice Program in-place.

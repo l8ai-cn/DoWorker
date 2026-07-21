@@ -5,10 +5,10 @@ import (
 	"testing"
 	"time"
 
-	invitationDomain "github.com/anthropics/agentsmesh/backend/internal/domain/invitation"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/organization"
-	"github.com/anthropics/agentsmesh/backend/internal/infra"
-	"github.com/anthropics/agentsmesh/backend/internal/testkit"
+	invitationDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/invitation"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/organization"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra"
+	"github.com/l8ai-cn/agentcloud/backend/internal/testkit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/infra"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/git"
-	"github.com/anthropics/agentsmesh/backend/internal/testkit"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/git"
+	"github.com/l8ai-cn/agentcloud/backend/internal/testkit"
 	"gorm.io/gorm"
 )
 

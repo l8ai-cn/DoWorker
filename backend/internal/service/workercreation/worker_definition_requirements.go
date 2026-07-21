@@ -1,6 +1,6 @@
 package workercreation
 
-import "github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
+import "github.com/l8ai-cn/agentcloud/backend/internal/service/workerdefinition"
 
 type WorkerCredentialRequirement struct {
 	ID         string

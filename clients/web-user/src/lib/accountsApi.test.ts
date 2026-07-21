@@ -42,7 +42,7 @@ describe("accountsApi shared auth protocol", () => {
 
   it("reads identity through UserService with the persisted bearer token", async () => {
     localStorage.setItem(
-      "do-worker-auth/http_localhost_10000/session",
+      "agent-cloud-auth/http_localhost_10000/session",
       JSON.stringify({
         access_token: "token-1",
         refresh_token: "refresh-1",

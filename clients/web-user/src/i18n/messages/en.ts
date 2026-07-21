@@ -1,11 +1,11 @@
 const englishMessages = {
-  brand: "Do Worker",
+  brand: "Agent Cloud",
   shell: {
     newSession: "New session",
     searchSessions: "Search sessions",
     sessions: "Sessions",
     settings: "Settings",
-    backToApp: "Back to Do Worker",
+    backToApp: "Back to Agent Cloud",
   },
   composer: {
     heading: "What should we do?",
@@ -32,7 +32,7 @@ const englishMessages = {
     placeholderSkills: "Describe a task, or try a skill",
   },
   auth: {
-    welcome: "Welcome to Do Worker.",
+    welcome: "Welcome to Agent Cloud.",
     devAccounts: "Local dev accounts from deploy/dev/seed/seed.sql",
     devUser: "Dev user",
     admin: "Admin",

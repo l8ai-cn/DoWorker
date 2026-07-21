@@ -55,9 +55,11 @@ export default function DashboardShell({
     if (!currentOrg) return;
     const controller = new AbortController();
     const abort = () => controller.abort();
+    window.addEventListener("beforeunload", abort, { once: true });
     window.addEventListener("pagehide", abort, { once: true });
     void useChannelMessageStore.getState().fetchUnreadCounts(controller.signal);
     return () => {
+      window.removeEventListener("beforeunload", abort);
       window.removeEventListener("pagehide", abort);
       controller.abort();
     };

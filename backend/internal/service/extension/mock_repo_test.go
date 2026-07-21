@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/extension"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/extension"
 )
 
 // mockExtensionRepo is a no-op implementation of the trimmed extension.Repository

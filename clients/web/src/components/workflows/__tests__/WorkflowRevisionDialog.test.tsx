@@ -59,7 +59,7 @@ vi.mock("@/components/ui/responsive-dialog", () => ({
   ),
 }));
 
-const exportedWorkflow = `apiVersion: agentsmesh.io/v1alpha1
+const exportedWorkflow = `apiVersion: agentcloud.io/v1alpha1
 kind: Workflow
 metadata:
   name: nightly-review
@@ -103,7 +103,7 @@ describe("WorkflowRevisionDialog", () => {
     expect(exportResource).toHaveBeenCalledWith(
       "acme",
       {
-        apiVersion: "agentsmesh.io/v1alpha1",
+        apiVersion: "agentcloud.io/v1alpha1",
         kind: "Workflow",
         namespace: "acme",
         name: "nightly-review",

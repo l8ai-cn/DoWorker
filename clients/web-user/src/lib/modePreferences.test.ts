@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { readHarnessOptions, writeHarnessOption } from "./modePreferences";
 
-const KEY = "do-worker:last-mode-by-harness";
+const KEY = "agent-cloud:last-mode-by-harness";
 
 afterEach(() => {
   localStorage.clear();

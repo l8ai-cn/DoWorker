@@ -19,6 +19,7 @@ func TestTypeMetaValidate(t *testing.T) {
 		require.NoError(t, meta.Validate())
 	})
 
+
 	cases := []struct {
 		name  string
 		meta  TypeMeta

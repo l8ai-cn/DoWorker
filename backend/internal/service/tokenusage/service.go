@@ -5,8 +5,8 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/tokenusage"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/tokenusage"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 )
 
 // shortPodGracePeriod mirrors runner-side suppression: empty reports from

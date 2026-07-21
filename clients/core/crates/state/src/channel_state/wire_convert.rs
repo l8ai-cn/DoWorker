@@ -4,12 +4,12 @@
 // unread/preview/persist) own the result — UI never sees wire, and the TS
 // fromProtoX + xToProto round-trip is eliminated.
 
-use agentsmesh_types::proto_channel_v1::{
+use agentcloud_types::proto_channel_v1::{
     Channel as WireChannel, ChannelMember as WireMember, ChannelMessage as WireMessage,
     ChannelMessageSenderPod as WireSenderPod, ChannelMessageSenderUser as WireSenderUser,
     ChannelPod as WirePod,
 };
-use agentsmesh_types::proto_pod_v1::Pod;
+use agentcloud_types::proto_pod_v1::Pod;
 
 use super::ChannelState;
 use crate::channel_types::{
@@ -193,7 +193,7 @@ impl ChannelState {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use agentsmesh_types::proto_channel_v1::ChannelMessageSenderAgent;
+    use agentcloud_types::proto_channel_v1::ChannelMessageSenderAgent;
 
     #[test]
     fn channel_wire_to_state_maps_fields_and_wraps_options() {

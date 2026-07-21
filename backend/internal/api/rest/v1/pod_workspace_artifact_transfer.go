@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	fileservice "github.com/anthropics/agentsmesh/backend/internal/service/file"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	fileservice "github.com/l8ai-cn/agentcloud/backend/internal/service/file"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 	"github.com/gin-gonic/gin"
 )
 

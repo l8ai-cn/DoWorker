@@ -13,27 +13,27 @@ import (
 
 func runRegister(args []string) {
 	fs := flag.NewFlagSet("register", flag.ExitOnError)
-	serverURL := fs.String("server", "https://agentsmesh.ai", "AgentsMesh server URL (default: https://agentsmesh.ai)")
+	serverURL := fs.String("server", "https://agentcloud.ai", "Agent Cloud server URL (default: https://agentcloud.ai)")
 	token := fs.String("token", "", "Registration token (for token-based registration)")
 	nodeID := fs.String("node-id", "", "Node ID for this runner (default: hostname)")
 	headless := fs.Bool("headless", false, "Run without opening browser automatically (for SSH/remote sessions)")
 	force := fs.Bool("force", false, "Skip confirmation when overwriting existing registration")
 
 	fs.Usage = func() {
-		fmt.Println(`Register this runner with the AgentsMesh server using gRPC/mTLS.
+		fmt.Println(`Register this runner with the Agent Cloud server using gRPC/mTLS.
 
 Usage:
-  do-worker-runner register [options]
+  agent-cloud-runner register [options]
 
 Examples:
-  do-worker-runner register                    # Interactive login (opens browser)
-  do-worker-runner register --headless         # Interactive without browser (for SSH)
-  do-worker-runner register --token <token>    # Token-based registration
-  do-worker-runner register --server <url>     # Self-hosted server
-  do-worker-runner register --force            # Overwrite existing registration without confirmation
+  agent-cloud-runner register                    # Interactive login (opens browser)
+  agent-cloud-runner register --headless         # Interactive without browser (for SSH)
+  agent-cloud-runner register --token <token>    # Token-based registration
+  agent-cloud-runner register --server <url>     # Self-hosted server
+  agent-cloud-runner register --force            # Overwrite existing registration without confirmation
 
 Options:
-  --server <url>     Server URL (default: https://agentsmesh.ai)
+  --server <url>     Server URL (default: https://agentcloud.ai)
   --token <token>    Registration token for automated deployment
   --node-id <id>     Runner node ID (default: hostname)
   --headless         Don't open browser (for SSH/remote sessions)
@@ -102,7 +102,7 @@ func checkExistingRegistration() string {
 		return ""
 	}
 
-	configFile := filepath.Join(home, ".agentsmesh", "config.yaml")
+	configFile := filepath.Join(home, ".agentcloud", "config.yaml")
 	data, err := os.ReadFile(configFile)
 	if err != nil {
 		return ""

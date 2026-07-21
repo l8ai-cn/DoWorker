@@ -4,12 +4,12 @@ import {
   CommandReceiptSchema,
   type CommandEnvelope,
   type CommandReceipt,
-} from "@do-worker/proto/agent_workbench/v2/command_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/command_pb";
 import type {
   SessionDeltaBatch,
   SessionSnapshot,
-} from "@do-worker/proto/agent_workbench/v2/session_pb";
-import { SessionSnapshotSchema } from "@do-worker/proto/agent_workbench/v2/session_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/session_pb";
+import { SessionSnapshotSchema } from "@agent-cloud/proto/agent_workbench/v2/session_pb";
 import {
   applyDeltaBatch,
   applySessionSnapshot,

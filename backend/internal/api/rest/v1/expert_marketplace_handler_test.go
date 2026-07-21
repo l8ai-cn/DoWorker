@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"testing"
 
-	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/expertmarket"
-	expertsvc "github.com/anthropics/agentsmesh/backend/internal/service/expert"
+	expertdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/expert"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/expertmarket"
+	expertsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/expert"
 	"github.com/stretchr/testify/require"
 )
 

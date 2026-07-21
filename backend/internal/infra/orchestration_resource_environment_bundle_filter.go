@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/envbundle"
-	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	service "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/envbundle"
+	control "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
+	service "github.com/l8ai-cn/agentcloud/backend/internal/service/orchestrationcontrol"
 	"gorm.io/gorm"
 )
 

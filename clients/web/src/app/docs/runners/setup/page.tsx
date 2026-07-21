@@ -56,7 +56,7 @@ irm ${serverUrl}/install.ps1 | iex`}</pre>
         <p className="text-sm text-muted-foreground mb-2">
           The one-line script above also works on Linux. Alternatively, download .deb/.rpm/.apk packages from{" "}
           <a
-            href="https://github.com/l8ai-cn/DoWorker/releases/latest"
+            href="https://github.com/l8ai-cn/AgentCloud/releases/latest"
             target="_blank"
             rel="noopener noreferrer"
             className="text-primary underline"
@@ -74,10 +74,10 @@ irm ${serverUrl}/install.ps1 | iex`}</pre>
               {t("docs.runners.setup.quickInstall.methodToken")}
             </h4>
             <div className="font-mono text-sm overflow-x-auto">
-              <pre className="text-success">{`do-worker-runner register \\
+              <pre className="text-success">{`agent-cloud-runner register \\
   --server ${serverUrl} \\
   --token <YOUR_TOKEN>
-do-worker-runner run`}</pre>
+agent-cloud-runner run`}</pre>
             </div>
           </div>
           <div className="rounded-lg bg-surface-muted ring-1 ring-border/15 p-4">
@@ -85,8 +85,8 @@ do-worker-runner run`}</pre>
               {t("docs.runners.setup.quickInstall.methodLogin")}
             </h4>
             <div className="font-mono text-sm overflow-x-auto">
-              <pre className="text-success">{`do-worker-runner login
-do-worker-runner run`}</pre>
+              <pre className="text-success">{`agent-cloud-runner login
+agent-cloud-runner run`}</pre>
             </div>
           </div>
         </div>
@@ -104,12 +104,12 @@ do-worker-runner run`}</pre>
         <div className="rounded-lg bg-surface-muted ring-1 ring-border/15 p-4 font-mono text-sm overflow-x-auto">
           <pre className="text-success">{`# Run with Docker
 docker run -d \\
-  --name do-worker-runner \\
+  --name agent-cloud-runner \\
   -e DO_WORKER_TOKEN=<YOUR_TOKEN> \\
   -e DO_WORKER_URL=${serverUrl} \\
   -v /var/run/docker.sock:/var/run/docker.sock \\
   -v ~/.ssh:/root/.ssh:ro \\
-  agentsmesh/runner:latest`}</pre>
+  agentcloud/runner:latest`}</pre>
         </div>
       </section>
 
@@ -123,8 +123,8 @@ docker run -d \\
 version: '3.8'
 services:
   runner:
-    image: agentsmesh/runner:latest
-    container_name: do-worker-runner
+    image: agentcloud/runner:latest
+    container_name: agent-cloud-runner
     restart: unless-stopped
     environment:
       - DO_WORKER_TOKEN=\${DO_WORKER_TOKEN}

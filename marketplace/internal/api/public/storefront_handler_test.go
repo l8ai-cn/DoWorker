@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/marketplace/internal/service"
+	"github.com/l8ai-cn/agentcloud/marketplace/internal/service"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
 )
@@ -89,7 +89,7 @@ func TestListListingsFiltersTaxonomyAndReturnsTags(t *testing.T) {
 				ResourceType:     "application",
 				DisplayName:      "软件交付专家",
 				Tagline:          "交付可验证的软件变更",
-				Publisher:        service.PublisherView{Slug: "do-worker", DisplayName: "Do Worker", Verified: true},
+				Publisher:        service.PublisherView{Slug: "agent-cloud", DisplayName: "Agent Cloud", Verified: true},
 				Tags: []service.TaxonomyTagView{
 					{Slug: "software-delivery", DisplayName: "软件交付", Kind: "scene"},
 					{Slug: "enterprise-services", DisplayName: "企业服务", Kind: "industry"},
@@ -103,7 +103,7 @@ func TestListListingsFiltersTaxonomyAndReturnsTags(t *testing.T) {
 				ResourceType:     "application",
 				DisplayName:      "课程构建专家",
 				Tagline:          "构建教学内容",
-				Publisher:        service.PublisherView{Slug: "do-worker", DisplayName: "Do Worker", Verified: true},
+				Publisher:        service.PublisherView{Slug: "agent-cloud", DisplayName: "Agent Cloud", Verified: true},
 				PublishedAt:      time.Date(2026, 7, 12, 7, 0, 0, 0, time.UTC),
 			},
 		},
@@ -129,7 +129,7 @@ func TestListListingsFiltersTaxonomyAndReturnsTags(t *testing.T) {
 	    "resource_type":"application",
 	    "display_name":"软件交付专家",
 	    "tagline":"交付可验证的软件变更",
-	    "publisher":{"slug":"do-worker","display_name":"Do Worker","verified":true},
+	    "publisher":{"slug":"agent-cloud","display_name":"Agent Cloud","verified":true},
 	    "spaces":[],
 	    "tags":[
 	      {"slug":"software-delivery","display_name":"软件交付","kind":"scene"},

@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	otelinit "github.com/anthropics/agentsmesh/backend/internal/infra/otel"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	otelinit "github.com/l8ai-cn/agentcloud/backend/internal/infra/otel"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 )
 
 func (pc *PodCoordinator) handlePodCreated(runnerID int64, data *runnerv1.PodCreatedEvent) {

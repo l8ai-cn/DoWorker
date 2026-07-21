@@ -3,8 +3,8 @@ package agentworkbenchconnect
 import (
 	"context"
 
-	"github.com/anthropics/agentsmesh/backend/pkg/embedtoken"
-	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/embedtoken"
+	agentworkbenchv2 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2"
 )
 
 type embedAccessContextKey struct{}

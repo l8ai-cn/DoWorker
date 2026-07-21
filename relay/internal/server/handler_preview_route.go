@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/relay/internal/auth"
+	"github.com/l8ai-cn/agentcloud/relay/internal/auth"
 )
 
 func (h *PreviewHandler) route(w http.ResponseWriter, r *http.Request) {

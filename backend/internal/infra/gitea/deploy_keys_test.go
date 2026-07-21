@@ -18,11 +18,11 @@ func TestCreateDeployKeyUsesRepositoryScopeAndRequestedMode(t *testing.T) {
 		assert.Equal(t, "token admin-token", r.Header.Get("Authorization"))
 		var body map[string]any
 		require.NoError(t, json.NewDecoder(r.Body).Decode(&body))
-		assert.Equal(t, "agentsmesh-read-only", body["title"])
+		assert.Equal(t, "agentcloud-read-only", body["title"])
 		assert.Equal(t, "ssh-ed25519 public-key", body["key"])
 		assert.Equal(t, true, body["read_only"])
 		_ = json.NewEncoder(w).Encode(DeployKey{
-			ID: 7, Title: "agentsmesh-read-only", ReadOnly: true,
+			ID: 7, Title: "agentcloud-read-only", ReadOnly: true,
 		})
 	}))
 	defer server.Close()
@@ -33,7 +33,7 @@ func TestCreateDeployKeyUsesRepositoryScopeAndRequestedMode(t *testing.T) {
 	key, err := client.CreateDeployKey(
 		context.Background(),
 		"org1-docs",
-		"agentsmesh-read-only",
+		"agentcloud-read-only",
 		"ssh-ed25519 public-key\n",
 		true,
 	)

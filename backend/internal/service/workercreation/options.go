@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	runtimedomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
+	runtimedomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerruntime"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
 )
 
 type OptionsFilter struct {

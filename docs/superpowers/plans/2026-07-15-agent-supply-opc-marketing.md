@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Reframe the Do Worker marketing site around enterprise Agent supply, OPC incubation, and higher-education digital employees.
+**Goal:** Reframe the Agent Cloud marketing site around enterprise Agent supply, OPC incubation, and higher-education digital employees.
 
 **Architecture:** Reuse the existing marketing shell, expert-home visual tokens, and focused landing components. Replace the Expert-first content model with a supply-first model, consolidate the story routes into Product and Solutions, and preserve backend resource names.
 

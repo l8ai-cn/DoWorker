@@ -5,11 +5,11 @@ import (
 	"errors"
 	"strings"
 
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	"github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
-	"github.com/anthropics/agentsmesh/backend/internal/service/workerdependencyartifact"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/workercreation"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/workerdependencyartifact"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 type bootstrapWorkerPreparer struct {

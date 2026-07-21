@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package proto.execution_cluster.v1;
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/execution_cluster/v1;executionclusterv1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/execution_cluster/v1;executionclusterv1";
 
 service ExecutionClusterService {
   rpc ListExecutionClusters(ListExecutionClustersRequest) returns (ListExecutionClustersResponse);

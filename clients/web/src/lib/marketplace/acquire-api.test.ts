@@ -62,7 +62,7 @@ describe("marketplace acquisition API", () => {
     );
 
     await createInstallationPlan(
-      "do-worker-market",
+      "agent-cloud-market",
       "delivery",
       "31",
       9,
@@ -71,7 +71,7 @@ describe("marketplace acquisition API", () => {
     );
 
     expect(fetchMock).toHaveBeenCalledWith(
-      expect.stringContaining("/markets/do-worker-market/listings/delivery/plans"),
+      expect.stringContaining("/markets/agent-cloud-market/listings/delivery/plans"),
       expect.objectContaining({
         method: "POST",
         headers: expect.objectContaining({
@@ -100,7 +100,7 @@ describe("marketplace acquisition API", () => {
     );
 
     await expect(
-      createInstallationPlan("do-worker-market", "delivery", "31", 9, 301, {}),
+      createInstallationPlan("agent-cloud-market", "delivery", "31", 9, 301, {}),
     ).rejects.toEqual(
       expect.objectContaining<Partial<MarketplaceAcquireError>>({
         code: "QUOTA_INSUFFICIENT",

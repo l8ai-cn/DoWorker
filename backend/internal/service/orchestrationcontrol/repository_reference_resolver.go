@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
+	control "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationresource"
 )
 
 type RepositoryReferenceResolver struct {

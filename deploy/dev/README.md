@@ -27,8 +27,8 @@ The script auto-generates `.env` with worktree-hashed ports so multiple worktree
 
 Test accounts seeded by `init-seed.sh`:
 
-- **User**: `dev@agentsmesh.local` / `AdminAb123456`
-- **Admin**: `admin@agentsmesh.local` / `Ab123456`
+- **User**: `dev@agentcloud.local` / `AdminAb123456`
+- **Admin**: `admin@agentcloud.local` / `Ab123456`
 
 ## Contributors in mainland China
 

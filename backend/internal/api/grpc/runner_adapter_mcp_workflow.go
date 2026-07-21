@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"time"
 
-	workflowDomain "github.com/anthropics/agentsmesh/backend/internal/domain/workflow"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	workflowService "github.com/anthropics/agentsmesh/backend/internal/service/workflow"
+	workflowDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workflow"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	workflowService "github.com/l8ai-cn/agentcloud/backend/internal/service/workflow"
 )
 
 func (a *GRPCRunnerAdapter) mcpListWorkflows(ctx context.Context, tc *middleware.TenantContext, payload []byte) (interface{}, *mcpError) {

@@ -2,7 +2,7 @@
 title: "理解软件开发中的多智能体协作"
 excerpt: "探索多个 AI 智能体如何协同工作，比单智能体方法更有效地解决复杂的开发挑战。"
 date: "2026-01-20"
-author: "Do Worker Team"
+author: "Agent Cloud Team"
 category: "Technical"
 readTime: 8
 ---
@@ -11,7 +11,7 @@ readTime: 8
 
 考虑一个典型的功能实现：它可能需要理解现有代码、设计新组件、编写测试和更新文档。每个任务都受益于不同的方法和上下文。
 
-使用 Do Worker，你可以：
+使用 Agent Cloud，你可以：
 
 - **将不同的智能体分配**给任务的不同方面
 - **让智能体通过频道进行通信**

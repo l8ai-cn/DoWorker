@@ -3,7 +3,7 @@ package airesource
 import (
 	"context"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
 )
 
 func (s *Service) ResolvePinnedCredentials(

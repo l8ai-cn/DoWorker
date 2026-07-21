@@ -1,8 +1,8 @@
 package infra
 
 import (
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workflow"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workflow"
 )
 
 func deriveWorkflowRunStatus(podStatus string, autopilotPhase string) string {

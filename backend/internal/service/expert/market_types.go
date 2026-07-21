@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 
-	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/expertmarket"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	expertdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/expert"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/expertmarket"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
 )
 
 var (

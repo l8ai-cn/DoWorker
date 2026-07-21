@@ -85,7 +85,7 @@ RUN install-real-worker-cli --version "${WORKER_VERSION:?required}" \
 
 ```json
 {
-  "reference": "registry.example/do-worker/runner-worker@sha256:<64-lowercase-hex>",
+  "reference": "registry.example/agent-cloud/runner-worker@sha256:<64-lowercase-hex>",
   "digest": "sha256:<64-lowercase-hex>",
   "worker_type_slugs": ["worker"]
 }

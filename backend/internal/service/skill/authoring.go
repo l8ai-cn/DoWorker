@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"strings"
 
-	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
-	extensionsvc "github.com/anthropics/agentsmesh/backend/internal/service/extension"
-	"github.com/anthropics/agentsmesh/backend/internal/service/gitops"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	skilldom "github.com/l8ai-cn/agentcloud/backend/internal/domain/skill"
+	extensionsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/extension"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/gitops"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 // Create provisions an am-skills repo (seeding SKILL.md + skill.json), packages

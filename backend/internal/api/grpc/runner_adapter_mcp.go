@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/runner"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 )
 
 func (a *GRPCRunnerAdapter) handleMcpRequest(ctx context.Context, runnerID int64, conn *runner.GRPCConnection, req *runnerv1.McpRequest) {

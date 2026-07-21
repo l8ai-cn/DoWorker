@@ -11,10 +11,10 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/reflect/protoreflect"
 
-	rundom "github.com/anthropics/agentsmesh/backend/internal/domain/runner"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	runner "github.com/anthropics/agentsmesh/backend/internal/service/runner"
-	runnerapiv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner_api/v1"
+	rundom "github.com/l8ai-cn/agentcloud/backend/internal/domain/runner"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	runner "github.com/l8ai-cn/agentcloud/backend/internal/service/runner"
+	runnerapiv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner_api/v1"
 )
 
 // =====================================================================

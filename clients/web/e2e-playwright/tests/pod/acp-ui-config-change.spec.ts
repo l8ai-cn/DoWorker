@@ -39,7 +39,7 @@ test.describe("ACP UI: control plane round-trip", () => {
   });
 
   test("loopal-advertised modes render in the selector dropdown (capability path)", async ({ page, api }) => {
-    // Mock advertises agentsmeshExtensions.permissionModes (loopal's 3 modes);
+    // Mock advertises agentcloudExtensions.permissionModes (loopal's 3 modes);
     // exercises the full advertise → parse → snapshot → selector render path.
     const pod = await createMockAgentPod(api, {
       mode: "acp",

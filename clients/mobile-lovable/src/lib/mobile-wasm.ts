@@ -2,7 +2,7 @@ import initWasm, {
   WasmApiClient,
   type WasmAcpSessionManager,
   type WasmPodService,
-} from "do-worker-wasm";
+} from "agent-cloud-wasm";
 import { getMobileAuthManager, mobileAuthBaseUrl } from "./mobile-auth-manager";
 
 let apiClientPromise: Promise<WasmApiClient> | undefined;

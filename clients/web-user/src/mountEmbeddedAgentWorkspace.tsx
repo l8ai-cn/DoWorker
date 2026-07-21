@@ -5,7 +5,7 @@ import type {
   AgentWorkspaceLocale,
   ContentRendererRegistry,
   ToolRendererRegistry,
-} from "@do-worker/agent-ui";
+} from "@agent-cloud/agent-ui";
 
 import { EmbeddedAgentWorkspace } from "./embed-session/EmbeddedAgentWorkspace";
 import type { EmbeddedAgentWorkbenchAccess } from "./embed-session/embeddedAgentWorkbenchAccess";
@@ -24,8 +24,8 @@ export function mountEmbeddedAgentWorkspace(
     toolRenderers?: ToolRendererRegistry<AgentToolRendererRegistration>;
   },
 ): EmbeddedAgentWorkspaceMount {
-  const hadScopeClass = element.classList.contains("do-worker-app");
-  element.classList.add("do-worker-app");
+  const hadScopeClass = element.classList.contains("agent-cloud-app");
+  element.classList.add("agent-cloud-app");
   const root = createRoot(element);
   root.render(
     <EmbeddedAgentWorkspace
@@ -39,7 +39,7 @@ export function mountEmbeddedAgentWorkspace(
   return {
     unmount: () => {
       root.unmount();
-      if (!hadScopeClass) element.classList.remove("do-worker-app");
+      if (!hadScopeClass) element.classList.remove("agent-cloud-app");
     },
   };
 }

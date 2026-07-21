@@ -3,8 +3,8 @@ package agentpod
 import (
 	"errors"
 
-	"github.com/anthropics/agentsmesh/agentfile/parser"
-	"github.com/anthropics/agentsmesh/backend/pkg/secretguard"
+	"github.com/l8ai-cn/agentcloud/agentfile/parser"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/secretguard"
 )
 
 var ErrAgentfileSecretLiteral = errors.New("agentfile layer contains a credential literal")

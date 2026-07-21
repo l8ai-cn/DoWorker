@@ -54,7 +54,7 @@ function auditEvents(registration) {
     event({
       reference: registration.registration,
       queryName: "asset-probe",
-      tail: "agentsmesh|160014|t\n",
+      tail: "agentcloud|160014|t\n",
     }),
     event({
       reference: registration.migrationState,

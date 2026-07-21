@@ -130,7 +130,7 @@
 #### Task 10 execution evidence — 2026-07-10
 
 - Services: backend `http://127.0.0.1:10015/health` returned 200 `ok`; relay `10017` listened; frontend `17557` returned 200.
-- Browser QA used an isolated Chrome context. Login succeeded as `dev@agentsmesh.local`; the stale `admin-workspace` redirect was corrected by opening the real `dev-org` route.
+- Browser QA used an isolated Chrome context. Login succeeded as `dev@agentcloud.local`; the stale `admin-workspace` redirect was corrected by opening the real `dev-org` route.
 - AI Resource Center desktop and mobile/dark routes rendered personal scope, empty state, capability tabs, provider catalog, add-connection dialog, write-only API key field, and `未接入` usage placeholder. AI Resource Connect RPCs returned 200.
 - Validation failure path: creating an OpenAI connection with a loopback base URL was rejected by `CreatePersonalConnection` with HTTP 400, left the connection count at 0, and did not echo the API key in the DOM.
 - Worker creation route `/dev-org/workers/new` rendered exact-resource copy, `暂无兼容的模型资源` blocking state, disabled create buttons, and no old default-auth or API credential Bundle copy. `GetCatalog` and `ListOrganizationEffectiveResources` returned 200.

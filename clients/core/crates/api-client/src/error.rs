@@ -1,6 +1,6 @@
 use thiserror::Error;
 
-use agentsmesh_types::ServiceError;
+use agentcloud_types::ServiceError;
 
 #[derive(Debug, Error)]
 pub enum ApiError {

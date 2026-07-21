@@ -27,7 +27,7 @@ describe("AddRunnerModal", () => {
   const onClose = vi.fn();
   const onCreated = vi.fn();
   const command =
-    "do-worker-runner register --server https://gateway.example.test --token one-time-secret";
+    "agent-cloud-runner register --server https://gateway.example.test --token one-time-secret";
 
   beforeEach(() => {
     vi.clearAllMocks();

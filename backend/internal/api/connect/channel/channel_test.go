@@ -10,10 +10,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	channeldomain "github.com/anthropics/agentsmesh/backend/internal/domain/channel"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	channelservice "github.com/anthropics/agentsmesh/backend/internal/service/channel"
-	channelv1 "github.com/anthropics/agentsmesh/proto/gen/go/channel/v1"
+	channeldomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/channel"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	channelservice "github.com/l8ai-cn/agentcloud/backend/internal/service/channel"
+	channelv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/channel/v1"
 )
 
 type fakeOrg struct {

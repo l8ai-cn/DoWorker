@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/anthropics/agentsmesh/runner/internal/safego"
+	"github.com/l8ai-cn/agentcloud/runner/internal/safego"
 )
 
 // daemonServer manages the IPC server and PTY I/O forwarding.
@@ -109,7 +109,7 @@ func (d *daemonServer) run() {
 //
 // Behavior:
 //   - Polls every 60 seconds (configurable via orphanCheckInterval for tests,
-//     or _AGENTSMESH_ORPHAN_CHECK_INTERVAL_SEC env var).
+//     or _AGENTCLOUD_ORPHAN_CHECK_INTERVAL_SEC env var).
 //   - On detection: closes orphanCh → run() triggers GracefulStop on child
 //     process, waits 5s, then kills if needed.
 //   - Stops automatically when the child process exits (exitDone).

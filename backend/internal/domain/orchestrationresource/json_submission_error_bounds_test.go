@@ -11,7 +11,7 @@ func TestDecodeJSONSubmissionBoundsGenerationOverflowError(t *testing.T) {
 	const tailMarker = "271828182845904523536"
 	number := strings.Repeat("9", 50_000) + tailMarker
 	source := []byte(`{
-		"apiVersion":"agentsmesh.io/v1alpha1",
+		"apiVersion":"agentcloud.io/v1alpha1",
 		"kind":"WorkerTemplate",
 		"metadata":{
 			"name":"worker-one",

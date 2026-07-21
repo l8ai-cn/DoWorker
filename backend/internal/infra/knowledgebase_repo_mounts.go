@@ -3,7 +3,7 @@ package infra
 import (
 	"context"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/knowledgebase"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/knowledgebase"
 )
 
 func (r *knowledgeBaseRepo) ReplaceAgentMounts(ctx context.Context, orgID, kbID int64, mounts []*knowledgebase.AgentMount) error {

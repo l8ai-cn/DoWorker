@@ -1,4 +1,4 @@
-use agentsmesh_types::proto_pod_v1::Pod;
+use agentcloud_types::proto_pod_v1::Pod;
 
 use crate::pod_query_snapshots::PodQuerySnapshots;
 

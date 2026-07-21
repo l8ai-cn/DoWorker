@@ -5,7 +5,7 @@ import (
 
 	"connectrpc.com/connect"
 
-	grantsvc "github.com/anthropics/agentsmesh/backend/internal/service/grant"
+	grantsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/grant"
 )
 
 // mapGrantError translates grant-service sentinels to Connect codes

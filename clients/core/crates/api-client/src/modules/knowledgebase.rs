@@ -4,7 +4,7 @@
 use crate::connect_call::connect_call;
 use crate::error::ApiError;
 use crate::ApiClient;
-use agentsmesh_types::proto_knowledgebase_v1 as kb;
+use agentcloud_types::proto_knowledgebase_v1 as kb;
 
 const SVC: &str = "/proto.knowledgebase.v1.KnowledgeBaseService";
 

@@ -37,7 +37,7 @@ func writeOfficePreviewArtifact(
 	}
 	artifactHash := sha256.Sum256([]byte(artifactID))
 	relative := filepath.ToSlash(filepath.Join(
-		".do-worker",
+		".agent-cloud",
 		"workbench",
 		"previews",
 		fmt.Sprintf("%x-r%d.pdf", artifactHash[:12], revision),

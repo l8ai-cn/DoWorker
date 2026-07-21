@@ -16,13 +16,13 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	"github.com/anthropics/agentsmesh/backend/internal/config"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/user"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/database"
-	authsvc "github.com/anthropics/agentsmesh/backend/internal/service/auth"
-	"github.com/anthropics/agentsmesh/backend/pkg/protoconv"
-	adminv1 "github.com/anthropics/agentsmesh/proto/gen/go/admin/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/user"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/database"
+	authsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/auth"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/protoconv"
+	adminv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/admin/v1"
 )
 
 const (

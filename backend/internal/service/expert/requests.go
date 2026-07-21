@@ -3,7 +3,7 @@ package expert
 import (
 	"encoding/json"
 
-	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
+	expertdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/expert"
 )
 
 type CreateExpertRequest struct {

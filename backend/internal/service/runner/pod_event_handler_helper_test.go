@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/alicebob/miniredis/v2"
-	"github.com/anthropics/agentsmesh/backend/internal/infra"
-	agentpodSvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra"
+	agentpodSvc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )

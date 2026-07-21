@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use agentsmesh_api_client::ApiClient;
-use agentsmesh_services::ApiKeyService;
+use agentcloud_api_client::ApiClient;
+use agentcloud_services::ApiKeyService;
 use wasm_bindgen::prelude::*;
 
 // TS encodes the request via @bufbuild/protobuf .toBinary(), passes the

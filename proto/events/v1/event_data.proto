@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package proto.events.v1;
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/events/v1;eventsv1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/events/v1;eventsv1";
 
 // Typed payloads for the realtime EventsService stream. Each message is the
 // schema of Event.data_json for one event type (see events.proto for the

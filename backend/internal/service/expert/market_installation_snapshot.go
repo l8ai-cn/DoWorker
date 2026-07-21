@@ -3,10 +3,10 @@ package expert
 import (
 	"context"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/expertmarket"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/expertmarket"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 func (s *Service) prepareMarketInstallation(

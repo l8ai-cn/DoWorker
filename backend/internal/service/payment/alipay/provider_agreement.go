@@ -8,7 +8,7 @@ import (
 
 	"github.com/smartwalle/alipay/v3"
 
-	"github.com/anthropics/agentsmesh/backend/internal/service/payment/types"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/payment/types"
 )
 
 func (p *Provider) CreateAgreementSign(ctx context.Context, req *types.AgreementSignRequest) (*types.AgreementSignResponse, error) {

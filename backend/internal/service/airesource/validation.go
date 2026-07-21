@@ -5,8 +5,8 @@ import (
 	"errors"
 	"time"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
-	"github.com/anthropics/agentsmesh/backend/pkg/audit"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/audit"
 )
 
 func (s *Service) ValidateConnection(ctx context.Context, actor Actor, connectionID int64) error {

@@ -3,8 +3,8 @@ package invitation
 import (
 	"errors"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/invitation"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/email"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/invitation"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/email"
 )
 
 var (

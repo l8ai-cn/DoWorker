@@ -6,11 +6,11 @@ import (
 	"os"
 	"testing"
 
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
-	"github.com/anthropics/agentsmesh/runner/internal/client"
-	"github.com/anthropics/agentsmesh/runner/internal/config"
-	"github.com/anthropics/agentsmesh/runner/internal/poddaemon"
-	"github.com/anthropics/agentsmesh/runner/internal/updater"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
+	"github.com/l8ai-cn/agentcloud/runner/internal/client"
+	"github.com/l8ai-cn/agentcloud/runner/internal/config"
+	"github.com/l8ai-cn/agentcloud/runner/internal/poddaemon"
+	"github.com/l8ai-cn/agentcloud/runner/internal/updater"
 )
 
 // testReleaseDetector implements updater.ReleaseDetector for testing.

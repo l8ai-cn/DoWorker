@@ -1,32 +1,32 @@
 {
   "schema": "dosql.database-asset-inventory.v1",
-  "projectId": "agentsmesh",
+  "projectId": "agentcloud",
   "updatedAt": "2026-07-21",
   "assets": [
     {
-      "databaseAssetId": "db_agentsmesh_prod_postgres",
-      "projectId": "agentsmesh",
+      "databaseAssetId": "db_agentcloud_prod_postgres",
+      "projectId": "agentcloud",
       "environmentId": "prod",
       "engine": "postgresql",
       "logicalName": "postgres",
-      "displayName": "AgentsMesh Production PostgreSQL",
+      "displayName": "Agent Cloud Production PostgreSQL",
       "aliases": [
-        "agentsmesh postgres",
-        "agentsmesh pg",
+        "agentcloud postgres",
+        "agentcloud pg",
         "dowork postgres",
         "dowork pg",
         "线上 pg",
         "postgres",
         "prod postgres"
       ],
-      "namespace": "agentsmesh",
+      "namespace": "agentcloud",
       "serviceName": "postgres",
-      "host": "postgres.agentsmesh.svc.cluster.local",
+      "host": "postgres.agentcloud.svc.cluster.local",
       "port": 5432,
-      "databaseName": "agentsmesh",
+      "databaseName": "agentcloud",
       "versionText": "PostgreSQL 16.14",
       "serverVersionNum": "160014",
-      "connectionRef": "k8s://doops-oilan/oilan-node/agentsmesh/service/postgres:5432",
+      "connectionRef": "k8s://doops-oilan/oilan-node/agentcloud/service/postgres:5432",
       "version": {
         "current": 0,
         "label": "dosql_000000"
@@ -40,7 +40,7 @@
         "status": "verified-read-only",
         "verifiedAt": "2026-07-21T05:37:12.712Z",
         "operationId": "dbop-oilan-asset-verify-20260721-0540",
-        "session": "agentsmesh-pg-asset-verify-20260721-0540",
+        "session": "agentcloud-pg-asset-verify-20260721-0540",
         "evidenceRef": ".dosql/readonly-evidence/dbop-oilan-asset-verify-20260721-0540.json",
         "evidenceFingerprint": "sha256:fd68654b81eea51146ea8cac7efa17ec5467dbed290508053717f50518a56ab5",
         "gatewayAudit": {
@@ -56,7 +56,7 @@
         "dirty": false,
         "verifiedAt": "2026-07-21T12:47:40.613Z",
         "operationId": "dbop-oilan-migration-read-231-20260721",
-        "session": "agentsmesh-pg-migration-read-231-20260721",
+        "session": "agentcloud-pg-migration-read-231-20260721",
         "evidenceRef": ".dosql/readonly-evidence/dbop-oilan-migration-read-231-20260721.json",
         "evidenceFingerprint": "sha256:5b2579c87002f01be84a2ba3bd0440ed3c0c9e439290fd30d1f0142a8f56d0fe",
         "gatewayAudit": {

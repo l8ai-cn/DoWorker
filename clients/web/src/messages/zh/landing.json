@@ -53,7 +53,7 @@
     "paradigmShift": {
       "title": "试用 AI 很容易，",
       "titleHighlight": "规模化落地才是难题。",
-      "punchline": "Do Worker 把零散 Agent 变成可管理、可审计、可扩展的企业生产力。",
+      "punchline": "Agent Cloud 把零散 Agent 变成可管理、可审计、可扩展的企业生产力。",
       "before": {
         "label": "单点试用",
         "items": {
@@ -113,7 +113,7 @@
           "autonomy": "主动执行任务",
           "capabilities": "全栈开发",
           "environment": "完整终端访问",
-          "multiAgent": "Do Worker 支持",
+          "multiAgent": "Agent Cloud 支持",
           "selfHosted": "完全可控"
         }
       }
@@ -134,9 +134,9 @@
           "4": "任务结束后自动清理环境"
         }
       },
-      "agentsmesh": {
+      "agentcloud": {
         "title": "跨 Agent 协作进入统一控制面。",
-        "subtitle": "Do Worker",
+        "subtitle": "Agent Cloud",
         "description": "Agent 可以互相观察工作进展、通过频道共享上下文，并在权限约束下协同推进任务。团队负责人始终能看到谁在做什么、为什么这么做。",
         "highlights": {
           "0": "实时观察 Agent 终端和上下文",
@@ -246,7 +246,7 @@
       "title": "需要完整的",
       "titleHighlight": "自托管",
       "titleEnd": "部署？",
-      "description": "代码、数据、模型 Key 和 Agent 执行日志始终留在你的基础设施内。Do Worker 适合对安全、合规、网络隔离和审计有严格要求的组织。",
+      "description": "代码、数据、模型 Key 和 Agent 执行日志始终留在你的基础设施内。Agent Cloud 适合对安全、合规、网络隔离和审计有严格要求的组织。",
       "dockerCompose": "Docker Compose",
       "kubernetesHelm": "Kubernetes Helm（即将推出）",
       "airGappedSupport": "离线环境支持（即将推出）",
@@ -271,8 +271,8 @@
       "live": "实时",
       "initializingPod": "正在初始化 Pod...",
       "typeMessage": "输入消息...",
-      "connecting": "正在连接 Do Worker...",
-      "connected": "已连接到 Do Worker 服务器",
+      "connecting": "正在连接 Agent Cloud...",
+      "connected": "已连接到 Agent Cloud 服务器",
       "workspace": "工作区：/projects/e-commerce",
       "monitorPod": "监控 pod beta-dev 并协助协调身份验证实现",
       "bindingPod": "我将绑定到 pod beta-dev 进行观察和协调...",
@@ -328,26 +328,26 @@
         "runner": "集群",
         "agent": "智能体",
         "websocket": "WebSocket",
-        "agentsmeshCloud": "Do Worker 云"
+        "agentcloudCloud": "Agent Cloud 云"
       }
     },
     "demoVideo": {
       "title": "看看企业级 Agent 工作流",
       "titleHighlight": "如何落地",
       "description": "从任务分配到隔离执行，再到合并请求和审计记录，完整演示 Agent 如何进入研发流程。",
-      "iframeTitle": "Do Worker 产品演示",
+      "iframeTitle": "Agent Cloud 产品演示",
       "highlight1": "完整生命周期演示",
       "highlight2": "多 Agent 协作",
       "highlight3": "自主任务完成"
     },
     "footer": {
       "tagline": "供给 Agent，孵化 AI 原生组织。",
-      "copyright": "Do Worker. 保留所有权利。",
+      "copyright": "Agent Cloud. 保留所有权利。",
       "madeWith": "面向真实工作结果而造",
       "product": {
         "title": "产品",
         "agentpod": "Worker",
-        "agentsmesh": "协作频道",
+        "agentcloud": "协作频道",
         "tickets": "任务管理",
         "runners": "Runner 集群",
         "enterprise": "企业版"
@@ -378,7 +378,7 @@
     },
     "demo": {
       "title": "申请演示",
-      "subtitle": "了解 Do Worker 如何在你的基础设施内管理 Agent、任务和交付过程。",
+      "subtitle": "了解 Agent Cloud 如何在你的基础设施内管理 Agent、任务和交付过程。",
       "nameLabel": "姓名",
       "namePlaceholder": "张三",
       "emailLabel": "工作邮箱",
@@ -400,13 +400,13 @@
       "hero": {
         "badge": "最新版本",
         "title": "下载",
-        "titleHighlight": "Do Worker",
+        "titleHighlight": "Agent Cloud",
         "subtitle": "下载自托管集群，让 Agent、代码与数据始终留在你自己的基础设施上。",
         "releasedOn": "发布于 {date}",
         "viewReleaseNotes": "在 GitHub 查看发布说明"
       },
       "runner": {
-        "badge": "do-worker-runner CLI",
+        "badge": "agent-cloud-runner CLI",
         "title": "让 Agent 跑在你自己的基础设施上",
         "description": "集群是一个自托管守护进程，在隔离的终端 Pod 中执行 AI Agent 任务，你的代码永远不会离开你的机器。",
         "macLinux": "macOS · Linux",

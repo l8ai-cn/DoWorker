@@ -4,12 +4,12 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/rest/internal"
-	"github.com/anthropics/agentsmesh/backend/internal/api/rest/v1"
-	"github.com/anthropics/agentsmesh/backend/internal/api/rest/v1/webhooks"
-	"github.com/anthropics/agentsmesh/backend/internal/config"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/rest/internal"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/rest/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/rest/v1/webhooks"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/apierr"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
@@ -23,7 +23,7 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 	}
 
 	r := gin.New()
-	r.Use(otelgin.Middleware("do-worker-backend"))
+	r.Use(otelgin.Middleware("agent-cloud-backend"))
 	r.Use(gin.Logger())
 	r.Use(gin.CustomRecovery(func(c *gin.Context, recovered interface{}) {
 		slog.ErrorContext(c.Request.Context(), "Panic recovered in handler",

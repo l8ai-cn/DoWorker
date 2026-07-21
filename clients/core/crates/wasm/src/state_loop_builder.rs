@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use agentsmesh_state::app_state::AppState;
-use agentsmesh_types::proto_goalloop_v1 as lp;
+use agentcloud_state::app_state::AppState;
+use agentcloud_types::proto_goalloop_v1 as lp;
 use parking_lot::RwLock;
 use prost::Message;
 use wasm_bindgen::prelude::*;

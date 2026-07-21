@@ -13,8 +13,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/extension"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/storage"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/extension"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/storage"
 )
 
 // --- Mock Storage (for skill_packager tests) ---

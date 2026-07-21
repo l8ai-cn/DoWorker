@@ -4,7 +4,7 @@
 // so Runner eval reads them directly from the AgentFile.
 package resolve
 
-import "github.com/anthropics/agentsmesh/agentfile/parser"
+import "github.com/l8ai-cn/agentcloud/agentfile/parser"
 
 // ExtractConfigNames returns the set of CONFIG declaration names present in a Program.
 // Used to identify which CONFIG fields were explicitly set by a user's AgentFile Layer.

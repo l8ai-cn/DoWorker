@@ -10,12 +10,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
-	"github.com/anthropics/agentsmesh/runner/internal/fsutil"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
+	"github.com/l8ai-cn/agentcloud/runner/internal/fsutil"
 )
 
 func clearManagedKnowledgeCredentials(ctx context.Context, sandboxRoot string) error {
-	temporary, err := filepath.Glob(filepath.Join(sandboxRoot, ".agentsmesh-kb-key-*"))
+	temporary, err := filepath.Glob(filepath.Join(sandboxRoot, ".agentcloud-kb-key-*"))
 	if err != nil {
 		return fmt.Errorf("find temporary knowledge mount credentials: %w", err)
 	}

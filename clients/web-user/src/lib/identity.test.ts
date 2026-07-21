@@ -235,7 +235,7 @@ describe("getCurrentAuthorId", () => {
 
 describe("org slug backfill", () => {
   it("patches current_org_slug from /v1/me when session lacks it", async () => {
-    const sessionKey = "do-worker-auth/http_localhost_10000/session";
+    const sessionKey = "agent-cloud-auth/http_localhost_10000/session";
     localStorage.setItem(
       sessionKey,
       JSON.stringify({ access_token: "tok", expires_at: Math.floor(Date.now() / 1000) + 3600 }),
@@ -250,7 +250,7 @@ describe("org slug backfill", () => {
   });
 
   it("replaces stored org when it is not in org_slugs", async () => {
-    const sessionKey = "do-worker-auth/http_localhost_10000/session";
+    const sessionKey = "agent-cloud-auth/http_localhost_10000/session";
     localStorage.setItem(
       sessionKey,
       JSON.stringify({

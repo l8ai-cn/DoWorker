@@ -1,5 +1,5 @@
-import { MessageRole } from "@do-worker/proto/agent_workbench/v2/session_state_pb";
-import type { PermissionRequest, PlanStep } from "@do-worker/proto/agent_workbench/v2/session_pb";
+import { MessageRole } from "@agent-cloud/proto/agent_workbench/v2/session_state_pb";
+import type { PermissionRequest, PlanStep } from "@agent-cloud/proto/agent_workbench/v2/session_pb";
 
 import type { AgentActivityItem, AgentPlanStep } from "../contracts";
 import {

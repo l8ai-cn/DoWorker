@@ -9,7 +9,7 @@ import (
 // ResolveLoginShellPATH resolves the user's effective PATH.
 //
 // Resolution order:
-//  1. AGENTSMESH_PATH env var — if set (e.g. captured at service install time),
+//  1. AGENTCLOUD_PATH env var — if set (e.g. captured at service install time),
 //     use it directly and skip the expensive login shell spawn.
 //  2. Platform-specific resolution (Unix: login shell spawn; Windows: current PATH).
 //  3. Fallback — current process PATH.
@@ -26,9 +26,9 @@ func ResolveLoginShellPATH() string {
 		slog.Info("envpath: using DO_WORKER_PATH from environment", "dirs", len(dirs))
 		return mergeWithCurrentPATH(envPath)
 	}
-	if envPath := os.Getenv("AGENTSMESH_PATH"); envPath != "" {
+	if envPath := os.Getenv("AGENTCLOUD_PATH"); envPath != "" {
 		dirs := strings.Split(envPath, string(os.PathListSeparator))
-		slog.Info("envpath: using AGENTSMESH_PATH from environment", "dirs", len(dirs))
+		slog.Info("envpath: using AGENTCLOUD_PATH from environment", "dirs", len(dirs))
 		return mergeWithCurrentPATH(envPath)
 	}
 

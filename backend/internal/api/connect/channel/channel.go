@@ -20,9 +20,9 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	channelservice "github.com/anthropics/agentsmesh/backend/internal/service/channel"
-	ticketservice "github.com/anthropics/agentsmesh/backend/internal/service/ticket"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	channelservice "github.com/l8ai-cn/agentcloud/backend/internal/service/channel"
+	ticketservice "github.com/l8ai-cn/agentcloud/backend/internal/service/ticket"
 )
 
 // ServiceName mirrors proto.channel.v1.ChannelService exactly — Connect

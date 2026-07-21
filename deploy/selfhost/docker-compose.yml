@@ -1,5 +1,5 @@
 # =============================================================================
-# AgentsMesh Self-Hosted Docker Compose
+# Agent Cloud Self-Hosted Docker Compose
 # =============================================================================
 #
 # Self-hosted deployment using Docker Hub images.
@@ -21,13 +21,13 @@ services:
     image: pgvector/pgvector:pg16
     restart: unless-stopped
     environment:
-      POSTGRES_USER: agentsmesh
+      POSTGRES_USER: agentcloud
       POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: agentsmesh
+      POSTGRES_DB: agentcloud
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U agentsmesh"]
+      test: ["CMD-SHELL", "pg_isready -U agentcloud"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -91,9 +91,9 @@ services:
       # Database
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_USER=agentsmesh
+      - DB_USER=agentcloud
       - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=agentsmesh
+      - DB_NAME=agentcloud
       - DB_SSLMODE=disable
       # Redis
       - REDIS_URL=redis://redis:6379
@@ -114,7 +114,7 @@ services:
       - STORAGE_ENDPOINT=minio:9000
       - STORAGE_PUBLIC_ENDPOINT=${SERVER_HOST}:${MINIO_API_PORT:-9000}
       - STORAGE_REGION=us-east-1
-      - STORAGE_BUCKET=agentsmesh
+      - STORAGE_BUCKET=agentcloud
       - STORAGE_ACCESS_KEY=minioadmin
       - STORAGE_SECRET_KEY=${MINIO_ROOT_PASSWORD}
       - STORAGE_USE_SSL=false

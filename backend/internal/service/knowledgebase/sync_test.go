@@ -13,9 +13,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/knowledgebase"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/gitea"
-	"github.com/anthropics/agentsmesh/backend/internal/service/knowledgebase/connector"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/knowledgebase"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/gitea"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/knowledgebase/connector"
 )
 
 type fakeConnector struct {

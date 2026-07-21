@@ -4,8 +4,8 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/admin"
-	adminservice "github.com/anthropics/agentsmesh/backend/internal/service/admin"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/admin"
+	adminservice "github.com/l8ai-cn/agentcloud/backend/internal/service/admin"
 )
 
 // logAdminAction mirrors REST's admin.LogAdminAction for the Connect path.

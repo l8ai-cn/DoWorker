@@ -1,6 +1,6 @@
 package automation
 
-import podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+import podDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
 
 func init() {
 	register("codex-cli", codexAdapter{})

@@ -13,9 +13,9 @@ import (
 	"github.com/wechatpay-apiv3/wechatpay-go/services/payments/native"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 
-	"github.com/anthropics/agentsmesh/backend/internal/config"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/billing"
-	"github.com/anthropics/agentsmesh/backend/internal/service/payment/types"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/billing"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/payment/types"
 )
 
 type Provider struct {
@@ -72,7 +72,7 @@ func (p *Provider) CreateCheckoutSession(ctx context.Context, req *types.Checkou
 	prepayReq := native.PrepayRequest{
 		Appid:       core.String(p.appID),
 		Mchid:       core.String(p.mchID),
-		Description: core.String(fmt.Sprintf("Do Worker %s Subscription", req.BillingCycle)),
+		Description: core.String(fmt.Sprintf("Agent Cloud %s Subscription", req.BillingCycle)),
 		OutTradeNo:  core.String(req.IdempotencyKey),
 		NotifyUrl:   core.String(p.notifyURL),
 		Amount: &native.Amount{

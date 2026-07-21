@@ -6,8 +6,8 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	bindingv1 "github.com/anthropics/agentsmesh/proto/gen/go/binding/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	bindingv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/binding/v1"
 )
 
 // Mutating RPCs that change binding lifecycle state: RequestBinding,

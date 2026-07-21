@@ -19,7 +19,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/relay/internal/config"
+	"github.com/l8ai-cn/agentcloud/relay/internal/config"
 )
 
 func TestServer_Start_TLS_GetCertificate_WithBackendCert(t *testing.T) {

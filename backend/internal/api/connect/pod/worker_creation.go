@@ -7,12 +7,12 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
-	podv1 "github.com/anthropics/agentsmesh/proto/gen/go/pod/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	workercreation "github.com/l8ai-cn/agentcloud/backend/internal/service/workercreation"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
+	podv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/pod/v1"
 )
 
 func (s *Server) ListWorkerCreateOptions(

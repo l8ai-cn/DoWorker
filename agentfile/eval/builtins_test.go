@@ -66,7 +66,7 @@ func TestBuiltinPrint(t *testing.T) {
 
 func TestBuiltinMCPTransform_OpenCode(t *testing.T) {
 	servers := map[string]interface{}{
-		"agentsmesh": map[string]interface{}{
+		"agentcloud": map[string]interface{}{
 			"type": "http",
 			"url":  "http://localhost:19000/mcp",
 		},
@@ -74,7 +74,7 @@ func TestBuiltinMCPTransform_OpenCode(t *testing.T) {
 	result, err := builtinMCPTransform(servers, "opencode")
 	require.NoError(t, err)
 	m := result.(map[string]interface{})
-	srv := m["agentsmesh"].(map[string]interface{})
+	srv := m["agentcloud"].(map[string]interface{})
 	assert.Equal(t, true, srv["enabled"])
 	assert.Equal(t, "local", srv["type"])
 	assert.Equal(t, []interface{}{"npx", "-y", "mcp-remote", "http://localhost:19000/mcp"}, srv["command"])
@@ -83,7 +83,7 @@ func TestBuiltinMCPTransform_OpenCode(t *testing.T) {
 
 func TestBuiltinMCPTransform_Codex(t *testing.T) {
 	servers := map[string]interface{}{
-		"agentsmesh": map[string]interface{}{
+		"agentcloud": map[string]interface{}{
 			"type": "http",
 			"url":  "http://localhost:19000/mcp",
 		},
@@ -91,7 +91,7 @@ func TestBuiltinMCPTransform_Codex(t *testing.T) {
 	result, err := builtinMCPTransform(servers, "codex")
 	require.NoError(t, err)
 	m := result.(map[string]interface{})
-	srv := m["agentsmesh"].(map[string]interface{})
+	srv := m["agentcloud"].(map[string]interface{})
 	// Codex: no transformation, fields preserved as-is
 	assert.Equal(t, "http", srv["type"])
 	assert.Equal(t, "http://localhost:19000/mcp", srv["url"])
@@ -99,7 +99,7 @@ func TestBuiltinMCPTransform_Codex(t *testing.T) {
 
 func TestBuiltinCodexMCPTOML_HTTPAndStdio(t *testing.T) {
 	servers := map[string]interface{}{
-		"agentsmesh": map[string]interface{}{
+		"agentcloud": map[string]interface{}{
 			"type": "http",
 			"url":  "http://127.0.0.1:19000/mcp",
 			"headers": map[string]interface{}{
@@ -119,11 +119,11 @@ func TestBuiltinCodexMCPTOML_HTTPAndStdio(t *testing.T) {
 	require.NoError(t, err)
 	toml := result.(string)
 
-	assert.Contains(t, toml, "[mcp_servers.agentsmesh]")
+	assert.Contains(t, toml, "[mcp_servers.agentcloud]")
 	assert.Contains(t, toml, `type = "http"`)
 	assert.Contains(t, toml, `url = "http://127.0.0.1:19000/mcp"`)
-	assert.Contains(t, toml, "[mcp_servers.agentsmesh.http_headers]")
-	assert.NotContains(t, toml, "[mcp_servers.agentsmesh.headers]")
+	assert.Contains(t, toml, "[mcp_servers.agentcloud.http_headers]")
+	assert.NotContains(t, toml, "[mcp_servers.agentcloud.headers]")
 	assert.Contains(t, toml, `X-Pod-Key = "pod-1"`)
 	assert.Contains(t, toml, "[mcp_servers.node-server]")
 	assert.Contains(t, toml, `command = "node"`)

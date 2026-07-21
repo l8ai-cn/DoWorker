@@ -54,7 +54,7 @@ require_unshadowed_loopback_port() {
     done < <(lsof -nP -iTCP:"$http_port" -sTCP:LISTEN 2>/dev/null || true)
 
     if [[ -n "$occupier" ]]; then
-        error "127.0.0.1:$http_port 被 ${occupier} 占用，localhost 不会到达 Do Worker Traefik"
+        error "127.0.0.1:$http_port 被 ${occupier} 占用，localhost 不会到达 Agent Cloud Traefik"
         error "停止该进程或为当前 worktree 分配其他 HTTP_PORT 后再启动"
         return 1
     fi

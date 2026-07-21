@@ -3,7 +3,7 @@ package eval
 import (
 	"testing"
 
-	"github.com/anthropics/agentsmesh/agentfile/parser"
+	"github.com/l8ai-cn/agentcloud/agentfile/parser"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -131,14 +131,14 @@ for name, server in servers {
 
 	ctx := NewContext(map[string]interface{}{
 		"servers": map[string]interface{}{
-			"agentsmesh": map[string]interface{}{"url": "http://localhost:19000/mcp"},
+			"agentcloud": map[string]interface{}{"url": "http://localhost:19000/mcp"},
 		},
 	})
 	require.NoError(t, Eval(prog, ctx))
 
 	require.Len(t, ctx.Result.LaunchArgs, 2)
 	assert.Equal(t, "-c", ctx.Result.LaunchArgs[0])
-	assert.Equal(t, "agentsmesh=http://localhost:19000/mcp", ctx.Result.LaunchArgs[1])
+	assert.Equal(t, "agentcloud=http://localhost:19000/mcp", ctx.Result.LaunchArgs[1])
 }
 
 func TestEval_StringInterpolation(t *testing.T) {

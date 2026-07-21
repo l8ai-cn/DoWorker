@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	authpkg "github.com/anthropics/agentsmesh/backend/pkg/auth"
+	authpkg "github.com/l8ai-cn/agentcloud/backend/pkg/auth"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -21,8 +21,8 @@ func TestRegisterJWKSRoute(t *testing.T) {
 	manager, err := authpkg.NewAccessTokenManager(authpkg.AccessTokenConfig{
 		PublicKey: &privateKey.PublicKey,
 		KeyID:     "core-2026-07",
-		Issuer:    "agentsmesh",
-		Audiences: []string{"agentsmesh-api"},
+		Issuer:    "agentcloud",
+		Audiences: []string{"agentcloud-api"},
 		Duration:  time.Hour,
 	})
 	require.NoError(t, err)

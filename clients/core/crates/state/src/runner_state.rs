@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use agentsmesh_persistence::{RunnerRepo, StorageBackend};
-use agentsmesh_types::proto_runner_api_v1::Runner;
+use agentcloud_persistence::{RunnerRepo, StorageBackend};
+use agentcloud_types::proto_runner_api_v1::Runner;
 
 // Runner status comes off the proto wire as a string ("online" / "offline" /
 // "registering" etc.). State cache stores the wire string verbatim; callers

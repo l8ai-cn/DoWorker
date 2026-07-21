@@ -1,7 +1,7 @@
 import type {
   ToolExecution,
   ToolProgress,
-} from "@do-worker/proto/agent_workbench/v2/tool_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/tool_pb";
 
 import type { AgentTimelineItem, AgentToolResult } from "../contracts";
 import {

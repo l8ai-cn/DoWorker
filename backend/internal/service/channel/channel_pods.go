@@ -4,8 +4,8 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	channelDomain "github.com/anthropics/agentsmesh/backend/internal/domain/channel"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	channelDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/channel"
 )
 
 type PodCreatorResolver interface {

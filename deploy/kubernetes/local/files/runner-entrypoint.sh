@@ -13,7 +13,7 @@ SSL_DIR="${SSL_DIR:-/app/ssl}"
 AGENT_RUNTIME="${AGENT_RUNTIME:-e2e-echo}"
 DEFAULT_AGENT="${DEFAULT_AGENT:-${AGENT_RUNTIME}}"
 
-CONFIG_DIR="${HOME}/.agentsmesh"
+CONFIG_DIR="${HOME}/.agentcloud"
 CERTS_DIR="${CONFIG_DIR}/certs"
 CONFIG_FILE="${CONFIG_DIR}/config.yaml"
 
@@ -26,7 +26,7 @@ case "${AGENT_RUNTIME}" in
 esac
 
 echo "========================================"
-echo "  AgentsMesh Runner Entrypoint (Bazel)"
+echo "  Agent Cloud Runner Entrypoint (Bazel)"
 echo "========================================"
 echo "  Backend URL:    $BACKEND_URL"
 echo "  gRPC Endpoint:  $GRPC_ENDPOINT"
@@ -193,6 +193,6 @@ main() {
     init_ai_cli_configs
     create_config
     echo "启动 Runner..."
-    exec /usr/local/bin/agentsmesh-runner run
+    exec /usr/local/bin/agentcloud-runner run
 }
 main "$@"

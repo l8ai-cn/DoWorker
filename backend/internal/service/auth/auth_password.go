@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"strings"
 
-	domainUser "github.com/anthropics/agentsmesh/backend/internal/domain/user"
-	userService "github.com/anthropics/agentsmesh/backend/internal/service/user"
+	domainUser "github.com/l8ai-cn/agentcloud/backend/internal/domain/user"
+	userService "github.com/l8ai-cn/agentcloud/backend/internal/service/user"
 )
 
 func (s *Service) Login(ctx context.Context, identifier, password string) (*LoginResult, error) {

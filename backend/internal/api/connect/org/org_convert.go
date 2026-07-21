@@ -1,9 +1,9 @@
 package orgconnect
 
 import (
-	orgdomain "github.com/anthropics/agentsmesh/backend/internal/domain/organization"
-	"github.com/anthropics/agentsmesh/backend/pkg/protoconv"
-	orgv1 "github.com/anthropics/agentsmesh/proto/gen/go/org/v1"
+	orgdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/organization"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/protoconv"
+	orgv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/org/v1"
 )
 
 // toProtoOrganization converts the GORM-backed domain model into the

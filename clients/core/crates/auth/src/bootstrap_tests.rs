@@ -1,8 +1,8 @@
 #[cfg(test)]
 mod bootstrap_tests {
-    use agentsmesh_types::proto_auth_v1 as auth_proto;
-    use agentsmesh_types::proto_org_v1 as org_proto;
-    use agentsmesh_types::proto_user_v1 as user_proto;
+    use agentcloud_types::proto_auth_v1 as auth_proto;
+    use agentcloud_types::proto_org_v1 as org_proto;
+    use agentcloud_types::proto_user_v1 as user_proto;
     use prost::Message;
     use wiremock::matchers::{method, path};
     use wiremock::{Mock, MockServer, ResponseTemplate};
@@ -176,22 +176,6 @@ mod bootstrap_tests {
         }
         assert!(storage.get(&key).is_none());
     }
-
-    #[tokio::test]
-    async fn legacy_key_alone_is_purged() {
-        let storage = InMemoryStorage::new();
-        storage.set("agentsmesh-auth", r#"{"token":"old"}"#);
-        let manager = AuthManager::new("http://localhost".into(), storage.clone());
-
-        match manager.bootstrap().await {
-            BootstrapResult::AnonymousAfterCleanup { reason } => {
-                assert_eq!(reason, BootstrapCleanupReason::LegacyDataPurged);
-            }
-            other => panic!("expected cleanup, got {other:?}"),
-        }
-        assert!(storage.get("agentsmesh-auth").is_none());
-    }
-
     #[tokio::test]
     async fn expired_token_refreshes_and_continues() {
         let server = MockServer::start().await;

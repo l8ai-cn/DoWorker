@@ -19,7 +19,7 @@
   },
   "runtime": {
     "catalog_image_id": 6,
-    "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-aider:latest",
+    "image_reference": "agentcloud-codex-loop-blockly-mvp-runner-aider:latest",
     "image_digest": "sha256:c886a5d43f246cdf5aecd159106081e400d4f1c741acbe26788e4d5b4503b5a6",
     "version_probe": "docker run --rm --entrypoint aider <image> --version",
     "version": "0.86.2"

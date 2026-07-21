@@ -17,7 +17,7 @@ export class DbFixture {
    */
   exec(sql: string): string {
     const escaped = sql.replace(/'/g, "'\\''");
-    const cmd = `docker exec ${this.container} psql -U agentsmesh -d agentsmesh -t -A -c '${escaped}'`;
+    const cmd = `docker exec ${this.container} psql -U agentcloud -d agentcloud -t -A -c '${escaped}'`;
     return execSync(cmd, { encoding: "utf-8", timeout: 10_000 }).trim();
   }
 

@@ -3,7 +3,7 @@ package workflow
 import (
 	"context"
 
-	workflowDomain "github.com/anthropics/agentsmesh/backend/internal/domain/workflow"
+	workflowDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workflow"
 )
 
 func (o *WorkflowOrchestrator) applyRunCompletionEffects(

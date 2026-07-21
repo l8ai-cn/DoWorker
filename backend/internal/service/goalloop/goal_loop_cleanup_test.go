@@ -8,8 +8,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/goalloop"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/goalloop"
 )
 
 func TestExpireTimedOutRetriesPendingCleanupBeforeApplyingTimeoutPolicy(t *testing.T) {

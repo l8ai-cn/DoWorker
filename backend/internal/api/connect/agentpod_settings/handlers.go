@@ -6,9 +6,9 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	podv1 "github.com/anthropics/agentsmesh/proto/gen/go/pod/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
+	podv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/pod/v1"
 )
 
 // requireUserID is the user-scoped equivalent of interceptors.ResolveOrgScope.

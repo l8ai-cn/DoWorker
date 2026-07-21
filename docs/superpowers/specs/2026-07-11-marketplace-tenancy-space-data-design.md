@@ -9,7 +9,7 @@
 - slug 满足 `slugkit` 规则，长度 2-100，创建后不可修改。
 - `platform_user_id`、`platform_organization_id` 是外部引用，不建跨库外键。
 - 所有市场内唯一索引包含 `marketplace_id`。
-- Marketplace API 独占写入，Do Worker Backend 不直接查询这些表。
+- Marketplace API 独占写入，Agent Cloud Backend 不直接查询这些表。
 
 ## 2. `marketplaces`
 

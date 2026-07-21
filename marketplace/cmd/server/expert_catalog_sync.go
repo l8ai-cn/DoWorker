@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	marketplacepostgres "github.com/anthropics/agentsmesh/marketplace/internal/infra/postgres"
+	marketplacepostgres "github.com/l8ai-cn/agentcloud/marketplace/internal/infra/postgres"
 )
 
 func runExpertCatalogSync(

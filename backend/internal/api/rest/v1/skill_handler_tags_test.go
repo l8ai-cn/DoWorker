@@ -11,9 +11,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	skillSvc "github.com/anthropics/agentsmesh/backend/internal/service/skill"
+	skilldom "github.com/l8ai-cn/agentcloud/backend/internal/domain/skill"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	skillSvc "github.com/l8ai-cn/agentcloud/backend/internal/service/skill"
 )
 
 type skillHandlerTagService struct {

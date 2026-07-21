@@ -2,18 +2,18 @@
   "schema_version": 1,
   "worker_slug": "hermes",
   "validated_at": "2026-07-16T04:06:45+08:00",
-  "image": "do-worker/runner-hermes:latest",
+  "image": "agent-cloud/runner-hermes:latest",
   "image_id": "sha256:34412fd7a175c695b141e42f5250487b98cdc755b18ea16de4c93a06e29efd78",
   "platform": "linux/amd64",
   "build_command": "FORCE_REBUILD=1 BUILD_RETRIES=1 bash docker/agent-runtime/build.sh hermes",
-  "smoke_command": "docker run --rm --platform linux/amd64 --network none --entrypoint sh do-worker/runner-hermes:latest -lc '<python/sqlite/hermes/runner checks>'",
+  "smoke_command": "docker run --rm --platform linux/amd64 --network none --entrypoint sh agent-cloud/runner-hermes:latest -lc '<python/sqlite/hermes/runner checks>'",
   "checks": {
     "container_user": "runner",
     "python_version": "Python 3.11.15",
     "sqlite_version": "3.40.1",
     "cli_path": "/usr/local/bin/hermes",
     "cli_version": "Hermes Agent v0.18.2 (2026.7.7.2)",
-    "runner_version_command": "Do Worker Runner dev (built unknown)"
+    "runner_version_command": "Agent Cloud Runner dev (built unknown)"
   },
   "verdict": "runtime_smoke_verified",
   "limits": [

@@ -3,7 +3,7 @@
 | 属性 | 值 |
 |------|-----|
 | **状态** | Draft |
-| **作者** | Do Worker Team |
+| **作者** | Agent Cloud Team |
 | **创建日期** | 2026-01-16 |
 | **角色** | 开发者 / 架构师 |
 
@@ -66,7 +66,7 @@
 
 | 条件 | 说明 |
 |------|------|
-| 用户已登录 | 拥有有效的 Do Worker 账户 |
+| 用户已登录 | 拥有有效的 Agent Cloud 账户 |
 | Runner 资源充足 | 有足够的 Runner 支撑多 Pod 运行 |
 | Channel 已创建 | 多 Pod 协作需要在 Channel 中进行 |
 | Agent 配置就绪 | Supervisor 和 Worker 使用的 Agent 已配置 |
@@ -173,7 +173,7 @@ channel:
 
 #### Step 3: Supervisor 委托创建 Worker Pod
 
-1. Supervisor 调用 Do Worker API 创建 Worker Pod
+1. Supervisor 调用 Agent Cloud API 创建 Worker Pod
 2. 系统分配 Runner 并启动 Worker
 3. Supervisor 向 Worker 发送任务指令
 
@@ -449,12 +449,12 @@ Worker 贡献:
 
 ### 7.2 MCP 工具集成
 
-Supervisor Pod 通过 MCP (Model Context Protocol) 调用 Do Worker 能力：
+Supervisor Pod 通过 MCP (Model Context Protocol) 调用 Agent Cloud 能力：
 
 ```typescript
 // MCP 工具定义
 {
-  name: "agentsmesh_create_worker",
+  name: "agentcloud_create_worker",
   description: "创建一个 Worker Pod 来执行子任务",
   parameters: {
     task_title: string,
@@ -466,7 +466,7 @@ Supervisor Pod 通过 MCP (Model Context Protocol) 调用 Do Worker 能力：
 }
 
 {
-  name: "agentsmesh_send_instruction",
+  name: "agentcloud_send_instruction",
   description: "向 Worker Pod 发送指令",
   parameters: {
     worker_pod_id: string,
@@ -476,7 +476,7 @@ Supervisor Pod 通过 MCP (Model Context Protocol) 调用 Do Worker 能力：
 }
 
 {
-  name: "agentsmesh_get_worker_status",
+  name: "agentcloud_get_worker_status",
   description: "获取 Worker Pod 的当前状态和进度",
   parameters: {
     worker_pod_id: string

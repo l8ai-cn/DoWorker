@@ -115,7 +115,7 @@ This is the pattern to generalize. It owns a `*gitea.Client` directly.
   to converge toward.
 
 **Repo naming convention already in use:** `org<ID>-<slug>` inside a single shared
-namespace org (default `am-kb`). KB slugs are unique per Do Worker org; the org
+namespace org (default `am-kb`). KB slugs are unique per Agent Cloud org; the org
 prefix disambiguates across orgs in one namespace.
 
 ### 2.3 Expert service (currently pure-DB) — `backend/internal/service/expert/`

@@ -247,7 +247,7 @@ function notify(
     body,
     // Tag by id so a later update for the same session replaces its
     // toast instead of stacking duplicates.
-    tag: `do-worker:session:${conversation.id}`,
+    tag: `agent-cloud:session:${conversation.id}`,
     // Browser path: run navigation directly on click. Desktop shell path:
     // `navigatePath` is forwarded over IPC and routed on click instead, since
     // this closure can't cross the process boundary.

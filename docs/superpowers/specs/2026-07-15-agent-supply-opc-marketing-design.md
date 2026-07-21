@@ -2,7 +2,7 @@
 
 ## Product Definition
 
-Do Worker is an enterprise Agent supply and AI-native organization incubation platform. It turns models, skills, knowledge, tools, prompts, and execution environments into governable Agents that can be discovered, installed, operated, and improved across an organization.
+Agent Cloud is an enterprise Agent supply and AI-native organization incubation platform. It turns models, skills, knowledge, tools, prompts, and execution environments into governable Agents that can be discovered, installed, operated, and improved across an organization.
 
 The platform supports two connected loops:
 
@@ -86,7 +86,7 @@ Retain the existing neutral dark, teal-accented product system and current light
 
 ## Acceptance Scenarios
 
-1. Given a new visitor, when the homepage loads, then the first viewport identifies Do Worker as an Agent supply and AI-native organization incubation platform.
+1. Given a new visitor, when the homepage loads, then the first viewport identifies Agent Cloud as an Agent supply and AI-native organization incubation platform.
 2. Given an enterprise platform owner, when they open Solutions, then Enterprise Agent Supply is immediately visible with a concrete supply lifecycle and outcome.
 3. Given an OPC founder, when they open Solutions, then they can understand how supplied Agents become an AI operating team.
 4. Given a university visitor, when they open Solutions, then Higher-Education Digital Employees is visible as a first-class solution without redefining the whole platform.

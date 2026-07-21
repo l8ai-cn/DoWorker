@@ -3,9 +3,9 @@ package v1
 import (
 	"context"
 
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	workerplanner "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationworker"
+	podDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	control "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
+	workerplanner "github.com/l8ai-cn/agentcloud/backend/internal/service/orchestrationworker"
 )
 
 type QuickTaskRequest struct {

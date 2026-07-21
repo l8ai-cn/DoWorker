@@ -23,7 +23,7 @@ syntax = "proto3";
 
 package proto.channel_state.v1;
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/channel_state/v1;channelstatev1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/channel_state/v1;channelstatev1";
 
 // ---------------------------------------------------------------------------
 // Channel — UI-ready channel record. Mirrors proto.channel.v1.Channel and

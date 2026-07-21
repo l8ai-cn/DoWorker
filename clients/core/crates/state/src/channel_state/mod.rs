@@ -25,8 +25,8 @@ mod wire_convert;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use agentsmesh_persistence::{ChannelRepo, MessageRepo, StorageBackend};
-use agentsmesh_types::proto_pod_v1::Pod;
+use agentcloud_persistence::{ChannelRepo, MessageRepo, StorageBackend};
+use agentcloud_types::proto_pod_v1::Pod;
 
 use crate::channel_types::{Channel, ChannelMember, ChannelMessage, User};
 

@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/extension"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	envbundleservice "github.com/anthropics/agentsmesh/backend/internal/service/envbundle"
-	extensionservice "github.com/anthropics/agentsmesh/backend/internal/service/extension"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/extension"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	envbundleservice "github.com/l8ai-cn/agentcloud/backend/internal/service/envbundle"
+	extensionservice "github.com/l8ai-cn/agentcloud/backend/internal/service/extension"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 )
 
 // ExtensionProvider provides installed extension capabilities for a repository

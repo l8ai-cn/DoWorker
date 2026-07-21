@@ -3,7 +3,7 @@ package workbench
 import (
 	"time"
 
-	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
+	agentworkbenchv2 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2"
 )
 
 type ArtifactDescriptor = agentworkbenchv2.ArtifactDescriptor
@@ -61,7 +61,7 @@ func artifactDescriptor(
 		Status:     status,
 		ByteSize:   &file.byteSize,
 		Provenance: &agentworkbenchv2.ArtifactProvenance{
-			ProducerNamespace: stringPointer("agentsmesh.runner"),
+			ProducerNamespace: stringPointer("agentcloud.runner"),
 			ProducerType:      stringPointer("workspace.scan"),
 			CreatedAt:         &now,
 		},

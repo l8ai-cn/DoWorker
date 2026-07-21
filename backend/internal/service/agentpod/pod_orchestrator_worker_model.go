@@ -6,11 +6,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/agentfile"
-	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
-	resourceDomain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	resourcesvc "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
+	"github.com/l8ai-cn/agentcloud/agentfile"
+	agentDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agent"
+	resourceDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	resourcesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
 )
 
 const workerModelBundleName = "worker-model"

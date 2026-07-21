@@ -1,5 +1,5 @@
 use crate::{connect_call, ApiClient, ApiError};
-use agentsmesh_types::proto_execution_cluster_v1 as cluster;
+use agentcloud_types::proto_execution_cluster_v1 as cluster;
 
 impl ApiClient {
     pub async fn list_execution_clusters_connect(

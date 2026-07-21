@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
-	service "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
-	"github.com/anthropics/agentsmesh/backend/pkg/audit"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
+	service "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/audit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

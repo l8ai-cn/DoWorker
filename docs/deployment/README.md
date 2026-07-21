@@ -1,8 +1,8 @@
-# Do Worker Deployment Guide
+# Agent Cloud Deployment Guide
 
 ## Overview
 
-Do Worker can be deployed using Docker Compose for development/staging or Kubernetes for production environments.
+Agent Cloud can be deployed using Docker Compose for development/staging or Kubernetes for production environments.
 
 ## Prerequisites
 
@@ -17,8 +17,8 @@ Do Worker can be deployed using Docker Compose for development/staging or Kubern
 
 ```bash
 # Clone the repository
-git clone https://github.com/l8ai-cn/DoWorker.git
-cd agentsmesh
+git clone https://github.com/l8ai-cn/AgentCloud.git
+cd agentcloud
 
 # Copy environment file
 cp .env.example .env
@@ -60,12 +60,12 @@ kubectl apply -k deploy/kubernetes/overlays/production
 
 ```bash
 # Add Helm repository
-helm repo add agentsmesh https://charts.agentsmesh.io
+helm repo add agentcloud https://charts.agentcloud.io
 helm repo update
 
 # Install
-helm install agentsmesh agentsmesh/agentsmesh \
-  --namespace agentsmesh \
+helm install agentcloud agentcloud/agentcloud \
+  --namespace agentcloud \
   --create-namespace \
   -f values.yaml
 ```
@@ -125,7 +125,7 @@ the application migration before applying `000198_ai_resource_cutover`.
 Use the same credential encryption key as the backend and an existing user ID:
 
 ```bash
-export DATABASE_URL='postgres://user:password@host:5432/agentsmesh?sslmode=require'
+export DATABASE_URL='postgres://user:password@host:5432/agentcloud?sslmode=require'
 export AI_RESOURCE_MIGRATION_CIPHER_KEY="$JWT_SECRET"
 export AI_RESOURCE_MIGRATION_CREATED_BY='<existing-users.id>'
 
@@ -133,7 +133,7 @@ go run ./backend/cmd/migrate-ai-resources --apply
 go run ./backend/cmd/migrate-ai-resources
 
 # Apply 000198 only after the check command exits 0.
-./agentsmesh-backend migrate up
+./agentcloud-backend migrate up
 ```
 
 The command exits non-zero on unmigrated rows, owner or field drift,
@@ -221,10 +221,10 @@ LOG_LEVEL=info  # debug, info, warn, error
 
 ```bash
 # Create backup
-pg_dump -h localhost -U agentsmesh agentsmesh > backup.sql
+pg_dump -h localhost -U agentcloud agentcloud > backup.sql
 
 # Restore backup
-psql -h localhost -U agentsmesh agentsmesh < backup.sql
+psql -h localhost -U agentcloud agentcloud < backup.sql
 ```
 
 ### Redis Backup
@@ -255,7 +255,7 @@ Use Kubernetes Secrets or external secret management (Vault, AWS Secrets Manager
 
 ```bash
 # Create secrets
-kubectl create secret generic agentsmesh-secrets \
+kubectl create secret generic agentcloud-secrets \
   --from-literal=jwt-secret=<secret> \
   --from-literal=database-url=<url>
 ```
@@ -295,5 +295,5 @@ LOG_LEVEL=debug
 docker compose logs -f backend
 
 # Kubernetes
-kubectl logs -f deployment/backend -n agentsmesh
+kubectl logs -f deployment/backend -n agentcloud
 ```

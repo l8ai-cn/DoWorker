@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/channel"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/channel"
 	"github.com/yuin/goldmark/ast"
 	east "github.com/yuin/goldmark/extension/ast"
 )

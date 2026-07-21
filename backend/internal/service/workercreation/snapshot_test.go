@@ -4,12 +4,12 @@ import (
 	"context"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workerdependency"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
 )
 
 func TestPrepareSnapshotCompilesThePersistedSpec(t *testing.T) {

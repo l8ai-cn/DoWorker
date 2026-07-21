@@ -6,8 +6,8 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	billingsvc "github.com/anthropics/agentsmesh/backend/internal/service/billing"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	billingsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/billing"
 )
 
 // requireOwner gates write operations that REST scopes to org owner only —

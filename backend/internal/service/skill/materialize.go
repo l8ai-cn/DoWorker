@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/backend/internal/service/gitops"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/gitops"
 )
 
 // materializeRepo writes an am-skills repo tree into a fresh temp dir so the

@@ -33,10 +33,10 @@ test.describe("Org Service — Connect path (proto-migration)", () => {
     // by org creation, so any working list path renders them.
     await expect(membersPage.inviteButton).toBeVisible();
 
-    // The fixture user dev@agentsmesh.local must show up — proves the
+    // The fixture user dev@agentcloud.local must show up — proves the
     // Connect path delivered the {items: [...]} envelope (vs an empty
     // list silently dropped in the wasm bridge).
-    await expect(page.getByText(/dev@agentsmesh\.local/i)).toBeVisible();
+    await expect(page.getByText(/dev@agentcloud\.local/i)).toBeVisible();
   });
 
   test("onboarding list-my-orgs via Connect (auth flow lands on dashboard)", async ({

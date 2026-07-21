@@ -3,7 +3,7 @@ package infra
 import (
 	"context"
 
-	"github.com/anthropics/agentsmesh/backend/internal/service/instance"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/instance"
 	"gorm.io/gorm"
 )
 

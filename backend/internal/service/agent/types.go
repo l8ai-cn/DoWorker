@@ -3,7 +3,7 @@ package agent
 import (
 	"context"
 
-	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
+	agentDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agent"
 )
 
 // AgentProvider is the minimal lookup interface depended on by services that

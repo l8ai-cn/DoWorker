@@ -5,7 +5,7 @@ import {
   writePanelSizePreference,
 } from "./panelSizePreferences";
 
-const STORAGE_KEY = "do-worker:panel-size-preferences";
+const STORAGE_KEY = "agent-cloud:panel-size-preferences";
 
 afterEach(() => {
   localStorage.clear();

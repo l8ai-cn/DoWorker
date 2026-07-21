@@ -10,10 +10,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	relaysvc "github.com/anthropics/agentsmesh/backend/internal/service/relay"
-	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
-	"github.com/anthropics/agentsmesh/backend/pkg/policy"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	relaysvc "github.com/l8ai-cn/agentcloud/backend/internal/service/relay"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/apierr"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/policy"
 )
 
 const previewBootstrapTTL = 5 * time.Minute

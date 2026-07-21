@@ -6,7 +6,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentsession"
 )
 
 var attachmentMarkerLineRE = regexp.MustCompile(`(?m)^\[(?:Attached(?: file)?):[^\]]*\]\s*$`)

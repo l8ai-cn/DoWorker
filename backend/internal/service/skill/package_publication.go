@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
-	extensionsvc "github.com/anthropics/agentsmesh/backend/internal/service/extension"
+	skilldom "github.com/l8ai-cn/agentcloud/backend/internal/domain/skill"
+	extensionsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/extension"
 )
 
 type packagePersist func(

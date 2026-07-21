@@ -8,7 +8,7 @@ import ReactMarkdown, {
   type UrlTransform,
 } from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { markdownImageSource } from "@do-worker/agent-ui";
+import { markdownImageSource } from "@agent-cloud/agent-ui";
 import { cn } from "@/lib/utils";
 import { LightboxImage } from "@/components/media/MediaLightbox";
 import { HtmlPreviewCard } from "@/components/media/HtmlPreviewCard";

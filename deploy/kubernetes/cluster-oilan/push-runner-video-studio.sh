@@ -6,7 +6,7 @@ publish_video_runtime_metadata() {
   observed_at="$(git -C "${REPO_ROOT}" show -s --format=%cI "${RELEASE_SOURCE_COMMIT}")"
   docker run --rm --pull=never --platform "${PLATFORM:-linux/amd64}" \
     -v "${REPO_ROOT}/docker/agent-runtime/video_contract_test.sh:/tmp/video_contract_test.sh:ro" \
-    --entrypoint bash do-worker/runner-video-studio:latest \
+    --entrypoint bash agent-cloud/runner-video-studio:latest \
     /tmp/video_contract_test.sh
   RUNTIME_OBSERVED_AT="${observed_at}" \
     node "${REPO_ROOT}/deploy/kubernetes/cluster-oilan/update-video-runtime-digest.mjs" \

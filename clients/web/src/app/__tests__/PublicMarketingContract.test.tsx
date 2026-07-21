@@ -57,11 +57,11 @@ describe("public marketing contract", () => {
       "/marketplace",
       "/docs",
     ]) {
-      expect(urls).toContain(`https://agentsmesh.ai${path}`);
+      expect(urls).toContain(`https://agentcloud.ai${path}`);
     }
 
-    expect(urls).not.toContain("https://agentsmesh.ai/how-it-works");
-    expect(urls).not.toContain("https://agentsmesh.ai/capabilities");
+    expect(urls).not.toContain("https://agentcloud.ai/how-it-works");
+    expect(urls).not.toContain("https://agentcloud.ai/capabilities");
   });
 
   it("keeps the enterprise page focused on capabilities without pricing copy", () => {
@@ -93,7 +93,7 @@ describe("public marketing contract", () => {
       title: "Agent Market",
       alternates: { canonical: "https://market.l8ai.cn" },
       openGraph: {
-        title: "Agent Market | Do Worker",
+        title: "Agent Market | Agent Cloud",
         url: "https://market.l8ai.cn",
       },
     });

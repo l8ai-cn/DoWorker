@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/expertmarket"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/expertmarket"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
 )
 
 func (s *Service) validateMarketReleaseRuntimeContract(

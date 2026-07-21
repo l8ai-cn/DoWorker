@@ -4,8 +4,8 @@ import (
 	"errors"
 	"strconv"
 
-	coordinatordom "github.com/anthropics/agentsmesh/backend/internal/domain/coordinator"
-	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
+	coordinatordom "github.com/l8ai-cn/agentcloud/backend/internal/domain/coordinator"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/apierr"
 	"github.com/gin-gonic/gin"
 )
 

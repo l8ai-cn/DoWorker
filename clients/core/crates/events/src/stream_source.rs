@@ -9,8 +9,8 @@ use std::future::Future;
 use std::pin::Pin;
 use std::sync::Arc;
 
-use agentsmesh_api_client::{ApiClient, ApiError};
-use agentsmesh_types::proto_events_v1::{Event as ProtoEvent, SubscribeRequest};
+use agentcloud_api_client::{ApiClient, ApiError};
+use agentcloud_types::proto_events_v1::{Event as ProtoEvent, SubscribeRequest};
 use futures::stream::{Stream, StreamExt};
 use tracing::debug;
 

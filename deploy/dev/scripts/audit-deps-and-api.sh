@@ -15,7 +15,7 @@ POSTGRES_PORT="${POSTGRES_PORT:-10002}"
 REDIS_PORT="${REDIS_PORT:-10003}"
 MOBILE_PORT="${MOBILE_LOVABLE_PORT:-10021}"
 ORG="dev-org"
-USER="dev@agentsmesh.local"
+USER="dev@agentcloud.local"
 PASS="AdminAb123456"
 BASE="http://localhost:${HTTP_PORT}"
 
@@ -30,7 +30,7 @@ WARN=0
 
 section "1. 基础设施 (Docker)"
 for svc in postgres redis minio traefik; do
-  if docker ps --format '{{.Names}}' | grep -q "agentsmesh.*${svc}"; then
+  if docker ps --format '{{.Names}}' | grep -q "agentcloud.*${svc}"; then
     pass "docker: $svc"
   else
     fail "docker: $svc not running"
@@ -75,7 +75,7 @@ section "4. Runner 容器 (数据面 pod 执行)"
 CODEX_RUNNERS=$(docker ps --format '{{.Names}}' | grep -c 'runner-codex-cli' || true)
 [[ "$CODEX_RUNNERS" -ge 1 ]] && pass "$CODEX_RUNNERS codex-cli runner(s)" || fail "no codex-cli runner"
 
-ONLINE=$(docker exec agentsmesh-main-postgres-1 psql -U agentsmesh -d agentsmesh -tAc \
+ONLINE=$(docker exec agentcloud-main-postgres-1 psql -U agentcloud -d agentcloud -tAc \
   "SELECT count(*) FROM runners WHERE status='online' AND last_heartbeat > now()-interval '60 seconds'" 2>/dev/null | tr -d ' ' || echo 0)
 [[ "${ONLINE:-0}" -ge 1 ]] && pass "$ONLINE runner(s) gRPC online (DB heartbeat)" || fail "no runner gRPC heartbeat in last 60s"
 
@@ -137,9 +137,9 @@ if [[ -n "$TOKEN" ]]; then
 fi
 
 section "7. 双 Backend 检测"
-DOCKER_BACKEND=$(docker ps --format '{{.Names}}' | grep -c '^agentsmesh-backend-1$' || true)
+DOCKER_BACKEND=$(docker ps --format '{{.Names}}' | grep -c '^agentcloud-backend-1$' || true)
 if [[ "$DOCKER_BACKEND" -ge 1 ]]; then
-  warn "agentsmesh-backend-1 (docker) 仍在运行 — dev 模式应以 host :${BACKEND_PORT} 为 SSOT；docker backend 不参与 Traefik 路由但占资源"
+  warn "agentcloud-backend-1 (docker) 仍在运行 — dev 模式应以 host :${BACKEND_PORT} 为 SSOT；docker backend 不参与 Traefik 路由但占资源"
 fi
 
 section "8. OpenAI 凭据 (Codex 真实执行)"
@@ -150,7 +150,7 @@ for c in $(docker ps --format '{{.Names}}' | grep 'runner-codex-cli' | head -1);
     KEY_OK=1
   fi
 done
-BUNDLE=$(docker exec agentsmesh-main-postgres-1 psql -U agentsmesh -d agentsmesh -tAc \
+BUNDLE=$(docker exec agentcloud-main-postgres-1 psql -U agentcloud -d agentcloud -tAc \
   "SELECT id FROM ai_models WHERE organization_id=1 AND provider_type='openai' AND is_enabled=true LIMIT 1" 2>/dev/null | tr -d ' ')
 [[ -n "$BUNDLE" ]] && pass "openai model in ai_models pool (id=$BUNDLE)" \
   || fail "missing openai ai_models row — run backend once for dev seed or add model via API"

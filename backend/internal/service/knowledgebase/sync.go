@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/knowledgebase"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/gitea"
-	"github.com/anthropics/agentsmesh/backend/internal/service/knowledgebase/connector"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/knowledgebase"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/gitea"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/knowledgebase/connector"
 )
 
 // SyncFromConnector pulls the external source and commits changed docs under
@@ -63,7 +63,7 @@ func (s *Service) syncDocs(ctx context.Context, kb *knowledgebase.KnowledgeBase,
 	}
 
 	message := fmt.Sprintf("sync(%s): %d document(s)", conn.SourceType(), len(changes))
-	author := gitea.CommitAuthor{Name: "kb-sync", Email: "kb-sync@agentsmesh.local"}
+	author := gitea.CommitAuthor{Name: "kb-sync", Email: "kb-sync@agentcloud.local"}
 	if err := s.git.CommitFiles(ctx, repoName, kb.DefaultBranch, message, author, changes, isUpdate); err != nil {
 		return fmt.Errorf("commit: %w", err)
 	}

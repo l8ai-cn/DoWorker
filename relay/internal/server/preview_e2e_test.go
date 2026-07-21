@@ -12,10 +12,10 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	"github.com/anthropics/agentsmesh/relay/internal/auth"
-	"github.com/anthropics/agentsmesh/relay/internal/config"
-	"github.com/anthropics/agentsmesh/relay/internal/protocol/tunnelframe"
-	"github.com/anthropics/agentsmesh/relay/internal/tunnel"
+	"github.com/l8ai-cn/agentcloud/relay/internal/auth"
+	"github.com/l8ai-cn/agentcloud/relay/internal/config"
+	"github.com/l8ai-cn/agentcloud/relay/internal/protocol/tunnelframe"
+	"github.com/l8ai-cn/agentcloud/relay/internal/tunnel"
 )
 
 // fakeRunnerTunnel is a minimal in-memory stand-in for the runner-side tunnel

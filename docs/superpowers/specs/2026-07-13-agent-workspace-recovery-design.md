@@ -184,8 +184,8 @@ back into the document and grow the iframe indefinitely.
    This validates that the context is signed, unexpired, and still unredeemed,
    then returns only the exact parent origins and expiry.
 4. The frame removes the context from its URL, installs its message listener,
-   and sends `agentsmesh.embed.ready` only to those origins. The parent replies
-   with `agentsmesh.embed.open` carrying `redemptionProof`. Both
+   and sends `agentcloud.embed.ready` only to those origins. The parent replies
+   with `agentcloud.embed.open` carrying `redemptionProof`. Both
    `event.source` and exact origin must match.
 5. The frame calls `POST /v1/embed-contexts/redeem` with the context and proof.
    A Redis script compares the stored hash and deletes it in one operation.
@@ -208,7 +208,7 @@ normal auth middleware. The session token is never accepted outside
 | ---------------------- | ------------------------------------------------------- | ----------------------------------------- |
 | Shared React component | `<AgentWorkspace runtime={...} sessionId={...} />`      | Host-injected runtime                     |
 | Web workspace          | `AgentPanel`                                            | Rust AuthManager, Connect-RPC, Rust Relay |
-| Web User same-root     | exported `EmbeddedAgentWorkspace` or full `DoWorkerApp` | Host or Web User auth                     |
+| Web User same-root     | exported `EmbeddedAgentWorkspace` or full `AgentCloudApp` | Host or Web User auth                     |
 | Iframe                 | `/iframe.html?embed_context=...`                        | Context plus parent-held redemption proof |
 | Standalone Web User    | `/worker.html`                                          | Web User application session              |
 

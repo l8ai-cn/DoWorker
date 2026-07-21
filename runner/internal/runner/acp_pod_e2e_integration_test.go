@@ -9,10 +9,10 @@ import (
 	"testing"
 	"time"
 
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
-	"github.com/anthropics/agentsmesh/runner/internal/acp"
-	"github.com/anthropics/agentsmesh/runner/internal/client"
-	"github.com/anthropics/agentsmesh/runner/internal/config"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
+	"github.com/l8ai-cn/agentcloud/runner/internal/acp"
+	"github.com/l8ai-cn/agentcloud/runner/internal/client"
+	"github.com/l8ai-cn/agentcloud/runner/internal/config"
 )
 
 // TestACPPod_FullLifecycle_Integration builds an ACP pod via AgentFile,

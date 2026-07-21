@@ -3,9 +3,9 @@ package infra
 import (
 	"context"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
-	service "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
-	"github.com/anthropics/agentsmesh/backend/pkg/audit"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
+	service "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/audit"
 	"gorm.io/gorm"
 )
 

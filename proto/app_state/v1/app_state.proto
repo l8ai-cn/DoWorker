@@ -11,7 +11,7 @@ syntax = "proto3";
 
 package proto.app_state.v1;
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/app_state/v1;appstatev1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/app_state/v1;appstatev1";
 
 // Dispatch a serialised RealtimeEvent into the app-level fan-out router.
 // `event_json` is an opaque RealtimeEvent AST blob — Rust state decodes

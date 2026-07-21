@@ -3,7 +3,7 @@ package infra
 import (
 	"context"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/ticket"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/ticket"
 )
 
 func (r *ticketRepository) GetActiveTickets(ctx context.Context, orgID int64, repoID *int64, limit int) ([]*ticket.Ticket, error) {

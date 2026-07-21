@@ -15,7 +15,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/lifecycle_wasm.sh"
 print_banner() {
     echo ""
     echo "=========================================="
-    echo "  AgentsMesh 开发环境初始化"
+    echo "  Agent Cloud 开发环境初始化"
     echo "=========================================="
     echo ""
 }
@@ -103,7 +103,7 @@ docker_compose_up() {
 wait_for_postgres() {
     local pg_container="${COMPOSE_PROJECT_NAME}-postgres-1"
     info "等待 PostgreSQL 就绪..."
-    if ! wait_for_service "$pg_container" "pg_isready -U agentsmesh"; then
+    if ! wait_for_service "$pg_container" "pg_isready -U agentcloud"; then
         error "PostgreSQL 启动超时"
         exit 1
     fi
@@ -114,7 +114,7 @@ runner_compose_services() {
     echo runner-e2e-echo runner-e2e-echo-2 runner-claude-code runner-codex-cli runner-codex-cli-2 runner-cursor-cli runner-gemini-cli runner-loopal runner-do-agent runner-grok-build runner-minimax-cli runner-openclaw runner-hermes runner-aider runner-opencode runner-admin-workspace runner-admin-workspace-do-agent
 }
 
-# Kill stale runner CLI processes (in case anyone installed agentsmesh-runner
+# Kill stale runner CLI processes (in case anyone installed agentcloud-runner
 # from `cargo install` or similar), rebuild the binary, then restart every
 # agent-specific runner service so each image picks up runner-binary.
 reset_runners() {
@@ -128,11 +128,11 @@ reset_runners() {
     echo "=========================================="
     echo ""
 
-    if pgrep -f "agentsmesh-runner" &>/dev/null; then
-        info "停止本地 agentsmesh-runner 进程..."
-        pkill -f "agentsmesh-runner" 2>/dev/null || true
+    if pgrep -f "agentcloud-runner" &>/dev/null; then
+        info "停止本地 agentcloud-runner 进程..."
+        pkill -f "agentcloud-runner" 2>/dev/null || true
         sleep 1
-        pkill -9 -f "agentsmesh-runner" 2>/dev/null || true
+        pkill -9 -f "agentcloud-runner" 2>/dev/null || true
     fi
 
     build_runner_binary || return 1
@@ -158,8 +158,8 @@ reset_runners() {
             info "跳过 ${svc} (容器不存在 — 先运行 ./dev.sh 创建)"
             continue
         fi
-        docker cp "$SCRIPT_DIR/runner-binary" "${container}:/usr/local/bin/do-worker-runner"
-        docker exec "$container" ln -sf do-worker-runner /usr/local/bin/agentsmesh-runner 2>/dev/null || true
+        docker cp "$SCRIPT_DIR/runner-binary" "${container}:/usr/local/bin/agent-cloud-runner"
+        docker exec "$container" ln -sf agent-cloud-runner /usr/local/bin/agentcloud-runner 2>/dev/null || true
         case "$svc" in
             runner-e2e-echo*)
                 docker cp "$SCRIPT_DIR/e2e-mock-agent-binary" "${container}:/usr/local/bin/e2e-mock-agent"
@@ -217,7 +217,7 @@ clean() {
     teardown_runners_k8s
 
     if [[ -f "$ENV_FILE" ]]; then
-        info "清理 Docker 环境: ${COMPOSE_PROJECT_NAME:-agentsmesh}..."
+        info "清理 Docker 环境: ${COMPOSE_PROJECT_NAME:-agentcloud}..."
         cd "$SCRIPT_DIR"
         docker compose down -v --remove-orphans 2>/dev/null || true
         rm -f "$ENV_FILE"
@@ -232,7 +232,7 @@ show_result() {
 
     echo ""
     echo "=========================================="
-    echo "  AgentsMesh 开发环境已就绪!"
+    echo "  Agent Cloud 开发环境已就绪!"
     echo "=========================================="
     echo ""
     echo "  前端:       http://localhost:$WEB_PORT"
@@ -249,9 +249,9 @@ show_result() {
     echo "    relay    日志: tail -f deploy/dev/runtime/relay/relay.log"
     echo ""
     if runners_k8s_enabled; then
-        echo "  K8s runners (namespace agentsmesh):"
-        echo "    状态: kubectl get pods -n agentsmesh"
-        echo "    日志: kubectl logs -n agentsmesh -l app=runner-e2e-echo -f"
+        echo "  K8s runners (namespace agentcloud):"
+        echo "    状态: kubectl get pods -n agentcloud"
+        echo "    日志: kubectl logs -n agentcloud -l app=runner-e2e-echo -f"
         echo "    MCP:  localhost:${RUNNER_MCP_PORT:-10018} (dev-runner)"
     elif coordinator_runners_enabled; then
         echo "  Coordinator 平台托管 Runner (按需 docker compose up):"
@@ -263,8 +263,8 @@ show_result() {
     fi
     echo "    重 build: ./dev.sh --rebuild-runner"
     echo ""
-    echo "  测试账号:   dev@agentsmesh.local / AdminAb123456"
-    echo "  管理员:     admin@agentsmesh.local / Ab123456"
+    echo "  测试账号:   dev@agentcloud.local / AdminAb123456"
+    echo "  管理员:     admin@agentcloud.local / Ab123456"
     echo ""
     echo "  其他服务:"
     echo "    Gitea:    http://localhost:$GITEA_HTTP_PORT (gitea-admin / gitea-admin-123)"
@@ -379,7 +379,7 @@ start_frontend() {
     fi
 
     _install_root_deps_if_needed "前端依赖" "$web_dir/.next/cache" || return 1
-    _ensure_do_worker_wasm || return 1
+    _ensure_agent_cloud_wasm || return 1
 
     local log_file="$SCRIPT_DIR/web.log"
     local public_web_host

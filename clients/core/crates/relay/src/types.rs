@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use agentsmesh_protocol::MsgType;
+use agentcloud_protocol::MsgType;
 use futures::channel::mpsc;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

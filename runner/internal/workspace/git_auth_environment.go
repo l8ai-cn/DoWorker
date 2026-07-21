@@ -7,7 +7,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/runner/internal/envfilter"
+	"github.com/l8ai-cn/agentcloud/runner/internal/envfilter"
 )
 
 func (m *Manager) setGitAuthEnv(cmd *exec.Cmd, opts *WorktreeOptions) {

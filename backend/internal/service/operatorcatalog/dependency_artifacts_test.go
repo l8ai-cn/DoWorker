@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workerdependency"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 	"gorm.io/gorm"
 )
 

@@ -1,4 +1,4 @@
-use agentsmesh_types::proto_agent_workbench_v2 as v2;
+use agentcloud_types::proto_agent_workbench_v2 as v2;
 
 use crate::agent_workbench_artifacts::upsert_artifact;
 use crate::agent_workbench_receipts::upsert_receipt;

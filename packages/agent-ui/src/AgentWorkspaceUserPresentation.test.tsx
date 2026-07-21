@@ -31,7 +31,7 @@ describe("AgentWorkspace user presentation", () => {
       {
         id: "tool-1",
         identity: {
-          namespace: "agentsmesh.acp",
+          namespace: "agentcloud.acp",
           schemaVersion: "1",
           semanticKey: "shell",
         },

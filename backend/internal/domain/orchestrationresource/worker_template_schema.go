@@ -1,8 +1,8 @@
 package orchestrationresource
 
 import (
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 type WorkerTemplateSpec struct {

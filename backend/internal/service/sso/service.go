@@ -7,10 +7,10 @@ import (
 	"log/slog"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/backend/internal/config"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/sso"
-	ssoprovider "github.com/anthropics/agentsmesh/backend/pkg/auth/sso"
-	"github.com/anthropics/agentsmesh/backend/pkg/crypto"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/sso"
+	ssoprovider "github.com/l8ai-cn/agentcloud/backend/pkg/auth/sso"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/crypto"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )

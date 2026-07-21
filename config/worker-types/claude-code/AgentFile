@@ -38,14 +38,14 @@ if config.permission_mode != "default" and config.permission_mode != "plan" and 
 }
 
 if mcp.enabled {
-  plugin_dir = sandbox.root + "/agentsmesh-plugin"
+  plugin_dir = sandbox.root + "/agentcloud-plugin"
 
   mkdir plugin_dir
   mkdir plugin_dir + "/.claude-plugin"
 
   file plugin_dir + "/.claude-plugin/plugin.json" json({
-    name: "agentsmesh",
-    description: "AgentsMesh collaboration plugin for Claude Code",
+    name: "agentcloud",
+    description: "Agent Cloud collaboration plugin for Claude Code",
     version: "1.0.0"
   })
 

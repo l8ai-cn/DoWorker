@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	apikeyDomain "github.com/anthropics/agentsmesh/backend/internal/domain/apikey"
+	apikeyDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/apikey"
 )
 
 func (s *Service) UpdateAPIKey(ctx context.Context, id int64, orgID int64, req *UpdateAPIKeyRequest) (*apikeyDomain.APIKey, error) {

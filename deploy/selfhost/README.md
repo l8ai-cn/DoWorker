@@ -1,6 +1,6 @@
 # Self-Hosted Deployment
 
-Deploy AgentsMesh on your own infrastructure using Docker.
+Deploy Agent Cloud on your own infrastructure using Docker.
 
 ## Prerequisites
 
@@ -14,17 +14,17 @@ Deploy AgentsMesh on your own infrastructure using Docker.
 ## Quick Start
 
 ```bash
-git clone https://github.com/l8ai-cn/DoWorker.git
-cd AgentsMesh/deploy/selfhost
+git clone https://github.com/l8ai-cn/AgentCloud.git
+cd Agent Cloud/deploy/selfhost
 
 # Install with same-site application and preview DNS
-./selfhost.sh --host app.agentsmesh.internal --preview-origin http://preview.agentsmesh.internal
+./selfhost.sh --host app.agentcloud.internal --preview-origin http://preview.agentcloud.internal
 
 # Or with a domain name and custom ports
-./selfhost.sh --host agentsmesh.example.com --preview-origin http://preview.example.com --http-port 8080
+./selfhost.sh --host agentcloud.example.com --preview-origin http://preview.example.com --http-port 8080
 
 # Pin a specific image version
-./selfhost.sh --host app.agentsmesh.internal --preview-origin http://preview.agentsmesh.internal --version sha-abc1234
+./selfhost.sh --host app.agentcloud.internal --preview-origin http://preview.agentcloud.internal --version sha-abc1234
 ```
 
 The script will:
@@ -62,15 +62,15 @@ Runners execute AI agents on your machines. Install the runner:
 
 ```bash
 # Install (macOS / Linux)
-curl -fsSL https://agentsmesh.ai/install.sh | sh
+curl -fsSL https://agentcloud.ai/install.sh | sh
 
 # Register
-agentsmesh-runner register \
+agentcloud-runner register \
   --server http://<HOST>:<HTTP_PORT> \
   --token selfhost-runner-token
 
 # Start
-agentsmesh-runner run
+agentcloud-runner run
 ```
 
 ## Manual Setup
@@ -87,7 +87,7 @@ mkdir -p ssl
 # Generate CA
 openssl ecparam -name prime256v1 -genkey -noout -out ssl/ca.key
 openssl req -new -x509 -days 3650 -key ssl/ca.key -out ssl/ca.crt \
-  -subj "/CN=AgentsMesh CA/O=AgentsMesh"
+  -subj "/CN=Agent Cloud CA/O=Agent Cloud"
 # Generate server cert (add your IP/domain to SAN)
 openssl ecparam -name prime256v1 -genkey -noout -out ssl/server.key
 # ... see selfhost.sh for full certificate generation steps
@@ -98,10 +98,10 @@ docker compose up -d
 
 # 4. Run migrations
 docker compose exec -T backend migrate -path /app/migrations \
-  -database "postgres://agentsmesh:<DB_PASSWORD>@postgres:5432/agentsmesh?sslmode=disable" up
+  -database "postgres://agentcloud:<DB_PASSWORD>@postgres:5432/agentcloud?sslmode=disable" up
 
 # 5. Import seed data
-docker compose exec -T postgres psql -U agentsmesh -d agentsmesh < seed/seed.sql
+docker compose exec -T postgres psql -U agentcloud -d agentcloud < seed/seed.sql
 ```
 
 ## Configuration
@@ -147,7 +147,7 @@ docker compose up -d
 
 # Run new migrations (if any)
 docker compose exec -T backend migrate -path /app/migrations \
-  -database "postgres://agentsmesh:${DB_PASSWORD}@postgres:5432/agentsmesh?sslmode=disable" up
+  -database "postgres://agentcloud:${DB_PASSWORD}@postgres:5432/agentcloud?sslmode=disable" up
 ```
 
 ## Backup & Restore
@@ -156,10 +156,10 @@ docker compose exec -T backend migrate -path /app/migrations \
 
 ```bash
 # Backup
-docker compose exec -T postgres pg_dump -U agentsmesh agentsmesh > backup.sql
+docker compose exec -T postgres pg_dump -U agentcloud agentcloud > backup.sql
 
 # Restore
-docker compose exec -T postgres psql -U agentsmesh -d agentsmesh < backup.sql
+docker compose exec -T postgres psql -U agentcloud -d agentcloud < backup.sql
 ```
 
 ### All Data (PostgreSQL + MinIO)
@@ -167,10 +167,10 @@ docker compose exec -T postgres psql -U agentsmesh -d agentsmesh < backup.sql
 ```bash
 docker compose down
 
-docker run --rm -v agentsmesh_postgres_data:/data -v $(pwd):/backup alpine \
+docker run --rm -v agentcloud_postgres_data:/data -v $(pwd):/backup alpine \
   tar czf /backup/postgres_backup.tar.gz -C /data .
 
-docker run --rm -v agentsmesh_minio_data:/data -v $(pwd):/backup alpine \
+docker run --rm -v agentcloud_minio_data:/data -v $(pwd):/backup alpine \
   tar czf /backup/minio_backup.tar.gz -C /data .
 
 docker compose up -d

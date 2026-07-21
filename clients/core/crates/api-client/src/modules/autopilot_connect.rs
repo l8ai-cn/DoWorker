@@ -1,7 +1,7 @@
 use crate::connect_call::connect_call;
 use crate::error::ApiError;
 use crate::ApiClient;
-use agentsmesh_types::proto_autopilot_v1 as ap;
+use agentcloud_types::proto_autopilot_v1 as ap;
 
 // =============================================================================
 // Connect-RPC (binary wire). See proto-naming-conventions.md §2.5.

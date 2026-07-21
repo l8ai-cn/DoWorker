@@ -5,9 +5,9 @@ import (
 	"errors"
 	"log/slog"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/channel"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
-	"github.com/anthropics/agentsmesh/backend/pkg/displaykit"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/channel"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/eventbus"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/displaykit"
 )
 
 var (

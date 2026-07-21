@@ -151,7 +151,7 @@ export default function CareersPage() {
                         ))}
                       </ul>
                     </div>
-                    <Link href="mailto:recruiter@agentsmesh.ai">
+                    <Link href="mailto:recruiter@agentcloud.ai">
                       <Button>{t("careers.applyNow")}</Button>
                     </Link>
                   </div>
@@ -169,7 +169,7 @@ export default function CareersPage() {
         <div className="container mx-auto max-w-4xl text-center">
           <h2 className="text-2xl font-bold mb-4">{t("careers.cta.title")}</h2>
           <p className="text-muted-foreground mb-6">{t("careers.cta.content")}</p>
-          <Link href="mailto:recruiter@agentsmesh.ai">
+          <Link href="mailto:recruiter@agentcloud.ai">
             <Button size="lg">{t("careers.cta.button")}</Button>
           </Link>
         </div>

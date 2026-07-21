@@ -13,7 +13,7 @@ describe("embed parent handshake", () => {
         origin: "https://portal.example",
         source: window.parent,
         data: {
-          type: "agentsmesh.embed.open",
+          type: "agentcloud.embed.open",
           version: 1,
           redemptionProof: "parent-proof",
         },
@@ -26,7 +26,7 @@ describe("embed parent handshake", () => {
         origin: "https://attacker.example",
         source: window.parent,
         data: {
-          type: "agentsmesh.embed.open",
+          type: "agentcloud.embed.open",
           version: 1,
           redemptionProof: "parent-proof",
         },
@@ -42,6 +42,6 @@ describe("embed parent handshake", () => {
   it("recognizes only a versioned ready notification", () => {
     expect(isEmbedReadyMessage({ type: EMBED_READY_MESSAGE, version: 1 })).toBe(true);
     expect(isEmbedReadyMessage({ type: EMBED_READY_MESSAGE, version: 2 })).toBe(false);
-    expect(isEmbedReadyMessage({ type: "agentsmesh.embed.open", version: 1 })).toBe(false);
+    expect(isEmbedReadyMessage({ type: "agentcloud.embed.open", version: 1 })).toBe(false);
   });
 });

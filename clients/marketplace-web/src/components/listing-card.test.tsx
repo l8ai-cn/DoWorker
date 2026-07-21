@@ -15,8 +15,8 @@ describe("ListingCard", () => {
           display_name: "软件交付专家",
           tagline: "完成可验证的软件交付",
           publisher: {
-            slug: "do-worker",
-            display_name: "Do Worker",
+            slug: "agent-cloud",
+            display_name: "Agent Cloud",
             verified: true,
           },
           spaces: [{ slug: "software-delivery", name: "软件交付" }],

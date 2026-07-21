@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/runner/internal/textutil"
+	"github.com/l8ai-cn/agentcloud/runner/internal/textutil"
 )
 
 // ExtractResultFromJSON extracts the "result" field from Claude Code JSON output.

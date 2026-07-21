@@ -3,7 +3,7 @@ package agentworkbench
 import (
 	"testing"
 
-	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
+	agentworkbenchv2 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
 )
@@ -301,7 +301,7 @@ func artifactGrant(
 	maximumRevision := uint64(3)
 	return &agentworkbenchv2.ArtifactGrant{
 		GrantId:           id,
-		Issuer:            stringPointer("agentsmesh.runner"),
+		Issuer:            stringPointer("agentcloud.runner"),
 		Subject:           stringPointer("session.viewer"),
 		RepresentationIds: representationIDs,
 		Actions:           []string{"artifact.download"},

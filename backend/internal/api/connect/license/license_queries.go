@@ -6,7 +6,7 @@ import (
 
 	"connectrpc.com/connect"
 
-	licensev1 "github.com/anthropics/agentsmesh/proto/gen/go/license/v1"
+	licensev1 "github.com/l8ai-cn/agentcloud/proto/gen/go/license/v1"
 )
 
 // LicensePublicService — read-only queries. No auth interceptor. Returns

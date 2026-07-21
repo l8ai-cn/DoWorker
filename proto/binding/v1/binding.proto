@@ -36,7 +36,7 @@ package proto.binding.v1;
 
 import "codegen/v1/options.proto";
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/binding/v1;bindingv1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/binding/v1;bindingv1";
 
 // Convert codegen target — emits binding_convert.amesh.go into the backend
 // connect handler tree so it can reach the domain layer (which proto/gen/go
@@ -61,7 +61,7 @@ service BindingService {
 
 message PodBinding {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/domain/channel.PodBinding"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/channel.PodBinding"
   };
 
   int64 id = 1 [(amesh.codegen.v1.field_rename) = "ID"];

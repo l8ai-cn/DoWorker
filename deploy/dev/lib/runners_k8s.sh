@@ -40,14 +40,14 @@ build_runner_compose_images() {
             --build-arg "PYTHON_BASE_IMAGE=${python_base_image}" \
             --build-arg "HTTP_PROXY=" \
             --build-arg "HTTPS_PROXY=" \
-            -t "do-worker/runner-${rt}:latest" \
+            -t "agent-cloud/runner-${rt}:latest" \
             -t "${COMPOSE_PROJECT_NAME}-runner-${rt}:latest" \
             . || {
             error "runner 镜像构建失败: ${rt}"
             return 1
         }
     done
-    success "runner 镜像已构建 (do-worker/runner-* + ${COMPOSE_PROJECT_NAME}-runner-*)"
+    success "runner 镜像已构建 (agent-cloud/runner-* + ${COMPOSE_PROJECT_NAME}-runner-*)"
 }
 
 wait_for_runner_pods() {
@@ -55,9 +55,9 @@ wait_for_runner_pods() {
     local dep
     for dep in runner-claude-code runner-codex-cli runner-cursor-cli runner-e2e-echo runner-e2e-echo-2 \
                runner-gemini-cli runner-loopal runner-minimax-cli runner-openclaw runner-hermes; do
-        kubectl rollout status "deployment/${dep}" -n agentsmesh --timeout=300s || {
+        kubectl rollout status "deployment/${dep}" -n agentcloud --timeout=300s || {
             warn "${dep} rollout 超时"
-            kubectl get pods -n agentsmesh -l "app=${dep}" 2>/dev/null || true
+            kubectl get pods -n agentcloud -l "app=${dep}" 2>/dev/null || true
             return 1
         }
     done
@@ -81,9 +81,9 @@ teardown_runners_k8s() {
     if ! command -v kubectl &>/dev/null; then
         return 0
     fi
-    if kubectl get namespace agentsmesh &>/dev/null; then
-        info "删除 K8s runner 命名空间 agentsmesh..."
-        kubectl delete namespace agentsmesh --wait=false 2>/dev/null || true
+    if kubectl get namespace agentcloud &>/dev/null; then
+        info "删除 K8s runner 命名空间 agentcloud..."
+        kubectl delete namespace agentcloud --wait=false 2>/dev/null || true
     fi
 }
 
@@ -91,20 +91,20 @@ hot_swap_runner_k8s_binary() {
     local dep pod
     for dep in runner-claude-code runner-codex-cli runner-cursor-cli runner-e2e-echo runner-e2e-echo-2 \
                runner-gemini-cli runner-loopal runner-minimax-cli runner-openclaw runner-hermes; do
-        pod="$(kubectl get pods -n agentsmesh -l "app=${dep}" \
+        pod="$(kubectl get pods -n agentcloud -l "app=${dep}" \
             -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || true)"
         if [[ -z "$pod" ]]; then
             info "跳过 ${dep} (Pod 不存在)"
             continue
         fi
-        kubectl cp "$SCRIPT_DIR/runner-binary" "agentsmesh/${pod}:/usr/local/bin/agentsmesh-runner"
+        kubectl cp "$SCRIPT_DIR/runner-binary" "agentcloud/${pod}:/usr/local/bin/agentcloud-runner"
         case "$dep" in
             runner-e2e-echo|runner-e2e-echo-2)
                 kubectl cp "$SCRIPT_DIR/e2e-mock-agent-binary" \
-                    "agentsmesh/${pod}:/usr/local/bin/e2e-mock-agent"
+                    "agentcloud/${pod}:/usr/local/bin/e2e-mock-agent"
                 ;;
         esac
-        kubectl delete pod -n agentsmesh "$pod" --wait=false
+        kubectl delete pod -n agentcloud "$pod" --wait=false
         info "已热更新 ${dep} (${pod})"
     done
     wait_for_runner_pods || true

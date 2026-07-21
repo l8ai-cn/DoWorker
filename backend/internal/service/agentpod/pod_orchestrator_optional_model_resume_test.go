@@ -4,10 +4,10 @@ import (
 	"context"
 	"testing"
 
-	poddomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	"github.com/anthropics/agentsmesh/backend/internal/infra"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	poddomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

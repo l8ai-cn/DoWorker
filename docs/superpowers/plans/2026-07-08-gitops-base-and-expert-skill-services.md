@@ -67,11 +67,11 @@ Rule: only `gitops` (and, for now, `knowledgebase`) import `internal/infra/gitea
 - `backend/internal/service/gitops/fake.go` — in-memory `Fake` for consumer tests.
 - `backend/internal/service/gitops/service_test.go` — httptest-server tests of the real wrapper (mirror `knowledgebase/sync_test.go` / `provisioner_test.go`).
 - `backend/internal/service/gitops/fake_test.go` — round-trip tests for the fake.
-- `backend/internal/service/gitops/BUILD.bazel` — mirror `knowledgebase/BUILD.bazel` (`go_library` `gitops` with `srcs` = the new `.go` files, `importpath = github.com/anthropics/agentsmesh/backend/internal/service/gitops`, `deps = ["//backend/internal/infra/gitea"]`; `go_test` `gitops_test` embedding `:gitops` with `deps` = `//backend/internal/infra/gitea` + `@com_github_stretchr_testify//assert` + `//require`; and the `go_default_library` alias).
+- `backend/internal/service/gitops/BUILD.bazel` — mirror `knowledgebase/BUILD.bazel` (`go_library` `gitops` with `srcs` = the new `.go` files, `importpath = github.com/l8ai-cn/agentcloud/backend/internal/service/gitops`, `deps = ["//backend/internal/infra/gitea"]`; `go_test` `gitops_test` embedding `:gitops` with `deps` = `//backend/internal/infra/gitea` + `@com_github_stretchr_testify//assert` + `//require`; and the `go_default_library` alias).
 
 ### Bazel wiring (Phase 1)
 
-The repo is Bazel-managed with hand-maintained `BUILD.bazel` files, but gazelle is configured (root `# gazelle:prefix github.com/anthropics/agentsmesh`; target `//:gazelle`). Rather than hand-writing the new `BUILD.bazel`, prefer regenerating:
+The repo is Bazel-managed with hand-maintained `BUILD.bazel` files, but gazelle is configured (root `# gazelle:prefix github.com/l8ai-cn/agentcloud`; target `//:gazelle`). Rather than hand-writing the new `BUILD.bazel`, prefer regenerating:
 
 ```bash
 bazel run //:gazelle
@@ -178,7 +178,7 @@ func NewService(git *gitea.Client, log *slog.Logger) Service {
 ```
 
 - `Provision`: `EnsureNamespace` → `RepoName(orgID, slug)` → `git.CreateRepo(name, branch)` → `git.CommitFiles(name, branch, msg, author, seed→gitea.FileChange{Path, Content: string(fc.Content)}, nil)`; **on commit failure → `git.DeleteRepo(name)` and return wrapped error** (this folds `knowledgebase/provisioner.go::provisionRepo`). Return `*Repo{Namespace, Name, Path: ns+"/"+name, DefaultBranch: repo.DefaultBranch (fallback branch), HTTPCloneURL: git.CloneURL(name)}`.
-- `Commit`: fold KB's SHA-probe (`knowledgebase/contents.go::CommitFile`): for each change, `git.GetFile(...)`; if found, add `isUpdate[path]=sha`; then one `git.CommitFiles(...)`. Default author `{"Do Worker", "platform@agentsmesh.local"}` when zero.
+- `Commit`: fold KB's SHA-probe (`knowledgebase/contents.go::CommitFile`): for each change, `git.GetFile(...)`; if found, add `isUpdate[path]=sha`; then one `git.CommitFiles(...)`. Default author `{"Agent Cloud", "platform@agentcloud.local"}` when zero.
 - `ReadFile`: `git.GetFile` → `DecodedContent()`; map `*gitea.HTTPError` with `StatusCode==404` → `ErrNotFound`.
 - `ListDir`/`ListTree`: wrap `git.ListDir` / `git.ListTree`, translate `*gitea.ContentEntry` / `gitea.TreeEntry` → `[]Entry`. For tree, `Type` "blob"→"file", "tree"→"dir". Map 404 → `ErrNotFound`.
 - Naming (`naming.go`): `RepoName = fmt.Sprintf("org%d-%s", orgID, slug)`; `RepoPath = ns + "/" + RepoName`; `RepoNameFromPath` = substring after last `/` (copy of KB's `repoNameFromPath`).

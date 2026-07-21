@@ -54,7 +54,7 @@ export function RunnerRegistrationInstructions({
         label={t("runners.addRunnerModal.serviceTitle")}
         hint={t("runners.addRunnerModal.serviceHint")}
         command={
-          "do-worker-runner service install\ndo-worker-runner service start"
+          "agent-cloud-runner service install\nagent-cloud-runner service start"
         }
         copyId="service"
         copiedKey={copiedKey}

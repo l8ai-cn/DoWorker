@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/service/relay"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/relay"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

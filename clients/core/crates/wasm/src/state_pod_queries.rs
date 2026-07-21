@@ -1,5 +1,5 @@
-use agentsmesh_types::proto_pod_state_v1::ReplaceCachedPodsRequest;
-use agentsmesh_types::proto_pod_v1::ListPodsResponse;
+use agentcloud_types::proto_pod_state_v1::ReplaceCachedPodsRequest;
+use agentcloud_types::proto_pod_v1::ListPodsResponse;
 use prost::Message;
 use wasm_bindgen::prelude::*;
 

@@ -5,9 +5,9 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/expertmarket"
-	adminservice "github.com/anthropics/agentsmesh/backend/internal/service/admin"
-	expertsvc "github.com/anthropics/agentsmesh/backend/internal/service/expert"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/expertmarket"
+	adminservice "github.com/l8ai-cn/agentcloud/backend/internal/service/admin"
+	expertsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/expert"
 )
 
 func mapServiceError(err error) error {

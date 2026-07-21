@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	meshDomain "github.com/anthropics/agentsmesh/backend/internal/domain/mesh"
-	podService "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	podDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	meshDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/mesh"
+	podService "github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

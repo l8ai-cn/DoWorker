@@ -1,5 +1,5 @@
-import type { TerminalResource } from "@do-worker/agent-ui";
-import type { AgentArtifactTransportContext, AgentAttachmentReference } from "@do-worker/agent-ui";
+import type { TerminalResource } from "@agent-cloud/agent-ui";
+import type { AgentArtifactTransportContext, AgentAttachmentReference } from "@agent-cloud/agent-ui";
 import type { EmbeddedAgentWorkbenchAccess } from "./embed-session/embeddedAgentWorkbenchAccess";
 import {
   parseEmbeddedRelayConnection,

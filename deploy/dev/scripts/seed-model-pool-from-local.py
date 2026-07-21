@@ -35,7 +35,7 @@ def load_compose_project() -> str:
         for line in open(DEV_ENV):
             if line.startswith("COMPOSE_PROJECT_NAME="):
                 return line.strip().split("=", 1)[1]
-    return "agentsmesh-main"
+    return "agentcloud-main"
 
 
 def api(method: str, path: str, token: str | None = None, body: dict | None = None) -> dict:
@@ -131,7 +131,7 @@ WHERE organization_id = 1 AND provider_type = 'minimax' AND is_enabled = true;
 """
     try:
         subprocess.run(
-            ["docker", "exec", container, "psql", "-U", "agentsmesh", "-d", "agentsmesh", "-c", sql],
+            ["docker", "exec", container, "psql", "-U", "agentcloud", "-d", "agentcloud", "-c", sql],
             check=True,
             capture_output=True,
             text=True,

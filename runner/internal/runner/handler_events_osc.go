@@ -1,8 +1,8 @@
 package runner
 
 import (
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
-	"github.com/anthropics/agentsmesh/runner/internal/terminal/vt"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/terminal/vt"
 )
 
 // createOSCHandler creates an OSC handler that sends terminal notifications to the server.

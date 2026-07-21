@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	agentdomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
-	envbundledomain "github.com/anthropics/agentsmesh/backend/internal/domain/envbundle"
-	envbundleservice "github.com/anthropics/agentsmesh/backend/internal/service/envbundle"
+	agentdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agent"
+	envbundledomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/envbundle"
+	envbundleservice "github.com/l8ai-cn/agentcloud/backend/internal/service/envbundle"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -3,7 +3,7 @@ package sessionapi
 import (
 	"net/http"
 
-	permissionpolicysvc "github.com/anthropics/agentsmesh/backend/internal/service/permissionpolicy"
+	permissionpolicysvc "github.com/l8ai-cn/agentcloud/backend/internal/service/permissionpolicy"
 	"github.com/gin-gonic/gin"
 )
 

@@ -11,12 +11,12 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
-	sessiondomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
-	workbenchdomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentworkbench"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	workbenchsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentworkbench"
-	authpkg "github.com/anthropics/agentsmesh/backend/pkg/auth"
-	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
+	sessiondomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentsession"
+	workbenchdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentworkbench"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	workbenchsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentworkbench"
+	authpkg "github.com/l8ai-cn/agentcloud/backend/pkg/auth"
+	agentworkbenchv2 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
 )
@@ -27,7 +27,7 @@ const (
 	testSessionID = "conv_1"
 	testEpoch     = "epoch-1"
 	testUserID    = int64(42)
-	testAudience  = "agentsmesh-api"
+	testAudience  = "agentcloud-api"
 )
 
 var (

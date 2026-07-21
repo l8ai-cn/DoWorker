@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	workerspecdom "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	workerspecdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
 )
 
 var ErrCoordinatorWorkerSpecArtifactRequired = errors.New(

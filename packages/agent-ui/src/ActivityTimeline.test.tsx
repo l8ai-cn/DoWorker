@@ -238,7 +238,7 @@ describe("ActivityTimeline", () => {
 function toolContract(semanticKey: string) {
   return {
     identity: {
-      namespace: "agentsmesh.acp",
+      namespace: "agentcloud.acp",
       schemaVersion: "1",
       semanticKey,
     },

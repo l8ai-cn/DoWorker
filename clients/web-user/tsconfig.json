@@ -3,7 +3,7 @@
   "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }],
   "compilerOptions": {
     "paths": {
-      "@do-worker/agent-ui": ["../../packages/agent-ui/src/index.ts"],
+      "@agent-cloud/agent-ui": ["../../packages/agent-ui/src/index.ts"],
       "@/*": ["./src/*"]
     }
   }

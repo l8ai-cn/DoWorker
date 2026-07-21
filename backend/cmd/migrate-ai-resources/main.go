@@ -8,9 +8,9 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/anthropics/agentsmesh/backend/internal/config"
-	airesourcesvc "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
-	"github.com/anthropics/agentsmesh/backend/pkg/crypto"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
+	airesourcesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/crypto"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"

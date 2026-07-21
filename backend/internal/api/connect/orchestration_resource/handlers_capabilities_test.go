@@ -5,8 +5,8 @@ import (
 
 	"connectrpc.com/connect"
 
-	service "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
-	resourcev1 "github.com/anthropics/agentsmesh/proto/gen/go/orchestration_resource/v1"
+	service "github.com/l8ai-cn/agentcloud/backend/internal/service/orchestrationcontrol"
+	resourcev1 "github.com/l8ai-cn/agentcloud/proto/gen/go/orchestration_resource/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -28,7 +28,7 @@ func TestGetResourceCapabilitiesUsesResolvedScopeAndReturnsAuthority(t *testing.
 			OrgSlug: "acme",
 			Target: &resourcev1.ResourceTarget{
 				TypeMeta: &resourcev1.TypeMeta{
-					ApiVersion: "agentsmesh.io/v1alpha1",
+					ApiVersion: "agentcloud.io/v1alpha1",
 					Kind:       "Expert",
 				},
 				Namespace: "acme",

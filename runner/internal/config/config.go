@@ -17,7 +17,7 @@ func Load(configFile string) (*Config, error) {
 	v := viper.New()
 
 	// Set defaults
-	v.SetDefault("server_url", "https://agentsmesh.ai")
+	v.SetDefault("server_url", "https://agentcloud.ai")
 	v.SetDefault("max_concurrent_pods", 5)
 	v.SetDefault("workspace_root", DefaultWorkspaceRoot())
 	v.SetDefault("mcp_port", 19000)
@@ -32,7 +32,7 @@ func Load(configFile string) (*Config, error) {
 	v.SetDefault("auto_update.max_wait_time", 30*time.Minute)
 	v.SetDefault("auto_update.auto_apply", true)
 
-	// Read from environment (DO_WORKER_* primary, AGENTSMESH_* legacy)
+	// Read from environment (DO_WORKER_* primary, AGENTCLOUD_* legacy)
 	v.SetEnvPrefix("DO_WORKER")
 	v.AutomaticEnv()
 	applyEnvCompat(v)
@@ -134,17 +134,17 @@ func (c *Config) RewriteRelayURL(relayURL string) string {
 }
 
 // DefaultWorkspaceRoot returns a platform-appropriate default workspace root.
-// On Windows: %LOCALAPPDATA%\agentsmesh\workspace (fallback to ~/.agentsmesh/workspace).
+// On Windows: %LOCALAPPDATA%\agentcloud\workspace (fallback to ~/.agentcloud/workspace).
 // On Unix (Docker/server): /workspace (container convention).
 // Exported so register.go can use the same logic.
 func DefaultWorkspaceRoot() string {
 	if runtime.GOOS == "windows" {
 		if localAppData := os.Getenv("LOCALAPPDATA"); localAppData != "" {
-			return filepath.Join(localAppData, "agentsmesh", "workspace")
+			return filepath.Join(localAppData, "agentcloud", "workspace")
 		}
 		// Fallback when LOCALAPPDATA is not set (e.g., containers)
 		if home, err := os.UserHomeDir(); err == nil {
-			return filepath.Join(home, ".agentsmesh", "workspace")
+			return filepath.Join(home, ".agentcloud", "workspace")
 		}
 	}
 	return "/workspace"

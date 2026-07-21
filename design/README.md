@@ -1,4 +1,4 @@
-# Do Worker Design System
+# Agent Cloud Design System
 
 Design-as-code using [`pastel`](https://github.com/sharkdp/pastel). Source `.pastel` files are the source of truth; rendered PNGs under `out/` are artifacts.
 

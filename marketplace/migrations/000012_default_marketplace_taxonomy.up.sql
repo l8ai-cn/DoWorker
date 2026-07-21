@@ -1,7 +1,7 @@
 WITH target_market AS (
     SELECT id
     FROM marketplace.marketplaces
-    WHERE slug = 'do-worker-market'
+    WHERE slug = 'agent-cloud-market'
 )
 INSERT INTO marketplace.marketplace_taxonomy_tags
     (marketplace_id, slug, display_name, kind, sort_order)
@@ -32,5 +32,5 @@ JOIN marketplace.marketplace_taxonomy_tags tag
      'engineering-team',
      'runner-required'
  )
-WHERE m.slug = 'do-worker-market'
+WHERE m.slug = 'agent-cloud-market'
 ON CONFLICT DO NOTHING;

@@ -11,10 +11,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	agentpoddom "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
-	agentpodSvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	"github.com/anthropics/agentsmesh/backend/internal/service/gitops"
+	agentpoddom "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	expertdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/expert"
+	agentpodSvc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/gitops"
 )
 
 // --- in-memory expert repository ---

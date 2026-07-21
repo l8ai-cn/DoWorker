@@ -6,9 +6,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	sessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
-	"github.com/anthropics/agentsmesh/backend/internal/testkit"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	sessionsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentsession"
+	"github.com/l8ai-cn/agentcloud/backend/internal/testkit"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

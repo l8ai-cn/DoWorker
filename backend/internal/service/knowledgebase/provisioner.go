@@ -8,7 +8,7 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/infra/gitea"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/gitea"
 )
 
 //go:embed scaffold/*.tmpl
@@ -32,7 +32,7 @@ type scaffoldData struct {
 
 func renderScaffold(name, description string) ([]gitea.FileChange, error) {
 	if description == "" {
-		description = "Knowledge base maintained by Do Worker agents."
+		description = "Knowledge base maintained by Agent Cloud agents."
 	}
 	data := scaffoldData{Name: name, Description: description, Date: time.Now().UTC().Format("2006-01-02")}
 	changes := make([]gitea.FileChange, 0, len(scaffoldFiles))
@@ -53,7 +53,7 @@ func (s *Service) provisionRepo(ctx context.Context, orgID int64, slug, name, de
 	if err := s.git.EnsureNamespace(ctx); err != nil {
 		return nil, "", fmt.Errorf("knowledgebase: ensure namespace: %w", err)
 	}
-	// Prefix with org ID: KB slugs are unique per Do Worker org, but all
+	// Prefix with org ID: KB slugs are unique per Agent Cloud org, but all
 	// repos share one Gitea namespace.
 	repoName := fmt.Sprintf("org%d-%s", orgID, slug)
 	repo, err := s.git.CreateRepo(ctx, repoName, branch)
@@ -64,7 +64,7 @@ func (s *Service) provisionRepo(ctx context.Context, orgID int64, slug, name, de
 	if err == nil {
 		err = s.git.CommitFiles(ctx, repoName, branch,
 			"init: knowledge base scaffold (llms.txt, AGENTS.md, raw/, wiki/)",
-			gitea.CommitAuthor{Name: "Do Worker", Email: "kb@agentsmesh.local"},
+			gitea.CommitAuthor{Name: "Agent Cloud", Email: "kb@agentcloud.local"},
 			changes, nil)
 	}
 	if err != nil {
@@ -85,7 +85,7 @@ func (s *Service) provisionMountDeployKeys(
 	if _, err := s.git.CreateDeployKey(
 		ctx,
 		repoName,
-		"agentsmesh-read-only",
+		"agentcloud-read-only",
 		keys.readOnlyPublic,
 		true,
 	); err != nil {
@@ -94,7 +94,7 @@ func (s *Service) provisionMountDeployKeys(
 	if _, err := s.git.CreateDeployKey(
 		ctx,
 		repoName,
-		"agentsmesh-read-write",
+		"agentcloud-read-write",
 		keys.readWritePublic,
 		false,
 	); err != nil {

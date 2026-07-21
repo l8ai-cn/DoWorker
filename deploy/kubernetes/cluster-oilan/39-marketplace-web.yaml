@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: marketplace-web
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   replicas: 1
   selector:
@@ -14,10 +14,10 @@ spec:
         app: marketplace-web
     spec:
       imagePullSecrets:
-        - name: agentsmesh-regcred
+        - name: agentcloud-regcred
       containers:
         - name: marketplace-web
-          image: repo.aiedulab.cn:8443/agentsmesh/marketplace-web:latest
+          image: repo.aiedulab.cn:8443/agentcloud/marketplace-web:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
@@ -54,7 +54,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: marketplace-web
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   selector:
     app: marketplace-web

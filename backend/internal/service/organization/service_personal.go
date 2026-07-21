@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	orgDomain "github.com/anthropics/agentsmesh/backend/internal/domain/organization"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	orgDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/organization"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 func (s *Service) CreatePersonal(ctx context.Context, ownerID int64, username, displayName string) (*orgDomain.Organization, error) {

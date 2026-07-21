@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -107,7 +107,7 @@ func TestDefaultCatalogPublishesDoAgentForSeedance(t *testing.T) {
 	assert.True(t, doAgentImages[0].Enabled)
 	assert.Equal(t, doAgentImages[0], seedanceImages[0])
 	assert.Equal(t, []string{"do-agent", "seedance-expert"}, doAgentImages[0].WorkerTypeSlugs)
-	assert.Regexp(t, regexp.MustCompile(`^repo\.aiedulab\.cn:8443/agentsmesh/runner-do-agent@sha256:[a-f0-9]{64}$`), doAgentImages[0].Reference)
+	assert.Regexp(t, regexp.MustCompile(`^repo\.aiedulab\.cn:8443/agentcloud/runner-do-agent@sha256:[a-f0-9]{64}$`), doAgentImages[0].Reference)
 }
 
 func TestDefaultCatalogDoesNotInventUnknownWorkerImages(t *testing.T) {
@@ -121,7 +121,7 @@ func TestDefaultCatalogDoesNotUseMutableEnvironmentImageReferences(t *testing.T)
 	digest := "sha256:" + strings.Repeat("d", 64)
 	t.Setenv(
 		"WORKER_RUNTIME_IMAGE_REFERENCES",
-		"do-agent=agentsmesh-main-runner-do-agent@"+digest,
+		"do-agent=agentcloud-main-runner-do-agent@"+digest,
 	)
 
 	images := DefaultCatalog().ImagesFor("do-agent")

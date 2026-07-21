@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
 )
 
 type Service struct {

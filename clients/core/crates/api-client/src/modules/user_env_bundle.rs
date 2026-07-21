@@ -5,7 +5,7 @@
 use crate::connect_call::connect_call;
 use crate::error::ApiError;
 use crate::ApiClient;
-use agentsmesh_types::proto_env_bundle_v1 as eb_proto;
+use agentcloud_types::proto_env_bundle_v1 as eb_proto;
 
 impl ApiClient {
     pub async fn list_user_env_bundles_connect(

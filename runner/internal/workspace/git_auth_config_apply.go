@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-const gitCredentialFileName = "agentsmesh-credentials"
+const gitCredentialFileName = "agentcloud-credentials"
 
 func (m *Manager) applyTokenGitConfig(
 	ctx context.Context,

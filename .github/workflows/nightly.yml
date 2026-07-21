@@ -216,17 +216,17 @@ jobs:
           mkdir -p release-staging
           sign_script="${GITHUB_WORKSPACE}/runner/build/scripts/sign-darwin.sh"
 
-          for arch in dist/runner-release/do-worker-runner_*.tar.gz \
-                     dist/runner-release/do-worker-runner_*.zip; do
+          for arch in dist/runner-release/agent-cloud-runner_*.tar.gz \
+                     dist/runner-release/agent-cloud-runner_*.zip; do
               base="$(basename "$arch")"
-              new_name="${base/do-worker-runner_/do-worker-runner_${version}_}"
+              new_name="${base/agent-cloud-runner_/agent-cloud-runner_${version}_}"
               dest="${GITHUB_WORKSPACE}/release-staging/${new_name}"
 
               if [[ "$base" == *darwin*.tar.gz ]]; then
                   tmp="$(mktemp -d)"
                   tar -xzf "$arch" -C "$tmp"
-                  (cd "$tmp" && "$sign_script" do-worker-runner)
-                  tar -C "$tmp" -czf "$dest" do-worker-runner README.md LICENSE
+                  (cd "$tmp" && "$sign_script" agent-cloud-runner)
+                  tar -C "$tmp" -czf "$dest" agent-cloud-runner README.md LICENSE
                   rm -rf "$tmp"
               else
                   cp "$arch" "$dest"
@@ -235,7 +235,7 @@ jobs:
 
           (
               cd release-staging
-              sha256sum do-worker-runner_*.tar.gz do-worker-runner_*.zip > checksums.txt
+              sha256sum agent-cloud-runner_*.tar.gz agent-cloud-runner_*.zip > checksums.txt
           )
           ls -la release-staging/
           cat release-staging/checksums.txt
@@ -245,7 +245,7 @@ jobs:
           EXPECT_VERSION: ${{ needs.version.outputs.version }}
         run: |
           set -euo pipefail
-          archive="release-staging/do-worker-runner_${EXPECT_VERSION}_linux_amd64.tar.gz"
+          archive="release-staging/agent-cloud-runner_${EXPECT_VERSION}_linux_amd64.tar.gz"
           if [[ ! -f "$archive" ]]; then
             echo "::error::expected staged archive missing: $archive" >&2
             ls -la release-staging/ >&2
@@ -254,7 +254,7 @@ jobs:
           tmp="$(mktemp -d)"
           trap 'rm -rf "$tmp"' EXIT
           tar -xzf "$archive" -C "$tmp"
-          actual="$("$tmp/do-worker-runner" --version 2>&1)"
+          actual="$("$tmp/agent-cloud-runner" --version 2>&1)"
           echo "Got: $actual"
           if ! grep -qF "$EXPECT_VERSION" <<<"$actual"; then
             echo "::error::binary --version output does not contain expected '$EXPECT_VERSION'" >&2
@@ -271,7 +271,7 @@ jobs:
           version="$NIGHTLY_VERSION"
           previous_tag="$PREVIOUS_TAG"
           {
-            echo "## AgentsMesh Runner v${version} (nightly)"
+            echo "## Agent Cloud Runner v${version} (nightly)"
             echo ""
             echo "> ⚠️ **Nightly build** — automated build off \`main\` for QA / dogfood."
             echo "> Not for production use. Stable users on \`/releases/latest\` are not auto-updated to nightlies."
@@ -323,7 +323,7 @@ jobs:
           # the workflow SHA — no manual `git tag && git push --tags`.
           gh release create "$NIGHTLY_TAG" \
             --target "$GITHUB_SHA" \
-            --title "AgentsMesh Runner v${NIGHTLY_VERSION} (nightly)" \
+            --title "Agent Cloud Runner v${NIGHTLY_VERSION} (nightly)" \
             --notes-file release-notes.md \
             --prerelease \
             release-staging/*

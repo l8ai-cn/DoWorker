@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-# AgentsMesh dev environment — entry point.
+# Agent Cloud dev environment — entry point.
 # =============================================================================
 #
 # Functionality lives in lib/. This file is only:

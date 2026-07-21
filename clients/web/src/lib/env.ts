@@ -109,7 +109,7 @@ export function getWsBaseUrl(): string {
   return "ws://localhost:10000";
 }
 
-const DEFAULT_SERVER_URL = "https://agentsmesh.ai";
+const DEFAULT_SERVER_URL = "https://agentcloud.ai";
 
 export function getServerUrlSSR(): string {
   if (process.env.NEXT_PUBLIC_API_URL) {

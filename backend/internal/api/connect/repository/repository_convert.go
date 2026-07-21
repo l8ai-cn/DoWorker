@@ -1,10 +1,10 @@
 package repositoryconnect
 
 import (
-	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
-	"github.com/anthropics/agentsmesh/backend/internal/service/repository"
-	"github.com/anthropics/agentsmesh/backend/pkg/protoconv"
-	repositoryv1 "github.com/anthropics/agentsmesh/proto/gen/go/repository/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/gitprovider"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/repository"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/protoconv"
+	repositoryv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/repository/v1"
 )
 
 // toProtoRepository converts the GORM-backed domain model into the

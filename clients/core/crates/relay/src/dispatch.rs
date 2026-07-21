@@ -1,4 +1,4 @@
-use agentsmesh_protocol::MsgType;
+use agentcloud_protocol::MsgType;
 use serde::Deserialize;
 use tracing::warn;
 

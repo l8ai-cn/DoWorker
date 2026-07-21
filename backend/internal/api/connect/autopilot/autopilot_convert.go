@@ -1,9 +1,9 @@
 package autopilotconnect
 
 import (
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	"github.com/anthropics/agentsmesh/backend/pkg/protoconv"
-	apv1 "github.com/anthropics/agentsmesh/proto/gen/go/autopilot/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/protoconv"
+	apv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/autopilot/v1"
 )
 
 func toProtoController(c *agentpod.AutopilotController) *apv1.AutopilotController {

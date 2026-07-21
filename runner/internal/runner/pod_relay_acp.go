@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"sync"
 
-	"github.com/anthropics/agentsmesh/runner/internal/acp"
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
-	"github.com/anthropics/agentsmesh/runner/internal/relay"
+	"github.com/l8ai-cn/agentcloud/runner/internal/acp"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/relay"
 )
 
 // ACPPodRelay implements PodRelay for ACP-mode pods.

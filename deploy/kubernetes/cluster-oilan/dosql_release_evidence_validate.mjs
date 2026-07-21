@@ -12,7 +12,7 @@ const expected = {
   operationId: required(args.operationId, "operation-id"),
   version: Number(required(args.expectedVersion, "expected-version")),
 };
-requireEqual(expected.target, "db_agentsmesh_prod_postgres", "target");
+requireEqual(expected.target, "db_agentcloud_prod_postgres", "target");
 
 const sources = resolveAuditSources(args);
 const journal = readJournal(sources.journal);
@@ -77,10 +77,10 @@ function verifyEvidence(evidence, fingerprint, expectedValue) {
   requireEqual(evidence.changeRequestId, expectedValue.changeId, "evidence.changeRequestId");
   requireEqual(evidence.databaseAssetId, expectedValue.target, "evidence.databaseAssetId");
   requireEqual(evidence.environmentId, expectedValue.mode, "evidence.environmentId");
-  requireEqual(evidence.projectId, "agentsmesh", "evidence.projectId");
+  requireEqual(evidence.projectId, "agentcloud", "evidence.projectId");
   requireEqual(evidence.release?.cluster, "doops-oilan", "evidence.release.cluster");
   requireEqual(evidence.release?.doopsTarget, "gw-oilan-node", "evidence.release.doopsTarget");
-  requireEqual(evidence.release?.namespace, "agentsmesh", "evidence.release.namespace");
+  requireEqual(evidence.release?.namespace, "agentcloud", "evidence.release.namespace");
   requireEqual(evidence.release?.session, expectedValue.session, "evidence.release.session");
   requireEqual(Number(evidence.release?.migrationVersion), expectedValue.version, "evidence.release.migrationVersion");
   requireEqual(evidence.executionResult?.status, "succeeded", "evidence.executionResult.status");
@@ -118,10 +118,10 @@ function verifyLifecycle(events, evidenceFingerprint, sources, expectedValue) {
 function verifyReleaseEvent(event, expectedValue) {
   requireEqual(event.databaseAssetId, expectedValue.target, "journal.databaseAssetId");
   requireEqual(event.environmentId, expectedValue.mode, "journal.environmentId");
-  requireEqual(event.projectId, "agentsmesh", "journal.projectId");
+  requireEqual(event.projectId, "agentcloud", "journal.projectId");
   requireEqual(event.release?.cluster, "doops-oilan", "journal.release.cluster");
   requireEqual(event.release?.doopsTarget, "gw-oilan-node", "journal.release.doopsTarget");
-  requireEqual(event.release?.namespace, "agentsmesh", "journal.release.namespace");
+  requireEqual(event.release?.namespace, "agentcloud", "journal.release.namespace");
   requireEqual(event.release?.session, expectedValue.session, "journal.release.session");
   requireEqual(Number(event.release?.migrationVersion), expectedValue.version, "journal.release.migrationVersion");
 }

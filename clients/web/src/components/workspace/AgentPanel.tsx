@@ -5,7 +5,7 @@ import {
   AgentWorkspace,
   createBuiltinContentRenderers,
   createBuiltinToolRenderers,
-} from "@do-worker/agent-ui";
+} from "@agent-cloud/agent-ui";
 import { useLocale } from "next-intl";
 import { cn } from "@/lib/utils";
 import { useWorkspaceStore, type SplitDirection } from "@/stores/workspace";

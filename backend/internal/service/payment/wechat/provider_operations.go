@@ -14,8 +14,8 @@ import (
 	"github.com/wechatpay-apiv3/wechatpay-go/services/refunddomestic"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/billing"
-	"github.com/anthropics/agentsmesh/backend/internal/service/payment/types"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/billing"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/payment/types"
 )
 
 func (p *Provider) HandleWebhook(ctx context.Context, payload []byte, signature string) (*types.WebhookEvent, error) {
@@ -165,7 +165,7 @@ func (p *Provider) CreateAgreementSign(ctx context.Context, req *types.Agreement
 		p.appID,
 		p.mchID,
 		contractID,
-		"agentsmesh_subscription",
+		"agentcloud_subscription",
 		req.UserEmail,
 		time.Now().Unix(),
 		p.notifyURL,

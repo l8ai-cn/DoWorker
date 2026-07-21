@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/goalloop"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/goalloop"
 )
 
 type goalLoopTestRepo struct {

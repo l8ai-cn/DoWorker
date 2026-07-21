@@ -103,7 +103,7 @@
       "configDocuments": [],
       "runtimeImage": {
         "name": "Claude Code",
-        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-claude-code@sha256:a9a02976dec14907be8eb6a7f68cd1adc5158099645244be733546b0f3e7041f",
+        "reference": "repo.aiedulab.cn:8443/agentcloud/runner-claude-code@sha256:a9a02976dec14907be8eb6a7f68cd1adc5158099645244be733546b0f3e7041f",
         "availability": "invalid_published_digest"
       },
       "validationStatus": "invalid_published_runtime"
@@ -145,7 +145,7 @@
       "configDocuments": [],
       "runtimeImage": {
         "name": "Codex CLI",
-        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:854952254d5f7ce25db3258034bc71a07169a5730dfe0670243fc10ea437bacd",
+        "reference": "repo.aiedulab.cn:8443/agentcloud/runner-codex-cli@sha256:854952254d5f7ce25db3258034bc71a07169a5730dfe0670243fc10ea437bacd",
         "availability": "locked_available"
       },
       "validationStatus": "runtime_ready_unverified"
@@ -221,7 +221,7 @@
       ],
       "runtimeImage": {
         "name": "Do Agent",
-        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653",
+        "reference": "repo.aiedulab.cn:8443/agentcloud/runner-do-agent@sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653",
         "availability": "locked_available"
       },
       "validationStatus": "runtime_ready_unverified"
@@ -259,7 +259,7 @@
       "configDocuments": [],
       "runtimeImage": {
         "name": "Gemini CLI",
-        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-gemini-cli@sha256:852dba55bcc3213c72a7ee94e9c2da29a44e2ba0d5a9c0a8c15fea5adb8c6cd4",
+        "reference": "repo.aiedulab.cn:8443/agentcloud/runner-gemini-cli@sha256:852dba55bcc3213c72a7ee94e9c2da29a44e2ba0d5a9c0a8c15fea5adb8c6cd4",
         "availability": "invalid_published_digest"
       },
       "validationStatus": "invalid_published_runtime"
@@ -532,7 +532,7 @@
       "configDocuments": [],
       "runtimeImage": {
         "name": "Codex CLI",
-        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:854952254d5f7ce25db3258034bc71a07169a5730dfe0670243fc10ea437bacd",
+        "reference": "repo.aiedulab.cn:8443/agentcloud/runner-codex-cli@sha256:854952254d5f7ce25db3258034bc71a07169a5730dfe0670243fc10ea437bacd",
         "availability": "locked_available"
       },
       "validationStatus": "runtime_ready_unverified"
@@ -603,7 +603,7 @@
       ],
       "runtimeImage": {
         "name": "Do Agent",
-        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653",
+        "reference": "repo.aiedulab.cn:8443/agentcloud/runner-do-agent@sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653",
         "availability": "locked_available"
       },
       "validationStatus": "runtime_ready_unverified"
@@ -645,7 +645,7 @@
       "configDocuments": [],
       "runtimeImage": {
         "name": "Video Studio",
-        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:f3463bc567f1ed8516486e95e17d50f48834275aae7931221b1a3eeb3c526a5d",
+        "reference": "repo.aiedulab.cn:8443/agentcloud/runner-video-studio@sha256:f3463bc567f1ed8516486e95e17d50f48834275aae7931221b1a3eeb3c526a5d",
         "availability": "locked_available"
       },
       "validationStatus": "runtime_ready_unverified"

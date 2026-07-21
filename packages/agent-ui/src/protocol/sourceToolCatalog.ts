@@ -3,7 +3,7 @@ import { create } from "@bufbuild/protobuf";
 import {
   ToolIdentitySchema,
   type ToolIdentity,
-} from "@do-worker/proto/agent_workbench/v2/tool_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/tool_pb";
 
 interface SourceToolDescriptor {
   semanticKey: string;
@@ -94,7 +94,7 @@ export function resolveSourceTool(
   }
 
   return create(ToolIdentitySchema, {
-    namespace: `agentsmesh.${sourceProtocol}`,
+    namespace: `agentcloud.${sourceProtocol}`,
     semanticKey: descriptor.semanticKey,
     schemaVersion: descriptor.schemaVersion,
     sourceToolName: exactSourceToolName,

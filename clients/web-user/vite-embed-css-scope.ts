@@ -1,7 +1,7 @@
 import postcss from "postcss";
 import type { Plugin } from "vite";
 
-const scopeSelector = ".do-worker-app";
+const scopeSelector = ".agent-cloud-app";
 
 function splitTopLevel(selectorList: string): string[] {
   const parts: string[] = [];
@@ -31,7 +31,7 @@ function prefixSelector(selector: string): string {
 }
 
 const scopePlugin = (): postcss.Plugin => ({
-  postcssPlugin: "scope-do-worker",
+  postcssPlugin: "scope-agent-cloud",
   AtRule(atRule) {
     if (atRule.name !== "layer") return;
     if (!atRule.nodes) {
@@ -57,9 +57,9 @@ function scopeCss(css: string): string {
   return postcss([scopePlugin()]).process(css, { from: undefined }).css;
 }
 
-export function scopeDoWorkerCss(): Plugin {
+export function scopeAgentCloudCss(): Plugin {
   return {
-    name: "scope-do-worker-css",
+    name: "scope-agent-cloud-css",
     enforce: "post",
     generateBundle(_options, bundle) {
       for (const file of Object.values(bundle)) {

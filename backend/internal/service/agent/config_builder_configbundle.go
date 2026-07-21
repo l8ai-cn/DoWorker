@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	envbundledomain "github.com/anthropics/agentsmesh/backend/internal/domain/envbundle"
-	envbundleservice "github.com/anthropics/agentsmesh/backend/internal/service/envbundle"
+	envbundledomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/envbundle"
+	envbundleservice "github.com/l8ai-cn/agentcloud/backend/internal/service/envbundle"
 )
 
 func (b *ConfigBuilder) buildConfigBundleContext(

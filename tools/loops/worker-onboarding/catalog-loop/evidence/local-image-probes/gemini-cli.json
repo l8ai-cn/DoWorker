@@ -4,7 +4,7 @@
   "definition_hash": "sha256:deed6b7513abcc40aca9e7cc5f09ca90dd3bab5a54233efdd3422bee09f582e8",
   "platform": "linux/amd64",
   "observed_at": "2026-07-16T16:32:45.539Z",
-  "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-gemini-cli:latest",
+  "image_reference": "agentcloud-codex-loop-blockly-mvp-runner-gemini-cli:latest",
   "image_id": "sha256:9be00cdeb1c8ccf0707479a0343edcfadb2013ad811c65b501abc45473bc7d38",
   "probe_command": [
     "gemini",

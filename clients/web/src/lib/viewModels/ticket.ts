@@ -7,4 +7,4 @@ export type {
   TicketCommit,
   TicketComment,
   BoardColumn,
-} from "@do-worker/service-interface";
+} from "@agent-cloud/service-interface";

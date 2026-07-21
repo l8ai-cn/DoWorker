@@ -3,7 +3,7 @@ package envbundle
 import (
 	"fmt"
 
-	envbundledomain "github.com/anthropics/agentsmesh/backend/internal/domain/envbundle"
+	envbundledomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/envbundle"
 )
 
 // ParseConfigDocuments converts config-kind bundles into parsed JSON values

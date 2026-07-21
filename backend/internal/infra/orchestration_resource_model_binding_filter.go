@@ -3,9 +3,9 @@ package infra
 import (
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
-	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	service "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
+	control "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
+	service "github.com/l8ai-cn/agentcloud/backend/internal/service/orchestrationcontrol"
 	"gorm.io/gorm"
 )
 

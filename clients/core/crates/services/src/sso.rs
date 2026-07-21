@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use agentsmesh_api_client::ApiClient;
-use agentsmesh_types::proto_sso_v1 as sso_proto;
+use agentcloud_api_client::ApiClient;
+use agentcloud_types::proto_sso_v1 as sso_proto;
 use prost::Message;
 
 pub struct SSOService {

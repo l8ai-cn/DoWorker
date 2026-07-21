@@ -37,7 +37,7 @@ import (
 // protoconv helper package — emit calls to functions defined here for
 // time / nullable / slice conversions. Path is fully qualified so
 // `g.QualifiedGoIdent` injects the import automatically.
-const protoconvImportPath = "github.com/anthropics/agentsmesh/backend/pkg/protoconv"
+const protoconvImportPath = "github.com/l8ai-cn/agentcloud/backend/pkg/protoconv"
 
 // flatOutput, when set via the protoc plugin option `flat=1`, causes the
 // plugin to emit `<base>_convert.amesh.go` directly under protoc's `out`
@@ -135,8 +135,8 @@ func protoBasename(file *protogen.File) string {
 }
 
 // workspaceImportPath maps a workspace-relative dir to a Go import path.
-// `backend/internal/api/connect/binding` → `github.com/anthropics/agentsmesh/backend/internal/api/connect/binding`.
-const goModulePrefix = "github.com/anthropics/agentsmesh/"
+// `backend/internal/api/connect/binding` → `github.com/l8ai-cn/agentcloud/backend/internal/api/connect/binding`.
+const goModulePrefix = "github.com/l8ai-cn/agentcloud/"
 
 func workspaceImportPath(dir string) string {
 	return goModulePrefix + strings.TrimPrefix(dir, "/")

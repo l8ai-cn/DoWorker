@@ -1,10 +1,10 @@
 package orchestrationresourceconnect
 
 import (
-	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	resource "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
-	"github.com/anthropics/agentsmesh/backend/pkg/protoconv"
-	resourcev1 "github.com/anthropics/agentsmesh/proto/gen/go/orchestration_resource/v1"
+	control "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
+	resource "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationresource"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/protoconv"
+	resourcev1 "github.com/l8ai-cn/agentcloud/proto/gen/go/orchestration_resource/v1"
 )
 
 func resourceToProto(head control.ResourceHead) *resourcev1.Resource {

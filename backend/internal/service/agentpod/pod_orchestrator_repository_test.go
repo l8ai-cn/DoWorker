@@ -9,10 +9,10 @@ import (
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
 
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
-	runnerDomain "github.com/anthropics/agentsmesh/backend/internal/domain/runner"
-	"github.com/anthropics/agentsmesh/backend/internal/service/repository"
+	podDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/gitprovider"
+	runnerDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/runner"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/repository"
 )
 
 func TestCreatePod_RejectsUnavailableDirectRepository(t *testing.T) {

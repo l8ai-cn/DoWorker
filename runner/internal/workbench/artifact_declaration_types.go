@@ -3,12 +3,12 @@ package workbench
 import (
 	"encoding/json"
 
-	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
+	agentworkbenchv2 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2"
 )
 
 const (
-	artifactDeclarationDirectory = ".do-worker/workbench/artifacts"
-	artifactDeclarationSchema    = "agentsmesh.agent-workbench.artifact/v1"
+	artifactDeclarationDirectory = ".agent-cloud/workbench/artifacts"
+	artifactDeclarationSchema    = "agentcloud.agent-workbench.artifact/v1"
 )
 
 type artifactDeclaration struct {

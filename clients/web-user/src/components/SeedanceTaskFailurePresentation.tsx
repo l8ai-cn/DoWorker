@@ -2,7 +2,7 @@ import {
   type AgentSessionSnapshot,
   UserVideoTaskPresentation,
   userVideoFailureState,
-} from "@do-worker/agent-ui";
+} from "@agent-cloud/agent-ui";
 
 import type {
   Bubble,

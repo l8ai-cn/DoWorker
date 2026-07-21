@@ -7,8 +7,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/anthropics/agentsmesh/runner/internal/acp"
-	"github.com/anthropics/agentsmesh/runner/internal/agents/claude"
+	"github.com/l8ai-cn/agentcloud/runner/internal/acp"
+	"github.com/l8ai-cn/agentcloud/runner/internal/agents/claude"
 )
 
 // AcpControlProcess maintains a long-lived ACP session with the control agent.

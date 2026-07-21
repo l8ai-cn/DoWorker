@@ -3,8 +3,8 @@ package infra
 import (
 	"fmt"
 
-	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
+	control "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workerdependency"
 	"gorm.io/gorm"
 )
 

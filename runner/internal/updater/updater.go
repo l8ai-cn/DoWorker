@@ -1,5 +1,5 @@
 // Package updater provides self-update functionality for the runner.
-// It uses GitHub Releases from l8ai-cn/DoWorker to download and install updates.
+// It uses GitHub Releases from l8ai-cn/AgentCloud to download and install updates.
 package updater
 
 import (
@@ -15,9 +15,9 @@ import (
 
 const (
 	// RepoOwner is the GitHub organization/user that owns the runner repository.
-	RepoOwner = "AgentsMesh"
+	RepoOwner = "Agent Cloud"
 	// RepoName is the name of the runner repository on GitHub.
-	RepoName = "AgentsMesh"
+	RepoName = "Agent Cloud"
 )
 
 // UpdateInfo contains information about an available update.

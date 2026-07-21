@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	channelDomain "github.com/anthropics/agentsmesh/backend/internal/domain/channel"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
-	eventsv1 "github.com/anthropics/agentsmesh/proto/gen/go/events/v1"
+	channelDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/channel"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/eventbus"
+	eventsv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/events/v1"
 )
 
 func TestEditMessage_NotInChannel(t *testing.T) {

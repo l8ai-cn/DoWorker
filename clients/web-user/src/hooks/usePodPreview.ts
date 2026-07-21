@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient, type UseQueryResult } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { authenticatedFetch } from "@/lib/identity";
-import { readDoWorkerOrgSlug } from "@/lib/do-worker";
+import { readAgentCloudOrgSlug } from "@/lib/agent-cloud";
 import {
   parsePreviewBaseUrl,
   parsePreviewSessionUrl,
@@ -93,7 +93,7 @@ export function usePodPreview(
   podKey: string,
   options: UsePodPreviewOptions = {},
 ): UseQueryResult<PodPreviewInfo, Error> {
-  const orgSlug = readDoWorkerOrgSlug();
+  const orgSlug = readAgentCloudOrgSlug();
   const enabled = (options.enabled ?? true) && !!podKey && !!orgSlug;
   const queryClient = useQueryClient();
 

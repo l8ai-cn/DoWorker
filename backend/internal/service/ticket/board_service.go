@@ -3,7 +3,7 @@ package ticket
 import (
 	"context"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/ticket"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/ticket"
 )
 
 func (s *Service) GetBoard(ctx context.Context, filter *ticket.TicketListFilter) (*ticket.Board, error) {

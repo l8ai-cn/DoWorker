@@ -29,7 +29,7 @@ syntax = "proto3";
 
 package proto.ticket_relations.v1;
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/ticket_relations/v1;ticketrelationsv1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/ticket_relations/v1;ticketrelationsv1";
 
 service TicketRelationsService {
   // Relations

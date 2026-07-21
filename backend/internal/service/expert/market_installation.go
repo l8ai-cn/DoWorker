@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/expertmarket"
+	expertdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/expert"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/expertmarket"
 )
 
 func (s *Service) InstallPublishedMarketApplication(

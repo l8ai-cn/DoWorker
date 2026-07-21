@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Build + push every image Do Worker needs into the cluster Harbor so pods
-# on doops-114-k8s pull from repo.aiedulab.cn:8443/agentsmesh/* (fast, node-local).
+# Build + push every image Agent Cloud needs into the cluster Harbor so pods
+# on doops-114-k8s pull from repo.aiedulab.cn:8443/agentcloud/* (fast, node-local).
 #
 #   ./push-images.sh all        # platform + infra + runners
 #   ./push-images.sh platform   # backend/marketplace/marketplace-web/relay/web/web-admin/mobile
@@ -18,7 +18,7 @@
 set -euo pipefail
 
 REG="repo.aiedulab.cn:8443"
-PROJ="${REG}/agentsmesh"
+PROJ="${REG}/agentcloud"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 TARGET="${1:-all}"
@@ -107,23 +107,23 @@ push_runners() {
     --build-arg AGENT_RUNTIME=e2e-echo \
     --build-arg "NODE_BASE_IMAGE=${NODE_BASE_IMAGE:-node:24-bookworm-slim}" \
     --build-arg "PYTHON_BASE_IMAGE=${PYTHON_BASE_IMAGE:-python:3.11-slim-bookworm}" \
-    -t do-worker/runner-e2e-echo:latest \
+    -t agent-cloud/runner-e2e-echo:latest \
     "${REPO_ROOT}/docker/agent-runtime/_context"
-  if docker image inspect "do-worker/runner-minimax-cli:latest" >/dev/null 2>&1; then
+  if docker image inspect "agent-cloud/runner-minimax-cli:latest" >/dev/null 2>&1; then
     :
   elif docker image inspect "l8ai/runner-minimax-cli:latest" >/dev/null 2>&1; then
-    docker tag "l8ai/runner-minimax-cli:latest" "do-worker/runner-minimax-cli:latest"
+    docker tag "l8ai/runner-minimax-cli:latest" "agent-cloud/runner-minimax-cli:latest"
   else
     docker build --platform linux/amd64 --target runtime \
       -f "${REPO_ROOT}/docker/agent-runtime/Dockerfile" \
       --build-arg AGENT_RUNTIME=minimax-cli \
       --build-arg "NODE_BASE_IMAGE=${NODE_BASE_IMAGE:-node:24-bookworm-slim}" \
       --build-arg "PYTHON_BASE_IMAGE=${PYTHON_BASE_IMAGE:-python:3.11-slim-bookworm}" \
-      -t do-worker/runner-minimax-cli:latest \
+      -t agent-cloud/runner-minimax-cli:latest \
       "${REPO_ROOT}/docker/agent-runtime/_context"
   fi
   for rt in claude-code codex-cli gemini-cli do-agent grok-build openclaw hermes e2e-echo minimax-cli; do
-    docker tag "do-worker/runner-${rt}:latest" "${PROJ}/runner-${rt}:latest"
+    docker tag "agent-cloud/runner-${rt}:latest" "${PROJ}/runner-${rt}:latest"
     docker push "${PROJ}/runner-${rt}:latest"
   done
 }

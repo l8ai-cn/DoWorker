@@ -17,11 +17,11 @@ RUNNER_USER="${RUNNER_USER:-runner}"
 RUNNER_GROUP="${RUNNER_GROUP:-runner}"
 RUNNER_PRIVILEGED_BOOTSTRAP_DONE="${RUNNER_PRIVILEGED_BOOTSTRAP_DONE:-0}"
 
-CONFIG_DIR="${HOME}/.do-worker"
-if [[ -d "${HOME}/.agentsmesh" && -w "${HOME}/.agentsmesh" ]]; then
-    CONFIG_DIR="${HOME}/.agentsmesh"
-elif [[ -d "${HOME}/.agentsmesh" && ! -w "${HOME}/.agentsmesh" ]]; then
-    echo "▶ ${HOME}/.agentsmesh not writable (uid $(id -u)); using ${CONFIG_DIR}" >&2
+CONFIG_DIR="${HOME}/.agent-cloud"
+if [[ -d "${HOME}/.agentcloud" && -w "${HOME}/.agentcloud" ]]; then
+    CONFIG_DIR="${HOME}/.agentcloud"
+elif [[ -d "${HOME}/.agentcloud" && ! -w "${HOME}/.agentcloud" ]]; then
+    echo "▶ ${HOME}/.agentcloud not writable (uid $(id -u)); using ${CONFIG_DIR}" >&2
 fi
 CERTS_DIR="${CONFIG_DIR}/certs"
 CONFIG_FILE="${CONFIG_DIR}/config.yaml"
@@ -38,7 +38,7 @@ case "${AGENT_RUNTIME}" in
 esac
 
 echo "========================================"
-echo "  Do Worker Runner Entrypoint"
+echo "  Agent Cloud Runner Entrypoint"
 echo "========================================"
 echo "  Backend URL:    $BACKEND_URL"
 echo "  gRPC Endpoint:  $GRPC_ENDPOINT"
@@ -96,6 +96,6 @@ main() {
     init_ai_cli_configs
     create_config
     echo "启动 Runner..."
-    exec /usr/local/bin/do-worker-runner run --config "$CONFIG_FILE"
+    exec /usr/local/bin/agent-cloud-runner run --config "$CONFIG_FILE"
 }
 main "$@"

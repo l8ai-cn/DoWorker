@@ -1,26 +1,26 @@
 import { afterEach, describe, expect, it } from "vitest";
 
-import { getCliServerUrl, setDoWorkerHostConfig } from "./host";
+import { getCliServerUrl, setAgentCloudHostConfig } from "./host";
 
 afterEach(() => {
-  setDoWorkerHostConfig({});
+  setAgentCloudHostConfig({});
 });
 
 describe("getCliServerUrl", () => {
   it("returns window.location.origin when no suffix is configured", () => {
-    setDoWorkerHostConfig({});
+    setAgentCloudHostConfig({});
     const url = getCliServerUrl();
     expect(url).toBe(window.location.origin);
   });
 
   it("appends the configured cliServerUrlSuffix", () => {
-    setDoWorkerHostConfig({ cliServerUrlSuffix: "/api/2.0/omnigent" });
+    setAgentCloudHostConfig({ cliServerUrlSuffix: "/api/2.0/omnigent" });
     const url = getCliServerUrl();
     expect(url).toBe(`${window.location.origin}/api/2.0/omnigent`);
   });
 
   it("handles an empty string suffix the same as no suffix", () => {
-    setDoWorkerHostConfig({ cliServerUrlSuffix: "" });
+    setAgentCloudHostConfig({ cliServerUrlSuffix: "" });
     expect(getCliServerUrl()).toBe(window.location.origin);
   });
 });

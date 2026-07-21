@@ -15,7 +15,7 @@ export default async function DownloadPage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    name: "Do Worker Runner",
+    name: "Agent Cloud Runner",
     applicationCategory: "DeveloperApplication",
     operatingSystem: "macOS, Windows, Linux",
     softwareVersion: release?.version,

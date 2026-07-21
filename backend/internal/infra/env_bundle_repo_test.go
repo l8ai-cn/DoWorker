@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/envbundle"
-	"github.com/anthropics/agentsmesh/backend/internal/testkit"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/envbundle"
+	"github.com/l8ai-cn/agentcloud/backend/internal/testkit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

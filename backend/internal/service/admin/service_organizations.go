@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/organization"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/runner"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/database"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/organization"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/runner"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/database"
 )
 
 type OrganizationListQuery struct {

@@ -1,6 +1,6 @@
-// Do Worker Service Worker
-const CACHE_NAME = 'do-worker-v1';
-const STATIC_CACHE_NAME = 'do-worker-static-v2';
+// Agent Cloud Service Worker
+const CACHE_NAME = 'agent-cloud-v1';
+const STATIC_CACHE_NAME = 'agent-cloud-static-v2';
 
 // Static assets to cache on install
 const STATIC_ASSETS = [
@@ -105,14 +105,14 @@ self.addEventListener('push', (event) => {
     body,
     icon: icon || '/icons/icon.svg',
     badge: '/icons/icon.svg',
-    tag: tag || 'agentsmesh-notification',
+    tag: tag || 'agentcloud-notification',
     data: notificationData,
     vibrate: [100, 50, 100],
     actions: notificationData?.actions || [],
   };
 
   event.waitUntil(
-    self.registration.showNotification(title || 'AgentsMesh', options)
+    self.registration.showNotification(title || 'Agent Cloud', options)
   );
 });
 

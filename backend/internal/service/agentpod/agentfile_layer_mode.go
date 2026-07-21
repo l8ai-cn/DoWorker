@@ -1,6 +1,6 @@
 package agentpod
 
-import "github.com/anthropics/agentsmesh/agentfile/parser"
+import "github.com/l8ai-cn/agentcloud/agentfile/parser"
 
 // agentfileLayerHasModeDecl reports whether the user-supplied AgentFile layer
 // already selects an interaction mode via a bare `MODE pty` / `MODE acp`

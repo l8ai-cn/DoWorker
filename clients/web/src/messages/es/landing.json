@@ -107,7 +107,7 @@
           "autonomy": "Ejecucion activa de tareas",
           "capabilities": "Desarrollo full-stack",
           "environment": "Acceso completo al terminal",
-          "multiAgent": "Habilitado por Do Worker",
+          "multiAgent": "Habilitado por Agent Cloud",
           "selfHosted": "Totalmente controlable"
         }
       }
@@ -128,9 +128,9 @@
           "4": "Limpieza automatica cuando el trabajo termina"
         }
       },
-      "agentsmesh": {
+      "agentcloud": {
         "title": "Hablan entre ellos. Tu no haces de mensajero.",
-        "subtitle": "Do Worker",
+        "subtitle": "Agent Cloud",
         "description": "Los agentes observan el trabajo de otros, comparten contexto a traves de channels y se coordinan de forma autonoma. Encuentran companeros, negocian accesos y lanzan refuerzos cuando la carga de trabajo lo exige.",
         "highlights": {
           "0": "Los agentes observan los terminales de otros en tiempo real",
@@ -240,7 +240,7 @@
       "title": "Necesitas un Despliegue",
       "titleHighlight": "Self-Hosted",
       "titleEnd": "Completo?",
-      "description": "Tu codigo y datos nunca salen de tu infraestructura. Despliega Do Worker completamente on-premise — perfecto para organizaciones con requisitos estrictos de seguridad y compliance.",
+      "description": "Tu codigo y datos nunca salen de tu infraestructura. Despliega Agent Cloud completamente on-premise — perfecto para organizaciones con requisitos estrictos de seguridad y compliance.",
       "dockerCompose": "Docker Compose",
       "kubernetesHelm": "Kubernetes Helm (Proximamente)",
       "airGappedSupport": "Soporte Air-gapped (Proximamente)",
@@ -260,8 +260,8 @@
       "live": "En vivo",
       "initializingPod": "Inicializando pod...",
       "typeMessage": "Escribe un mensaje...",
-      "connecting": "Conectando a Do Worker...",
-      "connected": "Conectado al servidor Do Worker",
+      "connecting": "Conectando a Agent Cloud...",
+      "connected": "Conectado al servidor Agent Cloud",
       "workspace": "Workspace: /projects/e-commerce",
       "monitorPod": "Monitorear pod beta-dev y ayudar a coordinar la implementacion de autenticacion",
       "bindingPod": "Me vinculare a pod beta-dev para observar y coordinar...",
@@ -317,26 +317,26 @@
         "runner": "Runner",
         "agent": "Agente",
         "websocket": "WebSocket",
-        "agentsmeshCloud": "Do Worker Cloud"
+        "agentcloudCloud": "Agent Cloud Cloud"
       }
     },
     "demoVideo": {
       "title": "Mira a tu futuro equipo",
       "titleHighlight": "en accion",
       "description": "Dos minutos. Del ticket al merge request — completamente autonomo.",
-      "iframeTitle": "Demo del Producto Do Worker",
+      "iframeTitle": "Demo del Producto Agent Cloud",
       "highlight1": "Demo del ciclo completo",
       "highlight2": "Colaboracion multi-agente",
       "highlight3": "Ejecucion autonoma de tareas"
     },
     "footer": {
       "tagline": "Convierte capacidades de IA fragmentadas en Experts que terminan el trabajo.",
-      "copyright": "Do Worker. Todos los derechos reservados.",
+      "copyright": "Agent Cloud. Todos los derechos reservados.",
       "madeWith": "Creado para resultados de trabajo reales",
       "product": {
         "title": "Producto",
         "agentpod": "Worker",
-        "agentsmesh": "Colaboración",
+        "agentcloud": "Colaboración",
         "tickets": "Tareas",
         "runners": "Flota de Runners",
         "enterprise": "Enterprise"
@@ -367,7 +367,7 @@
     },
     "demo": {
       "title": "Solicitar una Demo",
-      "subtitle": "Descubre como Do Worker puede multiplicar la produccion de tu equipo.",
+      "subtitle": "Descubre como Agent Cloud puede multiplicar la produccion de tu equipo.",
       "nameLabel": "Nombre completo",
       "namePlaceholder": "Juan Perez",
       "emailLabel": "Email corporativo",
@@ -389,7 +389,7 @@
       "hero": {
         "badge": "Última versión",
         "title": "Descargar",
-        "titleHighlight": "Do Worker",
+        "titleHighlight": "Agent Cloud",
         "subtitle": "Descarga el Runner autoalojado que mantiene tus agentes, código y datos en tu infraestructura.",
         "downloadFor": "Descargar para {platform}",
         "releasedOn": "Publicado el {date}",

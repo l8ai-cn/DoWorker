@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/blockstore"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/blockstore"
 )
 
 func (s *Service) fireAgentAction(ctx context.Context, t TriggerDef, target *blockstore.Block, op *blockstore.BlockOp) {

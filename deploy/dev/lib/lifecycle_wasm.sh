@@ -1,8 +1,8 @@
 # shellcheck shell=bash
 
-_do_worker_wasm_needs_build() {
+_agent_cloud_wasm_needs_build() {
     local root_dir="$1"
-    local out_js="$root_dir/packages/do-worker-wasm/wasm_pkg.js"
+    local out_js="$root_dir/packages/agent-cloud-wasm/wasm_pkg.js"
     local core_dir="$root_dir/clients/core"
     local input
 
@@ -30,17 +30,17 @@ _do_worker_wasm_needs_build() {
     return 1
 }
 
-_ensure_do_worker_wasm() {
+_ensure_agent_cloud_wasm() {
     local root_dir="$SCRIPT_DIR/../.."
 
-    if ! _do_worker_wasm_needs_build "$root_dir"; then
+    if ! _agent_cloud_wasm_needs_build "$root_dir"; then
         return 0
     fi
 
-    info "构建 do-worker-wasm (pnpm run build:wasm)..."
+    info "构建 agent-cloud-wasm (pnpm run build:wasm)..."
     if ! (cd "$root_dir" && pnpm run build:wasm); then
-        error "do-worker-wasm 构建失败 — 纯 Next 无法解析 wasm"
+        error "agent-cloud-wasm 构建失败 — 纯 Next 无法解析 wasm"
         return 1
     fi
-    success "do-worker-wasm 已就绪"
+    success "agent-cloud-wasm 已就绪"
 }

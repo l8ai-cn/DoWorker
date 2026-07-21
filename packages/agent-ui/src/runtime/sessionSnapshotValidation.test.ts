@@ -4,12 +4,12 @@ import { describe, expect, it } from "vitest";
 import {
   ArtifactStatus,
   ArtifactDescriptorSchema,
-} from "@do-worker/proto/agent_workbench/v2/artifact_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/artifact_pb";
 import {
   CommandReceiptSchema,
   CommandReceiptState,
   PermissionDecision,
-} from "@do-worker/proto/agent_workbench/v2/command_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/command_pb";
 import {
   AuthorizationGrantSchema,
   PermissionRequestSchema,
@@ -17,12 +17,12 @@ import {
   SessionSnapshotSchema,
   TimelineItemContentSchema,
   TimelineItemSchema,
-} from "@do-worker/proto/agent_workbench/v2/session_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/session_pb";
 import {
   PermissionRequestState,
   SessionResourceStatus,
   SessionStatus,
-} from "@do-worker/proto/agent_workbench/v2/session_state_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/session_state_pb";
 import {
   AgentSessionReductionError,
   applySessionSnapshot,

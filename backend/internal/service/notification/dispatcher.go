@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"strings"
 
-	notifDomain "github.com/anthropics/agentsmesh/backend/internal/domain/notification"
+	notifDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/notification"
 )
 
 type Dispatcher struct {

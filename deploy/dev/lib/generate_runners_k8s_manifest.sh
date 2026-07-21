@@ -22,19 +22,19 @@ generate_runners_k8s_manifest() {
     local mcp2_port="${RUNNER_2_MCP_PORT:-10019}"
     local project="${COMPOSE_PROJECT_NAME:?COMPOSE_PROJECT_NAME missing}"
 
-    kubectl create namespace agentsmesh --dry-run=client -o yaml > "$out_dir/00-namespace.yaml"
+    kubectl create namespace agentcloud --dry-run=client -o yaml > "$out_dir/00-namespace.yaml"
 
-    kubectl create secret generic agentsmesh-dev-ca \
-        --namespace=agentsmesh \
+    kubectl create secret generic agentcloud-dev-ca \
+        --namespace=agentcloud \
         --from-file=ca.crt="$SCRIPT_DIR/ssl/ca.crt" \
         --from-file=ca.key="$SCRIPT_DIR/ssl/ca.key" \
         --dry-run=client -o yaml > "$out_dir/01-secret-ca.yaml"
 
-    local ssh_args=(--namespace=agentsmesh)
+    local ssh_args=(--namespace=agentcloud)
     for f in id_ed25519 id_ed25519.pub config known_hosts; do
         [[ -f "$SCRIPT_DIR/runner-ssh/$f" ]] && ssh_args+=(--from-file="$f=$SCRIPT_DIR/runner-ssh/$f")
     done
-    kubectl create secret generic agentsmesh-runner-ssh \
+    kubectl create secret generic agentcloud-runner-ssh \
         "${ssh_args[@]}" \
         --dry-run=client -o yaml > "$out_dir/02-secret-ssh.yaml"
 
@@ -42,10 +42,10 @@ generate_runners_k8s_manifest() {
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: agentsmesh-runner-env
-  namespace: agentsmesh
+  name: agentcloud-runner-env
+  namespace: agentcloud
   labels:
-    app.kubernetes.io/name: agentsmesh-runner
+    app.kubernetes.io/name: agentcloud-runner
 data:
   DO_WORKER_MCP_BIND: "0.0.0.0"
   ANTHROPIC_BASE_URL: "${ANTHROPIC_BASE_URL:-https://api.anthropic.com}"
@@ -58,7 +58,7 @@ data:
   MAX_CONCURRENT_PODS: "10"
   NO_PROXY: "${RUNNER_NO_PROXY:-host.docker.internal,localhost,127.0.0.1,::1,otel-collector,.svc,.cluster.local}"
   OTEL_EXPORTER_OTLP_ENDPOINT: "http://host.docker.internal:${otel_port}"
-  OTEL_SERVICE_NAME: agentsmesh-runner
+  OTEL_SERVICE_NAME: agentcloud-runner
   OTEL_TRACES_SAMPLER_ARG: "1.0"
   RELAY_BASE_URL: "ws://host.docker.internal:${http_port}/relay"
   RUNNER_ORG_SLUG: dev-org
@@ -70,7 +70,7 @@ data:
 EOF
 
     kubectl create configmap runner-entrypoint \
-        --namespace=agentsmesh \
+        --namespace=agentcloud \
         --from-file=runner-entrypoint.sh="$SCRIPT_DIR/runner-entrypoint.sh" \
         --dry-run=client -o yaml > "$out_dir/04-configmap-entrypoint.yaml"
 

@@ -116,7 +116,7 @@
    *      home-indicator devices (and only when `viewport-fit=cover`). The
    *      Android shell can't rely on `env()` alone (unreliable across WebView
    *      versions / nav modes), so it also injects measured insets as
-   *      `--do-worker-android-safe-area-*`; we fold those in with `max()` so the
+   *      `--agent-cloud-android-safe-area-*`; we fold those in with `max()` so the
    *      var stays universal and contributes nothing off the Android shell.
    *   2. Native bar footprint — the pixel height of the iOS shell's floating
    *      server switcher (top) and chat/terminal bar (bottom). The native
@@ -128,27 +128,27 @@
    *
    * The bottom chat/terminal bar overlays page content, so it feeds the
    * content inset. The top server switcher floats within the web header band
-   * (ChatHeader, --do-worker-header-height) and is narrower than it, so content
+   * (ChatHeader, --agent-cloud-header-height) and is narrower than it, so content
    * that already clears the header also clears the switcher — its size is
    * tracked here for symmetry/introspection but is intentionally NOT added to
    * the content top inset to avoid double-counting the header band. */
-  --do-worker-header-height: 3.5rem; /* web ChatHeader (h-14) */
-  --do-worker-safe-top: max(
+  --agent-cloud-header-height: 3.5rem; /* web ChatHeader (h-14) */
+  --agent-cloud-safe-top: max(
     env(safe-area-inset-top, 0px),
-    var(--do-worker-android-safe-area-top, 0px)
+    var(--agent-cloud-android-safe-area-top, 0px)
   );
-  --do-worker-safe-bottom: max(
+  --agent-cloud-safe-bottom: max(
     env(safe-area-inset-bottom, 0px),
-    var(--do-worker-android-safe-area-bottom, 0px)
+    var(--agent-cloud-android-safe-area-bottom, 0px)
   );
-  --do-worker-native-top-bar: 0px; /* set by native bridge (px) */
-  --do-worker-native-bottom-bar: 0px; /* set by native bridge (px) */
-  --do-worker-top-bar-visible: 0; /* web-owned 0|1 */
-  --do-worker-bottom-bar-visible: 0; /* web-owned 0|1 */
-  --do-worker-inset-top: var(--do-worker-safe-top);
-  --do-worker-inset-bottom: calc(
-    var(--do-worker-safe-bottom) + var(--do-worker-native-bottom-bar) *
-      var(--do-worker-bottom-bar-visible)
+  --agent-cloud-native-top-bar: 0px; /* set by native bridge (px) */
+  --agent-cloud-native-bottom-bar: 0px; /* set by native bridge (px) */
+  --agent-cloud-top-bar-visible: 0; /* web-owned 0|1 */
+  --agent-cloud-bottom-bar-visible: 0; /* web-owned 0|1 */
+  --agent-cloud-inset-top: var(--agent-cloud-safe-top);
+  --agent-cloud-inset-bottom: calc(
+    var(--agent-cloud-safe-bottom) + var(--agent-cloud-native-bottom-bar) *
+      var(--agent-cloud-bottom-bar-visible)
   );
 
   /* Brand palette (light). Hex values are the brand spec, kept verbatim
@@ -437,18 +437,18 @@
 @media (width < 48rem) {
   [data-ios-native].app-shell {
     /* Lock the shell to the live visual viewport so the soft keyboard can never
-       pan the whole document (which hides the header). --do-worker-viewport-
+       pan the whole document (which hides the header). --agent-cloud-viewport-
        height is published by useIOSViewportLock from visualViewport.height; it
        shrinks when the keyboard opens so inputs stay above it and only inner
        panes scroll. Falls back to the large viewport before JS runs / on older
        WebKit. The two-line pattern keeps the lvh fallback for browsers without
        the var. */
     height: 100lvh;
-    height: var(--do-worker-viewport-height, 100lvh);
+    height: var(--agent-cloud-viewport-height, 100lvh);
     min-height: 100lvh;
-    min-height: var(--do-worker-viewport-height, 100lvh);
+    min-height: var(--agent-cloud-viewport-height, 100lvh);
     max-height: 100lvh;
-    max-height: var(--do-worker-viewport-height, 100lvh);
+    max-height: var(--agent-cloud-viewport-height, 100lvh);
     overflow: hidden;
   }
 
@@ -487,43 +487,43 @@
     font-size: 16px;
   }
 
-  /* `--do-worker-safe-top` (not raw env()) so this works on Android too, where
+  /* `--agent-cloud-safe-top` (not raw env()) so this works on Android too, where
      env(safe-area-inset-top) is 0 in the WebView and the OS inset arrives via
-     the native-injected `--do-worker-android-safe-area-top`. On iOS the var folds
+     the native-injected `--agent-cloud-android-safe-area-top`. On iOS the var folds
      down to env(), so the iOS result is unchanged. */
   [data-ios-native] .chat-header,
   [data-android-native] .chat-header {
-    top: max(0px, calc(var(--do-worker-safe-top) - 0.5rem));
+    top: max(0px, calc(var(--agent-cloud-safe-top) - 0.5rem));
   }
 
   [data-ios-native] .chat-conversation-content,
   [data-android-native] .chat-conversation-content {
     /* header band + 1.5rem breathing room + OS safe area, sourced from the
        shared inset vars (was a hardcoded 5rem). */
-    padding-top: calc(var(--do-worker-header-height) + 1.5rem + var(--do-worker-inset-top));
+    padding-top: calc(var(--agent-cloud-header-height) + 1.5rem + var(--agent-cloud-inset-top));
   }
 
   [data-ios-native] .main-terminal-view,
   [data-android-native] .main-terminal-view {
-    padding-top: calc(3.25rem + var(--do-worker-inset-top));
+    padding-top: calc(3.25rem + var(--agent-cloud-inset-top));
   }
 
   [data-ios-native] .chat-scroll-fade {
     mask-image: linear-gradient(
       to bottom,
-      transparent calc(48px + var(--do-worker-inset-top)),
-      black calc(80px + var(--do-worker-inset-top))
+      transparent calc(48px + var(--agent-cloud-inset-top)),
+      black calc(80px + var(--agent-cloud-inset-top))
     );
     -webkit-mask-image: linear-gradient(
       to bottom,
-      transparent calc(48px + var(--do-worker-inset-top)),
-      black calc(80px + var(--do-worker-inset-top))
+      transparent calc(48px + var(--agent-cloud-inset-top)),
+      black calc(80px + var(--agent-cloud-inset-top))
     );
   }
 
   [data-ios-native] .chat-composer-form,
   [data-android-native] .chat-composer-form {
-    padding-bottom: calc(0.75rem + var(--do-worker-safe-bottom));
+    padding-bottom: calc(0.75rem + var(--agent-cloud-safe-bottom));
   }
 
   [data-ios-native] .chat-composer-form.terminal-first-composer-form {
@@ -531,7 +531,7 @@
   }
 
   [data-ios-native] .terminal-first-switcher-container {
-    padding-bottom: calc(0.35rem + var(--do-worker-safe-bottom));
+    padding-bottom: calc(0.35rem + var(--agent-cloud-safe-bottom));
   }
 
   /* Reserve room for the native Liquid Glass switcher that floats over the web
@@ -540,13 +540,13 @@
      nativeInsets.ts) plus the home-indicator safe area — so it can never drift
      from the bar's real size. Chat sits 1rem tighter: its composer status line
      already cushions the gap to the bar. */
-  [data-ios-native] .do-worker-native-bottom-spacer {
-    height: var(--do-worker-inset-bottom);
+  [data-ios-native] .agent-cloud-native-bottom-spacer {
+    height: var(--agent-cloud-inset-bottom);
     flex: none;
   }
 
-  [data-ios-native] .do-worker-native-bottom-spacer--chat {
-    height: calc(var(--do-worker-inset-bottom) - 1rem);
+  [data-ios-native] .agent-cloud-native-bottom-spacer--chat {
+    height: calc(var(--agent-cloud-inset-bottom) - 1rem);
   }
 
   [data-ios-native] .terminal-first-switcher {
@@ -622,8 +622,8 @@
       [data-testid="subagents-panel-drawer"],
       [data-testid="todos-panel-drawer"]
     ) {
-    padding-top: var(--do-worker-safe-top);
-    padding-bottom: var(--do-worker-safe-bottom);
+    padding-top: var(--agent-cloud-safe-top);
+    padding-bottom: var(--agent-cloud-safe-bottom);
   }
 }
 
@@ -949,7 +949,7 @@
   animation: shimmer-sweep var(--shimmer-duration, 2s) linear infinite;
 }
 
-/* Do Worker working indicator: gentle pulse on the brand mark. */
+/* Agent Cloud working indicator: gentle pulse on the brand mark. */
 @keyframes dw-logo-pulse {
   0%,
   100% {

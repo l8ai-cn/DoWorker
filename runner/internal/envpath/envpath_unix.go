@@ -15,7 +15,7 @@ import (
 
 // pathSentinel is a unique prefix printed before $PATH so we can extract it
 // even when the login shell profile emits other output (nvm init, banners, etc.).
-const pathSentinel = "AGENTSMESH_PATH="
+const pathSentinel = "AGENTCLOUD_PATH="
 
 // resolveLoginShellPATH resolves the user's login shell PATH by spawning
 // a login shell. This is critical when the runner runs as a systemd/launchd
@@ -71,7 +71,7 @@ func resolveLoginShellPATH() string {
 }
 
 // extractPATHFromShell runs the given command and extracts PATH from its output
-// by looking for the AGENTSMESH_PATH= sentinel prefix.
+// by looking for the AGENTCLOUD_PATH= sentinel prefix.
 func extractPATHFromShell(cmd *exec.Cmd, shell, fallback string) string {
 	out, err := cmd.Output()
 	if err != nil {

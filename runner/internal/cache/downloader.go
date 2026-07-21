@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 )
 
 // maxDownloadSize is the maximum allowed download size (200MB).

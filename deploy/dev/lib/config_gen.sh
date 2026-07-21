@@ -69,12 +69,12 @@ reset_runner_mtls_certs() {
     local cleared=0
     while IFS= read -r container; do
         [[ -z "$container" ]] && continue
-        docker exec "$container" sh -c 'rm -rf "$HOME/.do-worker/certs"/* 2>/dev/null || true' && cleared=$((cleared + 1)) || true
-    done < <(docker ps --filter "name=${COMPOSE_PROJECT_NAME:-agentsmesh-main}-runner" --format '{{.Names}}' 2>/dev/null || true)
+        docker exec "$container" sh -c 'rm -rf "$HOME/.agent-cloud/certs"/* 2>/dev/null || true' && cleared=$((cleared + 1)) || true
+    done < <(docker ps --filter "name=${COMPOSE_PROJECT_NAME:-agentcloud-main}-runner" --format '{{.Names}}' 2>/dev/null || true)
     if (( cleared > 0 )); then
         info "已清除 $cleared 个 runner 容器的旧 mTLS 证书"
         local runner_ids
-        runner_ids=$(docker ps --filter "name=${COMPOSE_PROJECT_NAME:-agentsmesh-main}-runner" -q 2>/dev/null || true)
+        runner_ids=$(docker ps --filter "name=${COMPOSE_PROJECT_NAME:-agentcloud-main}-runner" -q 2>/dev/null || true)
         if [[ -n "$runner_ids" ]]; then
             echo "$runner_ids" | xargs docker restart >/dev/null 2>&1 || true
         fi
@@ -147,7 +147,7 @@ EOF
 # the host, runner is the only docker target and isn't proxied).
 generate_traefik_config() {
     local worktree_name="${WORKTREE_NAME:-main}"
-    local project_name="agentsmesh-${worktree_name}"
+    local project_name="agentcloud-${worktree_name}"
     local traefik_yml="$SCRIPT_DIR/traefik/traefik.yml"
     local dynamic_dir="$SCRIPT_DIR/traefik/dynamic"
     mkdir -p "$dynamic_dir"
@@ -295,7 +295,7 @@ EOF
 # Slot layout: 0-14 docker-exposed, 15-17 host-side services.
 generate_env() {
     local worktree_name=$(get_worktree_name)
-    local project_name="agentsmesh-${worktree_name}"
+    local project_name="agentcloud-${worktree_name}"
 
     if [[ -f "$ENV_FILE" ]] && grep -q "COMPOSE_PROJECT_NAME=$project_name" "$ENV_FILE"; then
         source "$ENV_FILE"
@@ -422,7 +422,7 @@ generate_env() {
     local grpc_port=$((10001 + offset * 50))
 
     cat > "$ENV_FILE" << EOF
-# AgentsMesh Dev Environment - Auto-generated
+# Agent Cloud Dev Environment - Auto-generated
 # Worktree: $worktree_name | Offset: $offset
 
 COMPOSE_PROJECT_NAME=$project_name
@@ -486,7 +486,7 @@ KB_GITEA_REPOSITORY_BASE_URLS=http://gitea:3000
 # =============================================================================
 # Credentials
 # =============================================================================
-POSTGRES_PASSWORD=agentsmesh_dev
+POSTGRES_PASSWORD=agentcloud_dev
 JWT_SECRET=dev-jwt-secret-change-in-production
 INTERNAL_API_SECRET=dev-internal-secret
 MINIO_ROOT_USER=minioadmin
@@ -660,7 +660,7 @@ generate_runner_ssh_key() {
     fi
 
     info "Generating runner SSH key (private key not committed)..."
-    ssh-keygen -t ed25519 -C "agentsmesh-dev-runner@local" -f "$private_key" -N "" > /dev/null
+    ssh-keygen -t ed25519 -C "agentcloud-dev-runner@local" -f "$private_key" -N "" > /dev/null
     chmod 600 "$private_key"
     success "Runner SSH key generated: $private_key"
 }

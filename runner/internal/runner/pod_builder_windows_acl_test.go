@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -49,7 +49,7 @@ func forceWindowsACL(t *testing.T, err error) func() {
 
 func globKnowledgeKeys(t *testing.T, sandbox string) []string {
 	t.Helper()
-	matches, err := filepath.Glob(filepath.Join(sandbox, ".agentsmesh-kb-key-*"))
+	matches, err := filepath.Glob(filepath.Join(sandbox, ".agentcloud-kb-key-*"))
 	require.NoError(t, err)
 	return matches
 }

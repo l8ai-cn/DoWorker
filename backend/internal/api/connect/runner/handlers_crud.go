@@ -6,11 +6,11 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	runner "github.com/anthropics/agentsmesh/backend/internal/service/runner"
-	"github.com/anthropics/agentsmesh/backend/pkg/policy"
-	runnerapiv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner_api/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	runner "github.com/l8ai-cn/agentcloud/backend/internal/service/runner"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/policy"
+	runnerapiv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner_api/v1"
 )
 
 // ListRunners — REST analogue: GET /api/v1/organizations/:slug/runners.

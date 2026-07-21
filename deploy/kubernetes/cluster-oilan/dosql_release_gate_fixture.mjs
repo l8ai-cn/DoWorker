@@ -23,7 +23,7 @@ const evidence = {
   operationId: fields.operationId,
   changeRequestId: fields.changeId,
   mode: "execute",
-  projectId: "agentsmesh",
+  projectId: "agentcloud",
   databaseAssetId: fields.target,
   environmentId: fields.mode,
   executionResult: { status: "succeeded" },
@@ -31,7 +31,7 @@ const evidence = {
   release: {
     cluster: "doops-oilan",
     doopsTarget: "gw-oilan-node",
-    namespace: "agentsmesh",
+    namespace: "agentcloud",
     session: fields.session,
     migrationVersion: fields.version,
     versionSource: {
@@ -59,13 +59,13 @@ for (const [index, status] of statuses.entries()) {
   const event = {
     operationId: fields.operationId,
     changeRequestId: evidence.changeRequestId,
-    projectId: "agentsmesh",
+    projectId: "agentcloud",
     databaseAssetId: evidence.databaseAssetId,
     environmentId: evidence.environmentId,
     release: {
       cluster: "doops-oilan",
       doopsTarget: "gw-oilan-node",
-      namespace: "agentsmesh",
+      namespace: "agentcloud",
       session: evidence.release.session,
       migrationVersion: evidence.release.migrationVersion,
     },

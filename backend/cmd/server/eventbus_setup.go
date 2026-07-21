@@ -3,8 +3,8 @@ package main
 import (
 	"log/slog"
 
-	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/websocket"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/eventbus"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/websocket"
 )
 
 func setupEventBusHub(eb *eventbus.EventBus, hub *websocket.Hub) {

@@ -3,9 +3,9 @@ package main
 import (
 	"log/slog"
 
-	"github.com/anthropics/agentsmesh/backend/internal/service/agent"
-	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
-	tasksvc "github.com/anthropics/agentsmesh/backend/internal/service/tasks"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/agent"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/runner"
+	tasksvc "github.com/l8ai-cn/agentcloud/backend/internal/service/tasks"
 	"github.com/redis/go-redis/v9"
 )
 

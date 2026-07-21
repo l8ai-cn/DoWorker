@@ -7,8 +7,8 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	workflowv1 "github.com/anthropics/agentsmesh/proto/gen/go/workflow/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	workflowv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/workflow/v1"
 )
 
 func jsonRawFromString(s string) json.RawMessage {

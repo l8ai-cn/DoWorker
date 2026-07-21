@@ -4,9 +4,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/promocode"
-	adminservice "github.com/anthropics/agentsmesh/backend/internal/service/admin"
-	promocodev1 "github.com/anthropics/agentsmesh/proto/gen/go/promocode/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/promocode"
+	adminservice "github.com/l8ai-cn/agentcloud/backend/internal/service/admin"
+	promocodev1 "github.com/l8ai-cn/agentcloud/proto/gen/go/promocode/v1"
 )
 
 // toProtoRedemptionDetail enriches the codegen output with derived flat

@@ -1,6 +1,6 @@
 package agentworkbench
 
-import agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
+import agentworkbenchv2 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2"
 
 func runnerBatch(
 	mutations ...*agentworkbenchv2.RunnerWorkbenchMutation,
@@ -75,7 +75,7 @@ func toolContent(
 			ToolExecution: &agentworkbenchv2.ToolExecution{
 				ExecutionId: "execution-1",
 				Identity: &agentworkbenchv2.ToolIdentity{
-					Namespace:     "agentsmesh",
+					Namespace:     "agentcloud",
 					SemanticKey:   "shell.execute",
 					SchemaVersion: "1",
 				},

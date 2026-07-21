@@ -20,20 +20,20 @@ const opencodeDigest = "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 test("builds an explicit local catalog from every verified local runtime", () => {
   const catalog = buildLocalRuntimeCatalog({
     runtimeImages: [
-      ["codex-cli", "agentsmesh-main-runner-codex-cli:latest"],
-      ["gemini-cli", "agentsmesh-main-runner-gemini-cli:latest"],
-      ["minimax-cli", "agentsmesh-main-runner-minimax-cli:latest"],
-      ["openclaw", "agentsmesh-main-runner-openclaw:latest"],
-      ["do-agent", "agentsmesh-main-runner-do-agent:latest"],
-      ["e2e-echo", "agentsmesh-main-runner-e2e-echo:latest"],
+      ["codex-cli", "agentcloud-main-runner-codex-cli:latest"],
+      ["gemini-cli", "agentcloud-main-runner-gemini-cli:latest"],
+      ["minimax-cli", "agentcloud-main-runner-minimax-cli:latest"],
+      ["openclaw", "agentcloud-main-runner-openclaw:latest"],
+      ["do-agent", "agentcloud-main-runner-do-agent:latest"],
+      ["e2e-echo", "agentcloud-main-runner-e2e-echo:latest"],
     ],
     inspectImage: (image) => ({
-      "agentsmesh-main-runner-codex-cli:latest": codexDigest,
-      "agentsmesh-main-runner-gemini-cli:latest": geminiDigest,
-      "agentsmesh-main-runner-minimax-cli:latest": minimaxDigest,
-      "agentsmesh-main-runner-openclaw:latest": openclawDigest,
-      "agentsmesh-main-runner-do-agent:latest": doAgentDigest,
-      "agentsmesh-main-runner-e2e-echo:latest": e2eEchoDigest,
+      "agentcloud-main-runner-codex-cli:latest": codexDigest,
+      "agentcloud-main-runner-gemini-cli:latest": geminiDigest,
+      "agentcloud-main-runner-minimax-cli:latest": minimaxDigest,
+      "agentcloud-main-runner-openclaw:latest": openclawDigest,
+      "agentcloud-main-runner-do-agent:latest": doAgentDigest,
+      "agentcloud-main-runner-e2e-echo:latest": e2eEchoDigest,
     })[image],
   });
 
@@ -52,12 +52,12 @@ test("builds an explicit local catalog from every verified local runtime", () =>
   assert.deepEqual(
     catalog.images.map((image) => image.reference),
     [
-      `docker-daemon://agentsmesh-main-runner-codex-cli:latest@${codexDigest}`,
-      `docker-daemon://agentsmesh-main-runner-gemini-cli:latest@${geminiDigest}`,
-      `docker-daemon://agentsmesh-main-runner-minimax-cli:latest@${minimaxDigest}`,
-      `docker-daemon://agentsmesh-main-runner-openclaw:latest@${openclawDigest}`,
-      `docker-daemon://agentsmesh-main-runner-do-agent:latest@${doAgentDigest}`,
-      `docker-daemon://agentsmesh-main-runner-e2e-echo:latest@${e2eEchoDigest}`,
+      `docker-daemon://agentcloud-main-runner-codex-cli:latest@${codexDigest}`,
+      `docker-daemon://agentcloud-main-runner-gemini-cli:latest@${geminiDigest}`,
+      `docker-daemon://agentcloud-main-runner-minimax-cli:latest@${minimaxDigest}`,
+      `docker-daemon://agentcloud-main-runner-openclaw:latest@${openclawDigest}`,
+      `docker-daemon://agentcloud-main-runner-do-agent:latest@${doAgentDigest}`,
+      `docker-daemon://agentcloud-main-runner-e2e-echo:latest@${e2eEchoDigest}`,
     ],
   );
   assert.ok(catalog.images.every((image) => image.enabled));
@@ -68,22 +68,22 @@ test("supports every formal Worker runtime in the local catalog", () => {
     "aider", "claude-code", "codex-cli", "cursor-cli", "do-agent", "gemini-cli",
     "e2e-echo", "grok-build", "hermes", "loopal", "minimax-cli", "openclaw",
     "opencode", "video-studio",
-  ].map((slug) => [slug, `agentsmesh-main-runner-${slug}:latest`]);
+  ].map((slug) => [slug, `agentcloud-main-runner-${slug}:latest`]);
   const digests = {
-    "agentsmesh-main-runner-aider:latest": aiderDigest,
-    "agentsmesh-main-runner-claude-code:latest": claudeDigest,
-    "agentsmesh-main-runner-codex-cli:latest": codexDigest,
-    "agentsmesh-main-runner-video-studio:latest": videoDigest,
-    "agentsmesh-main-runner-cursor-cli:latest": cursorDigest,
-    "agentsmesh-main-runner-do-agent:latest": doAgentDigest,
-    "agentsmesh-main-runner-e2e-echo:latest": e2eEchoDigest,
-    "agentsmesh-main-runner-gemini-cli:latest": geminiDigest,
-    "agentsmesh-main-runner-grok-build:latest": grokDigest,
-    "agentsmesh-main-runner-hermes:latest": hermesDigest,
-    "agentsmesh-main-runner-loopal:latest": loopalDigest,
-    "agentsmesh-main-runner-minimax-cli:latest": minimaxDigest,
-    "agentsmesh-main-runner-openclaw:latest": openclawDigest,
-    "agentsmesh-main-runner-opencode:latest": opencodeDigest,
+    "agentcloud-main-runner-aider:latest": aiderDigest,
+    "agentcloud-main-runner-claude-code:latest": claudeDigest,
+    "agentcloud-main-runner-codex-cli:latest": codexDigest,
+    "agentcloud-main-runner-video-studio:latest": videoDigest,
+    "agentcloud-main-runner-cursor-cli:latest": cursorDigest,
+    "agentcloud-main-runner-do-agent:latest": doAgentDigest,
+    "agentcloud-main-runner-e2e-echo:latest": e2eEchoDigest,
+    "agentcloud-main-runner-gemini-cli:latest": geminiDigest,
+    "agentcloud-main-runner-grok-build:latest": grokDigest,
+    "agentcloud-main-runner-hermes:latest": hermesDigest,
+    "agentcloud-main-runner-loopal:latest": loopalDigest,
+    "agentcloud-main-runner-minimax-cli:latest": minimaxDigest,
+    "agentcloud-main-runner-openclaw:latest": openclawDigest,
+    "agentcloud-main-runner-opencode:latest": opencodeDigest,
   };
 
   const catalog = buildLocalRuntimeCatalog({
@@ -105,7 +105,7 @@ test("supports every formal Worker runtime in the local catalog", () => {
 
 test("returns no catalog when no requested local runtime has an immutable image ID", () => {
   const catalog = buildLocalRuntimeCatalog({
-    runtimeImages: [["codex-cli", "agentsmesh-main-runner-codex-cli:latest"]],
+    runtimeImages: [["codex-cli", "agentcloud-main-runner-codex-cli:latest"]],
     inspectImage: () => undefined,
   });
 

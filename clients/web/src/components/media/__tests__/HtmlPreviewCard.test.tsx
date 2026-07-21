@@ -5,13 +5,13 @@ import {
   STATIC_HTML_REFERRER_POLICY,
   STATIC_HTML_SANDBOX,
   staticHtmlDocument,
-} from "@do-worker/agent-ui";
+} from "@agent-cloud/agent-ui";
 import { HtmlPreviewCard } from "../HtmlPreviewCard";
 
 const openStaticHtmlInNewWindow = vi.hoisted(() => vi.fn());
 
-vi.mock("@do-worker/agent-ui", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("@do-worker/agent-ui")>()),
+vi.mock("@agent-cloud/agent-ui", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@agent-cloud/agent-ui")>()),
   openStaticHtmlInNewWindow,
 }));
 

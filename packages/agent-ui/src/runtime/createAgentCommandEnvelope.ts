@@ -7,7 +7,7 @@ import {
 import {
   CommandEnvelopeSchema,
   type CommandEnvelope,
-} from "@do-worker/proto/agent_workbench/v2/command_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/command_pb";
 
 export interface CreateAgentCommandEnvelopeInput {
   command: MessageInitShape<typeof CommandEnvelopeSchema>["command"];

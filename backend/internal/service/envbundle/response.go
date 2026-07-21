@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"sort"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/envbundle"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/envbundle"
 )
 
 // ResponseWithValues is strict — Create uses it directly so a freshly written

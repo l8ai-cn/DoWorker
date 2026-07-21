@@ -10,15 +10,15 @@ import { createConnectTransport } from "@connectrpc/connect-web";
 import type {
   CommandEnvelope,
   CommandReceipt,
-} from "@do-worker/proto/agent_workbench/v2/command_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/command_pb";
 import {
   AgentWorkbenchService,
-} from "@do-worker/proto/agent_workbench/v2/service_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/service_pb";
 import type {
   SessionCursor,
   SessionDeltaBatch,
   SessionSnapshot,
-} from "@do-worker/proto/agent_workbench/v2/session_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/session_pb";
 
 export interface AgentWorkbenchSessionTransport {
   execute(

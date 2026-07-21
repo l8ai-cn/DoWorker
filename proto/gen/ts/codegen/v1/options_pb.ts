@@ -1,4 +1,4 @@
-// AgentsMesh codegen annotations.
+// Agent Cloud codegen annotations.
 //
 // Marks proto messages with binding metadata so `tools/protoc-gen-amesh-convert`
 // can generate Go domain↔proto convert functions (`*_convert.gen.go`).
@@ -26,7 +26,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file codegen/v1/options.proto.
  */
 export const file_codegen_v1_options: GenFile = /*@__PURE__*/
-  fileDesc("Chhjb2RlZ2VuL3YxL29wdGlvbnMucHJvdG8SEGFtZXNoLmNvZGVnZW4udjEiUAoIR29Eb21haW4SDAoEdHlwZRgBIAEoCRIZChFnZW5lcmF0ZV90b19wcm90bxgCIAEoCBIbChNnZW5lcmF0ZV9mcm9tX3Byb3RvGAMgASgIIjsKDUNvbnZlcnRUYXJnZXQSEgoKb3V0cHV0X2RpchgBIAEoCRIWCg5vdXRwdXRfcGFja2FnZRgCIAEoCTpaCglnb19kb21haW4SHy5nb29nbGUucHJvdG9idWYuTWVzc2FnZU9wdGlvbnMY0YYDIAEoCzIaLmFtZXNoLmNvZGVnZW4udjEuR29Eb21haW5SCGdvRG9tYWluOkIKDGZpZWxkX3JlbmFtZRIdLmdvb2dsZS5wcm90b2J1Zi5GaWVsZE9wdGlvbnMYtYcDIAEoCVILZmllbGRSZW5hbWU6RQoOZmllbGRfZW51bV9tYXASHS5nb29nbGUucHJvdG9idWYuRmllbGRPcHRpb25zGLaHAyABKAlSDGZpZWxkRW51bU1hcDo+CgpmaWVsZF9za2lwEh0uZ29vZ2xlLnByb3RvYnVmLkZpZWxkT3B0aW9ucxi3hwMgASgIUglmaWVsZFNraXA6QgoMZmllbGRfY3VzdG9tEh0uZ29vZ2xlLnByb3RvYnVmLkZpZWxkT3B0aW9ucxi4hwMgASgJUgtmaWVsZEN1c3RvbTpECg1maWVsZF9jb252ZXJ0Eh0uZ29vZ2xlLnByb3RvYnVmLkZpZWxkT3B0aW9ucxi5hwMgASgJUgxmaWVsZENvbnZlcnQ6ZgoOY29udmVydF90YXJnZXQSHC5nb29nbGUucHJvdG9idWYuRmlsZU9wdGlvbnMY0YYDIAEoCzIfLmFtZXNoLmNvZGVnZW4udjEuQ29udmVydFRhcmdldFINY29udmVydFRhcmdldEJEWkJnaXRodWIuY29tL2FudGhyb3BpY3MvYWdlbnRzbWVzaC9wcm90by9nZW4vZ28vY29kZWdlbi92MTtjb2RlZ2VudjFiBnByb3RvMw", [file_google_protobuf_descriptor]);
+  fileDesc("Chhjb2RlZ2VuL3YxL29wdGlvbnMucHJvdG8SEGFtZXNoLmNvZGVnZW4udjEiUAoIR29Eb21haW4SDAoEdHlwZRgBIAEoCRIZChFnZW5lcmF0ZV90b19wcm90bxgCIAEoCBIbChNnZW5lcmF0ZV9mcm9tX3Byb3RvGAMgASgIIjsKDUNvbnZlcnRUYXJnZXQSEgoKb3V0cHV0X2RpchgBIAEoCRIWCg5vdXRwdXRfcGFja2FnZRgCIAEoCTpaCglnb19kb21haW4SHy5nb29nbGUucHJvdG9idWYuTWVzc2FnZU9wdGlvbnMY0YYDIAEoCzIaLmFtZXNoLmNvZGVnZW4udjEuR29Eb21haW5SCGdvRG9tYWluOkIKDGZpZWxkX3JlbmFtZRIdLmdvb2dsZS5wcm90b2J1Zi5GaWVsZE9wdGlvbnMYtYcDIAEoCVILZmllbGRSZW5hbWU6RQoOZmllbGRfZW51bV9tYXASHS5nb29nbGUucHJvdG9idWYuRmllbGRPcHRpb25zGLaHAyABKAlSDGZpZWxkRW51bU1hcDo+CgpmaWVsZF9za2lwEh0uZ29vZ2xlLnByb3RvYnVmLkZpZWxkT3B0aW9ucxi3hwMgASgIUglmaWVsZFNraXA6QgoMZmllbGRfY3VzdG9tEh0uZ29vZ2xlLnByb3RvYnVmLkZpZWxkT3B0aW9ucxi4hwMgASgJUgtmaWVsZEN1c3RvbTpECg1maWVsZF9jb252ZXJ0Eh0uZ29vZ2xlLnByb3RvYnVmLkZpZWxkT3B0aW9ucxi5hwMgASgJUgxmaWVsZENvbnZlcnQ6ZgoOY29udmVydF90YXJnZXQSHC5nb29nbGUucHJvdG9idWYuRmlsZU9wdGlvbnMY0YYDIAEoCzIfLmFtZXNoLmNvZGVnZW4udjEuQ29udmVydFRhcmdldFINY29udmVydFRhcmdldEJBWj9naXRodWIuY29tL2w4YWktY24vYWdlbnRjbG91ZC9wcm90by9nZW4vZ28vY29kZWdlbi92MTtjb2RlZ2VudjFiBnByb3RvMw", [file_google_protobuf_descriptor]);
 
 /**
  * GoDomain — message-level binding. Declares the Go domain struct this proto
@@ -35,7 +35,7 @@ export const file_codegen_v1_options: GenFile = /*@__PURE__*/
  * Example:
  *   message Pod {
  *     option (amesh.codegen.v1.go_domain) = {
- *       type: "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod.Pod"
+ *       type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod.Pod"
  *       generate_to_proto: true
  *       generate_from_proto: false
  *     };

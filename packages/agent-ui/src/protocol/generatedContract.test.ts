@@ -4,23 +4,23 @@ import { describe, expect, it } from "vitest";
 import {
   ArtifactActionCommandSchema,
   CommandEnvelopeSchema,
-} from "@do-worker/proto/agent_workbench/v2/command_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/command_pb";
 import {
   HtmlContentSchema,
-} from "@do-worker/proto/agent_workbench/v2/content_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/content_pb";
 import {
   AgentEventSchema,
   MessageTimelineItemSchema,
   PermissionRequestSchema,
   SessionSnapshotSchema,
   TimelineItemContentSchema,
-} from "@do-worker/proto/agent_workbench/v2/session_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/session_pb";
 import {
   MessageRole,
   PermissionRequestState,
   SessionStatus,
   TimelineItemStatus,
-} from "@do-worker/proto/agent_workbench/v2/session_state_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/session_state_pb";
 
 describe("generated Agent Workbench V2 contract", () => {
   it("keeps commands as generated oneofs with explicit artifact action versions", () => {

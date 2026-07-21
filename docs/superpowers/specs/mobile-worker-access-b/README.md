@@ -11,7 +11,7 @@
 
 ## 1. 目标
 
-为 Do Worker 提供可发现、可认证、可恢复、可审计的移动端 Worker
+为 Agent Cloud 提供可发现、可认证、可恢复、可审计的移动端 Worker
 接入能力。手机访问的是 Worker 对应的 Pod，不直接进入 Runner 管理面。
 
 本设计覆盖：

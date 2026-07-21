@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	workerruntime "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
+	workerruntime "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerruntime"
 )
 
 type recordingCommandRunner struct {
@@ -130,7 +130,7 @@ func TestDockerLauncherRunMode(t *testing.T) {
 	l := NewDockerLauncher(dockerLauncherConfig{
 		Binary: "docker",
 		ContainerEnv: runnerContainerEnv{
-			AgentImages:  map[string]string{"do-agent": "agentsmesh/runner-do-agent:dev"},
+			AgentImages:  map[string]string{"do-agent": "agentcloud/runner-do-agent:dev"},
 			BackendURL:   "http://backend:8080",
 			GRPCEndpoint: "backend:9443",
 			OrgSlug:      "dev-org",
@@ -145,7 +145,7 @@ func TestDockerLauncherRunMode(t *testing.T) {
 	if !strings.Contains(joined, "docker run") {
 		t.Fatalf("calls = %#v, want docker run", runner.calls)
 	}
-	if !strings.Contains(joined, "agentsmesh/runner-do-agent:dev") {
+	if !strings.Contains(joined, "agentcloud/runner-do-agent:dev") {
 		t.Fatalf("calls = %#v, want agent-specific image", runner.calls)
 	}
 }
@@ -158,7 +158,7 @@ func TestDockerLauncherSkipsRunningContainer(t *testing.T) {
 	l := NewDockerLauncher(dockerLauncherConfig{
 		Binary: "docker",
 		ContainerEnv: runnerContainerEnv{
-			AgentImages: map[string]string{"do-agent": "agentsmesh/runner-do-agent:dev"},
+			AgentImages: map[string]string{"do-agent": "agentcloud/runner-do-agent:dev"},
 		},
 	}, nil)
 	l.runner = runner
@@ -175,7 +175,7 @@ func TestDockerLauncherRunModeRequiresAgentImage(t *testing.T) {
 	l := NewDockerLauncher(dockerLauncherConfig{
 		Binary: "docker",
 		ContainerEnv: runnerContainerEnv{
-			AgentImages: map[string]string{"codex-cli": "agentsmesh/runner-codex-cli:dev"},
+			AgentImages: map[string]string{"codex-cli": "agentcloud/runner-codex-cli:dev"},
 		},
 	}, nil)
 	l.runner = runner
@@ -192,9 +192,9 @@ func TestK8sLauncherApplyPod(t *testing.T) {
 	runner := &recordingCommandRunner{podPhase: map[string]string{}}
 	l := NewK8sLauncher(k8sLauncherConfig{
 		Kubectl:   "kubectl",
-		Namespace: "agentsmesh",
+		Namespace: "agentcloud",
 		ContainerEnv: runnerContainerEnv{
-			AgentImages:  map[string]string{"do-agent": "agentsmesh/runner-do-agent:prod"},
+			AgentImages:  map[string]string{"do-agent": "agentcloud/runner-do-agent:prod"},
 			BackendURL:   "http://backend",
 			GRPCEndpoint: "backend:9443",
 			OrgSlug:      "acme",
@@ -212,7 +212,7 @@ func TestK8sLauncherApplyPod(t *testing.T) {
 	if !strings.Contains(joined, " wait --for=condition=Ready ") {
 		t.Fatalf("calls = %#v, want kubectl wait", runner.calls)
 	}
-	if len(runner.appliedManifests) != 1 || !strings.Contains(runner.appliedManifests[0], "agentsmesh/runner-do-agent:prod") {
+	if len(runner.appliedManifests) != 1 || !strings.Contains(runner.appliedManifests[0], "agentcloud/runner-do-agent:prod") {
 		t.Fatalf("applied manifests = %#v, want agent-specific image", runner.appliedManifests)
 	}
 }
@@ -221,7 +221,7 @@ func TestRenderRunnerPod(t *testing.T) {
 	out, err := renderRunnerPod(k8sPodSpec{
 		Name:              "amesh-runner-1-do-agent",
 		Namespace:         "default",
-		Image:             "agentsmesh/runner:latest",
+		Image:             "agentcloud/runner:latest",
 		ImagePullPolicy:   "IfNotPresent",
 		BackendURL:        "http://backend",
 		GRPCEndpoint:      "backend:9443",
@@ -235,7 +235,7 @@ func TestRenderRunnerPod(t *testing.T) {
 		t.Fatalf("renderRunnerPod: %v", err)
 	}
 	text := string(out)
-	for _, want := range []string{"kind: Pod", "agentsmesh/runner:latest", "/data/ssl"} {
+	for _, want := range []string{"kind: Pod", "agentcloud/runner:latest", "/data/ssl"} {
 		if !strings.Contains(text, want) {
 			t.Fatalf("manifest missing %q:\n%s", want, text)
 		}
@@ -271,7 +271,7 @@ func TestNewRunnerLauncherFromEnv(t *testing.T) {
 	t.Setenv("COORDINATOR_RUNNER_LAUNCHER", "k8s")
 	t.Setenv(
 		"COORDINATOR_RUNNER_IMAGES",
-		"e2e-echo=agentsmesh/runner-e2e-echo@sha256:077eb4511113ddb80dd8e09d7b46ffe3668d6b69d1840c1cbe849e97595087fa",
+		"e2e-echo=agentcloud/runner-e2e-echo@sha256:077eb4511113ddb80dd8e09d7b46ffe3668d6b69d1840c1cbe849e97595087fa",
 	)
 	launcher, kind, err = NewRunnerLauncherFromEnv(
 		workerruntime.DefaultCatalog(),

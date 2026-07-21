@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/extension"
-	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/extension"
+	skilldom "github.com/l8ai-cn/agentcloud/backend/internal/domain/skill"
 )
 
 // ---------------------------------------------------------------------------

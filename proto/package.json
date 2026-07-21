@@ -1,5 +1,5 @@
 {
-  "name": "@do-worker/proto",
+  "name": "@agent-cloud/proto",
   "version": "0.1.0",
   "private": true,
   "type": "module",

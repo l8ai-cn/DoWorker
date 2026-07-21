@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/agentfile/capability"
-	agentdomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
+	"github.com/l8ai-cn/agentcloud/agentfile/capability"
+	agentdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agent"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentsession"
 	"github.com/gin-gonic/gin"
 )
 

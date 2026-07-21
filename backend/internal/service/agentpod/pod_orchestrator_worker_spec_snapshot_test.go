@@ -4,17 +4,17 @@ import (
 	"context"
 	"testing"
 
-	poddomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	runnerDomain "github.com/anthropics/agentsmesh/backend/internal/domain/runner"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
+	poddomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	runnerDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/runner"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workerdependency"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	"github.com/anthropics/agentsmesh/backend/internal/infra"
-	"github.com/anthropics/agentsmesh/backend/internal/service/agent"
-	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/agent"
+	workercreation "github.com/l8ai-cn/agentcloud/backend/internal/service/workercreation"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
 )
 
 func TestPrepareSnapshotWorkerCreateProjectsImmutableSnapshot(t *testing.T) {

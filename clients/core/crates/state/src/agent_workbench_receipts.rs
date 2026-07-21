@@ -1,4 +1,4 @@
-use agentsmesh_types::proto_agent_workbench_v2 as v2;
+use agentcloud_types::proto_agent_workbench_v2 as v2;
 
 use crate::agent_workbench_state::AgentWorkbenchError;
 

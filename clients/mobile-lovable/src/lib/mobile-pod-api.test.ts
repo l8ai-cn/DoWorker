@@ -4,7 +4,7 @@ import {
   GetPodConnectionRequestSchema,
   MobileAccessDescriptorSchema,
   PodConnectionInfoSchema,
-} from "@do-worker/proto/pod/v1/pod_pb";
+} from "@agent-cloud/proto/pod/v1/pod_pb";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { getMobilePodConnection, getMobileWorkerDescriptor } from "./mobile-pod-api";
 import { readOrgSlug } from "./auth-store";

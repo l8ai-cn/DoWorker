@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { AcquireButton } from "./acquire-button";
 
 const target = {
-  market: "do-worker-market",
+  market: "agent-cloud-market",
   listing: "software-delivery-expert",
   version: "301",
 };
@@ -21,7 +21,7 @@ describe("AcquireButton", () => {
 
     expect(screen.getByRole("link", { name: "启用应用" })).toHaveAttribute(
       "href",
-      "https://app.l8ai.cn/marketplace/acquire?market=do-worker-market&listing=software-delivery-expert&version=301",
+      "https://app.l8ai.cn/marketplace/acquire?market=agent-cloud-market&listing=software-delivery-expert&version=301",
     );
   });
 

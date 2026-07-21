@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/agentfile/parser"
+	"github.com/l8ai-cn/agentcloud/agentfile/parser"
 )
 
 // Serialize converts a parsed Program AST back to AgentFile source code.

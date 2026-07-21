@@ -4,7 +4,7 @@ import {
   STATIC_HTML_REFERRER_POLICY,
   STATIC_HTML_SANDBOX,
   staticHtmlDocument,
-} from "@do-worker/agent-ui";
+} from "@agent-cloud/agent-ui";
 import { openHtmlArtifactInNewTab } from "./staticHtmlArtifactPopout";
 import { Toaster } from "@/components/ui/toast";
 

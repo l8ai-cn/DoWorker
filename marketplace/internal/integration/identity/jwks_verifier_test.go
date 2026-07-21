@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	authpkg "github.com/anthropics/agentsmesh/backend/pkg/auth"
+	authpkg "github.com/l8ai-cn/agentcloud/backend/pkg/auth"
 	"github.com/stretchr/testify/require"
 )
 
@@ -45,7 +45,7 @@ func TestJWKSVerifierValidatesCoreAccessToken(t *testing.T) {
 }
 
 func TestJWKSVerifierRejectsWrongAudience(t *testing.T) {
-	manager := newCoreTokenManager(t, []string{"agentsmesh-api"})
+	manager := newCoreTokenManager(t, []string{"agentcloud-api"})
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		require.NoError(t, json.NewEncoder(w).Encode(manager.JWKS()))
 	}))

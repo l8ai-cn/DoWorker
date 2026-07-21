@@ -107,7 +107,7 @@
           "autonomy": "능동적 작업 실행",
           "capabilities": "풀스택 개발",
           "environment": "전체 터미널 접근",
-          "multiAgent": "Do Worker 지원",
+          "multiAgent": "Agent Cloud 지원",
           "selfHosted": "완전 제어 가능"
         }
       }
@@ -128,9 +128,9 @@
           "4": "작업 완료 시 자동 정리"
         }
       },
-      "agentsmesh": {
+      "agentcloud": {
         "title": "에이전트끼리 대화합니다. 당신이 전달자가 될 필요 없습니다.",
-        "subtitle": "Do Worker",
+        "subtitle": "Agent Cloud",
         "description": "에이전트는 서로의 작업을 관찰하고, 채널을 통해 컨텍스트를 공유하며, 자율적으로 협업합니다. 팀원을 찾고, 접근 권한을 협상하고, 워크로드가 늘면 지원군을 자동 생성합니다.",
         "highlights": {
           "0": "에이전트끼리 실시간으로 터미널을 관찰",
@@ -240,7 +240,7 @@
       "title": "완전한",
       "titleHighlight": "셀프 호스트",
       "titleEnd": "배포가 필요하신가요?",
-      "description": "코드와 데이터가 인프라를 벗어나지 않습니다. Do Worker를 완전히 온프레미스로 배포 — 엄격한 보안 및 규정 준수 요구 사항이 있는 조직에 최적.",
+      "description": "코드와 데이터가 인프라를 벗어나지 않습니다. Agent Cloud를 완전히 온프레미스로 배포 — 엄격한 보안 및 규정 준수 요구 사항이 있는 조직에 최적.",
       "dockerCompose": "Docker Compose",
       "kubernetesHelm": "Kubernetes Helm (출시 예정)",
       "airGappedSupport": "에어갭 지원 (출시 예정)",
@@ -260,8 +260,8 @@
       "live": "실시간",
       "initializingPod": "Pod 초기화 중...",
       "typeMessage": "메시지 입력...",
-      "connecting": "Do Worker에 연결 중...",
-      "connected": "Do Worker 서버에 연결됨",
+      "connecting": "Agent Cloud에 연결 중...",
+      "connected": "Agent Cloud 서버에 연결됨",
       "workspace": "작업 공간: /projects/e-commerce",
       "monitorPod": "pod beta-dev를 모니터링하고 인증 구현 조정 지원",
       "bindingPod": "beta-dev에 바인딩하여 관찰 및 조정합니다...",
@@ -317,26 +317,26 @@
         "runner": "Runner",
         "agent": "에이전트",
         "websocket": "WebSocket",
-        "agentsmeshCloud": "Do Worker 클라우드"
+        "agentcloudCloud": "Agent Cloud 클라우드"
       }
     },
     "demoVideo": {
       "title": "미래의 팀을",
       "titleHighlight": "직접 확인하세요",
       "description": "2분. 티켓에서 머지 리퀘스트까지 — 완전 자율.",
-      "iframeTitle": "Do Worker 제품 데모",
+      "iframeTitle": "Agent Cloud 제품 데모",
       "highlight1": "전체 라이프사이클 데모",
       "highlight2": "멀티 에이전트 협업",
       "highlight3": "자율형 작업 완료"
     },
     "footer": {
       "tagline": "분산된 AI 역량을 업무를 끝내는 Expert로 전환합니다.",
-      "copyright": "Do Worker. All rights reserved.",
+      "copyright": "Agent Cloud. All rights reserved.",
       "madeWith": "실제 업무 결과를 위해 설계",
       "product": {
         "title": "제품",
         "agentpod": "Worker",
-        "agentsmesh": "협업",
+        "agentcloud": "협업",
         "tickets": "작업 관리",
         "runners": "Runner 플릿",
         "enterprise": "엔터프라이즈"
@@ -367,7 +367,7 @@
     },
     "demo": {
       "title": "데모 요청",
-      "subtitle": "Do Worker가 팀의 생산성을 어떻게 배가시키는지 확인하세요.",
+      "subtitle": "Agent Cloud가 팀의 생산성을 어떻게 배가시키는지 확인하세요.",
       "nameLabel": "이름",
       "namePlaceholder": "홍길동",
       "emailLabel": "업무 이메일",
@@ -389,7 +389,7 @@
       "hero": {
         "badge": "최신 릴리스",
         "title": "다운로드",
-        "titleHighlight": "Do Worker",
+        "titleHighlight": "Agent Cloud",
         "subtitle": "셀프 호스팅 Runner를 다운로드해 에이전트, 코드, 데이터를 자체 인프라에 보관하세요.",
         "downloadFor": "{platform} 버전 다운로드",
         "releasedOn": "{date} 릴리스",

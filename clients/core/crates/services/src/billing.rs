@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use agentsmesh_api_client::ApiClient;
-use agentsmesh_types::proto_billing_v1 as billing_proto;
+use agentcloud_api_client::ApiClient;
+use agentcloud_types::proto_billing_v1 as billing_proto;
 use prost::Message;
 
 pub struct BillingService {

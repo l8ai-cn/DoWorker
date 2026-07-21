@@ -3,11 +3,11 @@ package v1
 import (
 	"sync"
 
-	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	expertservice "github.com/anthropics/agentsmesh/backend/internal/service/expert"
-	grantservice "github.com/anthropics/agentsmesh/backend/internal/service/grant"
-	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
-	workerspecservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
+	expertservice "github.com/l8ai-cn/agentcloud/backend/internal/service/expert"
+	grantservice "github.com/l8ai-cn/agentcloud/backend/internal/service/grant"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/runner"
+	workerspecservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
 )
 
 // PodHandler handles pod-related requests.

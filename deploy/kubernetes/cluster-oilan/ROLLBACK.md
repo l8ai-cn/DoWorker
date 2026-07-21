@@ -1,4 +1,4 @@
-# AgentsMesh Oilan Rollback
+# Agent Cloud Oilan Rollback
 
 1. Revert the release commit on `main`, push it, and wait for the required
    GitHub checks. This restores the previous GitOps manifests and image digests.
@@ -6,9 +6,9 @@
 
 ```bash
 doops -session <rollback-session> exec --target gw-oilan-node --cmd \
-  'kubectl -n agentsmesh scale deploy/backend deploy/marketplace --replicas=0 &&
-   kubectl -n agentsmesh wait --for=delete pod -l app=backend --timeout=180s &&
-   kubectl -n agentsmesh wait --for=delete pod -l app=marketplace --timeout=180s'
+  'kubectl -n agentcloud scale deploy/backend deploy/marketplace --replicas=0 &&
+   kubectl -n agentcloud wait --for=delete pod -l app=backend --timeout=180s &&
+   kubectl -n agentcloud wait --for=delete pod -l app=marketplace --timeout=180s'
 ```
 
 3. Select the exact pre-release backup printed by the failed deployment. Never
@@ -17,15 +17,15 @@ doops -session <rollback-session> exec --target gw-oilan-node --cmd \
 
 ```bash
 doops -session <rollback-session> exec --target gw-oilan-node --cmd \
-  'set -eu; cd /root/backups/agentsmesh;
+  'set -eu; cd /root/backups/agentcloud;
    backup="<pre-migrate-release-sha-UTC>.dump";
    test -f "$backup" && test -f "$backup.sha256";
    sha256sum -c "$backup.sha256";
-   kubectl -n agentsmesh exec deploy/postgres -- sh -ceu '"'"'
+   kubectl -n agentcloud exec deploy/postgres -- sh -ceu '"'"'
      export PGPASSWORD="$POSTGRES_PASSWORD";
      dropdb --force --if-exists -U "$POSTGRES_USER" "$POSTGRES_DB";
      createdb -U "$POSTGRES_USER" "$POSTGRES_DB"'"'"';
-   cat "$backup" | kubectl -n agentsmesh exec -i deploy/postgres -- sh -ceu '"'"'
+   cat "$backup" | kubectl -n agentcloud exec -i deploy/postgres -- sh -ceu '"'"'
      export PGPASSWORD="$POSTGRES_PASSWORD";
      pg_restore --clean --if-exists --no-owner --no-privileges \
        -U "$POSTGRES_USER" -d "$POSTGRES_DB"'"'"

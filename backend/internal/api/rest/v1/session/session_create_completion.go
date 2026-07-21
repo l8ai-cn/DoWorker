@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strings"
 
-	sessionDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
-	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	sessionDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentsession"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
 	"github.com/gin-gonic/gin"
 )
 

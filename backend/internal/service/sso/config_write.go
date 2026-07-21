@@ -9,8 +9,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/sso"
-	"github.com/anthropics/agentsmesh/backend/pkg/crypto"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/sso"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/crypto"
 	samlLib "github.com/crewjam/saml"
 	"gorm.io/gorm"
 )

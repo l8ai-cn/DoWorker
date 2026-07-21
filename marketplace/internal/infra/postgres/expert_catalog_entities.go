@@ -12,12 +12,12 @@ func ensureExpertMarket(tx *gorm.DB) (expertCatalogReferences, error) {
 	if err := tx.Raw(`
 SELECT id AS marketplace_id, default_quota_plan_id AS quota_plan_id
 FROM marketplace.marketplaces
-WHERE slug = 'do-worker-market' AND status = 'published'
+WHERE slug = 'agent-cloud-market' AND status = 'published'
 `).Scan(&refs).Error; err != nil {
 		return refs, err
 	}
 	if refs.MarketplaceID == 0 || refs.QuotaPlanID == 0 {
-		return refs, fmt.Errorf("published do-worker-market with quota plan is required")
+		return refs, fmt.Errorf("published agent-cloud-market with quota plan is required")
 	}
 	if err := tx.Raw(`
 INSERT INTO marketplace.marketplace_spaces
@@ -54,13 +54,13 @@ func ensureExpertPublisher(
 	if release.IsOperatorOwned {
 		err := tx.Raw(`
 SELECT id FROM marketplace.marketplace_publishers
-WHERE slug = 'do-worker' AND publisher_type = 'platform'
+WHERE slug = 'agent-cloud' AND publisher_type = 'platform'
 `).Scan(&row).Error
 		if err != nil {
 			return 0, err
 		}
 		if row.ID == 0 {
-			return 0, fmt.Errorf("do-worker platform publisher is required")
+			return 0, fmt.Errorf("agent-cloud platform publisher is required")
 		}
 		return row.ID, nil
 	}

@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	channelDomain "github.com/anthropics/agentsmesh/backend/internal/domain/channel"
+	channelDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/channel"
 )
 
 func strPtr(s string) *string { return &s }

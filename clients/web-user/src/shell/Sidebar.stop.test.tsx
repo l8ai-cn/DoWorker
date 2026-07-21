@@ -157,7 +157,7 @@ describe("sidebar Stop session item", () => {
         ...HOST_SPAWNED,
         host_id: undefined,
         runner_id: undefined,
-        labels: { "do-worker.wrapper": "claude-code-native-ui" },
+        labels: { "agent-cloud.wrapper": "claude-code-native-ui" },
       },
     ]);
     renderSidebar();

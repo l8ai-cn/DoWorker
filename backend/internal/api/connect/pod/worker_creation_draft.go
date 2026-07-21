@@ -7,11 +7,11 @@ import (
 	"fmt"
 	"io"
 
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
-	podv1 "github.com/anthropics/agentsmesh/proto/gen/go/pod/v1"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	workercreation "github.com/l8ai-cn/agentcloud/backend/internal/service/workercreation"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
+	podv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/pod/v1"
 )
 
 func workerDraftFromProto(message *podv1.WorkerSpecDraft) (workercreation.Draft, error) {

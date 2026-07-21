@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/billing"
-	orgDomain "github.com/anthropics/agentsmesh/backend/internal/domain/organization"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/billing"
+	orgDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/organization"
 )
 
 // personalStubRepo is a minimal Repository implementation for CreatePersonal tests.

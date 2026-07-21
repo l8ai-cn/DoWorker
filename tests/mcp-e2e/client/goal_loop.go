@@ -34,7 +34,7 @@ func (r *REST) CreateGoalLoop(
 	req CreateGoalLoopRequest,
 ) (*GoalLoop, error) {
 	manifest := map[string]any{
-		"apiVersion": "agentsmesh.io/v1alpha1",
+		"apiVersion": "agentcloud.io/v1alpha1",
 		"kind":       "GoalLoop",
 		"metadata": map[string]any{
 			"name": req.Name, "namespace": orgSlug,

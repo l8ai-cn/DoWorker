@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"sort"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
-	orchestrationservice "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationresource"
+	orchestrationservice "github.com/l8ai-cn/agentcloud/backend/internal/service/orchestrationcontrol"
 )
 
 type applyReferenceEntry struct {

@@ -1,4 +1,4 @@
-export const APP_NAME = "Do Worker";
+export const APP_NAME = "Agent Cloud";
 export const APP_TAGLINE = "AI Agent Workforce Platform";
 
 export function pageTitle(segment?: string): string {

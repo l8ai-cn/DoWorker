@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/blockstore"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/blockstore"
 )
 
 // buildOpContext is the only helper that converts ActorContext audit
@@ -19,13 +19,13 @@ func TestBuildOpContext_PopulatesAllPresentFields(t *testing.T) {
 		TraceID:   "4bf92f3577b34da6a3ce929d0e0e4736",
 		RequestID: "req-99",
 		IP:        "10.0.0.1",
-		UserAgent: "agentsmesh-cli/1.0",
+		UserAgent: "agentcloud-cli/1.0",
 	}
 	got := buildOpContext(actor)
 	assert.Equal(t, "4bf92f3577b34da6a3ce929d0e0e4736", got["trace_id"])
 	assert.Equal(t, "req-99", got["request_id"])
 	assert.Equal(t, "10.0.0.1", got["ip"])
-	assert.Equal(t, "agentsmesh-cli/1.0", got["user_agent"])
+	assert.Equal(t, "agentcloud-cli/1.0", got["user_agent"])
 }
 
 func TestBuildOpContext_OmitsEmptyFields(t *testing.T) {

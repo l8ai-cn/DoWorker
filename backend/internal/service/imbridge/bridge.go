@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"strings"
 
-	channelDomain "github.com/anthropics/agentsmesh/backend/internal/domain/channel"
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/imbridge"
-	channelSvc "github.com/anthropics/agentsmesh/backend/internal/service/channel"
+	channelDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/channel"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/imbridge"
+	channelSvc "github.com/l8ai-cn/agentcloud/backend/internal/service/channel"
 )
 
 type contextKey struct{}
@@ -179,7 +179,7 @@ func (b *Bridge) OutboundHook() channelSvc.PostSendHook {
 			if err := p.SendOutbound(ctx, conn.Config, OutboundMessage{
 				ExternalThreadID: threadID,
 				Text:             body,
-				SenderLabel:      "Do Worker",
+				SenderLabel:      "Agent Cloud",
 				ContextToken:     contextToken,
 			}); err != nil {
 				b.markError(ctx, conn, err.Error())

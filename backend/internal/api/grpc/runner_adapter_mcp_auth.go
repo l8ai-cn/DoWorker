@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
 )
 
 func (a *GRPCRunnerAdapter) authenticatePod(ctx context.Context, podKey, orgSlug string) (*middleware.TenantContext, error) {

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationresource"
 	"github.com/stretchr/testify/require"
 )
 
@@ -153,7 +153,7 @@ func TestComputePlanHashDistinguishesCreateAndUpdateBaseState(t *testing.T) {
 
 func TestCanonicalDraftHashIgnoresJSONAndYAMLSourceFormatting(t *testing.T) {
 	jsonSource := []byte(`{
-		"apiVersion":"agentsmesh.io/v1alpha1",
+		"apiVersion":"agentcloud.io/v1alpha1",
 		"kind":"WorkerTemplate",
 		"metadata":{"name":"worker-one","namespace":"team-alpha"},
 		"spec":{"settings":{"b":2,"a":1}}
@@ -165,7 +165,7 @@ metadata:
   name: worker-one
 spec:
   settings: {a: 1, b: 2}
-apiVersion: agentsmesh.io/v1alpha1
+apiVersion: agentcloud.io/v1alpha1
 `)
 	fromJSON, err := orchestrationresource.DecodeJSONSubmission(jsonSource)
 	require.NoError(t, err)

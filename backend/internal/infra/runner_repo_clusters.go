@@ -3,8 +3,8 @@ package infra
 import (
 	"context"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/executioncluster"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/executioncluster"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 	"gorm.io/gorm/clause"
 )
 

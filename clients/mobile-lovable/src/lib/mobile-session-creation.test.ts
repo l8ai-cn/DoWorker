@@ -2,7 +2,7 @@ import { create, fromBinary, toBinary } from "@bufbuild/protobuf";
 import {
   ListWorkerCreateOptionsRequestSchema,
   ListWorkerCreateOptionsResponseSchema,
-} from "@do-worker/proto/pod/v1/worker_creation_pb";
+} from "@agent-cloud/proto/pod/v1/worker_creation_pb";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiFetch } from "./api-fetch";
 import { readOrgSlug } from "./auth-store";

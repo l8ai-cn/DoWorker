@@ -8,14 +8,14 @@ import (
 func TestBuildMCPServersConfig_Format(t *testing.T) {
 	config := BuildMCPServersConfig(8080, "pod-one")
 
-	am, ok := config["agentsmesh"]
+	am, ok := config["agentcloud"]
 	if !ok {
-		t.Fatal("missing 'agentsmesh' key")
+		t.Fatal("missing 'agentcloud' key")
 	}
 
 	amMap, ok := am.(map[string]any)
 	if !ok {
-		t.Fatal("'agentsmesh' value should be map[string]any")
+		t.Fatal("'agentcloud' value should be map[string]any")
 	}
 
 	if amMap["type"] != "http" {
@@ -44,7 +44,7 @@ func TestBuildMCPServersConfig_DifferentPorts(t *testing.T) {
 		t.Run(fmt.Sprintf("port_%d", port), func(t *testing.T) {
 			config := BuildMCPServersConfig(port, "pod-one")
 
-			amMap := config["agentsmesh"].(map[string]any)
+			amMap := config["agentcloud"].(map[string]any)
 			expectedURL := fmt.Sprintf("http://127.0.0.1:%d/mcp", port)
 			if amMap["url"] != expectedURL {
 				t.Errorf("url = %v, want %q", amMap["url"], expectedURL)
@@ -63,7 +63,7 @@ func TestBuildMCPServersConfig_OnlyOneKey(t *testing.T) {
 
 func TestBuildMCPServersConfig_InnerMapHasThreeKeys(t *testing.T) {
 	config := BuildMCPServersConfig(8080, "pod-one")
-	amMap := config["agentsmesh"].(map[string]any)
+	amMap := config["agentcloud"].(map[string]any)
 
 	if len(amMap) != 3 {
 		t.Errorf("expected 3 keys in inner map (type, url, headers), got %d", len(amMap))

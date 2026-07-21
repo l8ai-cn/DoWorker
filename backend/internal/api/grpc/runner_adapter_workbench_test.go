@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
-	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/runner"
+	agentworkbenchv2 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 	"github.com/stretchr/testify/require"
 )
 

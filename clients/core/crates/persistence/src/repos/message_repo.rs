@@ -76,7 +76,7 @@ impl MessageRow for () {
 
 // Blanket impl for the proto-generated state schema. Same rationale as
 // `ChannelRow for proto Channel`.
-impl MessageRow for agentsmesh_types::proto_channel_state_v1::ChannelMessage {
+impl MessageRow for agentcloud_types::proto_channel_state_v1::ChannelMessage {
     fn id(&self) -> i64 {
         self.id
     }

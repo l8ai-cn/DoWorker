@@ -3,8 +3,8 @@ package runner
 import (
 	"testing"
 
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
-	"github.com/anthropics/agentsmesh/runner/internal/autopilot"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
+	"github.com/l8ai-cn/agentcloud/runner/internal/autopilot"
 )
 
 // --- Stub types for autopilot tests ---

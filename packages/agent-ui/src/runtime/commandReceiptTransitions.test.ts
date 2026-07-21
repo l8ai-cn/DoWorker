@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import {
   CommandReceiptSchema,
   CommandReceiptState,
-} from "@do-worker/proto/agent_workbench/v2/command_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/command_pb";
 import { mergeTransportCommandReceipt } from "./commandReceiptTransitions";
 
 describe("transport command receipt merge", () => {

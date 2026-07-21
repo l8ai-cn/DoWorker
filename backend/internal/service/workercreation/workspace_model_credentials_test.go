@@ -4,10 +4,10 @@ import (
 	"context"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/envbundle"
-	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/envbundle"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/workerdefinition"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

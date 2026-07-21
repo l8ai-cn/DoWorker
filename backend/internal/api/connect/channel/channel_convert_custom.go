@@ -3,11 +3,11 @@ package channelconnect
 import (
 	"encoding/json"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/channel"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/user"
-	"github.com/anthropics/agentsmesh/backend/pkg/protoconv"
-	channelv1 "github.com/anthropics/agentsmesh/proto/gen/go/channel/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/channel"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/user"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/protoconv"
+	channelv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/channel/v1"
 )
 
 // contentJSONToProto encodes the rich AST as JSON. Field_custom helper

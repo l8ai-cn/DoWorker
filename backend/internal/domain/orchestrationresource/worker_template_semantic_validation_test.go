@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
 )
 
 func TestWorkerTemplateRejectsInvalidStaticWorkerSpecSemantics(t *testing.T) {

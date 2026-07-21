@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use agentsmesh_api_client::ApiClient;
-use agentsmesh_services::FileService;
+use agentcloud_api_client::ApiClient;
+use agentcloud_services::FileService;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]

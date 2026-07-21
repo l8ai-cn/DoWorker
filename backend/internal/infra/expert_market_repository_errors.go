@@ -3,7 +3,7 @@ package infra
 import (
 	"errors"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/expertmarket"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/expertmarket"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )

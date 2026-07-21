@@ -14,7 +14,7 @@ describe("marketplace api", () => {
 
   it("uses the internal API URL and configured request host", async () => {
     const fetchMock = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify({ slug: "do-worker-market" })),
+      new Response(JSON.stringify({ slug: "agent-cloud-market" })),
     );
     vi.stubGlobal("fetch", fetchMock);
     vi.stubEnv("MARKETPLACE_API_INTERNAL_URL", "http://marketplace-api:8080/");
@@ -23,7 +23,7 @@ describe("marketplace api", () => {
     await getMarket();
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "http://marketplace-api:8080/api/marketplace/v1/markets/do-worker-market",
+      "http://marketplace-api:8080/api/marketplace/v1/markets/agent-cloud-market",
       expect.objectContaining({
         headers: { "X-Forwarded-Host": "market.example.cn" },
       }),
@@ -54,10 +54,10 @@ describe("marketplace api", () => {
     await getListing("software-delivery-expert");
 
     expect(fetchMock.mock.calls[0][0]).toBe(
-      "http://marketplace:8080/api/marketplace/v1/markets/do-worker-market/listings?q=%E4%BA%A4%E4%BB%98&scene=software-delivery&industry=enterprise-services&audience=engineering-lead&capability=e2e-testing&type=application&integration=github&readiness=runner-required&space=software-delivery&sort=latest",
+      "http://marketplace:8080/api/marketplace/v1/markets/agent-cloud-market/listings?q=%E4%BA%A4%E4%BB%98&scene=software-delivery&industry=enterprise-services&audience=engineering-lead&capability=e2e-testing&type=application&integration=github&readiness=runner-required&space=software-delivery&sort=latest",
     );
     expect(fetchMock.mock.calls[1][0]).toMatch(
-      /do-worker-market\/listings\/software-delivery-expert$/,
+      /agent-cloud-market\/listings\/software-delivery-expert$/,
     );
   });
 });

@@ -1,3 +1,3 @@
-module github.com/agentsmesh/demo-api
+module github.com/agentcloud/demo-api
 
 go 1.22

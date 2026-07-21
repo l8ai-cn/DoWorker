@@ -18,14 +18,14 @@ func TestReplaceURLHost(t *testing.T) {
 		{
 			name:    "wss with non-standard port",
 			rawURL:  "wss://47.77.190.14:8443",
-			newHost: "01.relay.agentsmesh.ai",
-			want:    "wss://01.relay.agentsmesh.ai:8443",
+			newHost: "01.relay.agentcloud.ai",
+			want:    "wss://01.relay.agentcloud.ai:8443",
 		},
 		{
 			name:    "wss without port",
 			rawURL:  "wss://47.77.190.14",
-			newHost: "01.relay.agentsmesh.ai",
-			want:    "wss://01.relay.agentsmesh.ai",
+			newHost: "01.relay.agentcloud.ai",
+			want:    "wss://01.relay.agentcloud.ai",
 		},
 		{
 			name:    "ws with port",
@@ -42,8 +42,8 @@ func TestReplaceURLHost(t *testing.T) {
 		{
 			name:    "with path preserved",
 			rawURL:  "wss://47.77.190.14:8443/ws",
-			newHost: "01.relay.agentsmesh.ai",
-			want:    "wss://01.relay.agentsmesh.ai:8443/ws",
+			newHost: "01.relay.agentcloud.ai",
+			want:    "wss://01.relay.agentcloud.ai:8443/ws",
 		},
 		{
 			name:    "existing domain replaced",

@@ -1,5 +1,5 @@
 use crate::ticket_state::{ticket_priority, ticket_status, TicketState, ViewMode};
-use agentsmesh_types::proto_ticket_v1::{BoardColumn, Label, Ticket};
+use agentcloud_types::proto_ticket_v1::{BoardColumn, Label, Ticket};
 
 fn tk(slug: &str, title: &str) -> Ticket {
     Ticket {

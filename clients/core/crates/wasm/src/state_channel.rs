@@ -1,16 +1,16 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use agentsmesh_state::app_state::AppState;
-use agentsmesh_state::channel_state::ChannelSortMode;
-use agentsmesh_state::channel_types::ChannelMessage;
-use agentsmesh_types::proto_channel_state_v1::{
+use agentcloud_state::app_state::AppState;
+use agentcloud_state::channel_state::ChannelSortMode;
+use agentcloud_state::channel_types::ChannelMessage;
+use agentcloud_types::proto_channel_state_v1::{
     ApplyChannelMessageEditedEventRequest, ApplyIncomingChannelMessageRequest,
     InsertChannelMessageRequest, InsertChannelRequest, PatchChannelMemberCountRequest,
     RemoveChannelMemberRequest, ReplaceCachedChannelMessagesRequest, ReplaceCachedChannelsRequest,
     ReplaceChannelMembersRequest, ReplaceChannelPodsRequest, ReplaceChannelUnreadCountsRequest,
 };
-use agentsmesh_types::proto_channel_v1::{
+use agentcloud_types::proto_channel_v1::{
     Channel, ListChannelMembersResponse, ListChannelMessagesResponse, ListChannelPodsResponse,
     ListChannelsResponse,
 };

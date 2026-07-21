@@ -3,7 +3,7 @@ package skill
 import (
 	"context"
 
-	"github.com/anthropics/agentsmesh/backend/internal/service/gitops"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/gitops"
 )
 
 // ErrFileNotFound mirrors gitops.ErrNotFound so REST callers can map content

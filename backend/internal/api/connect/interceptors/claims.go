@@ -3,7 +3,7 @@ package interceptors
 import (
 	"context"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
 )
 
 type claimsCtxKey struct{}

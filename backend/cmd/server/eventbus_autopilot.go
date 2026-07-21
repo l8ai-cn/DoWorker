@@ -1,8 +1,8 @@
 package main
 
 import (
-	eventsv1 "github.com/anthropics/agentsmesh/proto/gen/go/events/v1"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	eventsv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/events/v1"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 )
 
 func protoToEventbusThinking(data *runnerv1.AutopilotThinkingEvent) *eventsv1.AutopilotThinkingEventData {

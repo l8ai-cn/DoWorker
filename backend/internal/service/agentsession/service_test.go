@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
-	itemDomain "github.com/anthropics/agentsmesh/backend/internal/domain/conversationitem"
-	svc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentsession"
+	itemDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/conversationitem"
+	svc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentsession"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gorm.io/driver/sqlite"

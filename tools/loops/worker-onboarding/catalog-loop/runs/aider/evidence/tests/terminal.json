@@ -6,7 +6,7 @@
   "worker_slug": "aider",
   "adapter_id": "aider-pty",
   "runner": "dev-runner-aider",
-  "image": "agentsmesh-codex-loop-blockly-mvp-runner-aider@sha256:dc67337a330902f3b7896d6bd53cb41cfda23d0f15fcf0e73d316a24e4fa3d79",
+  "image": "agentcloud-codex-loop-blockly-mvp-runner-aider@sha256:dc67337a330902f3b7896d6bd53cb41cfda23d0f15fcf0e73d316a24e4fa3d79",
   "version_probe": "aider 0.86.2",
   "interaction_mode": "pty",
   "credential_free_invocation": {

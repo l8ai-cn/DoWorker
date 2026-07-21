@@ -39,7 +39,7 @@ syntax = "proto3";
 
 package proto.blockstore.v1;
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/blockstore/v1;blockstorev1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/blockstore/v1;blockstorev1";
 
 service BlockstoreService {
   // -- Ops (batch mutation) --

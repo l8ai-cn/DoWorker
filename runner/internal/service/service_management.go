@@ -7,7 +7,7 @@ import (
 
 	"github.com/kardianos/service"
 
-	"github.com/anthropics/agentsmesh/runner/internal/envpath"
+	"github.com/l8ai-cn/agentcloud/runner/internal/envpath"
 )
 
 // Install installs the runner as a system service.
@@ -178,5 +178,5 @@ func GetDefaultConfigPath() string {
 	if err != nil {
 		return ""
 	}
-	return filepath.Join(home, ".agentsmesh", "config.yaml")
+	return filepath.Join(home, ".agentcloud", "config.yaml")
 }

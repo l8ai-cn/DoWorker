@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use agentsmesh_types::proto_execution_cluster_v1 as cluster;
+use agentcloud_types::proto_execution_cluster_v1 as cluster;
 use prost::Message;
 use wiremock::matchers::{body_bytes, method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};

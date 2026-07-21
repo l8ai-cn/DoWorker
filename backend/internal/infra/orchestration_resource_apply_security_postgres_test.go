@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/organization"
-	orchestrationservice "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/organization"
+	orchestrationservice "github.com/l8ai-cn/agentcloud/backend/internal/service/orchestrationcontrol"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"

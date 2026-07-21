@@ -1,6 +1,6 @@
 package sessionapi
 
-import podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+import podDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
 
 func mapSessionStatus(pod *podDomain.Pod) string {
 	if pod == nil {

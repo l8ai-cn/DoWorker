@@ -41,14 +41,14 @@ expect(command.command.case).toBe("sendPrompt");
 Add Rust compilation use:
 
 ```rust
-use agentsmesh_types::proto_agent_workbench_v2::CommandEnvelope;
+use agentcloud_types::proto_agent_workbench_v2::CommandEnvelope;
 let command = CommandEnvelope::default();
 assert!(command.command.is_none());
 ```
 
 - [ ] **Step 2: Verify failure**
 
-Run: `pnpm proto:gen-ts && pnpm proto:gen-go && (cd clients/core && cargo test -p agentsmesh_types)`
+Run: `pnpm proto:gen-ts && pnpm proto:gen-go && (cd clients/core && cargo test -p agentcloud_types)`
 Expected: FAIL because the V2 schema and Rust crate do not exist.
 
 - [ ] **Step 3: Define exact unions**
@@ -57,7 +57,7 @@ Expected: FAIL because the V2 schema and Rust crate do not exist.
 
 - [ ] **Step 4: Generate and commit**
 
-Run: `pnpm proto:gen-ts && pnpm proto:gen-go && pnpm proto:gen-amesh && (cd clients/core && cargo run -p do_worker_proto_gen)`
+Run: `pnpm proto:gen-ts && pnpm proto:gen-go && pnpm proto:gen-amesh && (cd clients/core && cargo run -p agent_cloud_proto_gen)`
 Expected: generated Go, TypeScript, and Rust mirrors contain `proto.agent_workbench.v2`.
 
 ```bash
@@ -89,7 +89,7 @@ expect(encodeToBinary(SessionSnapshotSchema, decoded)).toEqual(bytes);
 
 ```ts
 expect(resolveSourceTool("acp", "shell")).toEqual({
-  namespace: "agentsmesh.acp",
+  namespace: "agentcloud.acp",
   semanticKey: "shell",
   schemaVersion: "1",
 });
@@ -98,7 +98,7 @@ expect(resolveSourceTool("acp", "shell_exec")).toBeUndefined();
 
 - [ ] **Step 3: Run fixtures**
 
-Run: `pnpm --dir packages/agent-ui exec vitest run src/protocol && go test ./backend/internal/api/rest/v1/session && (cd clients/core && cargo test -p agentsmesh_state agent_workbench_fixture)`
+Run: `pnpm --dir packages/agent-ui exec vitest run src/protocol && go test ./backend/internal/api/rest/v1/session && (cd clients/core && cargo test -p agentcloud_state agent_workbench_fixture)`
 Expected: PASS with byte-stable unsupported payloads and no substring mapping. Delete the old tool-name presentation guesser after every consumer uses exact source identities.
 
 - [ ] **Step 4: Commit**

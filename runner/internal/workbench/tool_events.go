@@ -3,8 +3,8 @@ package workbench
 import (
 	"encoding/json"
 
-	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
-	"github.com/anthropics/agentsmesh/runner/internal/acp"
+	agentworkbenchv2 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2"
+	"github.com/l8ai-cn/agentcloud/runner/internal/acp"
 	"google.golang.org/protobuf/proto"
 )
 

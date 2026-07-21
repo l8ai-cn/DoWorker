@@ -1,6 +1,6 @@
 package user
 
-import "github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+import "github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 
 // ValidateIdentifiers enforces the slugkit contract on users.username.
 // Wired through the GORM plugin in backend/internal/infra/gormvalidate

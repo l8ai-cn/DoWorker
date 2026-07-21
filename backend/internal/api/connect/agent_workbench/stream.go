@@ -5,8 +5,8 @@ import (
 	"errors"
 
 	"connectrpc.com/connect"
-	workbenchsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentworkbench"
-	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
+	workbenchsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentworkbench"
+	agentworkbenchv2 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2"
 )
 
 func (s *Server) StreamSessionDeltas(

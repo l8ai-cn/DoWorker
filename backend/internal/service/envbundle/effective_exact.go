@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/envbundle"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/envbundle"
 )
 
 func (s *Service) GetEffectiveByIDs(

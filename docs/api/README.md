@@ -1,8 +1,8 @@
-# Do Worker API Documentation
+# Agent Cloud API Documentation
 
 ## Overview
 
-Do Worker provides APIs for managing multi-agent AI development workspaces:
+Agent Cloud provides APIs for managing multi-agent AI development workspaces:
 
 - **REST API**: For web/mobile clients (authentication, resources, management)
 - **Connect API**: For typed browser/WASM services, including resource orchestration
@@ -650,7 +650,7 @@ Runners connect to the backend via gRPC with mTLS (mutual TLS) authentication.
 
 ### Authentication
 
-Runners authenticate using client certificates issued by the Do Worker PKI:
+Runners authenticate using client certificates issued by the Agent Cloud PKI:
 
 1. **Registration**: Runner obtains a certificate via `RegisterWithToken` or browser-based authorization
 2. **Connection**: Runner presents certificate during TLS handshake

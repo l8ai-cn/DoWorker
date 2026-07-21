@@ -1,5 +1,5 @@
 -- =============================================================================
--- AgentsMesh Development Seed Data
+-- Agent Cloud Development Seed Data
 -- =============================================================================
 --
 -- 此脚本创建开发环境所需的初始数据：
@@ -33,15 +33,15 @@ BEGIN
     -- bcrypt hash (cost=10)
 
     INSERT INTO users (email, username, name, password_hash, is_active, is_email_verified)
-    SELECT 'dev@agentsmesh.local', 'devuser', 'Dev User',
+    SELECT 'dev@agentcloud.local', 'devuser', 'Dev User',
            '$2a$10$k4P3AdDi0j4XT1VeDt4YuOFcxfj2uDbm8N9Tj7fCK0Gk/PY3Gz1WC',
            TRUE, TRUE
-    WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = 'dev@agentsmesh.local')
+    WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = 'dev@agentcloud.local')
     RETURNING id INTO v_user_id;
 
     -- 如果用户已存在，获取其 ID
     IF v_user_id IS NULL THEN
-        SELECT id INTO v_user_id FROM users WHERE email = 'dev@agentsmesh.local';
+        SELECT id INTO v_user_id FROM users WHERE email = 'dev@agentcloud.local';
     END IF;
 
     RAISE NOTICE 'User ID: %', v_user_id;
@@ -54,15 +54,15 @@ BEGIN
     -- 使用 is_system_admin = TRUE 标记为系统管理员
 
     INSERT INTO users (email, username, name, password_hash, is_active, is_email_verified, is_system_admin)
-    SELECT 'admin@agentsmesh.local', 'admin', 'System Admin',
+    SELECT 'admin@agentcloud.local', 'admin', 'System Admin',
            '$2a$10$PsctEhhXW5eXhUIrSzJTSeoxoVMFWS8Kp5iNrspxE023nji8lUMSm',
            TRUE, TRUE, TRUE
-    WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = 'admin@agentsmesh.local')
+    WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = 'admin@agentcloud.local')
     RETURNING id INTO v_admin_id;
 
     -- 如果管理员用户已存在，获取其 ID
     IF v_admin_id IS NULL THEN
-        SELECT id INTO v_admin_id FROM users WHERE email = 'admin@agentsmesh.local';
+        SELECT id INTO v_admin_id FROM users WHERE email = 'admin@agentcloud.local';
     END IF;
 
     RAISE NOTICE 'Admin User ID: %', v_admin_id;
@@ -125,14 +125,14 @@ BEGIN
     -- 密码: AdminAb123456 (与主测试用户相同)
 
     INSERT INTO users (email, username, name, password_hash, is_active, is_email_verified)
-    SELECT 'dev2@agentsmesh.local', 'devuser2', 'Dev User 2',
+    SELECT 'dev2@agentcloud.local', 'devuser2', 'Dev User 2',
            '$2a$10$k4P3AdDi0j4XT1VeDt4YuOFcxfj2uDbm8N9Tj7fCK0Gk/PY3Gz1WC',
            TRUE, TRUE
-    WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = 'dev2@agentsmesh.local')
+    WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = 'dev2@agentcloud.local')
     RETURNING id INTO v_user2_id;
 
     IF v_user2_id IS NULL THEN
-        SELECT id INTO v_user2_id FROM users WHERE email = 'dev2@agentsmesh.local';
+        SELECT id INTO v_user2_id FROM users WHERE email = 'dev2@agentcloud.local';
     END IF;
 
     RAISE NOTICE 'User 2 ID: %', v_user2_id;
@@ -141,13 +141,13 @@ BEGIN
     UPDATE users
     SET password_hash = '$2a$10$k4P3AdDi0j4XT1VeDt4YuOFcxfj2uDbm8N9Tj7fCK0Gk/PY3Gz1WC'
     WHERE email IN (
-        'dev@agentsmesh.local',
-        'dev2@agentsmesh.local'
+        'dev@agentcloud.local',
+        'dev2@agentcloud.local'
     );
 
     UPDATE users
     SET password_hash = '$2a$10$PsctEhhXW5eXhUIrSzJTSeoxoVMFWS8Kp5iNrspxE023nji8lUMSm'
-    WHERE email = 'admin@agentsmesh.local';
+    WHERE email = 'admin@agentcloud.local';
 
     -- =========================================================================
     -- 3. 添加用户为组织所有者
@@ -492,9 +492,9 @@ BEGIN
     WHERE organization_id = v_org_id AND slug = 'dev-org/demo-api';
 
     RAISE NOTICE 'Seed data created successfully!';
-    RAISE NOTICE '  - User: dev@agentsmesh.local / AdminAb123456';
-    RAISE NOTICE '  - User 2: dev2@agentsmesh.local / AdminAb123456';
-    RAISE NOTICE '  - Admin: admin@agentsmesh.local / Ab123456';
+    RAISE NOTICE '  - User: dev@agentcloud.local / AdminAb123456';
+    RAISE NOTICE '  - User 2: dev2@agentcloud.local / AdminAb123456';
+    RAISE NOTICE '  - Admin: admin@agentcloud.local / Ab123456';
     RAISE NOTICE '  - Organization: dev-org (dev + dev2)';
     RAISE NOTICE '  - Runner: dev-runner (node_id)';
     RAISE NOTICE '  - Git Provider: Local Gitea (http://gitea:3000)';

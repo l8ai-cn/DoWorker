@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/envbundle"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
-	envbundleservice "github.com/anthropics/agentsmesh/backend/internal/service/envbundle"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/envbundle"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workerdependency"
+	envbundleservice "github.com/l8ai-cn/agentcloud/backend/internal/service/envbundle"
 )
 
 func workerDependencyRuntimeInputs(

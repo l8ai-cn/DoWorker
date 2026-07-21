@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/anthropics/agentsmesh/backend/internal/config"
-	workerconfigmigration "github.com/anthropics/agentsmesh/backend/internal/service/workerconfigmigration"
-	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
+	workerconfigmigration "github.com/l8ai-cn/agentcloud/backend/internal/service/workerconfigmigration"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/workerdefinition"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"

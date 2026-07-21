@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/runner/internal/mcp/tools"
+	"github.com/l8ai-cn/agentcloud/runner/internal/mcp/tools"
 )
 
 func TestCreatePodToolAcceptsOnlyWorkerPlanID(t *testing.T) {

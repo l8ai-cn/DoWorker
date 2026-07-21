@@ -1,5 +1,5 @@
-import type { ArtifactDescriptor } from "@do-worker/proto/agent_workbench/v2/artifact_pb";
-import { createAgentArtifactLoader, type AgentArtifactLoadRequest } from "@do-worker/agent-ui";
+import type { ArtifactDescriptor } from "@agent-cloud/proto/agent_workbench/v2/artifact_pb";
+import { createAgentArtifactLoader, type AgentArtifactLoadRequest } from "@agent-cloud/agent-ui";
 
 import type { EmbedSessionClient } from "@/embed-session-api";
 

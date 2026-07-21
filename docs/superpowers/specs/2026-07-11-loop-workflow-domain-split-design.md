@@ -22,7 +22,7 @@ Worker 创建保持独立。Worker 字段描述执行能力，Loop 和 Workflow 
 
 ## 外部产品依据
 
-Codex app-server 的线程目标包含目标内容、生命周期状态、可选 Token 预算、使用量、暂停、恢复、清除和完成行为。Claude Code 将持续推进的 `/goal` 与按间隔重复 Prompt 的 `/loop` 分开。AgentsMesh 采用目标模式的行为，将定时自动化命名为 `Workflow`。
+Codex app-server 的线程目标包含目标内容、生命周期状态、可选 Token 预算、使用量、暂停、恢复、清除和完成行为。Claude Code 将持续推进的 `/goal` 与按间隔重复 Prompt 的 `/loop` 分开。Agent Cloud 采用目标模式的行为，将定时自动化命名为 `Workflow`。
 
 参考：`https://developers.openai.com/codex/app-server`、
 `https://code.claude.com/docs/en/goal`、

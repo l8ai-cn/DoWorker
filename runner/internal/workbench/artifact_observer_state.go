@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	artifactObserverStatePath   = ".do-worker/workbench/artifact-observer-state.json"
-	artifactObserverStateSchema = "agentsmesh.artifact-observer-state/v1"
+	artifactObserverStatePath   = ".agent-cloud/workbench/artifact-observer-state.json"
+	artifactObserverStateSchema = "agentcloud.artifact-observer-state/v1"
 	maxArtifactObserverState    = 4 << 20
 )
 

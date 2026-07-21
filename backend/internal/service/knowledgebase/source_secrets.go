@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/backend/pkg/crypto"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/crypto"
 )
 
 // Connector credentials live inside source_config JSONB. Values of these

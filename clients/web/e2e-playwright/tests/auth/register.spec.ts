@@ -55,7 +55,7 @@ test.describe("Registration Flow", () => {
     const cc = api.connectWithToken("");
     await expect(
       cc.auth.register({
-        email: "dev@agentsmesh.local",
+        email: "dev@agentcloud.local",
         username: "anotheruser",
         password: "TestPass123!",
         name: "Another User",

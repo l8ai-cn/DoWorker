@@ -8,9 +8,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	extdom "github.com/anthropics/agentsmesh/backend/internal/domain/extension"
-	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
-	extensionv1 "github.com/anthropics/agentsmesh/proto/gen/go/extension/v1"
+	extdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/extension"
+	skilldom "github.com/l8ai-cn/agentcloud/backend/internal/domain/skill"
+	extensionv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/extension/v1"
 )
 
 func TestListMarketSkills_MissingOrgSlug_InvalidArgument(t *testing.T) {

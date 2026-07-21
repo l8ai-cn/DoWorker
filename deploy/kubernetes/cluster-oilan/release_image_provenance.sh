@@ -20,7 +20,7 @@ release_platform_digest() {
   local digest
 
   digest="$(
-    awk -v name="repo.aiedulab.cn:8443/agentsmesh/${image}" '
+    awk -v name="repo.aiedulab.cn:8443/agentcloud/${image}" '
       $1 == "-" && $2 == "name:" && $3 == name { found=1; next }
       found && $1 == "digest:" { print $2; exit }
     ' "${lock}"
@@ -41,7 +41,7 @@ release_runtime_digest() {
     runner-do-agent)
       digest="$(
         jq -er '
-          select(.image.repository == "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent")
+          select(.image.repository == "repo.aiedulab.cn:8443/agentcloud/runner-do-agent")
           | .image.digest
         ' "${repo_root}/docker/agent-runtime/do-agent-release.json"
       )"
@@ -52,7 +52,7 @@ release_runtime_digest() {
           .images[]
           | select(.slug == "video-studio-stable" and .enabled == true)
           | .digest as $digest
-          | select(.reference == ("repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@" + $digest))
+          | select(.reference == ("repo.aiedulab.cn:8443/agentcloud/runner-video-studio@" + $digest))
           | $digest
         ' "${repo_root}/backend/internal/domain/workerruntime/runtime_catalog.lock.json"
       )"
@@ -93,7 +93,7 @@ release_remote_image_revision() {
     return 1
   }
   digest="$(release_image_digest "${repo_root}" "${image}")"
-  reference="repo.aiedulab.cn:8443/agentsmesh/${image}@${digest}"
+  reference="repo.aiedulab.cn:8443/agentcloud/${image}@${digest}"
   docker pull "${reference}" >/dev/null || return 1
   platform="$(
     docker image inspect "${reference}" --format '{{.Os}}/{{.Architecture}}'

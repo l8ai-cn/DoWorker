@@ -28,7 +28,7 @@ surface. It is not a universal chat renderer.
 | History and stream | `chatStore.switchTo`, SSE, block reducer                     | ACP session store, relay subscription, hydration    |
 | Composer           | Attachments, mentions, slash commands, model/policy controls | ACP prompt, interrupt, permission mode              |
 | Timeline           | Web User block components, native terminal cards             | `AcpActivityStream`, tool cards, plans, permissions |
-| React integration  | `DoWorkerApp` is already a real same-root component          | Existing `AgentPanel` remains pod-scoped            |
+| React integration  | `AgentCloudApp` is already a real same-root component          | Existing `AgentPanel` remains pod-scoped            |
 
 ## Component boundary
 
@@ -68,13 +68,13 @@ transport.
 
 ## Implemented entry points
 
-`clients/web-user/src/embed.tsx` already exports `DoWorkerApp`, which provides
+`clients/web-user/src/embed.tsx` already exports `AgentCloudApp`, which provides
 the direct React-component path. It owns the full Web User provider stack but
 expects the host's router:
 
 ```tsx
 <BrowserRouter>
-  <DoWorkerApp basename="/agent-worker" />
+  <AgentCloudApp basename="/agent-worker" />
 </BrowserRouter>
 ```
 
@@ -97,7 +97,7 @@ The document entries are deliberately different:
 | --------------- | -------------------------------- | ------------ | -------------------------------- |
 | Standalone      | `/worker.html`                   | `HashRouter` | Directly usable Agent Worker     |
 | Iframe document | `/iframe.html?embed_context=...` | None         | Restricted existing-session view |
-| Same-root React | `DoWorkerApp`                    | Host router  | Embed in an existing React page  |
+| Same-root React | `AgentCloudApp`                    | Host router  | Embed in an existing React page  |
 
 `worker.html` retains the real full Worker experience: agent selection, target
 selection, workspace choice, session creation, and the native conversation
@@ -118,9 +118,9 @@ authorization data under parent control. The implemented protocol is:
 3. The frame calls `POST /v1/embed-contexts/inspect`, learns the signed exact
    origin set, removes the context from its URL, and installs its message
    listener.
-4. The frame sends `{ type: "agentsmesh.embed.ready", version: 1 }` to each
+4. The frame sends `{ type: "agentcloud.embed.ready", version: 1 }` to each
    allowed origin. The parent replies with
-   `{ type: "agentsmesh.embed.open", version: 1, redemptionProof }`.
+   `{ type: "agentcloud.embed.open", version: 1, redemptionProof }`.
 5. The frame accepts `open` only when both
    `event.source === window.parent` and `event.origin` exactly match the signed
    origin set, then redeems the context and proof at
@@ -177,7 +177,7 @@ send control.
   controls, then launches a real session.
 - An iframe requires a server-issued context, verifies a signed parent origin
   at handshake time, and renders only the authorized session.
-- A React host renders `DoWorkerApp` without another React root or router.
+- A React host renders `AgentCloudApp` without another React root or router.
 - A React host can render `EmbeddedSessionTimeline` using a redeemed
   `EmbedSessionAccess` without importing the full Worker launcher.
 - Web ACP retains rich Markdown, tool, thinking, log, prompt, and permission

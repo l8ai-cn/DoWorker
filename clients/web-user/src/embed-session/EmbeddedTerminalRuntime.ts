@@ -3,7 +3,7 @@ import type {
   TerminalControlLease,
   TerminalResource,
   TerminalRuntime,
-} from "@do-worker/agent-ui";
+} from "@agent-cloud/agent-ui";
 
 import type { EmbedSessionClient } from "@/embed-session-api";
 import {

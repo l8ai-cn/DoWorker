@@ -3,7 +3,7 @@ package blockstoreservice
 import (
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/blockstore"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/blockstore"
 	"github.com/stretchr/testify/assert"
 )
 

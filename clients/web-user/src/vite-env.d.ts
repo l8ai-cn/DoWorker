@@ -10,7 +10,7 @@ interface ImportMetaEnv {
   readonly VITE_OTEL_SERVICE_NAME?: string;
   readonly VITE_PREVIEW_PUBLIC_ORIGIN?: string;
   readonly VITE_DO_WORKER_API_URL?: string;
-  readonly VITE_AGENTSMESH_API_URL?: string;
+  readonly VITE_AGENTCLOUD_API_URL?: string;
 }
 
 interface ImportMeta {

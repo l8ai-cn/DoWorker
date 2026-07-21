@@ -25,9 +25,9 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/infra/database"
-	adminservice "github.com/anthropics/agentsmesh/backend/internal/service/admin"
-	ssoservice "github.com/anthropics/agentsmesh/backend/internal/service/sso"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/database"
+	adminservice "github.com/l8ai-cn/agentcloud/backend/internal/service/admin"
+	ssoservice "github.com/l8ai-cn/agentcloud/backend/internal/service/sso"
 )
 
 const ServiceName = "proto.sso.v1.SSOAdminService"

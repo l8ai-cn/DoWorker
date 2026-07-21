@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { editorSteps, securityItems } from "./resource-orchestration-data";
 
-const yamlExample = `apiVersion: agentsmesh.io/v1alpha1
+const yamlExample = `apiVersion: agentcloud.io/v1alpha1
 kind: Expert
 metadata:
   name: delivery-reviewer

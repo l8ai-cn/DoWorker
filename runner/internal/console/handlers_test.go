@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/runner/internal/config"
+	"github.com/l8ai-cn/agentcloud/runner/internal/config"
 )
 
 // newTestServer creates a minimal Server for handler testing.

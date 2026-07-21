@@ -1,6 +1,6 @@
 package workerruntime
 
-import "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+import "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
 
 type CatalogRuntimeImage struct {
 	ID              int64    `json:"id"`

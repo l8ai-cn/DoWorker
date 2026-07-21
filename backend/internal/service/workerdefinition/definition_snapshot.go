@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"reflect"
 
-	agentfileschema "github.com/anthropics/agentsmesh/agentfile/schema"
+	agentfileschema "github.com/l8ai-cn/agentcloud/agentfile/schema"
 )
 
 func ParseSnapshot(source []byte, agentFile string) (Definition, error) {

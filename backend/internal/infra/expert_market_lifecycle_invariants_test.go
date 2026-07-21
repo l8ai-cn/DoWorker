@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/expertmarket"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/expertmarket"
 	"github.com/stretchr/testify/require"
 )
 

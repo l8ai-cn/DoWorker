@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use agentsmesh_types::proto_pod_v1 as pod;
+use agentcloud_types::proto_pod_v1 as pod;
 use prost::Message;
 use wiremock::matchers::{body_bytes, method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};

@@ -16,7 +16,7 @@ for tagged releases where possible.
   frontend drives startup off it instead of the legacy `restore_session()`
   path.
 - Per-server storage namespacing: session keys are now scoped to
-  `agentsmesh-auth/<url-slug>/session`, allowing the same machine to hold
+  `agentcloud-auth/<url-slug>/session`, allowing the same machine to hold
   independent sessions for dev / staging / prod without cross-server
   contamination.
 - Channel @mention with pod prompt forwarding
@@ -144,7 +144,7 @@ for tagged releases where possible.
 
 - Massive SRP refactoring: split large files (600-1000+ lines) following Single Responsibility Principle
 - Extract reusable components (ConfirmDialog, TerminalPane, RepositoriesSidebar)
-- Rename binary from 'runner' to 'agentsmesh-runner'
+- Rename binary from 'runner' to 'agentcloud-runner'
 
 ### Fixed
 
@@ -166,14 +166,14 @@ for tagged releases where possible.
 
 ### Changed
 
-- Unify brand name to AgentsMesh
+- Unify brand name to Agent Cloud
 - Optimize runner build process and GitLab CI tags
 
 ## [0.1.0] - 2026-01-11
 
 ### Added
 
-- Initial release of AgentsMesh platform
+- Initial release of Agent Cloud platform
 - Backend: Go API server with Gin + GORM, JWT + OAuth authentication
 - Web: Next.js frontend with App Router, TypeScript, Tailwind CSS
 - Runner: Go daemon with isolated PTY environments
@@ -187,13 +187,13 @@ for tagged releases where possible.
 - Billing system with quota enforcement
 - Real-time terminal streaming via WebSocket
 
-[Unreleased]: https://github.com/anthropics/agentsmesh/compare/v0.5.0...HEAD
-[0.5.0]: https://github.com/anthropics/agentsmesh/compare/v0.4.7...v0.5.0
-[0.4.7]: https://github.com/anthropics/agentsmesh/compare/v0.4.6...v0.4.7
-[0.4.6]: https://github.com/anthropics/agentsmesh/compare/v0.4.5...v0.4.6
-[0.4.5]: https://github.com/anthropics/agentsmesh/compare/v0.4.4...v0.4.5
-[0.4.4]: https://github.com/anthropics/agentsmesh/compare/v0.4.0...v0.4.4
-[0.4.0]: https://github.com/anthropics/agentsmesh/compare/v0.3.0...v0.4.0
-[0.3.0]: https://github.com/anthropics/agentsmesh/compare/v0.2.0...v0.3.0
-[0.2.0]: https://github.com/anthropics/agentsmesh/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/anthropics/agentsmesh/releases/tag/v0.1.0
+[Unreleased]: https://github.com/l8ai-cn/agentcloud/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/l8ai-cn/agentcloud/compare/v0.4.7...v0.5.0
+[0.4.7]: https://github.com/l8ai-cn/agentcloud/compare/v0.4.6...v0.4.7
+[0.4.6]: https://github.com/l8ai-cn/agentcloud/compare/v0.4.5...v0.4.6
+[0.4.5]: https://github.com/l8ai-cn/agentcloud/compare/v0.4.4...v0.4.5
+[0.4.4]: https://github.com/l8ai-cn/agentcloud/compare/v0.4.0...v0.4.4
+[0.4.0]: https://github.com/l8ai-cn/agentcloud/compare/v0.3.0...v0.4.0
+[0.3.0]: https://github.com/l8ai-cn/agentcloud/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/l8ai-cn/agentcloud/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/l8ai-cn/agentcloud/releases/tag/v0.1.0

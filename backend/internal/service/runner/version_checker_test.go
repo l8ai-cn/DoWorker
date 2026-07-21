@@ -68,7 +68,7 @@ func newTestVersionChecker(serverURL string) *VersionChecker {
 
 func TestVersionChecker_CheckGitHubRelease_Success(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		assert.Equal(t, "/repos/l8ai-cn/DoWorker/releases/latest", r.URL.Path)
+		assert.Equal(t, "/repos/l8ai-cn/AgentCloud/releases/latest", r.URL.Path)
 		assert.Equal(t, "application/vnd.github+json", r.Header.Get("Accept"))
 
 		w.Header().Set("Content-Type", "application/json")

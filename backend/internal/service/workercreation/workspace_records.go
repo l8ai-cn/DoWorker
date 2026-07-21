@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/envbundle"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/knowledgebase"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/envbundle"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/knowledgebase"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 func (resolver *workspaceResolver) resolveKnowledge(

@@ -15,10 +15,10 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	fileservice "github.com/anthropics/agentsmesh/backend/internal/service/file"
-	filev1 "github.com/anthropics/agentsmesh/proto/gen/go/file/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	fileservice "github.com/l8ai-cn/agentcloud/backend/internal/service/file"
+	filev1 "github.com/l8ai-cn/agentcloud/proto/gen/go/file/v1"
 )
 
 const ServiceName = "proto.file.v1.FileService"

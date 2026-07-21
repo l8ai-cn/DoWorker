@@ -1,7 +1,7 @@
 import type {
   WasmAgentWorkbenchService,
   WasmAgentWorkbenchState,
-} from "do-worker-wasm";
+} from "agent-cloud-wasm";
 
 export interface AgentWorkbenchServiceRegistry {
   agentWorkbenchService: WasmAgentWorkbenchService;

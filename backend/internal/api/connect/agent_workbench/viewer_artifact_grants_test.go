@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
+	agentworkbenchv2 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2"
 	"github.com/stretchr/testify/require"
 )
 

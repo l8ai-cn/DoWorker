@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package proto.pod.v1;
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/pod/v1;podv1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/pod/v1;podv1";
 
 message DiscoverWorkerSkillsRequest {
   string org_slug = 1;

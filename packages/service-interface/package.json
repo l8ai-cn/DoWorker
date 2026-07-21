@@ -1,5 +1,5 @@
 {
-  "name": "@do-worker/service-interface",
+  "name": "@agent-cloud/service-interface",
   "version": "0.1.0",
   "private": true,
   "type": "module",

@@ -1,9 +1,9 @@
 package licenseconnect
 
 import (
-	"github.com/anthropics/agentsmesh/backend/internal/domain/billing"
-	licenseservice "github.com/anthropics/agentsmesh/backend/internal/service/license"
-	licensev1 "github.com/anthropics/agentsmesh/proto/gen/go/license/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/billing"
+	licenseservice "github.com/l8ai-cn/agentcloud/backend/internal/service/license"
+	licensev1 "github.com/l8ai-cn/agentcloud/proto/gen/go/license/v1"
 )
 
 // toProtoStatus — codegen-backed thin alias. Phase 12 M7.

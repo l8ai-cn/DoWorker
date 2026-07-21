@@ -5,8 +5,8 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/billing"
-	"github.com/anthropics/agentsmesh/backend/internal/service/payment"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/billing"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/payment"
 )
 
 // syncOrganizationSubscription keeps organizations.{subscription_plan,subscription_status}

@@ -3,11 +3,11 @@ package agentpod
 import (
 	"strings"
 
-	"github.com/anthropics/agentsmesh/agentfile/parser"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	resourcesvc "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	"github.com/l8ai-cn/agentcloud/agentfile/parser"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	resourcesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 func workerSpecForPlanSource(

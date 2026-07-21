@@ -1,4 +1,4 @@
-import type { TerminalResource } from "@do-worker/agent-ui";
+import type { TerminalResource } from "@agent-cloud/agent-ui";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { EmbedSessionClient } from "@/embed-session-api";

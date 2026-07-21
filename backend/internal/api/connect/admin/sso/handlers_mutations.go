@@ -6,10 +6,10 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/admin"
-	ssoservice "github.com/anthropics/agentsmesh/backend/internal/service/sso"
-	ssov1 "github.com/anthropics/agentsmesh/proto/gen/go/sso/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/admin"
+	ssoservice "github.com/l8ai-cn/agentcloud/backend/internal/service/sso"
+	ssov1 "github.com/l8ai-cn/agentcloud/proto/gen/go/sso/v1"
 )
 
 // CreateSSOConfig mirrors REST's CreateConfig (sso.go:99).

@@ -10,9 +10,9 @@ import (
 	"gorm.io/gorm"
 	gormlogger "gorm.io/gorm/logger"
 
-	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
-	"github.com/anthropics/agentsmesh/backend/internal/testkit"
-	"github.com/anthropics/agentsmesh/backend/pkg/audit"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/runner"
+	"github.com/l8ai-cn/agentcloud/backend/internal/testkit"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/audit"
 )
 
 // ==================== Helper Function Tests ====================

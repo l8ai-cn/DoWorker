@@ -52,7 +52,7 @@ export function RegisterPage() {
   return (
     <AuthPageShell
       title="Create your account"
-      description="You were invited to join this Do Worker server."
+      description="You were invited to join this Agent Cloud server."
     >
       {missingInvite ? (
         <AuthFormAlert message="This page needs an invite token in the URL — open the link your admin sent you." />

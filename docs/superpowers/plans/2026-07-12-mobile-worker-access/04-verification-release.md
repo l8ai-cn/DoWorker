@@ -17,7 +17,7 @@ cd ../runner
 go test ./internal/tunnel ./internal/relay ./internal/runner -count=1
 
 cd ../clients/core
-cargo test -p agentsmesh-protocol -p agentsmesh-relay
+cargo test -p agentcloud-protocol -p agentcloud-relay
 
 cd ../../
 pnpm run build:wasm
@@ -38,7 +38,7 @@ pnpm run web:lint
 
 用浏览器执行：
 
-1. 登录 `dev@agentsmesh.local`。
+1. 登录 `dev@agentcloud.local`。
 2. 创建 PTY Worker。
 3. 从可见手机入口打开二维码。
 4. 用移动 viewport 打开 canonical URL。

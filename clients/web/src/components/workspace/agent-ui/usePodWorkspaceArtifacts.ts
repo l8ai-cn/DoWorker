@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { AgentArtifactItem } from "@do-worker/agent-ui";
+import type { AgentArtifactItem } from "@agent-cloud/agent-ui";
 
 import { listPodWorkspaceArtifacts } from "@/lib/api/podWorkspaceArtifactApi";
 import { prepareWorkspaceArtifacts } from "./webAgentWorkbenchWorkspaceArtifacts";

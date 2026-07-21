@@ -5,13 +5,13 @@ import (
 	"errors"
 	"fmt"
 
-	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
-	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	expertsvc "github.com/anthropics/agentsmesh/backend/internal/service/expert"
-	"github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	expertdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/expert"
+	skilldom "github.com/l8ai-cn/agentcloud/backend/internal/domain/skill"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	expertsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/expert"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/workercreation"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 func (bootstrapper *Bootstrapper) ensureExpert(

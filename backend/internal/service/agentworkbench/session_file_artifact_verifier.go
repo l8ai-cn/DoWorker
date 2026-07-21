@@ -11,9 +11,9 @@ import (
 	"path/filepath"
 	"time"
 
-	sessionfiledomain "github.com/anthropics/agentsmesh/backend/internal/domain/sessionfile"
-	sessionfilesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionfile"
-	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
+	sessionfiledomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/sessionfile"
+	sessionfilesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/sessionfile"
+	agentworkbenchv2 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2"
 )
 
 const artifactMediaVerifyTimeout = 30 * time.Second
@@ -64,7 +64,7 @@ func (v *SessionFileArtifactVerifier) verifyVideo(
 	file *sessionfiledomain.File,
 	representation *agentworkbenchv2.ArtifactRepresentation,
 ) error {
-	tmp, err := os.CreateTemp("", "agentsmesh-artifact-*.mp4")
+	tmp, err := os.CreateTemp("", "agentcloud-artifact-*.mp4")
 	if err != nil {
 		return err
 	}

@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 
-	channeldomain "github.com/anthropics/agentsmesh/backend/internal/domain/channel"
-	channelservice "github.com/anthropics/agentsmesh/backend/internal/service/channel"
-	channelv1 "github.com/anthropics/agentsmesh/proto/gen/go/channel/v1"
+	channeldomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/channel"
+	channelservice "github.com/l8ai-cn/agentcloud/backend/internal/service/channel"
+	channelv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/channel/v1"
 )
 
 // resolveSendContent / resolveEditContent mirror REST's resolveContent

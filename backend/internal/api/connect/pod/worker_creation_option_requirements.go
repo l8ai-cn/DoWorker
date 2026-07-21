@@ -1,8 +1,8 @@
 package podconnect
 
 import (
-	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
-	podv1 "github.com/anthropics/agentsmesh/proto/gen/go/pod/v1"
+	workercreation "github.com/l8ai-cn/agentcloud/backend/internal/service/workercreation"
+	podv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/pod/v1"
 )
 
 func workerCredentialRequirementsToProto(

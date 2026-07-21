@@ -28,7 +28,7 @@
 //
 // 3. Add a blank import in internal/runner/agents_import.go:
 //
-//	_ "github.com/anthropics/agentsmesh/runner/internal/agents/<name>"
+//	_ "github.com/l8ai-cn/agentcloud/runner/internal/agents/<name>"
 //
 // # Token Usage Fixture Contract
 //

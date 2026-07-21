@@ -1,6 +1,6 @@
 package blockstoreschema
 
-import "github.com/anthropics/agentsmesh/backend/internal/domain/blockstore"
+import "github.com/l8ai-cn/agentcloud/backend/internal/domain/blockstore"
 
 func createBlockTool(typeKeys []string) Tool {
 	return Tool{

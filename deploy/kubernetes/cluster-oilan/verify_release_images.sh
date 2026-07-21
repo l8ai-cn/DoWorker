@@ -2,7 +2,7 @@
 set -euo pipefail
 
 rendered="${1:?rendered manifest path is required}"
-registry="repo.aiedulab.cn:8443/agentsmesh"
+registry="repo.aiedulab.cn:8443/agentcloud"
 gitea_registry="repo.aiedulab.cn:8443/library"
 release_lock="${VERIFY_RELEASE_LOCK:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/release/kustomization.yaml}"
 
@@ -71,7 +71,7 @@ done < <(image_references)
 backend_reference="$(image_references | awk -v prefix="${registry}/backend@sha256:" \
   'index($1, prefix) == 1 { print $1; exit }')"
 backend_digest="${backend_reference##*@}"
-annotations="$(awk '$1 == "agentsmesh.ai/verified-image-digest:" { gsub(/"/, "", $2); print $2 }' "${rendered}")"
+annotations="$(awk '$1 == "agentcloud.ai/verified-image-digest:" { gsub(/"/, "", $2); print $2 }' "${rendered}")"
 [[ -n "${annotations}" ]] || {
   echo "missing verified backend digest annotation" >&2
   exit 1

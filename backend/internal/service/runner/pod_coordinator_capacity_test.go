@@ -6,8 +6,8 @@ import (
 	"sync"
 	"testing"
 
-	runnerDomain "github.com/anthropics/agentsmesh/backend/internal/domain/runner"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	runnerDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/runner"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 )
 
 func TestPodCoordinatorCapacityClaimPreventsConcurrentOversell(t *testing.T) {

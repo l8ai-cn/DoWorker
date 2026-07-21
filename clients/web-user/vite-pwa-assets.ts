@@ -6,9 +6,9 @@ import { computeBuildVersion } from "./src/lib/buildVersion";
 
 const PWA_MANIFEST = {
   id: "/",
-  name: "Do Worker",
-  short_name: "Do Worker",
-  description: "Do Worker — a common layer over coding agents.",
+  name: "Agent Cloud",
+  short_name: "Agent Cloud",
+  description: "Agent Cloud — a common layer over coding agents.",
   start_url: "/",
   scope: "/",
   display: "standalone",

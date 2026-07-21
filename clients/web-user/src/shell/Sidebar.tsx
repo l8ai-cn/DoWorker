@@ -113,7 +113,7 @@ import { showToast } from "@/components/ui/toast";
 import { PermissionsModal } from "@/components/PermissionsModal";
 import { ImportCodexDialog } from "@/shell/ImportCodexDialog";
 import { SessionStateBadge } from "@/components/SessionStateBadge";
-import { DoWorkerLogo } from "@/components/icons/DoWorkerLogo";
+import { AgentCloudLogo } from "@/components/icons/AgentCloudLogo";
 import { useSessionRunnerOnline } from "@/hooks/RunnerHealthProvider";
 import { useActiveRootSessionId } from "@/hooks/useSession";
 import { useCommentInbox } from "@/hooks/useCommentInbox";
@@ -455,7 +455,7 @@ export function Sidebar({ open, onClose, dragProgress = null }: SidebarProps) {
               onClick={onNavClick}
               className="flex items-center gap-2 rounded-sm text-[15px] font-semibold tracking-tight text-foreground transition-colors hover:text-foreground/70"
             >
-              <DoWorkerLogo className="h-6 w-6 shrink-0" title={t.brand} />
+              <AgentCloudLogo className="h-6 w-6 shrink-0" title={t.brand} />
               {t.brand}
             </Link>
             <div className="flex items-center gap-1">

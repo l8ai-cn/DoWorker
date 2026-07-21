@@ -16,7 +16,7 @@ syntax = "proto3";
 
 package proto.extension.v1;
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/extension/v1;extensionv1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/extension/v1;extensionv1";
 
 service RepoSkillService {
   rpc ListRepoSkills(ListRepoSkillsRequest) returns (ListRepoSkillsResponse);

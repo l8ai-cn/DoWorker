@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/anthropics/agentsmesh/marketplace/internal/domain/catalog"
+	"github.com/l8ai-cn/agentcloud/marketplace/internal/domain/catalog"
 )
 
 var (

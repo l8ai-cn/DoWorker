@@ -3,8 +3,8 @@ package monitor
 import (
 	"time"
 
-	"github.com/anthropics/agentsmesh/runner/internal/safego"
-	"github.com/anthropics/agentsmesh/runner/internal/terminal/detector"
+	"github.com/l8ai-cn/agentcloud/runner/internal/safego"
+	"github.com/l8ai-cn/agentcloud/runner/internal/terminal/detector"
 )
 
 // RegisterPod registers a pod for monitoring.

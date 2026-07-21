@@ -14,7 +14,7 @@ package proto.channel_state.v1;
 import "channel_state/v1/channel_state.proto";
 import "pod/v1/pod.proto";
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/channel_state/v1;channelstatev1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/channel_state/v1;channelstatev1";
 
 // ---------------------------------------------------------------------------
 // Realtime channel:member_count_changed event. Patches only member_count

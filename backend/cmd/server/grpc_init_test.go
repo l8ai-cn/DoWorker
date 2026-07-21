@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/config"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -48,10 +48,10 @@ func TestDeriveServerCertSANs(t *testing.T) {
 		{
 			name: "both PrimaryDomain and GRPC endpoint",
 			cfg: &config.Config{
-				PrimaryDomain: "agentsmesh.cn",
-				GRPC:          config.GRPCConfig{Endpoint: "grpcs://api.agentsmesh.cn:9443"},
+				PrimaryDomain: "agentcloud.cn",
+				GRPC:          config.GRPCConfig{Endpoint: "grpcs://api.agentcloud.cn:9443"},
 			},
-			expected: []string{"agentsmesh.cn", "api.agentsmesh.cn"},
+			expected: []string{"agentcloud.cn", "api.agentcloud.cn"},
 		},
 		{
 			name: "PrimaryDomain with port",
@@ -83,9 +83,9 @@ func TestDeriveServerCertSANs(t *testing.T) {
 		{
 			name: "PrimaryDomain without port",
 			cfg: &config.Config{
-				PrimaryDomain: "agentsmesh.ai",
+				PrimaryDomain: "agentcloud.ai",
 			},
-			expected: []string{"agentsmesh.ai"},
+			expected: []string{"agentcloud.ai"},
 		},
 	}
 

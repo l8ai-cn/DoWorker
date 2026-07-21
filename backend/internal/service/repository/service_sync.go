@@ -4,8 +4,8 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/git"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/gitprovider"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/git"
 )
 
 func (s *Service) SyncFromProvider(ctx context.Context, repoID int64, accessToken string) (*gitprovider.Repository, error) {

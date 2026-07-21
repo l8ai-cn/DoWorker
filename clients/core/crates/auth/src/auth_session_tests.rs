@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod auth_session_tests {
-    use agentsmesh_types::proto_auth_v1 as auth_proto;
-    use agentsmesh_state::auth_types::RegisterRequest;
+    use agentcloud_types::proto_auth_v1 as auth_proto;
+    use agentcloud_state::auth_types::RegisterRequest;
     use prost::Message;
     use wiremock::matchers::{header, method, path};
     use wiremock::{Mock, MockServer, ResponseTemplate};
@@ -73,7 +73,7 @@ mod auth_session_tests {
         assert!(manager.is_authenticated());
         let key = session_storage_key(&server.uri());
         assert!(storage.get(&key).is_some());
-        assert!(storage.get("agentsmesh-auth").is_none());
+        assert!(storage.get("agentcloud-auth").is_none());
     }
 
     #[tokio::test]

@@ -5,7 +5,7 @@ export interface LocalProjectMeta {
   color?: "primary" | "accent" | "info";
 }
 
-const KEY = "agentsmesh-mobile-projects";
+const KEY = "agentcloud-mobile-projects";
 
 function readAll(): LocalProjectMeta[] {
   if (typeof localStorage === "undefined") return [];

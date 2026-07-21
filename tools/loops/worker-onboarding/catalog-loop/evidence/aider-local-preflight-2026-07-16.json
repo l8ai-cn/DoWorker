@@ -10,7 +10,7 @@
     "terminal_data_plane": false
   },
   "image": {
-    "reference": "agentsmesh-codex-loop-blockly-mvp-runner-aider:latest",
+    "reference": "agentcloud-codex-loop-blockly-mvp-runner-aider:latest",
     "digest": "sha256:53111c566cc367417211ccc7994dc3f1573a6eafd10a0c4ca932a21b559d86f4",
     "runtime_base": "python-runtime-base",
     "probe": {

@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/relay/internal/auth"
+	"github.com/l8ai-cn/agentcloud/relay/internal/auth"
 )
 
 // TestPreviewE2E_SSE verifies event-stream responses are flushed frame-by-frame

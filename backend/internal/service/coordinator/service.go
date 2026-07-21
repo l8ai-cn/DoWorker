@@ -4,13 +4,13 @@ import (
 	"context"
 	"log/slog"
 
-	coordinatordom "github.com/anthropics/agentsmesh/backend/internal/domain/coordinator"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
-	ticketDomain "github.com/anthropics/agentsmesh/backend/internal/domain/ticket"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
-	workerspecdom "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	agentpodSvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	ticketSvc "github.com/anthropics/agentsmesh/backend/internal/service/ticket"
+	coordinatordom "github.com/l8ai-cn/agentcloud/backend/internal/domain/coordinator"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/gitprovider"
+	ticketDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/ticket"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workerdependency"
+	workerspecdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	agentpodSvc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
+	ticketSvc "github.com/l8ai-cn/agentcloud/backend/internal/service/ticket"
 )
 
 // TicketService is the slice of the ticket service the coordinator drives: it

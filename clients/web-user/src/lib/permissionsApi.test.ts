@@ -105,7 +105,7 @@ describe("grantPermission", () => {
   });
 
   it("uses the structured error message when present", async () => {
-    // The server returns DoWorkerApiError as
+    // The server returns AgentCloudApiError as
     // `{error: {code: "forbidden", message: "..."}}` — surface
     // `message` in the thrown Error so callers display it directly.
     fetchMock.mockResolvedValueOnce(

@@ -3,9 +3,9 @@ package expert
 import (
 	"context"
 
-	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/expertmarket"
-	"github.com/anthropics/agentsmesh/backend/internal/service/gitops"
+	expertdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/expert"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/expertmarket"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/gitops"
 )
 
 func (s *Service) publishedMarketApplicationByID(

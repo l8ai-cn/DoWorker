@@ -1,10 +1,10 @@
 package supportticketconnect
 
 import (
-	supportticketdomain "github.com/anthropics/agentsmesh/backend/internal/domain/supportticket"
-	domainuser "github.com/anthropics/agentsmesh/backend/internal/domain/user"
-	"github.com/anthropics/agentsmesh/backend/pkg/protoconv"
-	supportticketv1 "github.com/anthropics/agentsmesh/proto/gen/go/support_ticket/v1"
+	supportticketdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/supportticket"
+	domainuser "github.com/l8ai-cn/agentcloud/backend/internal/domain/user"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/protoconv"
+	supportticketv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/support_ticket/v1"
 )
 
 // messageUserToProto trims the *user.User association into the wire-only

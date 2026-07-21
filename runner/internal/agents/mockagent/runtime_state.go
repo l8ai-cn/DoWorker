@@ -3,14 +3,14 @@ package mockagent
 import (
 	"sync"
 
-	"github.com/anthropics/agentsmesh/runner/internal/acp"
+	"github.com/l8ai-cn/agentcloud/runner/internal/acp"
 )
 
 // runtimeState is the per-process composition root: it owns the writer
 // (single source of outbound JSON-RPC), a WaitGroup so EOF can drain
 // in-flight scenario goroutines, and two narrow sub-aggregates that
 // carry the actually-stateful pieces (pendingRegistry for IPC round-trips,
-// configState for AgentsMesh control plane).
+// configState for Agent Cloud control plane).
 //
 // Keeping the sub-aggregates separate means new scenarios reach for
 // exactly the surface they need (state.pending vs state.config) and the

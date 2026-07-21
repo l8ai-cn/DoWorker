@@ -4,7 +4,7 @@
   "definition_hash": "sha256:da0739415f4a7de3009d3c17d8402eb8b032e05ed744178cd9ef25d54e3e10ec",
   "platform": "linux/amd64",
   "observed_at": "2026-07-17T15:52:00Z",
-  "image_reference": "do-worker/runner-video-studio:latest",
+  "image_reference": "agent-cloud/runner-video-studio:latest",
   "image_id": "sha256:06f4da6e2431639d6a4f626df7531244d08a60f83415a2737a8dd3f9fd7f23c1",
   "probe_command": [
     "video-studio-codex",

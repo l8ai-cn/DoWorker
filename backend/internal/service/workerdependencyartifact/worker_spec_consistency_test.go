@@ -3,11 +3,11 @@ package workerdependencyartifact
 import (
 	"testing"
 
-	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	resource "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	control "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
+	resource "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationresource"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workerdependency"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

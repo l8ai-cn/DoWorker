@@ -3,7 +3,7 @@ package client
 import (
 	"context"
 
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -65,5 +65,5 @@ func isHighFrequencyServerMessage(msgType string) bool {
 }
 
 func startMessageSpan(ctx context.Context, msgType string) (context.Context, trace.Span) {
-	return otel.Tracer("do-worker-runner").Start(ctx, "grpc.recv."+msgType)
+	return otel.Tracer("agent-cloud-runner").Start(ctx, "grpc.recv."+msgType)
 }

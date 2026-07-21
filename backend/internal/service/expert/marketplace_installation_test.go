@@ -6,10 +6,10 @@ import (
 	"errors"
 	"testing"
 
-	resourcedom "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
-	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	resourcedom "github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
+	skilldom "github.com/l8ai-cn/agentcloud/backend/internal/domain/skill"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 	"github.com/stretchr/testify/require"
 )
 

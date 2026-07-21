@@ -11,8 +11,8 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/peer"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/blockstore"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/blockstore"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
 )
 
 // Pure unit coverage for the two most-likely-to-regress bits of the
@@ -69,7 +69,7 @@ func TestActorFromTenant_PopulatesCorrelationFromCtx(t *testing.T) {
 	ctx = peer.NewContext(ctx, &peer.Peer{
 		Addr: &net.TCPAddr{IP: net.ParseIP("10.0.0.5"), Port: 51234},
 	})
-	ctx = metadata.NewIncomingContext(ctx, metadata.Pairs("user-agent", "agentsmesh-runner/0.42"))
+	ctx = metadata.NewIncomingContext(ctx, metadata.Pairs("user-agent", "agentcloud-runner/0.42"))
 
 	tc := &middleware.TenantContext{OrganizationID: 7, UserID: 100}
 	a := actorFromTenant(ctx, tc)
@@ -79,7 +79,7 @@ func TestActorFromTenant_PopulatesCorrelationFromCtx(t *testing.T) {
 	assert.Equal(t, a.TraceID, a.RequestID,
 		"request id aliases trace id until X-Request-Id propagates through MCP")
 	assert.Equal(t, "10.0.0.5:51234", a.IP)
-	assert.Equal(t, "agentsmesh-runner/0.42", a.UserAgent)
+	assert.Equal(t, "agentcloud-runner/0.42", a.UserAgent)
 }
 
 // TestActorFromTenant_EmptyCorrelationOnRawCtx ensures no panic + empty

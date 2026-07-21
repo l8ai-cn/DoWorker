@@ -9,7 +9,7 @@ mkdirSync(OUT, { recursive: true });
 const WEB = devUrl("WEB_URL", "http://127.0.0.1:10007");
 const WEB_USER = devUrl("WEB_USER_URL", "http://127.0.0.1:5173");
 const TRAEFIK_API = devUrl("TRAEFIK_API_URL", "http://127.0.0.1:10000");
-// web-user reads import.meta.env.VITE_AGENTSMESH_API_URL ?? "http://localhost:10000"
+// web-user reads import.meta.env.VITE_AGENTCLOUD_API_URL ?? "http://localhost:10000"
 // for localStorage key — must match hostname, not 127.0.0.1.
 const WEB_USER_AUTH_BASE = devUrl("WEB_USER_AUTH_URL", "http://localhost:10000");
 const API_DIRECT = devUrl("SESSION_COMPAT_API_URL", "http://localhost:10015");
@@ -20,7 +20,7 @@ function authKey(baseUrl) {
   const u = new URL(baseUrl);
   const port = u.port ? `_${u.port}` : "";
   const raw = `${u.protocol.replace(":", "")}_${u.hostname.toLowerCase()}${port}`;
-  return `do-worker-auth/${raw.replace(/[^a-zA-Z0-9]/g, "_").slice(0, 64)}/session`;
+  return `agent-cloud-auth/${raw.replace(/[^a-zA-Z0-9]/g, "_").slice(0, 64)}/session`;
 }
 
 async function setReactTextarea(page, testId, value) {
@@ -108,7 +108,7 @@ function step(name, ok, detail = "") {
   console.log(`${ok ? "✓" : "✗"} ${name}${detail ? ` — ${detail}` : ""}`);
 }
 
-async function part1AgentsMesh(browser, auth) {
+async function part1Agent Cloud(browser, auth) {
   const ctx = await browser.newContext();
   await injectSession(ctx, WEB, auth, ORG);
   const page = await ctx.newPage();
@@ -128,7 +128,7 @@ async function part1AgentsMesh(browser, auth) {
     if (!/Create Worker|Worker template|Plan & diff/i.test(body)) {
       throw new Error("Resource-native worker creation entry opened an unexpected page");
     }
-    step("AgentsMesh: resource-native create entry opens", true);
+    step("Agent Cloud: resource-native create entry opens", true);
     await ctx.close();
     return "e2e-echo";
   }
@@ -168,14 +168,14 @@ async function part1AgentsMesh(browser, auth) {
   await page.waitForTimeout(3000);
   await page.screenshot({ path: join(OUT, "03-web-pod-created.png"), fullPage: true });
 
-  step("AgentsMesh: create pod via browser", true, `agent=${agent}`);
+  step("Agent Cloud: create pod via browser", true, `agent=${agent}`);
   await ctx.close();
   return agent;
 }
 
 async function part2WebUser(browser, auth, agent) {
   const ctx = await browser.newContext();
-  // Vite bakes VITE_AGENTSMESH_API_URL at build time (defaults to :10000).
+  // Vite bakes VITE_AGENTCLOUD_API_URL at build time (defaults to :10000).
   await injectSession(ctx, WEB_USER_AUTH_BASE, auth, ORG);
   const page = await ctx.newPage();
   page.setDefaultTimeout(90_000);
@@ -276,10 +276,10 @@ async function main() {
   let agent = "e2e-echo";
   try {
     try {
-      agent = await part1AgentsMesh(browser, auth);
+      agent = await part1Agent Cloud(browser, auth);
     } catch (err) {
       report.errors.push(`part1: ${String(err?.stack ?? err)}`);
-      step("AgentsMesh: create pod via browser", false, String(err).split("\n")[0]);
+      step("Agent Cloud: create pod via browser", false, String(err).split("\n")[0]);
     }
     await part2WebUser(browser, auth, agent);
   } catch (err) {

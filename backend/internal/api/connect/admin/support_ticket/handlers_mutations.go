@@ -6,10 +6,10 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/admin"
-	supportticketsvc "github.com/anthropics/agentsmesh/backend/internal/service/supportticket"
-	supportticketv1 "github.com/anthropics/agentsmesh/proto/gen/go/support_ticket/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/admin"
+	supportticketsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/supportticket"
+	supportticketv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/support_ticket/v1"
 )
 
 // ReplySupportTicket mirrors REST's Reply (support_ticket_actions.go:18) for

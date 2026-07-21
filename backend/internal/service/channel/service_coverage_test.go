@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/channel"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/channel"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/eventbus"
 )
 
 func TestSetUserLookup(t *testing.T) {

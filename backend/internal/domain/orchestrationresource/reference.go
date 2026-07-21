@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 var ErrCrossNamespaceReference = errors.New("cross-namespace reference")

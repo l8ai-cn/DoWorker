@@ -13,7 +13,7 @@ syntax = "proto3";
 
 package proto.autopilot.v1;
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/autopilot/v1;autopilotv1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/autopilot/v1;autopilotv1";
 
 service AutopilotControllerService {
   rpc ListAutopilotControllers(ListAutopilotControllersRequest) returns (ListAutopilotControllersResponse);

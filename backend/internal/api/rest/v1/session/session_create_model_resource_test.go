@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"testing"
 
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	workercreation "github.com/l8ai-cn/agentcloud/backend/internal/service/workercreation"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

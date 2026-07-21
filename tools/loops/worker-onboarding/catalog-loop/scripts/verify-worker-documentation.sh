@@ -6,10 +6,10 @@ REPO_ROOT="$(cd "${LOOP_ROOT}/../../../.." && pwd)"
 
 cd "$REPO_ROOT"
 
-! rg -q 'Any terminal-based agent works|agentsmesh-runner' \
+! rg -q 'Any terminal-based agent works|agentcloud-runner' \
   README.md runner/README.md
 rg -q './deploy/dev/dev.sh' README.md
-rg -q 'do-worker-runner register' README.md runner/README.md
+rg -q 'agent-cloud-runner register' README.md runner/README.md
 rg -q 'Worker Runtime Status' README.md
 rg -q 'No Worker type is formally deployable' README.md
 ! rg -q '3-step wizard' docs/api/workers-create.md

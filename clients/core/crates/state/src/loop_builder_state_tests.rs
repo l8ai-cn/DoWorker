@@ -1,4 +1,4 @@
-use agentsmesh_types::proto_goalloop_v1 as lp;
+use agentcloud_types::proto_goalloop_v1 as lp;
 
 use crate::app_state::AppState;
 use crate::loop_builder_state::LoopBuilderState;

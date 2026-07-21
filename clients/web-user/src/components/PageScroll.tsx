@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
  * bar + OS safe area).
  *
  * All of that comes from the shared inset variables defined in index.css
- * (`--do-worker-header-height`, `--do-worker-inset-top/bottom`). Off the iOS shell
+ * (`--agent-cloud-header-height`, `--agent-cloud-inset-top/bottom`). Off the iOS shell
  * those resolve to `0` / plain `env(safe-area-*)`, so the SAME component renders
  * correctly in the browser, Electron, and the iOS shell with no runtime branch.
  *
@@ -57,10 +57,10 @@ export function PageScroll({
   // missed. The padding lives on the scroll container so the last item can
   // scroll up clear of the bar.
   const style: CSSProperties = {
-    paddingTop: `calc(${extraTop}${clearHeader ? " + var(--do-worker-header-height)" : ""}${
-      insetTop ? " + var(--do-worker-inset-top)" : ""
+    paddingTop: `calc(${extraTop}${clearHeader ? " + var(--agent-cloud-header-height)" : ""}${
+      insetTop ? " + var(--agent-cloud-inset-top)" : ""
     })`,
-    paddingBottom: `calc(${extraBottom}${insetBottom ? " + var(--do-worker-inset-bottom)" : ""})`,
+    paddingBottom: `calc(${extraBottom}${insetBottom ? " + var(--agent-cloud-inset-bottom)" : ""})`,
   };
 
   return (

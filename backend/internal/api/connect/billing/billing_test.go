@@ -10,10 +10,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	billingdomain "github.com/anthropics/agentsmesh/backend/internal/domain/billing"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	billingsvc "github.com/anthropics/agentsmesh/backend/internal/service/billing"
-	billingv1 "github.com/anthropics/agentsmesh/proto/gen/go/billing/v1"
+	billingdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/billing"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	billingsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/billing"
+	billingv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/billing/v1"
 )
 
 type fakeOrg struct {

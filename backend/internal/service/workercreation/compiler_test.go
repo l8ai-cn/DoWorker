@@ -6,10 +6,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/agentfile/parser"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	"github.com/l8ai-cn/agentcloud/agentfile/parser"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

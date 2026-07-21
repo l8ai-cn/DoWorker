@@ -37,7 +37,7 @@ openssl ecparam -name prime256v1 -genkey -noout -out "${SSL_DIR}/ca.key"
 # Generate CA certificate (10 years validity)
 echo "Generating CA certificate..."
 openssl req -new -x509 -days 3650 -key "${SSL_DIR}/ca.key" -out "${SSL_DIR}/ca.crt" \
-    -subj "/CN=AgentsMesh OnPremise CA/O=AgentsMesh/OU=OnPremise"
+    -subj "/CN=Agent Cloud OnPremise CA/O=Agent Cloud/OU=OnPremise"
 
 # Generate server private key (ECDSA P-256, traditional EC format for Go compatibility)
 echo "Generating server private key..."
@@ -46,7 +46,7 @@ openssl ecparam -name prime256v1 -genkey -noout -out "${SSL_DIR}/server.key"
 # Generate server CSR
 echo "Generating server CSR..."
 openssl req -new -key "${SSL_DIR}/server.key" -out "${SSL_DIR}/server.csr" \
-    -subj "/CN=agentsmesh-backend/O=AgentsMesh/OU=Backend"
+    -subj "/CN=agentcloud-backend/O=Agent Cloud/OU=Backend"
 
 # Create server certificate extensions config
 # Include SERVER_IP if provided

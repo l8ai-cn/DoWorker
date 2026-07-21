@@ -10,10 +10,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	promocodedomain "github.com/anthropics/agentsmesh/backend/internal/domain/promocode"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	promocodesvc "github.com/anthropics/agentsmesh/backend/internal/service/promocode"
-	promocodev1 "github.com/anthropics/agentsmesh/proto/gen/go/promocode/v1"
+	promocodedomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/promocode"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	promocodesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/promocode"
+	promocodev1 "github.com/l8ai-cn/agentcloud/proto/gen/go/promocode/v1"
 )
 
 // fakeOrg / fakeOrgService satisfy middleware.OrganizationGetter +

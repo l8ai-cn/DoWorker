@@ -6,9 +6,9 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/envbundle"
-	envbundleservice "github.com/anthropics/agentsmesh/backend/internal/service/envbundle"
-	ebv1 "github.com/anthropics/agentsmesh/proto/gen/go/env_bundle/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/envbundle"
+	envbundleservice "github.com/l8ai-cn/agentcloud/backend/internal/service/envbundle"
+	ebv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/env_bundle/v1"
 )
 
 // ListEnvBundles — REST analogue: GET /api/v1/users/env-bundles.

@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use agentsmesh_state::agent_workbench_state::{ProjectionStatus, ResyncReason};
-use agentsmesh_state::app_state::AppState;
+use agentcloud_state::agent_workbench_state::{ProjectionStatus, ResyncReason};
+use agentcloud_state::app_state::AppState;
 use parking_lot::RwLock;
 use prost::Message;
 use wasm_bindgen::prelude::*;

@@ -30,7 +30,7 @@ catalog_slugs="$(jq -r '[.images[] | .worker_type_slugs[]] | unique | .[]' "$cat
 test "$image_count" = "11"
 test "$catalog_slug_count" = "12"
 runner_slugs="$(
-  docker exec "${project_name}-postgres-1" psql -U agentsmesh -d agentsmesh -Atc "
+  docker exec "${project_name}-postgres-1" psql -U agentcloud -d agentcloud -Atc "
     SELECT DISTINCT slug
     FROM runners
     CROSS JOIN LATERAL jsonb_array_elements_text(available_agents) AS slug

@@ -3,7 +3,7 @@ package tokenquota
 import (
 	"testing"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/tokenquota"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/tokenquota"
 )
 
 func i64(v int64) *int64    { return &v }

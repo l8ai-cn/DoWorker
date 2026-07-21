@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Do Worker Admin Console",
-  description: "System administration console for Do Worker platform",
+  title: "Agent Cloud Admin Console",
+  description: "System administration console for Agent Cloud platform",
 };
 
 export default function RootLayout({

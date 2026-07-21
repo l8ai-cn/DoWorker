@@ -6,8 +6,8 @@ import (
 	"regexp"
 	"strings"
 
-	agentdomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
-	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
+	agentdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agent"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/workerdefinition"
 )
 
 type workerTypeAgentProvider struct {

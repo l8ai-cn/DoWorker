@@ -46,9 +46,9 @@ func NewGitHubReleaseDetector() (*GitHubReleaseDetector, error) {
 		// Filter assets by name, OS, and architecture (regex).
 		// go-selfupdate's Filters replace its default OS/arch suffix matching,
 		// so the regex must include all three dimensions. Without this filter,
-		// the library defaults to the repo name ("AgentsMesh") which doesn't
-		// match our goreleaser archive names ("do-worker-runner_*_<os>_<arch>").
-		Filters: []string{fmt.Sprintf(`do-worker-runner.*%s.*%s`, runtime.GOOS, runtime.GOARCH)},
+		// the library defaults to the repo name ("Agent Cloud") which doesn't
+		// match our goreleaser archive names ("agent-cloud-runner_*_<os>_<arch>").
+		Filters: []string{fmt.Sprintf(`agent-cloud-runner.*%s.*%s`, runtime.GOOS, runtime.GOARCH)},
 		// Require checksum validation for downloaded binaries.
 		// Release assets must include a "checksums.txt" file.
 		// If missing, update fails safely (ErrValidationAssetNotFound) —

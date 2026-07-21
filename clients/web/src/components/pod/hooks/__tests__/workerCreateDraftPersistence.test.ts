@@ -36,7 +36,7 @@ describe("workerCreateDraftPersistence", () => {
         type_config_values: { approval_mode: "never" },
       },
     });
-    expect(sessionStorage.getItem("agentsmesh.worker-create-draft.v1:test-org"))
+    expect(sessionStorage.getItem("agentcloud.worker-create-draft.v1:test-org"))
       .not.toContain("plaintext-secret");
   });
 

@@ -24,7 +24,7 @@ type Config struct {
 	KnowledgeBase KnowledgeBaseConfig
 	PendingQueue  PendingQueueConfig
 
-	PrimaryDomain            string // Primary domain (e.g., "localhost:10000" or "agentsmesh.ai")
+	PrimaryDomain            string // Primary domain (e.g., "localhost:10000" or "agentcloud.ai")
 	PublicWebURL             string // Browser-visible Web origin used for desktop access links
 	MobilePublicURL          string // Browser-visible mobile origin used for Worker access links
 	PreviewPublicOrigin      string
@@ -72,9 +72,9 @@ func Load() (*Config, error) {
 		Database: DatabaseConfig{
 			Host:        getEnv("DB_HOST", "localhost"),
 			Port:        getEnvInt("DB_PORT", 5432),
-			User:        getEnv("DB_USER", "agentsmesh"),
+			User:        getEnv("DB_USER", "agentcloud"),
 			Password:    getEnv("DB_PASSWORD", ""),
-			DBName:      getEnv("DB_NAME", "agentsmesh"),
+			DBName:      getEnv("DB_NAME", "agentcloud"),
 			SSLMode:     getEnv("DB_SSLMODE", "disable"),
 			ReplicaDSNs: getEnvList("DB_REPLICA_DSNS", nil),
 		},
@@ -95,9 +95,9 @@ func Load() (*Config, error) {
 			PrivateKeyFile:  getEnv("ACCESS_TOKEN_PRIVATE_KEY_FILE", ""),
 			PublicKeyFile:   getEnv("ACCESS_TOKEN_PUBLIC_KEY_FILE", ""),
 			KeyID:           getEnv("ACCESS_TOKEN_KEY_ID", ""),
-			Issuer:          getEnv("ACCESS_TOKEN_ISSUER", "agentsmesh"),
-			Audiences:       getEnvList("ACCESS_TOKEN_AUDIENCES", []string{"agentsmesh-api", "marketplace-api"}),
-			CoreAudience:    getEnv("ACCESS_TOKEN_CORE_AUDIENCE", "agentsmesh-api"),
+			Issuer:          getEnv("ACCESS_TOKEN_ISSUER", "agentcloud"),
+			Audiences:       getEnvList("ACCESS_TOKEN_AUDIENCES", []string{"agentcloud-api", "marketplace-api"}),
+			CoreAudience:    getEnv("ACCESS_TOKEN_CORE_AUDIENCE", "agentcloud-api"),
 			ExpirationHours: getEnvInt("ACCESS_TOKEN_EXPIRATION_HOURS", 24),
 		},
 
@@ -139,7 +139,7 @@ func Load() (*Config, error) {
 		Email: EmailConfig{
 			Provider:    getEnv("EMAIL_PROVIDER", "console"),
 			ResendKey:   getEnv("RESEND_API_KEY", ""),
-			FromAddress: getEnv("EMAIL_FROM_ADDRESS", "Do Worker <noreply@agentsmesh.ai>"),
+			FromAddress: getEnv("EMAIL_FROM_ADDRESS", "Agent Cloud <noreply@agentcloud.ai>"),
 		},
 
 		Storage: StorageConfig{
@@ -147,7 +147,7 @@ func Load() (*Config, error) {
 			PublicEndpoint: getEnv("STORAGE_PUBLIC_ENDPOINT", ""),
 			RunnerEndpoint: getEnv("STORAGE_RUNNER_ENDPOINT", ""),
 			Region:         getEnv("STORAGE_REGION", "us-east-1"),
-			Bucket:         getEnv("STORAGE_BUCKET", "agentsmesh"),
+			Bucket:         getEnv("STORAGE_BUCKET", "agentcloud"),
 			AccessKey:      getEnv("STORAGE_ACCESS_KEY", ""),
 			SecretKey:      getEnv("STORAGE_SECRET_KEY", ""),
 			UseSSL:         storageUseSSL,

@@ -5,13 +5,13 @@ import {
   CommandEnvelopeSchema,
   CommandReceiptState,
   CommandReceiptSchema,
-} from "@do-worker/proto/agent_workbench/v2/command_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/command_pb";
 import {
   AgentEventSchema,
   SessionDeltaBatchSchema,
   SessionSnapshotSchema,
-} from "@do-worker/proto/agent_workbench/v2/session_pb";
-import { SessionStatus } from "@do-worker/proto/agent_workbench/v2/session_state_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/session_pb";
+import { SessionStatus } from "@agent-cloud/proto/agent_workbench/v2/session_state_pb";
 import { AgentSessionStore } from "./AgentSessionStore";
 
 describe("AgentSessionStore", () => {

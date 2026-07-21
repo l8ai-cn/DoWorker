@@ -2,18 +2,18 @@
   "schema_version": 1,
   "worker_slug": "aider",
   "validated_at": "2026-07-16T04:06:45+08:00",
-  "image": "do-worker/runner-aider:latest",
+  "image": "agent-cloud/runner-aider:latest",
   "image_id": "sha256:281ad43b048e3a3d7248c15d3b2dd6a72b1937612f975c5a26cceb48859c1c6f",
   "platform": "linux/amd64",
   "build_command": "FORCE_REBUILD=1 BUILD_RETRIES=1 bash docker/agent-runtime/build.sh aider",
-  "smoke_command": "docker run --rm --platform linux/amd64 --network none --entrypoint sh do-worker/runner-aider:latest -lc '<python/sqlite/aider/runner checks>'",
+  "smoke_command": "docker run --rm --platform linux/amd64 --network none --entrypoint sh agent-cloud/runner-aider:latest -lc '<python/sqlite/aider/runner checks>'",
   "checks": {
     "container_user": "runner",
     "python_version": "Python 3.11.15",
     "sqlite_version": "3.40.1",
     "cli_path": "/usr/local/bin/aider",
     "cli_version": "aider 0.86.2",
-    "runner_version_command": "Do Worker Runner dev (built unknown)"
+    "runner_version_command": "Agent Cloud Runner dev (built unknown)"
   },
   "verdict": "runtime_smoke_verified",
   "limits": [

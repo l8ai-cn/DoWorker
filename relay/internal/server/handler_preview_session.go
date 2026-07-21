@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/anthropics/agentsmesh/relay/internal/auth"
-	relaybackend "github.com/anthropics/agentsmesh/relay/internal/backend"
+	"github.com/l8ai-cn/agentcloud/relay/internal/auth"
+	relaybackend "github.com/l8ai-cn/agentcloud/relay/internal/backend"
 )
 
 const previewSessionTTL = 15 * time.Minute

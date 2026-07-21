@@ -62,7 +62,7 @@ vi.mock("@/components/ui/responsive-dialog", () => ({
   ),
 }));
 
-const exportedExpert = `apiVersion: agentsmesh.io/v1alpha1
+const exportedExpert = `apiVersion: agentcloud.io/v1alpha1
 kind: Expert
 metadata:
   name: release-reviewer
@@ -103,7 +103,7 @@ describe("ExpertRevisionDialog", () => {
     expect(exportResource).toHaveBeenCalledWith(
       "acme",
       {
-        apiVersion: "agentsmesh.io/v1alpha1",
+        apiVersion: "agentcloud.io/v1alpha1",
         kind: "Expert",
         namespace: "acme",
         name: "release-reviewer",

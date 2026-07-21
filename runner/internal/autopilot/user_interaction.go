@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"sync"
 
-	"github.com/anthropics/agentsmesh/runner/internal/safego"
+	"github.com/l8ai-cn/agentcloud/runner/internal/safego"
 )
 
 // UserInteractionHandler manages user takeover, handback, and approval interactions.

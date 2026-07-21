@@ -3,8 +3,8 @@ package workerdependencyartifact
 import (
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workerdependency"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
 )
 
 func validateWorkspace(

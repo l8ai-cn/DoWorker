@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/aimodel"
-	"github.com/anthropics/agentsmesh/backend/pkg/crypto"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/aimodel"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/crypto"
 )
 
 // Service manages the model pool: encrypted-credential CRUD plus resolving a

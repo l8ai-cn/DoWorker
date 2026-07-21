@@ -9,14 +9,14 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/anthropics/agentsmesh/backend/internal/config"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/organization"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/user"
-	"github.com/anthropics/agentsmesh/backend/internal/infra"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/database"
-	"github.com/anthropics/agentsmesh/backend/internal/service/operatorcatalog"
-	skillsvc "github.com/anthropics/agentsmesh/backend/internal/service/skill"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/organization"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/user"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/database"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/operatorcatalog"
+	skillsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/skill"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 	"gorm.io/gorm"
 )
 

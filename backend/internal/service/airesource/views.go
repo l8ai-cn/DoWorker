@@ -1,6 +1,6 @@
 package airesource
 
-import domain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
+import domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
 
 func connectionView(connection *domain.Connection, canManage bool, resources []*domain.ModelResource) ConnectionView {
 	resourceViews := make([]ResourceView, len(resources))

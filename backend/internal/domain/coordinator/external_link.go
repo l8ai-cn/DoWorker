@@ -2,7 +2,7 @@ package coordinator
 
 import "time"
 
-// TicketExternalLink dedupes external issues against the AgentsMesh tickets they
+// TicketExternalLink dedupes external issues against the Agent Cloud tickets they
 // were synced into. The UNIQUE(org, platform, external_id) constraint is the
 // idempotency key that keeps repeated scans from creating duplicate tickets.
 type TicketExternalLink struct {

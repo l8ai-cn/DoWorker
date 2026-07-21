@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/extension"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/extension"
 )
 
 func (r *extensionRepo) ListInstalledMcpServers(ctx context.Context, orgID, repoID, userID int64, scope string) ([]*extension.InstalledMcpServer, error) {

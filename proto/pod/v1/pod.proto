@@ -28,7 +28,7 @@ import "codegen/v1/options.proto";
 import "pod/v1/worker_creation.proto";
 import "pod/v1/worker_skill_publish.proto";
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/pod/v1;podv1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/pod/v1;podv1";
 
 // Convert codegen target — emits pod_convert.amesh.go into the backend
 // connect handler tree so it can reach the agentpod domain layer.
@@ -99,7 +99,7 @@ message PodCreatedByInfo {
 
 message Pod {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod.Pod"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod.Pod"
     generate_to_proto: true
     generate_from_proto: false
   };

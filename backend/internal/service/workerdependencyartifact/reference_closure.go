@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"strings"
 
-	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	resource "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
+	control "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
+	resource "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationresource"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workerdependency"
 )
 
 func validateReferenceClosure(

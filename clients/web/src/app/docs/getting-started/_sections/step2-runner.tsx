@@ -24,17 +24,17 @@ curl -fsSL ${serverUrl}/install.sh | sh`}</pre>
           <div className="rounded-lg bg-surface-muted ring-1 ring-border/15 p-4">
             <h4 className="font-medium mb-2">{t("docs.gettingStarted.step2.methodToken")}</h4>
             <div className="font-mono text-sm overflow-x-auto">
-              <pre className="text-success">{`do-worker-runner register \\
+              <pre className="text-success">{`agent-cloud-runner register \\
   --server ${serverUrl} \\
   --token <YOUR_TOKEN>
-do-worker-runner run`}</pre>
+agent-cloud-runner run`}</pre>
             </div>
           </div>
           <div className="rounded-lg bg-surface-muted ring-1 ring-border/15 p-4">
             <h4 className="font-medium mb-2">{t("docs.gettingStarted.step2.methodLogin")}</h4>
             <div className="font-mono text-sm overflow-x-auto">
-              <pre className="text-success">{`do-worker-runner login
-do-worker-runner run`}</pre>
+              <pre className="text-success">{`agent-cloud-runner login
+agent-cloud-runner run`}</pre>
             </div>
           </div>
         </div>

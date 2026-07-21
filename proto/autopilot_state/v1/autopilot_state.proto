@@ -23,10 +23,10 @@ syntax = "proto3";
 
 package proto.autopilot_state.v1;
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/autopilot_state/v1;autopilotstatev1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/autopilot_state/v1;autopilotstatev1";
 
 // ---------------------------------------------------------------------------
-// In-memory model — mirrors agentsmesh_state::autopilot_state::*
+// In-memory model — mirrors agentcloud_state::autopilot_state::*
 // ---------------------------------------------------------------------------
 
 message AutopilotControllerSnapshot {

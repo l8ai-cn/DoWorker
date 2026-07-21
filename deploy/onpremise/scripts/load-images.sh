@@ -68,4 +68,4 @@ fi
 # List loaded images
 echo ""
 echo "Loaded images:"
-docker images --format "  {{.Repository}}:{{.Tag}}" | grep -E "(agentsmesh|postgres|redis|minio|traefik)" | sort
+docker images --format "  {{.Repository}}:{{.Tag}}" | grep -E "(agentcloud|postgres|redis|minio|traefik)" | sort

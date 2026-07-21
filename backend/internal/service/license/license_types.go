@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/config"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/billing"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/billing"
 )
 
 type LicenseData struct {

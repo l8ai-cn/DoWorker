@@ -94,7 +94,7 @@ function createFixture(db: DbFixture, snapshotID: string): ResourceWorkflowFixtu
         active_revision, created_by_id, updated_by_id
       ) VALUES (
         ${organizationID}, '${resourceUID}',
-        'agentsmesh.io/v1alpha1', 'Workflow', '${TEST_ORG_SLUG}',
+        'agentcloud.io/v1alpha1', 'Workflow', '${TEST_ORG_SLUG}',
         '${RESOURCE_WORKFLOW_SLUG}', '${RESOURCE_WORKFLOW_NAME}',
         '{"test-suite":"workflow-runtime"}'::jsonb, '{}'::jsonb,
         1, 1, 1, ${actorID}, ${actorID}

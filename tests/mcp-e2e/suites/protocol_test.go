@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/tests/mcp-e2e/fixture"
+	"github.com/l8ai-cn/agentcloud/tests/mcp-e2e/fixture"
 )
 
 // Protocol-level guards. The MCP HTTP server applies a small number of

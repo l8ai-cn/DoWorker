@@ -5,9 +5,9 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/user"
-	"github.com/anthropics/agentsmesh/backend/internal/service/agent"
-	userService "github.com/anthropics/agentsmesh/backend/internal/service/user"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/user"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/agent"
+	userService "github.com/l8ai-cn/agentcloud/backend/internal/service/user"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

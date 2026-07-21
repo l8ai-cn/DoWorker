@@ -6,11 +6,11 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/agentfile/parser"
-	"github.com/anthropics/agentsmesh/agentfile/serialize"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	"github.com/l8ai-cn/agentcloud/agentfile/parser"
+	"github.com/l8ai-cn/agentcloud/agentfile/serialize"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 type compilationReferenceResolver interface {

@@ -1,4 +1,4 @@
-use agentsmesh_types::proto_goalloop_v1 as lp;
+use agentcloud_types::proto_goalloop_v1 as lp;
 
 pub struct LoopBuilderState {
     source: String,

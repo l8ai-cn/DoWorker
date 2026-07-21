@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use agentsmesh_state::app_state::AppState;
-use agentsmesh_types::proto_agent_workbench_v2 as v2;
+use agentcloud_state::app_state::AppState;
+use agentcloud_types::proto_agent_workbench_v2 as v2;
 use parking_lot::RwLock;
 use prost::Message;
 

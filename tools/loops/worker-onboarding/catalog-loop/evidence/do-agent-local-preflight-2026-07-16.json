@@ -10,7 +10,7 @@
     "terminal_data_plane": false
   },
   "image": {
-    "reference": "agentsmesh-codex-loop-blockly-mvp-runner-do-agent:latest",
+    "reference": "agentcloud-codex-loop-blockly-mvp-runner-do-agent:latest",
     "digest": "sha256:55976d9ff21970af62034d932eb7be4d797472fe13a30d8b9adfa8458b87a32f",
     "probe": {
       "command": "docker run --rm --user 1000:1000 --entrypoint do-agent <image> --version",

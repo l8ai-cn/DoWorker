@@ -8,10 +8,10 @@ import (
 	"log/slog"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/knowledgebase"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/gitea"
-	"github.com/anthropics/agentsmesh/backend/pkg/crypto"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/knowledgebase"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/gitea"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/crypto"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 var (

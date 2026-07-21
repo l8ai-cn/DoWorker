@@ -9,12 +9,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	fileservice "github.com/anthropics/agentsmesh/backend/internal/service/file"
-	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
-	"github.com/anthropics/agentsmesh/backend/pkg/policy"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	podDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	fileservice "github.com/l8ai-cn/agentcloud/backend/internal/service/file"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/apierr"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/policy"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 )
 
 type podWorkspaceSandbox interface {

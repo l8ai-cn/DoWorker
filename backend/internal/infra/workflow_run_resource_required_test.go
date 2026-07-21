@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workflow"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workflow"
 	"github.com/stretchr/testify/require"
 )
 

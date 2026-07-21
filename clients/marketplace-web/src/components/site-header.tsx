@@ -10,7 +10,7 @@ export function SiteHeader() {
             <Box aria-hidden="true" size={19} strokeWidth={2.2} />
           </span>
           <span>
-            <strong>Do Worker</strong>
+            <strong>Agent Cloud</strong>
             <small>应用市场</small>
           </span>
         </Link>

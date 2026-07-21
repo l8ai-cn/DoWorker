@@ -8,13 +8,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
-	"github.com/anthropics/agentsmesh/runner/internal/safego"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/safego"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 )
 
 const maxRunnerGRPCMessageBytes = 16 * 1024 * 1024
@@ -54,7 +54,7 @@ func (c *GRPCConnection) Connect() error {
 	}
 
 	// Fix advancedtls SNI bug: advancedtls.ClientHandshake sets ServerName to the
-	// full authority string (e.g. "agentsmesh.ai:9443" including port), unlike
+	// full authority string (e.g. "agentcloud.ai:9443" including port), unlike
 	// standard gRPC credentials which strips the port via net.SplitHostPort.
 	// An SNI with port violates RFC 6066 and is rejected by some network middleboxes
 	// (corporate firewalls, DPI). Set the correct hostname-only ServerName here so

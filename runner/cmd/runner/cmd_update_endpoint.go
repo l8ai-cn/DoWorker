@@ -10,20 +10,20 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/anthropics/agentsmesh/runner/internal/client"
-	"github.com/anthropics/agentsmesh/runner/internal/config"
+	"github.com/l8ai-cn/agentcloud/runner/internal/client"
+	"github.com/l8ai-cn/agentcloud/runner/internal/config"
 )
 
 func runUpdateEndpoint(args []string) {
 	fs := flag.NewFlagSet("update-endpoint", flag.ExitOnError)
-	configFile := fs.String("config", "", "Path to config file (default: ~/.agentsmesh/config.yaml)")
+	configFile := fs.String("config", "", "Path to config file (default: ~/.agentcloud/config.yaml)")
 	serverURL := fs.String("server-url", "", "Override server URL for discovery (default: read from config)")
 
 	fs.Usage = func() {
 		fmt.Println(`Update the gRPC endpoint in the config file without re-registration.
 
 Usage:
-  do-worker-runner update-endpoint [options]
+  agent-cloud-runner update-endpoint [options]
 
 Options:`)
 		fs.PrintDefaults()
@@ -39,7 +39,7 @@ can no longer connect. This avoids a full re-registration.`)
 		os.Exit(1)
 	}
 
-	// Determine config file path (prefers ~/.do-worker, legacy ~/.agentsmesh).
+	// Determine config file path (prefers ~/.agent-cloud, legacy ~/.agentcloud).
 	cfgFile := *configFile
 	if cfgFile == "" {
 		dir := config.UserConfigDir()
@@ -51,7 +51,7 @@ can no longer connect. This avoids a full re-registration.`)
 	}
 
 	if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
-		fmt.Fprintln(os.Stderr, "Error: Runner not registered. Please run 'do-worker-runner register' first.")
+		fmt.Fprintln(os.Stderr, "Error: Runner not registered. Please run 'agent-cloud-runner register' first.")
 		os.Exit(1)
 	}
 
@@ -126,5 +126,5 @@ can no longer connect. This avoids a full re-registration.`)
 
 	fmt.Printf("✓ Updated grpc_endpoint in %s\n", cfgFile)
 	fmt.Println("\nYou can now start the runner with:")
-	fmt.Println("  do-worker-runner run")
+	fmt.Println("  agent-cloud-runner run")
 }

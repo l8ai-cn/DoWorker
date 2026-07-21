@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/backend/internal/config"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
 )
 
 type Provider interface {

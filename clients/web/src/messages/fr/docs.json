@@ -51,13 +51,13 @@
     },
     "intro": {
       "title": "Introduction",
-      "description": "Do Worker est un centre de commandement pour flottes d'agents IA qui permet aux équipes d'orchestrer des agents de codage IA comme Claude Code, Codex CLI, Gemini CLI et Aider à grande échelle. Gérez des stations de travail IA distantes (AgentPod), coordonnez la multi-agent collaboration (Mesh) et suivez la progression avec une gestion de tâches intégrée — le tout depuis une seule plateforme.",
+      "description": "Agent Cloud est un centre de commandement pour flottes d'agents IA qui permet aux équipes d'orchestrer des agents de codage IA comme Claude Code, Codex CLI, Gemini CLI et Aider à grande échelle. Gérez des stations de travail IA distantes (AgentPod), coordonnez la multi-agent collaboration (Mesh) et suivez la progression avec une gestion de tâches intégrée — le tout depuis une seule plateforme.",
       "supportedAgents": "Supported AI Agents:",
       "customAgents": "Custom agents via MCP protocol"
     },
     "architecture": {
       "title": "Comment ça Fonctionne",
-      "description": "Do Worker vous permet de contrôler des agents IA exécutés n'importe où — sur votre laptop, un serveur ou une VM cloud — depuis votre navigateur. Les commandes sont envoyées de manière sécurisée via des connexions chiffrées, tandis que la sortie du terminal est diffusée en temps réel. Votre code ne quitte jamais votre infrastructure.",
+      "description": "Agent Cloud vous permet de contrôler des agents IA exécutés n'importe où — sur votre laptop, un serveur ou une VM cloud — depuis votre navigateur. Les commandes sont envoyées de manière sécurisée via des connexions chiffrées, tandis que la sortie du terminal est diffusée en temps réel. Votre code ne quitte jamais votre infrastructure.",
       "clientLayer": "Couche Client",
       "clientSubtitle": "Accédez de n'importe où — navigateur, mobile ou tablette",
       "cloudLayer": "Cloud",
@@ -86,7 +86,7 @@
     },
     "whatYouCanDo": {
       "title": "Ce Que Vous Pouvez Faire",
-      "description": "Do Worker donne à votre équipe des super-pouvoirs pour le développement piloté par l'IA.",
+      "description": "Agent Cloud donne à votre équipe des super-pouvoirs pour le développement piloté par l'IA.",
       "orchestrate": {
         "title": "Orchestrer Plusieurs Agents IA",
         "description": "Coordonnez Claude Code, Codex CLI, Gemini CLI, Aider et plus encore via des canaux et le binding de pods."
@@ -109,20 +109,20 @@
       "quickStart": "Quick Start",
       "quickStartDesc": "Get up and running in 5 minutes",
       "agentpodDesc": "Remote AI development workstations",
-      "agentsmeshDesc": "Multi-agent collaboration network",
+      "agentcloudDesc": "Multi-agent collaboration network",
       "mcpTools": "MCP Tools",
       "mcpToolsDesc": "26 tools for AI agents"
     },
     "concepts": {
       "title": "Core Concepts",
-      "description": "Understand the foundational concepts behind Do Worker to make the most of the platform.",
+      "description": "Understand the foundational concepts behind Agent Cloud to make the most of the platform.",
       "architecture": {
         "title": "Architecture Overview",
-        "description": "Do Worker follows a layered architecture where Organizations manage teams, Runners provide compute, and Pods execute AI agents.",
+        "description": "Agent Cloud follows a layered architecture where Organizations manage teams, Runners provide compute, and Pods execute AI agents.",
         "orgTitle": "Organization",
         "orgDesc": "The top-level entity. Each organization has its own members, settings, runners, and billing. Teams can invite members with different roles.",
         "runnerTitle": "Runner",
-        "runnerDesc": "A self-hosted daemon that connects to the Do Worker backend via gRPC with mTLS. Runners provide the compute environment where Pods execute. You can run multiple Runners across different machines.",
+        "runnerDesc": "A self-hosted daemon that connects to the Agent Cloud backend via gRPC with mTLS. Runners provide the compute environment where Pods execute. You can run multiple Runners across different machines.",
         "podTitle": "Pod (AgentPod)",
         "podDesc": "An isolated execution environment where an AI coding agent runs. Each Pod has its own PTY terminal, sandbox, and optional Git worktree. Pods are created on Runners and managed through the web interface.",
         "channelTitle": "Channel",
@@ -132,7 +132,7 @@
       },
       "byok": {
         "title": "BYOK (Bring Your Own Key)",
-        "description": "Do Worker uses the BYOK model — you provide your own API keys for AI providers (Anthropic, OpenAI, Google, etc.). Your API keys are encrypted at rest and never shared. This means you have full control over costs and model selection."
+        "description": "Agent Cloud uses the BYOK model — you provide your own API keys for AI providers (Anthropic, OpenAI, Google, etc.). Your API keys are encrypted at rest and never shared. This means you have full control over costs and model selection."
       },
       "mtls": {
         "title": "mTLS Security",
@@ -144,14 +144,14 @@
       },
       "mcp": {
         "title": "MCP (Model Context Protocol)",
-        "description": "Do Worker provides 26 MCP tools that AI agents can use to discover resources, communicate with other Pods, manage tickets, and control terminals. The MCP server runs on each Runner and is automatically configured for supported agents like Claude Code."
+        "description": "Agent Cloud provides 26 MCP tools that AI agents can use to discover resources, communicate with other Pods, manage tickets, and control terminals. The MCP server runs on each Runner and is automatically configured for supported agents like Claude Code."
       },
       "repositoriesGit": {
         "title": "Dépôts et intégration Git",
-        "description": "Connectez vos dépôts Git à Do Worker et configurez l'accès aux fournisseurs pour des workflows de développement assistés par l'IA fluides et transparents.",
+        "description": "Connectez vos dépôts Git à Agent Cloud et configurez l'accès aux fournisseurs pour des workflows de développement assistés par l'IA fluides et transparents.",
         "overview": {
           "title": "Aperçu",
-          "description": "Les dépôts relient vos projets Git à la plateforme. Lorsqu'un Pod est créé avec un dépôt lié, le Runner clone automatiquement le projet et configure un worktree Git isolé. Do Worker s'intègre aux plateformes d'hébergement Git populaires pour fournir un accès transparent aux dépôts pour les agents IA."
+          "description": "Les dépôts relient vos projets Git à la plateforme. Lorsqu'un Pod est créé avec un dépôt lié, le Runner clone automatiquement le projet et configure un worktree Git isolé. Agent Cloud s'intègre aux plateformes d'hébergement Git populaires pour fournir un accès transparent aux dépôts pour les agents IA."
         },
         "providers": {
           "title": "Fournisseurs Git pris en charge",
@@ -170,10 +170,10 @@
           "step1": "Dans GitHub, allez dans Settings → Developer settings → Personal access tokens → Fine-grained tokens",
           "step2": "Cliquez sur Generate new token et sélectionnez les dépôts auxquels vous souhaitez accorder l'accès",
           "step3": "Accordez les permissions Repository : Contents (Read-only) et Metadata (Read-only) au minimum",
-          "step4": "Dans Do Worker, allez dans Paramètres → Personnel → Paramètres Git",
+          "step4": "Dans Agent Cloud, allez dans Paramètres → Personnel → Paramètres Git",
           "step5": "Cliquez sur Ajouter un fournisseur GitHub et collez votre jeton",
           "oauthTitle": "Option B : OAuth (utilisateurs inscrits via GitHub uniquement)",
-          "oauthDesc": "Si vous vous êtes inscrit sur Do Worker avec votre compte GitHub, la connexion OAuth est disponible :",
+          "oauthDesc": "Si vous vous êtes inscrit sur Agent Cloud avec votre compte GitHub, la connexion OAuth est disponible :",
           "oauthStep1": "Allez dans Paramètres → Personnel → Paramètres Git",
           "oauthStep2": "Cliquez sur Connecter GitHub — votre compte est déjà lié via OAuth",
           "oauthStep3": "Sélectionnez les dépôts auxquels accorder l'accès",
@@ -184,7 +184,7 @@
           "description": "Connectez GitLab à l'aide d'un jeton d'accès personnel :",
           "step1": "Dans GitLab, accédez à Paramètres → Jetons d'accès",
           "step2": "Créez un nouveau jeton avec les portées api et read_repository",
-          "step3": "Dans Do Worker, accédez à Paramètres → Personnel → Paramètres Git",
+          "step3": "Dans Agent Cloud, accédez à Paramètres → Personnel → Paramètres Git",
           "step4": "Cliquez sur Ajouter un fournisseur GitLab et collez votre jeton",
           "step5": "Entrez l'URL de votre instance GitLab (pour les instances auto-hébergées)",
           "selfHosted": "GitLab auto-hébergé : Entrez l'URL complète de votre instance GitLab (par ex., https://gitlab.votreentreprise.com)."
@@ -194,7 +194,7 @@
           "description": "Connectez Gitee à l'aide d'un jeton d'accès personnel :",
           "step1": "Dans Gitee, accédez à Paramètres → Jetons d'accès personnels",
           "step2": "Créez un nouveau jeton avec la portée projects",
-          "step3": "Dans Do Worker, accédez à Paramètres → Personnel → Paramètres Git",
+          "step3": "Dans Agent Cloud, accédez à Paramètres → Personnel → Paramètres Git",
           "step4": "Cliquez sur Ajouter un fournisseur Gitee et collez votre jeton"
         },
         "sshKeys": {
@@ -222,13 +222,13 @@
           "addRepo": "Ajouter un dépôt",
           "addRepoSteps": "Accédez à Paramètres → Dépôts → Ajouter un dépôt. Sélectionnez votre fournisseur Git, authentifiez-vous et choisissez les dépôts à connecter.",
           "removeRepo": "Supprimer un dépôt",
-          "removeRepoSteps": "Supprimer un dépôt le déconnecte d'Do Worker. Les Pods existants utilisant ce dépôt ne seront pas affectés, mais de nouveaux Pods ne pourront pas être créés avec celui-ci."
+          "removeRepoSteps": "Supprimer un dépôt le déconnecte d'Agent Cloud. Les Pods existants utilisant ce dépôt ne seront pas affectés, mais de nouveaux Pods ne pourront pas être créés avec celui-ci."
         }
       }
     },
     "gettingStarted": {
       "title": "Démarrage rapide",
-      "description": "Démarrez Do Worker en six étapes. Ceci est un aperçu rapide — chaque étape renvoie vers un tutoriel détaillé avec dépannage et options avancées.",
+      "description": "Démarrez Agent Cloud en six étapes. Ceci est un aperçu rapide — chaque étape renvoie vers un tutoriel détaillé avec dépannage et options avancées.",
       "step1": {
         "title": "Créer un compte",
         "description": "Inscrivez-vous sur la page d'inscription avec votre e-mail, nom d'utilisateur et mot de passe. Vous recevrez un e-mail de vérification. S'il n'arrive pas dans les minutes qui suivent, vérifiez vos spams.",
@@ -238,7 +238,7 @@
       },
       "step2": {
         "title": "Configurer un Runner",
-        "description": "Un Runner est un démon léger qui s'exécute sur votre machine et lance les agents IA dans des espaces de travail isolés appelés Pods. Installez Do Worker Runner sur votre machine de développement ou serveur.",
+        "description": "Un Runner est un démon léger qui s'exécute sur votre machine et lance les agents IA dans des espaces de travail isolés appelés Pods. Installez Agent Cloud Runner sur votre machine de développement ou serveur.",
         "methodToken": "S'inscrire avec un jeton",
         "methodLogin": "S'inscrire avec connexion navigateur",
         "seeSetup": "Consultez {link} pour les options de déploiement Docker, packages Linux et Kubernetes."
@@ -570,7 +570,7 @@
         "description": "Integrated task management with Kanban board view. Create tickets, assign them to AgentPods, and track progress through your workflow.",
         "overview": {
           "title": "Overview",
-          "description": "Do Worker Tickets provide a lightweight issue tracking system designed for AI-driven development. Key features include:",
+          "description": "Agent Cloud Tickets provide a lightweight issue tracking system designed for AI-driven development. Key features include:",
           "item1": "Kanban board visualization",
           "item2": "Ticket ↔ Pod linking for context",
           "item3": "Git commit and merge request associations",
@@ -624,7 +624,7 @@
       },
       "repositories": {
         "title": "Repositories",
-        "description": "Connect your Git repositories to Do Worker for seamless AI-powered development workflows.",
+        "description": "Connect your Git repositories to Agent Cloud for seamless AI-powered development workflows.",
         "overview": {
           "title": "Overview",
           "description": "Repositories link your Git projects to the platform. When a Pod is created with a linked repository, the Runner automatically clones the project and sets up an isolated Git worktree."
@@ -643,7 +643,7 @@
           "oauth": "OAuth",
           "oauthDesc": "For GitHub — one-click authorization with fine-grained repository access. Tokens are encrypted and stored securely.",
           "pat": "Personal Access Token (PAT)",
-          "patDesc": "For GitLab and Gitee — generate a token from your provider settings and add it in Do Worker. Requires repo read/write scope."
+          "patDesc": "For GitLab and Gitee — generate a token from your provider settings and add it in Agent Cloud. Requires repo read/write scope."
         },
         "podAssociation": {
           "title": "Repository & Pod Association",
@@ -663,7 +663,7 @@
           "addRepo": "Adding a Repository",
           "addRepoSteps": "Go to Settings → Repositories → Add Repository. Select your Git provider, authenticate, and choose the repositories to connect.",
           "removeRepo": "Removing a Repository",
-          "removeRepoSteps": "Removing a repository disconnects it from Do Worker. Existing Pods using this repository will not be affected, but new Pods cannot be created with it."
+          "removeRepoSteps": "Removing a repository disconnects it from Agent Cloud. Existing Pods using this repository will not be affected, but new Pods cannot be created with it."
         }
       },
       "workflows": {
@@ -744,7 +744,7 @@
           "item1": "Linux, macOS, or Windows (WSL2 recommended)",
           "item2": "Git installed and configured",
           "item3": "Docker (optional, for containerized agents)",
-          "item4": "Network access to Do Worker server",
+          "item4": "Network access to Agent Cloud server",
           "item5": "At least 4GB RAM (8GB+ recommended for multiple Pods)"
         },
         "quickInstall": {
@@ -752,7 +752,7 @@
           "oneLineTitle": "One-Line Install (Recommended)",
           "linuxTitle": "Linux (Package Manager)",
           "afterInstall": "After Installation",
-          "tokenHint": "Get your registration token from Settings → Runners → Create Token in the Do Worker web interface.",
+          "tokenHint": "Get your registration token from Settings → Runners → Create Token in the Agent Cloud web interface.",
           "methodToken": "Option A : S'inscrire avec un jeton",
           "methodLogin": "Option B : S'inscrire avec connexion navigateur"
         },
@@ -768,7 +768,7 @@
           "descriptionHeader": "Description",
           "defaultHeader": "Default",
           "tokenDesc": "Registration token (required)",
-          "urlDesc": "Do Worker server URL",
+          "urlDesc": "Agent Cloud server URL",
           "maxPodsDesc": "Maximum concurrent Pods",
           "workspaceDirDesc": "Base directory for workspaces",
           "mcpPortDesc": "MCP server port"
@@ -792,7 +792,7 @@
         "troubleshooting": {
           "title": "Troubleshooting",
           "offline": "Runner shows as Offline",
-          "offlineDesc": "Check network connectivity to the Do Worker server. Ensure firewalls allow outbound gRPC connections (port 9443 for mTLS).",
+          "offlineDesc": "Check network connectivity to the Agent Cloud server. Ensure firewalls allow outbound gRPC connections (port 9443 for mTLS).",
           "podsFail": "Pods fail to start",
           "podsFailDesc": "Verify Git is installed and configured. Check that the runner has access to clone repositories (SSH keys or tokens configured).",
           "tokenInvalid": "\"Token invalid\" error",
@@ -928,17 +928,17 @@
     "guides": {
       "gitIntegration": {
         "title": "Git Integration",
-        "description": "A complete guide to connecting Git providers and using repositories with Do Worker.",
+        "description": "A complete guide to connecting Git providers and using repositories with Agent Cloud.",
         "overview": {
           "title": "Overview",
-          "description": "Do Worker integrates with popular Git hosting platforms to provide seamless repository access for AI agents. This guide covers the end-to-end setup process."
+          "description": "Agent Cloud integrates with popular Git hosting platforms to provide seamless repository access for AI agents. This guide covers the end-to-end setup process."
         },
         "github": {
           "title": "GitHub (OAuth)",
           "description": "Connect your GitHub account using OAuth for one-click authorization:",
           "step1": "Go to Settings → Git Providers",
           "step2": "Click Connect GitHub",
-          "step3": "Authorize Do Worker in the GitHub popup",
+          "step3": "Authorize Agent Cloud in the GitHub popup",
           "step4": "Select which repositories to grant access to",
           "step5": "Your repositories will appear in Settings → Repositories"
         },
@@ -947,7 +947,7 @@
           "description": "Connect GitLab using a Personal Access Token:",
           "step1": "In GitLab, go to Settings → Access Tokens",
           "step2": "Create a new token with api and read_repository scopes",
-          "step3": "In Do Worker, go to Settings → Git Providers",
+          "step3": "In Agent Cloud, go to Settings → Git Providers",
           "step4": "Click Add GitLab Provider and paste your token",
           "step5": "Enter your GitLab instance URL (for self-hosted)",
           "selfHosted": "Self-Hosted GitLab: Enter the full URL of your GitLab instance (e.g., https://gitlab.yourcompany.com)."
@@ -957,7 +957,7 @@
           "description": "Connect Gitee using a Personal Access Token:",
           "step1": "In Gitee, go to Settings → Personal Access Tokens",
           "step2": "Create a new token with projects scope",
-          "step3": "In Do Worker, go to Settings → Git Providers",
+          "step3": "In Agent Cloud, go to Settings → Git Providers",
           "step4": "Click Add Gitee Provider and paste your token"
         },
         "sshKeys": {
@@ -979,10 +979,10 @@
       },
       "teamManagement": {
         "title": "Team Management",
-        "description": "Learn how to set up and manage your team in Do Worker.",
+        "description": "Learn how to set up and manage your team in Agent Cloud.",
         "overview": {
           "title": "Overview",
-          "description": "Do Worker uses Organizations as the primary unit for team collaboration. Each organization has its own members, runners, repositories, and settings."
+          "description": "Agent Cloud uses Organizations as the primary unit for team collaboration. Each organization has its own members, runners, repositories, and settings."
         },
         "createOrg": {
           "title": "Creating an Organization",
@@ -1000,11 +1000,11 @@
           "step3": "Enter the invitee's email address",
           "step4": "Select a role (Admin or Member)",
           "step5": "The invitee receives an email with a join link",
-          "note": "Invited users who don't have an Do Worker account will be prompted to register first."
+          "note": "Invited users who don't have an Agent Cloud account will be prompted to register first."
         },
         "roles": {
           "title": "Roles & Permissions",
-          "description": "Do Worker supports role-based access control (RBAC):",
+          "description": "Agent Cloud supports role-based access control (RBAC):",
           "ownerTitle": "Owner",
           "ownerDesc": "Full access to all settings, billing, and member management. Can delete the organization.",
           "adminTitle": "Admin",
@@ -1090,10 +1090,10 @@
       },
       "overview": {
         "title": "Aperçu de l'API",
-        "description": "Intégrez des services tiers à Do Worker à l'aide de clés API au niveau de l'organisation. Automatisez la gestion des Pods, le suivi des tickets et bien plus via l'API REST.",
+        "description": "Intégrez des services tiers à Agent Cloud à l'aide de clés API au niveau de l'organisation. Automatisez la gestion des Pods, le suivi des tickets et bien plus via l'API REST.",
         "overview": {
           "title": "Aperçu",
-          "description": "Do Worker fournit des clés API au niveau de l'organisation pour les intégrations tierces, les pipelines CI/CD et les workflows d'automatisation. Avec les clés API, vous pouvez :",
+          "description": "Agent Cloud fournit des clés API au niveau de l'organisation pour les intégrations tierces, les pipelines CI/CD et les workflows d'automatisation. Avec les clés API, vous pouvez :",
           "item1": "Gérer les AgentPods par programmation (créer, lister, terminer)",
           "item2": "Automatiser la création de tickets et les mises à jour de statut",
           "item3": "Interroger les canaux et envoyer des messages",
@@ -1543,7 +1543,7 @@
     },
     "faq": {
       "title": "Frequently Asked Questions",
-      "description": "Find answers to common questions about using Do Worker.",
+      "description": "Find answers to common questions about using Agent Cloud.",
       "categories": {
         "runner": "Runner Issues",
         "pod": "Pod Issues",
@@ -1553,7 +1553,7 @@
       "items": {
         "runnerConnection": {
           "question": "My Runner shows as 'Offline'. How do I fix it?",
-          "answer": "Check the following: 1) Ensure the Runner process is actually running (do-worker-runner run). 2) Verify network connectivity to the Do Worker server. 3) Ensure firewalls allow outbound gRPC connections on port 9443. 4) Check Runner logs for certificate errors — you may need to re-register if the certificate has expired."
+          "answer": "Check the following: 1) Ensure the Runner process is actually running (agent-cloud-runner run). 2) Verify network connectivity to the Agent Cloud server. 3) Ensure firewalls allow outbound gRPC connections on port 9443. 4) Check Runner logs for certificate errors — you may need to re-register if the certificate has expired."
         },
         "runnerMultiple": {
           "question": "Can I run multiple Runners on the same machine?",
@@ -1589,18 +1589,18 @@
       "runnerSetup": {
         "title": "Tutoriel : Configurer un Runner",
         "difficulty": "Débutant — 5 minutes",
-        "description": "Apprenez à installer, enregistrer et vérifier un Runner Do Worker étape par étape. Un Runner est nécessaire avant de pouvoir créer des Pods.",
+        "description": "Apprenez à installer, enregistrer et vérifier un Runner Agent Cloud étape par étape. Un Runner est nécessaire avant de pouvoir créer des Pods.",
         "prerequisites": {
           "title": "Prérequis",
           "description": "Avant de commencer, assurez-vous d'avoir :",
-          "item1": "Un compte Do Worker (inscrivez-vous sur la page d'inscription)",
+          "item1": "Un compte Agent Cloud (inscrivez-vous sur la page d'inscription)",
           "item2": "Une machine sous Linux, macOS ou Windows (WSL2 recommandé)",
           "item3": "Git installé et configuré sur la machine",
-          "item4": "Un accès réseau au serveur Do Worker"
+          "item4": "Un accès réseau au serveur Agent Cloud"
         },
         "step1": {
           "title": "Installer le Runner",
-          "description": "Téléchargez et installez le Runner Do Worker sur votre machine. Choisissez la méthode qui vous convient le mieux :",
+          "description": "Téléchargez et installez le Runner Agent Cloud sur votre machine. Choisissez la méthode qui vous convient le mieux :",
           "oneLine": "Installation en une ligne (Recommandé) — Fonctionne sur Linux et macOS :",
           "linux": "Gestionnaire de paquets Linux — Disponible pour Debian/Ubuntu et RHEL/Fedora",
           "docker": "Docker — Exécutez le Runner dans un conteneur pour une isolation facile",
@@ -1608,7 +1608,7 @@
         },
         "step2": {
           "title": "Enregistrer le Runner",
-          "description": "Après l'installation, enregistrez le Runner auprès de votre instance Do Worker. Vous avez deux options :",
+          "description": "Après l'installation, enregistrez le Runner auprès de votre instance Agent Cloud. Vous avez deux options :",
           "methodToken": "Option A : Enregistrer avec un jeton (serveurs sans interface)",
           "methodTokenDesc": "Obtenez un jeton d'enregistrement depuis Paramètres → Runners → Créer un jeton dans l'interface web, puis exécutez la commande d'enregistrement avec votre jeton.",
           "methodLogin": "Option B : Enregistrer via connexion navigateur (machines de développement)",
@@ -1619,18 +1619,18 @@
           "title": "Démarrer le Runner",
           "description": "Après l'enregistrement, démarrez le démon Runner :",
           "item1": "Exécutez la commande de démarrage pour lancer le processus Runner",
-          "item2": "Le Runner se connecte au backend Do Worker via gRPC avec mTLS",
+          "item2": "Le Runner se connecte au backend Agent Cloud via gRPC avec mTLS",
           "item3": "Il signale les CLI d'agents IA disponibles (Claude Code, Codex, Gemini, etc.) trouvés dans le PATH",
           "tip": "Pour les déploiements en production, installez le Runner en tant que service système afin qu'il démarre automatiquement au démarrage.",
           "background": {
             "title": "Exécuter en arrière-plan",
-            "description": "`do-worker-runner run` reste attaché à votre terminal. Choisissez un mode arrière-plan si vous voulez que le Runner survive à la fermeture du shell :",
+            "description": "`agent-cloud-runner run` reste attaché à votre terminal. Choisissez un mode arrière-plan si vous voulez que le Runner survive à la fermeture du shell :",
             "service": {
               "title": "Service système (recommandé)",
               "description": "Enregistrez le Runner auprès de systemd / launchd / Windows Service Manager — démarrage au boot, redémarrage en cas d'échec et écriture des logs dans le journal de l'OS.",
               "startLabel": "Installer et démarrer",
               "stopLabel": "Arrêter ou désinstaller",
-              "note": "Sur Linux, les logs vont vers journalctl -u do-worker-runner. Sur macOS, ~/Library/Logs/do-worker-runner.log. Utilisez --config /path/to/config.yaml si votre configuration n'est pas à l'emplacement par défaut."
+              "note": "Sur Linux, les logs vont vers journalctl -u agent-cloud-runner. Sur macOS, ~/Library/Logs/agent-cloud-runner.log. Utilisez --config /path/to/config.yaml si votre configuration n'est pas à l'emplacement par défaut."
             },
             "nohup": {
               "title": "Arrière-plan shell (nohup)",
@@ -1681,7 +1681,7 @@
             "title": "Réinstaller depuis install.sh",
             "description": "Si la voie d'auto-mise à jour est bloquée (hôte isolé du réseau, distribution inhabituelle, ou vous voulez une binaire propre), relancez l'installateur officiel.",
             "restartLabel": "Redémarrer après installation",
-            "note": "La réinstallation préserve ~/.do-worker/config.yaml et les certificats mTLS — vous n'avez pas besoin de vous réenregistrer."
+            "note": "La réinstallation préserve ~/.agent-cloud/config.yaml et les certificats mTLS — vous n'avez pas besoin de vous réenregistrer."
           }
         },
         "troubleshooting": {
@@ -1700,11 +1700,11 @@
       "gitSetup": {
         "title": "Tutoriel : Connecter des Dépôts Git",
         "difficulty": "Débutant — 5 minutes",
-        "description": "Apprenez à connecter votre fournisseur Git (GitHub, GitLab ou Gitee) à Do Worker afin que vos agents IA puissent travailler sur vos dépôts de code.",
+        "description": "Apprenez à connecter votre fournisseur Git (GitHub, GitLab ou Gitee) à Agent Cloud afin que vos agents IA puissent travailler sur vos dépôts de code.",
         "prerequisites": {
           "title": "Prérequis",
           "description": "Avant de commencer, assurez-vous d'avoir :",
-          "item1": "Un compte Do Worker avec un Runner connecté (voir le tutoriel Configurer un Runner)",
+          "item1": "Un compte Agent Cloud avec un Runner connecté (voir le tutoriel Configurer un Runner)",
           "item2": "Un compte GitHub, GitLab ou Gitee avec des dépôts que vous souhaitez utiliser"
         },
         "step1": {
@@ -1716,16 +1716,16 @@
           "description": "Pour GitHub, vous pouvez utiliser un jeton d'accès personnel (fonctionne pour tous) ou OAuth (uniquement si vous vous êtes inscrit avec GitHub) :",
           "item1": "Jeton d'accès personnel : Dans GitHub, allez dans Settings → Developer settings → Personal access tokens → Fine-grained tokens",
           "item2": "Générez un jeton avec les permissions Contents (Read-only) et Metadata (Read-only) pour vos dépôts",
-          "item3": "Dans Do Worker, cliquez sur Ajouter un fournisseur GitHub et collez votre jeton",
+          "item3": "Dans Agent Cloud, cliquez sur Ajouter un fournisseur GitHub et collez votre jeton",
           "item4": "Vos dépôts apparaîtront dans Paramètres → Dépôts",
-          "tip": "Si vous vous êtes inscrit sur Do Worker avec votre compte GitHub, vous pouvez également utiliser le bouton Connecter GitHub pour OAuth — votre compte est déjà lié. Les utilisateurs inscrits par e-mail doivent utiliser un jeton d'accès personnel."
+          "tip": "Si vous vous êtes inscrit sur Agent Cloud avec votre compte GitHub, vous pouvez également utiliser le bouton Connecter GitHub pour OAuth — votre compte est déjà lié. Les utilisateurs inscrits par e-mail doivent utiliser un jeton d'accès personnel."
         },
         "step3": {
           "title": "Connecter GitLab (Jeton d'Accès Personnel)",
           "description": "Pour GitLab, utilisez un Jeton d'Accès Personnel :",
           "item1": "Dans GitLab, allez dans Paramètres → Jetons d'accès",
           "item2": "Créez un nouveau jeton avec les portées api et read_repository",
-          "item3": "De retour dans Do Worker, cliquez sur Ajouter un fournisseur GitLab",
+          "item3": "De retour dans Agent Cloud, cliquez sur Ajouter un fournisseur GitLab",
           "item4": "Collez votre jeton et entrez votre URL GitLab",
           "tip": "GitLab auto-hébergé est entièrement pris en charge. Entrez l'URL complète de votre instance (ex. https://gitlab.votreentreprise.com)."
         },
@@ -1734,7 +1734,7 @@
           "description": "Pour Gitee, utilisez un Jeton d'Accès Personnel :",
           "item1": "Dans Gitee, allez dans Paramètres → Jetons d'accès personnels",
           "item2": "Créez un nouveau jeton avec la portée projects",
-          "item3": "De retour dans Do Worker, cliquez sur Ajouter un fournisseur Gitee et collez votre jeton"
+          "item3": "De retour dans Agent Cloud, cliquez sur Ajouter un fournisseur Gitee et collez votre jeton"
         },
         "step5": {
           "title": "Importer des Dépôts",
@@ -1774,7 +1774,7 @@
         "description": "Apprenez à étendre vos agents IA avec des serveurs MCP (Model Context Protocol) et des skills. Les outils MCP permettent aux agents de collaborer, gérer des tickets et interagir avec des services externes. Les skills ajoutent des flux de travail réutilisables à vos agents.",
         "whatIsMcp": {
           "title": "Que sont les outils MCP ?",
-          "description": "Les outils MCP (Model Context Protocol) sont des capacités que les agents IA peuvent utiliser lorsqu'ils travaillent dans un Pod. Do Worker fournit 26 outils MCP intégrés organisés en 7 catégories :",
+          "description": "Les outils MCP (Model Context Protocol) sont des capacités que les agents IA peuvent utiliser lorsqu'ils travaillent dans un Pod. Agent Cloud fournit 26 outils MCP intégrés organisés en 7 catégories :",
           "item1": "Découverte — Lister les Pods, Runners et dépôts disponibles",
           "item2": "Terminal — Observer et contrôler les terminaux d'autres Pods",
           "item3": "Liaison — Demander et gérer les connexions Pod-à-Pod",
@@ -1787,7 +1787,7 @@
         "step1": {
           "title": "Comprendre les serveurs MCP intégrés et personnalisés",
           "description": "Il existe deux types d'outils MCP disponibles pour vos agents :",
-          "builtinTitle": "Serveur MCP intégré Do Worker",
+          "builtinTitle": "Serveur MCP intégré Agent Cloud",
           "builtinDesc": "Configuré automatiquement pour chaque Pod. Fournit les 26 outils de collaboration (canaux, tickets, liaisons, etc.). Aucune configuration requise.",
           "customTitle": "Serveurs MCP personnalisés",
           "customDesc": "Des serveurs MCP supplémentaires que vous installez pour des capacités spécifiques — par exemple, un serveur MCP de base de données, une intégration Slack ou un connecteur API personnalisé. Ceux-ci sont configurés par organisation ou par utilisateur."
@@ -1809,12 +1809,12 @@
           "description": "Après avoir configuré les serveurs MCP, vérifiez qu'ils fonctionnent :",
           "item1": "Créez un nouveau Pod avec Claude Code",
           "item2": "Dans le terminal, demandez à l'agent : « Quels outils MCP avez-vous à disposition ? »",
-          "item3": "L'agent devrait lister à la fois les outils intégrés Do Worker et tous les serveurs MCP personnalisés que vous avez installés",
+          "item3": "L'agent devrait lister à la fois les outils intégrés Agent Cloud et tous les serveurs MCP personnalisés que vous avez installés",
           "item4": "Essayez d'utiliser un outil — par ex., « Lister tous les pods disponibles » ou « Rechercher des tickets »"
         },
         "whatAreSkills": {
           "title": "Que sont les Skills ?",
-          "description": "Les skills sont des flux de travail d'agent réutilisables définis sous forme de fichiers markdown avec des instructions. Une fois installés, ils sont injectés dans le contexte de votre agent afin qu'il puisse les exécuter à la demande. Do Worker fournit deux skills intégrés :",
+          "description": "Les skills sont des flux de travail d'agent réutilisables définis sous forme de fichiers markdown avec des instructions. Une fois installés, ils sont injectés dans le contexte de votre agent afin qu'il puisse les exécuter à la demande. Agent Cloud fournit deux skills intégrés :",
           "item1": "am-channel — Permet aux agents de vérifier les messages, synchroniser l'état des tâches et échanger des informations avec d'autres agents via des canaux",
           "item2": "am-delegate — Permet aux agents de déléguer des tâches à d'autres Pods, créer des sous-Pods pour le travail en parallèle et déclencher des agents de suivi"
         },
@@ -1857,7 +1857,7 @@
         "prerequisites": {
           "title": "Prérequis",
           "description": "Avant de commencer, assurez-vous d'avoir :",
-          "item1": "Un compte Do Worker (inscrivez-vous sur la page d'inscription)",
+          "item1": "Un compte Agent Cloud (inscrivez-vous sur la page d'inscription)",
           "item2": "Un Runner installé et connecté (voir Démarrage rapide → Étape 2)",
           "item3": "Au moins un CLI d'agent IA installé sur votre Runner (ex. Claude Code)",
           "item4": "Un dépôt Git connecté (optionnel mais recommandé)"
@@ -1904,7 +1904,7 @@
         "troubleshooting": {
           "title": "Dépannage",
           "noRunners": "Aucun Runner dans le menu déroulant",
-          "noRunnersDesc": "Votre Runner est peut-être hors ligne. Allez dans Paramètres → Runners et vérifiez le statut. S'il affiche Hors ligne, redémarrez le processus Runner et assurez-vous qu'il peut atteindre le serveur Do Worker.",
+          "noRunnersDesc": "Votre Runner est peut-être hors ligne. Allez dans Paramètres → Runners et vérifiez le statut. S'il affiche Hors ligne, redémarrez le processus Runner et assurez-vous qu'il peut atteindre le serveur Agent Cloud.",
           "stuckInit": "Pod bloqué en Initialisation",
           "stuckInitDesc": "Cela signifie généralement que le dépôt est volumineux et toujours en cours de clonage. Attendez quelques minutes. Si le problème persiste, vérifiez les journaux du Runner pour les erreurs de clonage. Essayez de créer un Pod sans dépôt pour tester la fonctionnalité de base.",
           "agentNotResponding": "L'agent ne répond pas",
@@ -1923,7 +1923,7 @@
       "ticketWorkflow": {
         "title": "Tutoriel : Gérer les Tâches avec les Tickets",
         "difficulty": "Débutant — 10 minutes",
-        "description": "Apprenez à utiliser le système de tickets d'Do Worker pour organiser le travail, suivre la progression sur un tableau Kanban et connecter les tickets aux AgentPods pour une injection automatique de contexte.",
+        "description": "Apprenez à utiliser le système de tickets d'Agent Cloud pour organiser le travail, suivre la progression sur un tableau Kanban et connecter les tickets aux AgentPods pour une injection automatique de contexte.",
         "step1": {
           "title": "Accéder au Tableau de Tickets",
           "description": "Cliquez sur Tickets dans la barre latérale gauche. Vous verrez un tableau Kanban avec des colonnes pour chaque statut : Backlog, À faire, En cours, En revue et Terminé."

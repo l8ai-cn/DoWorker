@@ -3,7 +3,7 @@ package workbench
 import (
 	"testing"
 
-	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
+	agentworkbenchv2 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2"
 	"github.com/stretchr/testify/require"
 )
 
@@ -37,7 +37,7 @@ func TestOfficePreviewDescriptorLifecycle(t *testing.T) {
 
 	ready := OfficePreviewReady(
 		processing,
-		"workspace:.do-worker/workbench/previews/preview-abcd.pdf",
+		"workspace:.agent-cloud/workbench/previews/preview-abcd.pdf",
 		"sha256:pdf",
 		128,
 	)
@@ -47,7 +47,7 @@ func TestOfficePreviewDescriptorLifecycle(t *testing.T) {
 		preview.GetStatus(),
 	)
 	require.Equal(t, "primary", preview.GetRole())
-	require.Equal(t, "workspace:.do-worker/workbench/previews/preview-abcd.pdf",
+	require.Equal(t, "workspace:.agent-cloud/workbench/previews/preview-abcd.pdf",
 		preview.GetTransport().GetResourceId())
 	require.Equal(t, uint64(128), preview.GetByteSize())
 }

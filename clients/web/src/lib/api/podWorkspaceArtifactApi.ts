@@ -1,7 +1,7 @@
 import {
   type AgentArtifactItem,
   workspaceFileArtifacts,
-} from "@do-worker/agent-ui";
+} from "@agent-cloud/agent-ui";
 
 import { getApiBaseUrl } from "@/lib/env";
 import { getAuthManager } from "@/lib/wasm-core";

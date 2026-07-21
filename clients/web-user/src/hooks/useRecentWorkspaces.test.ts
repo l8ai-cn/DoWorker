@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { useRecentWorkspaces } from "./useRecentWorkspaces";
 
-const RECENT_KEY = "do-worker:recent-workspaces";
+const RECENT_KEY = "agent-cloud:recent-workspaces";
 
 describe("useRecentWorkspaces", () => {
   beforeEach(() => localStorage.clear());

@@ -74,7 +74,7 @@ describe("DocsShell", () => {
     );
     expect(
       screen
-        .getAllByRole("navigation", { name: "Do Worker" })
+        .getAllByRole("navigation", { name: "Agent Cloud" })
         .some((navigation) => navigation.className.includes("lg:flex")),
     ).toBe(true);
   });

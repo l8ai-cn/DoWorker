@@ -1,6 +1,6 @@
 package workerdependencyartifact
 
-import "github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
+import "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerdependency"
 
 func validateBuildInputBudget(input Input) error {
 	budget := workerdependency.MaxDocumentBytes

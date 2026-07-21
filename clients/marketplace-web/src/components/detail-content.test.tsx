@@ -14,7 +14,7 @@ describe("DetailContent", () => {
           resource_type: "application",
           display_name: "软件交付专家",
           tagline: "完成可验证的软件交付",
-          publisher: { slug: "do-worker", display_name: "Do Worker", verified: true },
+          publisher: { slug: "agent-cloud", display_name: "Agent Cloud", verified: true },
           spaces: [{ slug: "software-delivery", name: "软件交付" }],
           tags: [],
           published_at: "2026-07-12T08:00:00Z",

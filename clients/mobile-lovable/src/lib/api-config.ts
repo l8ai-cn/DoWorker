@@ -1,7 +1,7 @@
 export function apiBaseUrl(): string {
   const env =
     (import.meta.env.VITE_DO_WORKER_API_URL as string | undefined) ??
-    (import.meta.env.VITE_AGENTSMESH_API_URL as string | undefined);
+    (import.meta.env.VITE_AGENTCLOUD_API_URL as string | undefined);
   return env?.replace(/\/$/, "") ?? "";
 }
 

@@ -19,7 +19,7 @@
   },
   "runtime": {
     "catalog_image_id": 1,
-    "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-codex-cli:latest",
+    "image_reference": "agentcloud-codex-loop-blockly-mvp-runner-codex-cli:latest",
     "image_digest": "sha256:3e1a97a92f722bd362795aa7538a4c74844972821f8964b63c14cb6c0032871b",
     "version_probe": "docker run --rm --entrypoint codex <image> --version",
     "version": "0.144.5"

@@ -31,7 +31,7 @@ export default function ArchitectureDiagram() {
           <div className="p-4 pt-2">
             <div className="text-center mb-3">
               <span className="text-sm font-semibold text-success">
-                Do Worker Cloud
+                Agent Cloud Cloud
               </span>
               <p className="text-xs text-muted-foreground mt-0.5">
                 {t("cloudDesc")}

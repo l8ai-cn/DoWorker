@@ -8,9 +8,9 @@ import (
 
 	"google.golang.org/protobuf/proto"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/channel"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
-	eventsv1 "github.com/anthropics/agentsmesh/proto/gen/go/events/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/channel"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/eventbus"
+	eventsv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/events/v1"
 )
 
 func (s *Service) EditMessage(ctx context.Context, channelID, messageID, senderUserID int64, newContent channel.MessageContent) (*channel.Message, error) {

@@ -30,8 +30,8 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	billingsvc "github.com/anthropics/agentsmesh/backend/internal/service/billing"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	billingsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/billing"
 )
 
 const ServiceName = "proto.billing.v1.BillingService"

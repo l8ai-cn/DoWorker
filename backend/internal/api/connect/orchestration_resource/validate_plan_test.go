@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/encoding/protojson"
 
-	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	service "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
-	resourcev1 "github.com/anthropics/agentsmesh/proto/gen/go/orchestration_resource/v1"
+	control "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
+	service "github.com/l8ai-cn/agentcloud/backend/internal/service/orchestrationcontrol"
+	resourcev1 "github.com/l8ai-cn/agentcloud/proto/gen/go/orchestration_resource/v1"
 )
 
 func TestValidateResourceConvertsJSONAndYAMLWithResolvedActorScope(t *testing.T) {
@@ -25,13 +25,13 @@ func TestValidateResourceConvertsJSONAndYAMLWithResolvedActorScope(t *testing.T)
 			name:     "json",
 			format:   resourcev1.SourceFormat_SOURCE_FORMAT_JSON,
 			expected: service.SourceFormatJSON,
-			content:  []byte(`{"apiVersion":"agentsmesh.io/v1alpha1"}`),
+			content:  []byte(`{"apiVersion":"agentcloud.io/v1alpha1"}`),
 		},
 		{
 			name:     "yaml",
 			format:   resourcev1.SourceFormat_SOURCE_FORMAT_YAML,
 			expected: service.SourceFormatYAML,
-			content:  []byte("apiVersion: agentsmesh.io/v1alpha1\n"),
+			content:  []byte("apiVersion: agentcloud.io/v1alpha1\n"),
 		},
 	}
 	for _, test := range tests {

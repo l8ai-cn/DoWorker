@@ -7,9 +7,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/anthropics/agentsmesh/agentfile/extract"
-	"github.com/anthropics/agentsmesh/agentfile/parser"
-	"github.com/anthropics/agentsmesh/agentfile/serialize"
+	"github.com/l8ai-cn/agentcloud/agentfile/extract"
+	"github.com/l8ai-cn/agentcloud/agentfile/parser"
+	"github.com/l8ai-cn/agentcloud/agentfile/serialize"
 )
 
 func TestParse_CapabilityDecl(t *testing.T) {

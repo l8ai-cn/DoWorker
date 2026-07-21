@@ -10,9 +10,9 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	"github.com/anthropics/agentsmesh/relay/internal/auth"
-	"github.com/anthropics/agentsmesh/relay/internal/protocol/tunnelframe"
-	"github.com/anthropics/agentsmesh/relay/internal/tunnel"
+	"github.com/l8ai-cn/agentcloud/relay/internal/auth"
+	"github.com/l8ai-cn/agentcloud/relay/internal/protocol/tunnelframe"
+	"github.com/l8ai-cn/agentcloud/relay/internal/tunnel"
 )
 
 func newTestTunnelHandler(t *testing.T) *TunnelHandler {

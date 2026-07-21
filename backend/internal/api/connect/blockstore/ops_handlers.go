@@ -7,9 +7,9 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	blockstoreservice "github.com/anthropics/agentsmesh/backend/internal/service/blockstore"
-	blockstorev1 "github.com/anthropics/agentsmesh/proto/gen/go/blockstore/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	blockstoreservice "github.com/l8ai-cn/agentcloud/backend/internal/service/blockstore"
+	blockstorev1 "github.com/l8ai-cn/agentcloud/proto/gen/go/blockstore/v1"
 )
 
 // ApplyOps runs a batch of primitive ops. Mirrors REST POST /blocks/ops with

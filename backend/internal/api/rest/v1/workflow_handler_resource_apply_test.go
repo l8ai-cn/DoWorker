@@ -8,12 +8,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/infra"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	workflowService "github.com/anthropics/agentsmesh/backend/internal/service/workflow"
-	"github.com/anthropics/agentsmesh/backend/internal/testkit"
-	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/eventbus"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	workflowService "github.com/l8ai-cn/agentcloud/backend/internal/service/workflow"
+	"github.com/l8ai-cn/agentcloud/backend/internal/testkit"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/apierr"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
 )

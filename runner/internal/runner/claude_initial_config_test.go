@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/runner/internal/acp"
+	"github.com/l8ai-cn/agentcloud/runner/internal/acp"
 )
 
 func TestParseClaudeInitialConfig(t *testing.T) {

@@ -4,14 +4,14 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/envbundle"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/knowledgebase"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/skill"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/envbundle"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/gitprovider"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/knowledgebase"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/skill"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/workerdefinition"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 type RepositoryLookup interface {

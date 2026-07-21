@@ -66,7 +66,7 @@ grep -q 'NODE_BASE_IMAGE="${NODE_BASE_IMAGE:-node:24-bookworm-slim}"' "${ROOT}/d
 grep -q 'PYTHON_BASE_IMAGE="${PYTHON_BASE_IMAGE:-python:3.11-slim-bookworm}"' "${ROOT}/docker/agent-runtime/build.sh"
 grep -q 'RUNTIME_SHARED_BASE=${BASE_IMAGE}' "${ROOT}/docker/agent-runtime/build.sh"
 grep -q 'RUNTIME_BASE=python-runtime-base' "${ROOT}/docker/agent-runtime/build.sh"
-grep -q "install -m 0755 /usr/local/lib/do-worker/do-agent-binary" "$DOCKERFILE"
+grep -q "install -m 0755 /usr/local/lib/agent-cloud/do-agent-binary" "$DOCKERFILE"
 grep -q "runner-entrypoint.sh" "$DOCKERFILE"
 grep -q "stage_do_agent_binary.sh" "${ROOT}/docker/agent-runtime/prepare_binaries.sh"
 bash "${ROOT}/docker/agent-runtime/stage_do_agent_binary_contract_test.sh"

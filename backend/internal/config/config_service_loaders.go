@@ -37,7 +37,7 @@ func loadRelayConfig() RelayConfig {
 			Enabled:      getEnvBool("ACME_ENABLED", false),
 			Email:        getEnv("ACME_EMAIL", ""),
 			DirectoryURL: getEnv("ACME_DIRECTORY_URL", ""),
-			StorageDir:   getEnv("ACME_STORAGE_DIR", "/var/lib/agentsmesh/acme"),
+			StorageDir:   getEnv("ACME_STORAGE_DIR", "/var/lib/agentcloud/acme"),
 			Staging:      getEnvBool("ACME_STAGING", false),
 		},
 	}

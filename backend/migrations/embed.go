@@ -1,6 +1,6 @@
 // Package migrations bundles every backend SQL migration into the
-// agentsmesh-backend binary so deployments can apply schema changes via
-// `agentsmesh-backend migrate up` without shipping a separate `migrate`
+// agentcloud-backend binary so deployments can apply schema changes via
+// `agentcloud-backend migrate up` without shipping a separate `migrate`
 // CLI or mounting an /app/migrations directory.
 //
 // The deploy pipeline used to depend on the legacy GoReleaser image

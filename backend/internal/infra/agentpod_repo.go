@@ -3,9 +3,9 @@ package infra
 import (
 	"context"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/grant"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/ticket"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/grant"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/ticket"
 	"gorm.io/gorm"
 )
 

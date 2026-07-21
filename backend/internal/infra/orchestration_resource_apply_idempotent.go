@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	controlservice "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
+	control "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
+	controlservice "github.com/l8ai-cn/agentcloud/backend/internal/service/orchestrationcontrol"
 )
 
 func (repo *orchestrationResourceRepo) runIdempotentApplyTransaction(

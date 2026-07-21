@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-const APIVersionV1Alpha1 = "agentsmesh.io/v1alpha1"
+const APIVersionV1Alpha1 = "agentcloud.io/v1alpha1"
 
 var pascalCaseIdentifierPattern = regexp.MustCompile(`^[A-Z][A-Za-z0-9]{1,99}$`)
 

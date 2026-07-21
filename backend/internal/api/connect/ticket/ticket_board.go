@@ -5,11 +5,11 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	domainticket "github.com/anthropics/agentsmesh/backend/internal/domain/ticket"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	ticketservice "github.com/anthropics/agentsmesh/backend/internal/service/ticket"
-	ticketv1 "github.com/anthropics/agentsmesh/proto/gen/go/ticket/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	domainticket "github.com/l8ai-cn/agentcloud/backend/internal/domain/ticket"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	ticketservice "github.com/l8ai-cn/agentcloud/backend/internal/service/ticket"
+	ticketv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/ticket/v1"
 )
 
 const (

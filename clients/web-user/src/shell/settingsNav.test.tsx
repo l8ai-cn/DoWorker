@@ -1,7 +1,7 @@
 // Tests for the Settings nav model + sidebar body (settingsNav).
 //
 // Covers the mobile-specific behavior: keyboard shortcuts is hidden on mobile
-// (max-md:hidden), and "Back to Do Worker" does NOT close the sidebar overlay
+// (max-md:hidden), and "Back to Agent Cloud" does NOT close the sidebar overlay
 // on a plain tap (no onNavClick) so mobile lands back on the conversation list
 // instead of the homepage. Section links still close it.
 
@@ -121,16 +121,16 @@ describe("SettingsSidebarBody", () => {
     expect(screen.getByTestId("settings-nav-archived").className).not.toContain("max-md:hidden");
   });
 
-  it("does NOT close the sidebar when 'Back to Do Worker' is tapped", () => {
+  it("does NOT close the sidebar when 'Back to Agent Cloud' is tapped", () => {
     // No onNavClick on the back link: on mobile the overlay stays open so the
     // sidebar swaps back to the conversation list rather than closing onto the
     // homepage behind it.
     const { onNavClick } = renderBody();
-    fireEvent.click(screen.getByRole("link", { name: /Back to Do Worker/ }));
+    fireEvent.click(screen.getByRole("link", { name: /Back to Agent Cloud/ }));
     expect(onNavClick).not.toHaveBeenCalled();
   });
 
-  it("'Back to Do Worker' returns to the conversation the user came from", () => {
+  it("'Back to Agent Cloud' returns to the conversation the user came from", () => {
     // Simulate the real flow: the sidebar (which stays mounted) tracks the
     // pre-settings location, then the user enters /settings. Back must point at
     // the conversation, not the home page.
@@ -155,7 +155,7 @@ describe("SettingsSidebarBody", () => {
       </TooltipProvider>,
     );
     fireEvent.click(screen.getByText("go-settings"));
-    expect(screen.getByRole("link", { name: /Back to Do Worker/ })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /Back to Agent Cloud/ })).toHaveAttribute(
       "href",
       "/c/conv_123?file=foo.ts",
     );

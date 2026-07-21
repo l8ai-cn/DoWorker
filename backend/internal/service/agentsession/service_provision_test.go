@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"testing"
 
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	sessionDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
-	itemDomain "github.com/anthropics/agentsmesh/backend/internal/domain/conversationitem"
-	svc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
+	podDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	sessionDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentsession"
+	itemDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/conversationitem"
+	svc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentsession"
 	"github.com/stretchr/testify/require"
 )
 

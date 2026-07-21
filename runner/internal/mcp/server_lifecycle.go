@@ -10,9 +10,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/anthropics/agentsmesh/runner/internal/envfilter"
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
-	"github.com/anthropics/agentsmesh/runner/internal/processmgr"
+	"github.com/l8ai-cn/agentcloud/runner/internal/envfilter"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/processmgr"
 )
 
 // Server represents an MCP server instance
@@ -178,7 +178,7 @@ func (s *Server) initialize(ctx context.Context) error {
 			},
 		},
 		"clientInfo": map[string]interface{}{
-			"name":    "AgentsMesh Runner",
+			"name":    "Agent Cloud Runner",
 			"version": "1.0.0",
 		},
 	}

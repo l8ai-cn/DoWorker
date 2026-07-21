@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/agentfile/eval"
-	"github.com/anthropics/agentsmesh/agentfile/parser"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	"github.com/l8ai-cn/agentcloud/agentfile/eval"
+	"github.com/l8ai-cn/agentcloud/agentfile/parser"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 )
 
 // Sandbox path placeholders — Runner replaces with real paths after sandbox setup.

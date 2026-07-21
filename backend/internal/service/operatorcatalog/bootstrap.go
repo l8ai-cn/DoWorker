@@ -6,15 +6,15 @@ import (
 	"fmt"
 	"reflect"
 
-	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/expertmarket"
-	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	expertsvc "github.com/anthropics/agentsmesh/backend/internal/service/expert"
-	skillsvc "github.com/anthropics/agentsmesh/backend/internal/service/skill"
-	"github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	expertdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/expert"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/expertmarket"
+	skilldom "github.com/l8ai-cn/agentcloud/backend/internal/domain/skill"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	expertsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/expert"
+	skillsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/skill"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/workercreation"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 var ErrCatalogConflict = errors.New("operator catalog conflicts with existing data")

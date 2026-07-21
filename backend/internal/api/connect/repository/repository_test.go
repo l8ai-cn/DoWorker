@@ -10,10 +10,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	repositoryservice "github.com/anthropics/agentsmesh/backend/internal/service/repository"
-	repositoryv1 "github.com/anthropics/agentsmesh/proto/gen/go/repository/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/gitprovider"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	repositoryservice "github.com/l8ai-cn/agentcloud/backend/internal/service/repository"
+	repositoryv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/repository/v1"
 )
 
 type fakeOrg struct {
@@ -184,7 +184,7 @@ func TestToProtoRepository_AllFieldsPopulated(t *testing.T) {
 		IsActive:           true,
 		WebhookConfig: &gitprovider.WebhookConfig{
 			ID:               "wh-1",
-			URL:              "https://api.agentsmesh.local/webhook",
+			URL:              "https://api.agentcloud.local/webhook",
 			Events:           []string{"push"},
 			IsActive:         true,
 			NeedsManualSetup: false,
@@ -217,7 +217,7 @@ func TestToProtoRepository_AllFieldsPopulated(t *testing.T) {
 	assert.Equal(t, "2026-05-10T00:00:00Z", got.GetUpdatedAt())
 	require.NotNil(t, got.GetWebhookConfig())
 	assert.Equal(t, "wh-1", got.GetWebhookConfig().GetId())
-	assert.Equal(t, "https://api.agentsmesh.local/webhook", got.GetWebhookConfig().GetUrl())
+	assert.Equal(t, "https://api.agentcloud.local/webhook", got.GetWebhookConfig().GetUrl())
 	assert.Equal(t, []string{"push"}, got.GetWebhookConfig().GetEvents())
 	assert.True(t, got.GetWebhookConfig().GetIsActive())
 	assert.False(t, got.GetWebhookConfig().GetNeedsManualSetup())

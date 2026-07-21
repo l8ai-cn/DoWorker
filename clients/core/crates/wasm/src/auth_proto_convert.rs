@@ -4,8 +4,8 @@
 // to AuthManager's serde DTOs (auth_types::*) so the in-memory cache stays
 // on the legacy DTO and the on-disk persistence format doesn't churn.
 
-use agentsmesh_state::auth_types::{Organization as AuthOrg, User as AuthUser};
-use agentsmesh_types::{proto_auth_v1 as auth_proto, proto_org_v1 as org_proto};
+use agentcloud_state::auth_types::{Organization as AuthOrg, User as AuthUser};
+use agentcloud_types::{proto_auth_v1 as auth_proto, proto_org_v1 as org_proto};
 
 pub(crate) fn user_from_proto(u: &auth_proto::User) -> AuthUser {
     AuthUser {

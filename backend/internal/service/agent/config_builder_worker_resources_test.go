@@ -5,10 +5,10 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/extension"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	envbundleservice "github.com/anthropics/agentsmesh/backend/internal/service/envbundle"
-	extensionservice "github.com/anthropics/agentsmesh/backend/internal/service/extension"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/extension"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	envbundleservice "github.com/l8ai-cn/agentcloud/backend/internal/service/envbundle"
+	extensionservice "github.com/l8ai-cn/agentcloud/backend/internal/service/extension"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

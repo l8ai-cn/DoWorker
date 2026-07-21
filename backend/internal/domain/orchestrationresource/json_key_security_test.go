@@ -15,7 +15,7 @@ func TestDecodeJSONSubmissionRejectsDuplicateKeysAtAnyDepth(t *testing.T) {
 		{
 			name: "top level",
 			source: `{
-				"apiVersion":"agentsmesh.io/v1alpha1",
+				"apiVersion":"agentcloud.io/v1alpha1",
 				"kind":"WorkerTemplate",
 				"kind":"RunnerTemplate",
 				"metadata":{"name":"worker-one","namespace":"team-one"},
@@ -25,7 +25,7 @@ func TestDecodeJSONSubmissionRejectsDuplicateKeysAtAnyDepth(t *testing.T) {
 		{
 			name: "metadata",
 			source: `{
-				"apiVersion":"agentsmesh.io/v1alpha1",
+				"apiVersion":"agentcloud.io/v1alpha1",
 				"kind":"WorkerTemplate",
 				"metadata":{"name":"worker-one","name":"worker-two","namespace":"team-one"},
 				"spec":{"runtime":"codex"}
@@ -34,7 +34,7 @@ func TestDecodeJSONSubmissionRejectsDuplicateKeysAtAnyDepth(t *testing.T) {
 		{
 			name: "spec",
 			source: `{
-				"apiVersion":"agentsmesh.io/v1alpha1",
+				"apiVersion":"agentcloud.io/v1alpha1",
 				"kind":"WorkerTemplate",
 				"metadata":{"name":"worker-one","namespace":"team-one"},
 				"spec":{"runtime":"codex","nested":{"enabled":true,"enabled":false}}

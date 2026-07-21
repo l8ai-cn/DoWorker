@@ -6,7 +6,7 @@
 
 - 日期：2026-07-14
 - 状态：已评审，V1 MVP 已验证
-- 评审对象：Loop Blockly MVP、AgentsMesh GoalLoop、Workflow、AgentFile
+- 评审对象：Loop Blockly MVP、Agent Cloud GoalLoop、Workflow、AgentFile
 - 结论：可行，但代码侧必须是受限的 LoopScript DSL，不能承诺任意 TypeScript 与积木无损互转
 
 ## 1. 目标与判断标准

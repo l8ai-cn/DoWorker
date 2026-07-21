@@ -6,10 +6,10 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	promocodesvc "github.com/anthropics/agentsmesh/backend/internal/service/promocode"
-	promocodev1 "github.com/anthropics/agentsmesh/proto/gen/go/promocode/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	promocodesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/promocode"
+	promocodev1 "github.com/l8ai-cn/agentcloud/proto/gen/go/promocode/v1"
 )
 
 // Validate validates a promo code. Any org member can call. Returns

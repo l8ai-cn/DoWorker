@@ -1,10 +1,10 @@
-import type { AgentError } from "@do-worker/proto/agent_workbench/v2/command_pb";
+import type { AgentError } from "@agent-cloud/proto/agent_workbench/v2/command_pb";
 import {
   UnsupportedReason,
   type ContentIdentity,
   type StructuredPayload,
   type UnsupportedValue,
-} from "@do-worker/proto/agent_workbench/v2/content_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/content_pb";
 
 const decoder = new TextDecoder();
 

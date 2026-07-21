@@ -2,7 +2,7 @@
   "schema_version": 1,
   "observed_at": "2026-07-16T18:20:18Z",
   "scope": "Independent audit-tag image rebuild. No Provider credential, Worker, Pod, or running image was changed.",
-  "command": "IMAGE_PREFIX=agentsmesh-worker-audit/runner BASE_IMAGE=agentsmesh-worker-audit/base:latest BUILD_RETRIES=1 ./docker/agent-runtime/build.sh all",
+  "command": "IMAGE_PREFIX=agentcloud-worker-audit/runner BASE_IMAGE=agentcloud-worker-audit/base:latest BUILD_RETRIES=1 ./docker/agent-runtime/build.sh all",
   "result": "blocked_before_runtime_build",
   "failed_stage": "shared-base-image-metadata",
   "failed_image": "node:24-bookworm-slim",

@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
+	control "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
 )
 
 func (service *Service) GetResourceCapabilities(

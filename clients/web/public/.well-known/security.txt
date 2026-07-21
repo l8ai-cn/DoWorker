@@ -1,4 +1,4 @@
-Contact: mailto:security@agentsmesh.ai
+Contact: mailto:security@agentcloud.ai
 Expires: 2027-03-19T00:00:00.000Z
 Preferred-Languages: en
-Canonical: https://agentsmesh.ai/.well-known/security.txt
+Canonical: https://agentcloud.ai/.well-known/security.txt

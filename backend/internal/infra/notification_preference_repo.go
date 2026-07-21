@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/notification"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/notification"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )

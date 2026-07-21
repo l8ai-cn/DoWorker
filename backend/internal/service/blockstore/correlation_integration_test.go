@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/blockstore"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/blockstore"
 )
 
 // End-to-end correlation: an ApplyOps with a trace id stamps that trace
@@ -45,7 +45,7 @@ func TestApplyOps_StampsTraceIDOntoBlockOps(t *testing.T) {
 	actor.TraceID = "4bf92f3577b34da6a3ce929d0e0e4736"
 	actor.RequestID = actor.TraceID
 	actor.IP = "10.0.0.5:51234"
-	actor.UserAgent = "agentsmesh-cli/1.0"
+	actor.UserAgent = "agentcloud-cli/1.0"
 
 	res, err := svc.ApplyOps(ctx, actor, ApplyOpsInput{
 		WorkspaceID: wsID.String(),

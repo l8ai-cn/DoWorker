@@ -20,10 +20,10 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/config"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/email"
-	authservice "github.com/anthropics/agentsmesh/backend/internal/service/auth"
-	userservice "github.com/anthropics/agentsmesh/backend/internal/service/user"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/email"
+	authservice "github.com/l8ai-cn/agentcloud/backend/internal/service/auth"
+	userservice "github.com/l8ai-cn/agentcloud/backend/internal/service/user"
 )
 
 const (

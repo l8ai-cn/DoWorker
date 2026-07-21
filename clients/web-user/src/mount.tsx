@@ -1,17 +1,17 @@
 import { createRoot } from "react-dom/client";
-import { DoWorkerStandaloneApp } from "./standalone";
-import type { DoWorkerAppProps } from "./embed";
+import { AgentCloudStandaloneApp } from "./standalone";
+import type { AgentCloudAppProps } from "./embed";
 
-export interface MountedDoWorkerApp {
+export interface MountedAgentCloudApp {
   unmount(): void;
 }
 
-export function mountDoWorkerApp(
+export function mountAgentCloudApp(
   element: Element,
-  props: DoWorkerAppProps = {},
-): MountedDoWorkerApp {
+  props: AgentCloudAppProps = {},
+): MountedAgentCloudApp {
   const root = createRoot(element);
-  root.render(<DoWorkerStandaloneApp {...props} />);
+  root.render(<AgentCloudStandaloneApp {...props} />);
 
   return { unmount: () => root.unmount() };
 }

@@ -7,12 +7,12 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	"github.com/anthropics/agentsmesh/backend/internal/service/relay"
-	"github.com/anthropics/agentsmesh/backend/pkg/policy"
-	podv1 "github.com/anthropics/agentsmesh/proto/gen/go/pod/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/relay"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/policy"
+	podv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/pod/v1"
 )
 
 // GetPodConnection — REST analogue: GET /api/v1/orgs/:slug/pods/:key/relay/connect.

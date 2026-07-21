@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/config"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,7 +26,7 @@ import (
 func TestOAuthRedirect_RedirectValidation(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	cfg := &config.Config{PrimaryDomain: "agentsmesh.ai"}
+	cfg := &config.Config{PrimaryDomain: "agentcloud.ai"}
 	h := &AuthHandler{config: cfg}
 
 	router := gin.New()
@@ -53,31 +53,31 @@ func TestOAuthRedirect_RedirectValidation(t *testing.T) {
 		},
 		{
 			name:        "rejects deep link with wrong host",
-			redirect:    "agentsmesh://attacker/oauth/callback",
+			redirect:    "agentcloud://attacker/oauth/callback",
 			wantStatus:  http.StatusBadRequest,
 			wantBodyHas: "Invalid redirect URL",
 		},
 		{
 			name:        "rejects deep link with wrong path",
-			redirect:    "agentsmesh://oauth/evil",
+			redirect:    "agentcloud://oauth/evil",
 			wantStatus:  http.StatusBadRequest,
 			wantBodyHas: "Invalid redirect URL",
 		},
 		{
-			// `agentsmesh://oauth/callback` must pass redirect validation;
+			// `agentcloud://oauth/callback` must pass redirect validation;
 			// the next-stage error comes from missing OAuth config (empty
 			// ClientID). If redirect validation regresses, we'd see the
 			// same "Invalid redirect URL" message as the rejection cases,
 			// which is exactly what this assertion guards against.
 			name:           "accepts desktop deep link",
-			redirect:       "agentsmesh://oauth/callback",
+			redirect:       "agentcloud://oauth/callback",
 			wantStatus:     http.StatusBadRequest,
 			wantBodyHas:    "OAuth provider not configured",
 			wantBodyMisses: "Invalid redirect URL",
 		},
 		{
 			name:           "accepts same-host https",
-			redirect:       "https://agentsmesh.ai/auth/callback",
+			redirect:       "https://agentcloud.ai/auth/callback",
 			wantStatus:     http.StatusBadRequest,
 			wantBodyHas:    "OAuth provider not configured",
 			wantBodyMisses: "Invalid redirect URL",

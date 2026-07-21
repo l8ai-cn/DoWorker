@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # Build clients/core wasm via Cargo + wasm-pack.
-# Output: packages/do-worker-wasm/
+# Output: packages/agent-cloud-wasm/
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CORE="$ROOT/clients/core"
-OUT="$ROOT/packages/do-worker-wasm"
-STAGE="$(mktemp -d "$ROOT/packages/.do-worker-wasm-build.XXXXXX")"
+OUT="$ROOT/packages/agent-cloud-wasm"
+STAGE="$(mktemp -d "$ROOT/packages/.agent-cloud-wasm-build.XXXXXX")"
 
 export PATH="${HOME}/.local/bin:${HOME}/.cargo/bin:${PATH}"
 
@@ -38,10 +38,10 @@ export RUSTFLAGS="${RUSTFLAGS:-} --cfg getrandom_backend=\"wasm_js\""
 cd "$CORE"
 
 # Cargo refuses to load workspace members with no targets. Seed empty
-# lib.rs so `cargo run -p do_worker_proto_gen` can start, then overwrite.
+# lib.rs so `cargo run -p agent_cloud_proto_gen` can start, then overwrite.
 bash "$ROOT/scripts/seed-rust-proto-stubs.sh"
 
-cargo run -p do_worker_proto_gen --bin gen-proto
+cargo run -p agent_cloud_proto_gen --bin gen-proto
 
 cd "$CORE/crates/wasm"
 wasm-pack build \
@@ -65,7 +65,7 @@ import json
 from pathlib import Path
 out = Path(r'''$STAGE''')
 pkg = {
-    'name': 'do-worker-wasm',
+    'name': 'agent-cloud-wasm',
     'type': 'module',
     'version': '0.1.0',
     'main': 'wasm_pkg.js',

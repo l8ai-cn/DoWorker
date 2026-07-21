@@ -5,8 +5,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
-	otelinit "github.com/anthropics/agentsmesh/runner/internal/otel"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
+	otelinit "github.com/l8ai-cn/agentcloud/runner/internal/otel"
 )
 
 // connectionLoop manages the connection lifecycle with auto-reconnection.

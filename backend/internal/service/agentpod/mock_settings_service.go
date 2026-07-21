@@ -4,7 +4,7 @@ import (
 	"context"
 	"sync"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
 )
 
 type MockSettingsService struct {

@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	notifDomain "github.com/anthropics/agentsmesh/backend/internal/domain/notification"
-	"github.com/anthropics/agentsmesh/backend/internal/infra"
-	"github.com/anthropics/agentsmesh/backend/internal/testkit"
+	notifDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/notification"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra"
+	"github.com/l8ai-cn/agentcloud/backend/internal/testkit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

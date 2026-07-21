@@ -1,7 +1,7 @@
 use crate::connect_call::connect_call;
 use crate::error::ApiError;
 use crate::ApiClient;
-use agentsmesh_types::proto_pod_v1 as pod_proto;
+use agentcloud_types::proto_pod_v1 as pod_proto;
 
 // =============================================================================
 // Connect-RPC (binary wire). User-scoped (no org_slug) — see conventions §3.5.

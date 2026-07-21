@@ -3,7 +3,7 @@ package operatorcatalog
 import (
 	"context"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workerdependency"
 )
 
 type DependencyArtifactStore interface {

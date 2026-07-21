@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
-	agentpodSvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	ticketSvc "github.com/anthropics/agentsmesh/backend/internal/service/ticket"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/gitprovider"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/eventbus"
+	agentpodSvc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
+	ticketSvc "github.com/l8ai-cn/agentcloud/backend/internal/service/ticket"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 

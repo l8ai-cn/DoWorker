@@ -1,8 +1,8 @@
 #[cfg(test)]
 mod auth_org_token_tests {
-    use agentsmesh_api_client::AuthTokenStore;
-    use agentsmesh_types::proto_auth_v1 as auth_proto;
-    use agentsmesh_types::proto_org_v1 as org_proto;
+    use agentcloud_api_client::AuthTokenStore;
+    use agentcloud_types::proto_auth_v1 as auth_proto;
+    use agentcloud_types::proto_org_v1 as org_proto;
     use prost::Message;
     use wiremock::matchers::{method, path};
     use wiremock::{Mock, MockServer, ResponseTemplate};
@@ -201,7 +201,7 @@ mod auth_org_token_tests {
         let manager = AuthManager::new(server.uri(), storage);
 
         manager.login("dev@test.com", "pass").await.unwrap();
-        let org = agentsmesh_state::auth_types::Organization {
+        let org = agentcloud_state::auth_types::Organization {
             id: 99,
             name: "Direct Org".into(),
             slug: "direct-org".into(),

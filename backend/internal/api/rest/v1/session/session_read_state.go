@@ -3,7 +3,7 @@ package sessionapi
 import (
 	"net/http"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
 	"github.com/gin-gonic/gin"
 )
 

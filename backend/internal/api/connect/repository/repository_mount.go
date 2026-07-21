@@ -6,8 +6,8 @@ import (
 
 	"connectrpc.com/connect"
 
-	billingservice "github.com/anthropics/agentsmesh/backend/internal/service/billing"
-	repositoryservice "github.com/anthropics/agentsmesh/backend/internal/service/repository"
+	billingservice "github.com/l8ai-cn/agentcloud/backend/internal/service/billing"
+	repositoryservice "github.com/l8ai-cn/agentcloud/backend/internal/service/repository"
 )
 
 // mapServiceError mirrors REST's handler-by-handler `apierr` mapping

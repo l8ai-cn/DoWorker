@@ -136,9 +136,9 @@ pub use state_ticket::*;
 pub use state_workflow::*;
 pub use ws_transport::*;
 
-pub(crate) fn new_memory_backend() -> Arc<dyn agentsmesh_persistence::StorageBackend> {
-    use agentsmesh_persistence::StorageBackend;
-    let b = Arc::new(agentsmesh_persistence::InMemoryBackend::new());
+pub(crate) fn new_memory_backend() -> Arc<dyn agentcloud_persistence::StorageBackend> {
+    use agentcloud_persistence::StorageBackend;
+    let b = Arc::new(agentcloud_persistence::InMemoryBackend::new());
     let _ = b.migrate();
     b
 }
@@ -156,13 +156,13 @@ pub fn version() -> String {
 // Idempotent: repeated calls (React StrictMode double-init) are no-ops.
 #[wasm_bindgen]
 pub fn init_logger(level: String) -> Result<(), JsValue> {
-    agentsmesh_logging::init(agentsmesh_logging::LogConfig::wasm_console(level))
+    agentcloud_logging::init(agentcloud_logging::LogConfig::wasm_console(level))
         .map_err(|e| JsValue::from_str(&e.to_string()))?;
-    agentsmesh_logging::install_panic_hook();
+    agentcloud_logging::install_panic_hook();
     Ok(())
 }
 
 #[wasm_bindgen]
 pub fn log_event(level: String, target: String, msg: String) {
-    agentsmesh_logging::log_event(&level, &target, &msg);
+    agentcloud_logging::log_event(&level, &target, &msg);
 }

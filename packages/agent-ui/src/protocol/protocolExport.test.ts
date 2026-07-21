@@ -4,9 +4,9 @@ import {
   SessionSnapshotSchema,
   createLosslessSessionFixture,
   resolveSourceTool,
-} from "@do-worker/agent-ui/protocol";
+} from "@agent-cloud/agent-ui/protocol";
 
-describe("@do-worker/agent-ui/protocol", () => {
+describe("@agent-cloud/agent-ui/protocol", () => {
   it("exports generated V2 schemas, the fixture builder, and the source catalog", () => {
     expect(createLosslessSessionFixture().snapshot.$typeName).toBe(
       "proto.agent_workbench.v2.SessionSnapshot",

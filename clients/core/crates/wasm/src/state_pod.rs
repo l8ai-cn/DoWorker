@@ -1,12 +1,12 @@
 use std::sync::Arc;
 
-use agentsmesh_state::app_state::AppState;
-use agentsmesh_types::proto_pod_state_v1::{
+use agentcloud_state::app_state::AppState;
+use agentcloud_types::proto_pod_state_v1::{
     ApplyAgentStatusEventRequest, ApplyPodAliasEventRequest, ApplyPodStatusEventRequest,
     ApplyPodTitleEventRequest, InsertCreatedPodRequest, MarkPodTerminatedRequest,
     PatchPodPerpetualRequest, ReplaceCachedPodsRequest,
 };
-use agentsmesh_types::proto_pod_v1::ListPodsResponse;
+use agentcloud_types::proto_pod_v1::ListPodsResponse;
 use parking_lot::RwLock;
 use prost::Message;
 use wasm_bindgen::prelude::*;

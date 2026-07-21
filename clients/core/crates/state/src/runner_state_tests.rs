@@ -1,5 +1,5 @@
 use crate::runner_state::RunnerState;
-use agentsmesh_types::proto_runner_api_v1::Runner;
+use agentcloud_types::proto_runner_api_v1::Runner;
 
 fn make_runner(
     id: i64,

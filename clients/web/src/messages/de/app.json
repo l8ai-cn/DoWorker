@@ -30,7 +30,7 @@
     }
   },
   "mesh": {
-    "title": "Do Worker",
+    "title": "Agent Cloud",
     "channels": "Kanäle",
     "newChannel": "Neuer Kanal",
     "topology": "Topologie",
@@ -309,7 +309,7 @@
     "workspaceDescription": "Terminal-Arbeitsbereich",
     "goToTickets": "Zu Tickets gehen",
     "ticketsDescription": "Tickets anzeigen und verwalten",
-    "goToMesh": "Zu Do Worker gehen",
+    "goToMesh": "Zu Agent Cloud gehen",
     "meshDescription": "Netzwerktopologie",
     "goToChannels": "Go to Channels",
     "channelsDescription": "Team collaboration channels",

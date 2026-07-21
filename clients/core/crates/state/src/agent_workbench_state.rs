@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet, VecDeque};
 
-use agentsmesh_types::proto_agent_workbench_v2 as v2;
+use agentcloud_types::proto_agent_workbench_v2 as v2;
 use thiserror::Error;
 
 use crate::agent_workbench_reducer::apply_batch;

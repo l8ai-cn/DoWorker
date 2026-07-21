@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentsession"
 )
 
 func (s *Service) UpdateAgentAndPod(ctx context.Context, id, agentSlug, podKey string) error {

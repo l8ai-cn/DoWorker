@@ -1,5 +1,5 @@
 [package]
-name = "agentsmesh_types"
+name = "agentcloud_types"
 version.workspace = true
 edition.workspace = true
 publish.workspace = true

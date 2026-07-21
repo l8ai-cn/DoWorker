@@ -4,7 +4,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/anthropics/agentsmesh/runner/internal/acp"
+	"github.com/l8ai-cn/agentcloud/runner/internal/acp"
 )
 
 // pendingRegistry tracks outgoing JSON-RPC requests that expect a response

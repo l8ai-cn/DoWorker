@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use agentsmesh_api_client::ApiClient;
+use agentcloud_api_client::ApiClient;
 
 pub struct AutopilotService {
     client: Arc<ApiClient>,
@@ -19,7 +19,7 @@ impl AutopilotService {
     // is networking-only.
 
     pub async fn list_autopilots_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
-        use agentsmesh_types::proto_autopilot_v1 as ap;
+        use agentcloud_types::proto_autopilot_v1 as ap;
         use prost::Message;
         let req = ap::ListAutopilotControllersRequest::decode(request_bytes)
             .map_err(|e| format!("decode list_autopilots request: {e}"))?;
@@ -33,7 +33,7 @@ impl AutopilotService {
     }
 
     pub async fn get_autopilot_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
-        use agentsmesh_types::proto_autopilot_v1 as ap;
+        use agentcloud_types::proto_autopilot_v1 as ap;
         use prost::Message;
         let req = ap::GetAutopilotControllerRequest::decode(request_bytes)
             .map_err(|e| format!("decode get_autopilot request: {e}"))?;
@@ -47,7 +47,7 @@ impl AutopilotService {
     }
 
     pub async fn create_autopilot_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
-        use agentsmesh_types::proto_autopilot_v1 as ap;
+        use agentcloud_types::proto_autopilot_v1 as ap;
         use prost::Message;
         let req = ap::CreateAutopilotControllerRequest::decode(request_bytes)
             .map_err(|e| format!("decode create_autopilot request: {e}"))?;
@@ -65,7 +65,7 @@ impl AutopilotService {
         procedure: &str,
         request_bytes: &[u8],
     ) -> Result<Vec<u8>, String> {
-        use agentsmesh_types::proto_autopilot_v1 as ap;
+        use agentcloud_types::proto_autopilot_v1 as ap;
         use prost::Message;
         let req = ap::ActionRequest::decode(request_bytes)
             .map_err(|e| format!("decode action_autopilot request: {e}"))?;
@@ -83,7 +83,7 @@ impl AutopilotService {
     }
 
     pub async fn approve_autopilot_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
-        use agentsmesh_types::proto_autopilot_v1 as ap;
+        use agentcloud_types::proto_autopilot_v1 as ap;
         use prost::Message;
         let req = ap::ApproveRequest::decode(request_bytes)
             .map_err(|e| format!("decode approve_autopilot request: {e}"))?;
@@ -97,7 +97,7 @@ impl AutopilotService {
     }
 
     pub async fn get_iterations_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
-        use agentsmesh_types::proto_autopilot_v1 as ap;
+        use agentcloud_types::proto_autopilot_v1 as ap;
         use prost::Message;
         let req = ap::GetIterationsRequest::decode(request_bytes)
             .map_err(|e| format!("decode get_iterations request: {e}"))?;

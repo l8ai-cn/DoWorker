@@ -1,18 +1,18 @@
 use std::sync::Arc;
 
-use agentsmesh_api_client::ApiClient;
+use agentcloud_api_client::ApiClient;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 pub struct WasmUserCredentialService {
-    inner: agentsmesh_services::UserCredentialService,
+    inner: agentcloud_services::UserCredentialService,
 }
 
 #[wasm_bindgen]
 impl WasmUserCredentialService {
     pub(crate) fn new(client: Arc<ApiClient>) -> Self {
         Self {
-            inner: agentsmesh_services::UserCredentialService::new(client),
+            inner: agentcloud_services::UserCredentialService::new(client),
         }
     }
 

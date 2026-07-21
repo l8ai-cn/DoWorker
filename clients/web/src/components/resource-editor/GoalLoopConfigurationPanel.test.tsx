@@ -30,7 +30,7 @@ import { ResourceEditorShell } from "./ResourceEditorShell";
 describe("GoalLoopConfigurationPanel", () => {
   it("creates the GoalLoop form defaults", () => {
     expect(createResourceDraft("GoalLoop", "acme")).toEqual({
-      apiVersion: "agentsmesh.io/v1alpha1",
+      apiVersion: "agentcloud.io/v1alpha1",
       kind: "GoalLoop",
       metadata: {
         name: "",

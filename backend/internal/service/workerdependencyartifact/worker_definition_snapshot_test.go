@@ -3,8 +3,8 @@ package workerdependencyartifact
 import (
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/envbundle"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/envbundle"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workerdependency"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

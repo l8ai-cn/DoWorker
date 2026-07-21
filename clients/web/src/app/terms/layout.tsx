@@ -3,15 +3,15 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Terms of Service",
   description:
-    "Do Worker terms of service — the agreement governing your use of our platform.",
+    "Agent Cloud terms of service — the agreement governing your use of our platform.",
   alternates: {
-    canonical: "https://agentsmesh.ai/terms",
+    canonical: "https://agentcloud.ai/terms",
   },
   openGraph: {
-    title: "Terms of Service | Do Worker",
+    title: "Terms of Service | Agent Cloud",
     description:
-      "Do Worker terms of service — the agreement governing your use of our platform.",
-    url: "https://agentsmesh.ai/terms",
+      "Agent Cloud terms of service — the agreement governing your use of our platform.",
+    url: "https://agentcloud.ai/terms",
   },
 };
 

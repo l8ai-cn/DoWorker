@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/workerdefinition"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

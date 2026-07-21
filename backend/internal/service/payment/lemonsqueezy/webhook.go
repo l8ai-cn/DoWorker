@@ -9,8 +9,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/billing"
-	"github.com/anthropics/agentsmesh/backend/internal/service/payment/types"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/billing"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/payment/types"
 )
 
 var ErrWebhookSecretNotConfigured = fmt.Errorf("webhook secret is not configured - this is required for security")

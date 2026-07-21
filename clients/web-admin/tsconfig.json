@@ -28,7 +28,7 @@
         "./src/*"
       ],
       "@proto/*": [
-        "../../node_modules/@do-worker/proto/*",
+        "../../node_modules/@agent-cloud/proto/*",
         "../../proto/gen/ts/*"
       ]
     }

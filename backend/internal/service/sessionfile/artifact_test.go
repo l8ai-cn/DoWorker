@@ -4,11 +4,11 @@ import (
 	"context"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/config"
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/sessionfile"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/storage"
-	filesvc "github.com/anthropics/agentsmesh/backend/internal/service/file"
-	"github.com/anthropics/agentsmesh/backend/internal/testkit"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/sessionfile"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/storage"
+	filesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/file"
+	"github.com/l8ai-cn/agentcloud/backend/internal/testkit"
 	"github.com/stretchr/testify/require"
 )
 

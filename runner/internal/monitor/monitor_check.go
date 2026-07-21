@@ -3,8 +3,8 @@ package monitor
 import (
 	"time"
 
-	"github.com/anthropics/agentsmesh/runner/internal/agentkit"
-	"github.com/anthropics/agentsmesh/runner/internal/terminal/detector"
+	"github.com/l8ai-cn/agentcloud/runner/internal/agentkit"
+	"github.com/l8ai-cn/agentcloud/runner/internal/terminal/detector"
 )
 
 // monitorLoop periodically checks all pod statuses.

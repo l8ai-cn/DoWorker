@@ -1,4 +1,4 @@
-# DoWorker Embedded Marketplace Design
+# AgentCloud Embedded Marketplace Design
 
 - **Date:** 2026-07-12
 - **Status:** Superseded
@@ -6,13 +6,13 @@
 
 ## Product Decision
 
-This historical MVP made Marketplace a DoWorker capability page. It is no
+This historical MVP made Marketplace a AgentCloud capability page. It is no
 longer the product direction and must not be used for new implementation.
 
 | Concern | Decision |
 | --- | --- |
 | Canonical route | `/{org}/marketplace` |
-| Navigation | Dedicated “市场” activity in the DoWorker activity bar |
+| Navigation | Dedicated “市场” activity in the AgentCloud activity bar |
 | Installation target | URL organization only |
 | Resources | Application, Skill, system connector, and resource |
 | Completion | Same organization’s Experts page |
@@ -25,7 +25,7 @@ No anonymous organization inference is added in this MVP.
 ## User Flow
 
 ```text
-DoWorker organization
+AgentCloud organization
   -> 市场
   -> search/filter by Space and resource type
   -> resource detail

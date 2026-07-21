@@ -1,6 +1,6 @@
 package workercreation
 
-import "github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+import "github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 
 func modelProtocolAdapters(adapters []slugkit.Slug) []string {
 	values := make([]string, len(adapters))

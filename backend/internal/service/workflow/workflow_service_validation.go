@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	workflowDomain "github.com/anthropics/agentsmesh/backend/internal/domain/workflow"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	workflowDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workflow"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 	"github.com/robfig/cron/v3"
 )
 

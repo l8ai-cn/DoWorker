@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
-use agentsmesh_api_client::ApiClient;
-use agentsmesh_types::proto_agent_v1 as agent_proto;
-use agentsmesh_types::proto_pod_v1 as pod_proto;
+use agentcloud_api_client::ApiClient;
+use agentcloud_types::proto_agent_v1 as agent_proto;
+use agentcloud_types::proto_pod_v1 as pod_proto;
 use prost::Message;
 
 pub struct AgentService {

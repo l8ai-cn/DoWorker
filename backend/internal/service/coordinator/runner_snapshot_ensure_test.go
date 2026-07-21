@@ -5,10 +5,10 @@ import (
 	"errors"
 	"testing"
 
-	coordinatordom "github.com/anthropics/agentsmesh/backend/internal/domain/coordinator"
-	workerspecdom "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	runnersvc "github.com/anthropics/agentsmesh/backend/internal/service/runner"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	coordinatordom "github.com/l8ai-cn/agentcloud/backend/internal/domain/coordinator"
+	workerspecdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	runnersvc "github.com/l8ai-cn/agentcloud/backend/internal/service/runner"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 func TestRunProjectEnsuresRunnerForSnapshotWorkerType(t *testing.T) {

@@ -1,15 +1,15 @@
 use std::sync::Arc;
 
-use agentsmesh_state::app_state::AppState;
-use agentsmesh_types::proto_pod_state_v1::ReplaceCachedPodsRequest;
-use agentsmesh_types::proto_ticket_state_v1::{
+use agentcloud_state::app_state::AppState;
+use agentcloud_types::proto_pod_state_v1::ReplaceCachedPodsRequest;
+use agentcloud_types::proto_ticket_state_v1::{
     AppendBoardColumnTicketsRequest, ApplyTicketDeletedEventRequest, ApplyTicketStatusEventRequest,
     FilterTicketsRequest, FilterTicketsResponse, InsertCreatedLabelRequest,
     InsertCreatedTicketRequest, PatchCachedTicketRequest, RemoveCachedLabelRequest,
     ReplaceBoardColumnsRequest, ReplaceCachedLabelsRequest, ReplaceCachedTicketsRequest,
     SetCurrentTicketRequest,
 };
-use agentsmesh_types::proto_ticket_v1::{Board, ListTicketsResponse, Ticket};
+use agentcloud_types::proto_ticket_v1::{Board, ListTicketsResponse, Ticket};
 use parking_lot::RwLock;
 use prost::Message;
 use wasm_bindgen::prelude::*;
@@ -76,7 +76,7 @@ impl WasmTicketState {
     }
 
     pub fn set_ticket_pods(&self, slug: &str, pods_json: &str) -> Result<(), JsValue> {
-        let pods: Vec<agentsmesh_types::proto_pod_v1::Pod> =
+        let pods: Vec<agentcloud_types::proto_pod_v1::Pod> =
             serde_json::from_str(pods_json).map_err(decode_err)?;
         self.state.write().tickets.set_ticket_pods(slug, pods);
         Ok(())
@@ -152,7 +152,7 @@ impl WasmTicketState {
 
     // Fetch→state (B): wire ListLabelsResponse.items == state Label.
     pub fn apply_fetched_labels(&self, resp_bytes: &[u8]) -> Result<(), JsValue> {
-        let resp = agentsmesh_types::proto_ticket_v1::ListLabelsResponse::decode(resp_bytes)
+        let resp = agentcloud_types::proto_ticket_v1::ListLabelsResponse::decode(resp_bytes)
             .map_err(decode_err)?;
         self.state.write().tickets.set_labels(resp.items);
         Ok(())

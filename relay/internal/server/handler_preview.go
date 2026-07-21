@@ -7,9 +7,9 @@ import (
 	"path"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/relay/internal/auth"
-	"github.com/anthropics/agentsmesh/relay/internal/proxy"
-	"github.com/anthropics/agentsmesh/relay/internal/tunnel"
+	"github.com/l8ai-cn/agentcloud/relay/internal/auth"
+	"github.com/l8ai-cn/agentcloud/relay/internal/proxy"
+	"github.com/l8ai-cn/agentcloud/relay/internal/tunnel"
 )
 
 // PreviewHandler routes authenticated preview requests through the runner

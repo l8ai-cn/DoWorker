@@ -3,8 +3,8 @@ package orchestrationworker
 import (
 	"context"
 
-	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
-	resource "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
+	control "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
+	resource "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationresource"
 )
 
 func resolvePinnedID(

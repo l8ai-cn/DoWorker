@@ -5,10 +5,10 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
-	service "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
-	aiv1 "github.com/anthropics/agentsmesh/proto/gen/go/ai_resource/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
+	service "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
+	aiv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/ai_resource/v1"
 )
 
 func (s *Server) GetCatalog(ctx context.Context, _ *connect.Request[aiv1.GetCatalogRequest]) (*connect.Response[aiv1.GetCatalogResponse], error) {

@@ -9,8 +9,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	kbdomain "github.com/anthropics/agentsmesh/backend/internal/domain/knowledgebase"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/gitea"
+	kbdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/knowledgebase"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/gitea"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

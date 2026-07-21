@@ -1,8 +1,8 @@
 package runner
 
 import (
-	"github.com/anthropics/agentsmesh/backend/internal/interfaces"
-	"github.com/anthropics/agentsmesh/backend/internal/service/agent"
+	"github.com/l8ai-cn/agentcloud/backend/internal/interfaces"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/agent"
 )
 
 type AgentServiceAdapter struct {

@@ -3,8 +3,8 @@ package runner
 import (
 	"sync"
 
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
-	"github.com/anthropics/agentsmesh/runner/internal/updater"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/updater"
 )
 
 // upgradeController manages the upgrade/draining state machine.

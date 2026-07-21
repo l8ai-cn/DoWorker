@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/coordinator"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/coordinator"
 	"gorm.io/gorm"
 )
 

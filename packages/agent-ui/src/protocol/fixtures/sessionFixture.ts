@@ -3,12 +3,12 @@ import { create } from "@bufbuild/protobuf";
 import {
   CommandEnvelopeSchema,
   type CommandEnvelope,
-} from "@do-worker/proto/agent_workbench/v2/command_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/command_pb";
 import {
   SessionSnapshotSchema,
   type SessionSnapshot,
-} from "@do-worker/proto/agent_workbench/v2/session_pb";
-import { SessionStatus } from "@do-worker/proto/agent_workbench/v2/session_state_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/session_pb";
+import { SessionStatus } from "@agent-cloud/proto/agent_workbench/v2/session_state_pb";
 import { createFixtureHistory } from "./sessionFixtureTimeline";
 import {
   createFixtureArtifacts,

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
-	resource "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
+	resource "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationresource"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 var environmentTargetPattern = regexp.MustCompile(`^[A-Z][A-Z0-9_]*$`)

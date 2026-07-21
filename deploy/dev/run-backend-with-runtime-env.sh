@@ -24,9 +24,9 @@ if ! load_env_file "$RUNTIME_ENV"; then
     }
     export DB_HOST="${DB_HOST:-localhost}"
     export DB_PORT="${DB_PORT:-${POSTGRES_PORT:-}}"
-    export DB_USER="${DB_USER:-agentsmesh}"
-    export DB_PASSWORD="${DB_PASSWORD:-${POSTGRES_PASSWORD:-agentsmesh_dev}}"
-    export DB_NAME="${DB_NAME:-agentsmesh}"
+    export DB_USER="${DB_USER:-agentcloud}"
+    export DB_PASSWORD="${DB_PASSWORD:-${POSTGRES_PASSWORD:-agentcloud_dev}}"
+    export DB_NAME="${DB_NAME:-agentcloud}"
     export DB_SSLMODE="${DB_SSLMODE:-disable}"
     export SERVER_ADDRESS="${SERVER_ADDRESS:-:${BACKEND_HTTP_PORT:-}}"
     export GRPC_ADDRESS="${GRPC_ADDRESS:-:${BACKEND_GRPC_PORT:-}}"

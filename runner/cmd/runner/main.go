@@ -1,4 +1,4 @@
-// Package main provides the entry point for the Do Worker Runner CLI.
+// Package main provides the entry point for the Agent Cloud Runner CLI.
 package main
 
 import (
@@ -6,8 +6,8 @@ import (
 	"os"
 	"runtime/debug"
 
-	"github.com/anthropics/agentsmesh/runner/internal/poddaemon"
-	"github.com/anthropics/agentsmesh/runner/internal/processmgr"
+	"github.com/l8ai-cn/agentcloud/runner/internal/poddaemon"
+	"github.com/l8ai-cn/agentcloud/runner/internal/processmgr"
 )
 
 var (
@@ -29,7 +29,7 @@ func main() {
 	// Pod Daemon mode: when re-exec'd as a daemon subprocess, run the daemon
 	// main loop instead of the normal CLI. The daemon holds the PTY fd and
 	// accepts IPC connections from the Runner for I/O forwarding.
-	if configPath := os.Getenv("_AGENTSMESH_POD_DAEMON"); configPath != "" {
+	if configPath := os.Getenv("_AGENTCLOUD_POD_DAEMON"); configPath != "" {
 		defer func() {
 			if r := recover(); r != nil {
 				// stderr is redirected to pod_daemon.log by startDaemon,
@@ -63,7 +63,7 @@ func main() {
 	case "update":
 		runUpdate(os.Args[2:])
 	case "version", "-v", "--version":
-		fmt.Printf("Do Worker Runner %s (built %s)\n", version, buildTime)
+		fmt.Printf("Agent Cloud Runner %s (built %s)\n", version, buildTime)
 	case "help", "-h", "--help":
 		printUsage()
 	default:
@@ -74,14 +74,14 @@ func main() {
 }
 
 func printUsage() {
-	fmt.Println(`Do Worker Runner
+	fmt.Println(`Agent Cloud Runner
 
 Usage:
-  do-worker-runner <command> [options]
+  agent-cloud-runner <command> [options]
 
 Commands:
-  login       Login to Do Worker server (alias for register)
-  register    Register this runner with the Do Worker server (gRPC/mTLS)
+  login       Login to Agent Cloud server (alias for register)
+  register    Register this runner with the Agent Cloud server (gRPC/mTLS)
   run         Start the runner in CLI mode (requires prior registration)
   webconsole  Open the web console in browser
   service     Manage runner as a system service (install/start/stop)
@@ -92,17 +92,17 @@ Commands:
   help        Show this help message
 
 Login Examples:
-  do-worker-runner login
-      Opens browser for authorization (uses https://agentsmesh.ai)
+  agent-cloud-runner login
+      Opens browser for authorization (uses https://agentcloud.ai)
 
-  do-worker-runner login --headless
+  agent-cloud-runner login --headless
       Print URL only, don't open browser (for SSH/remote sessions)
 
-  do-worker-runner login --token <token>
+  agent-cloud-runner login --token <token>
       Login using a pre-generated token
 
-  do-worker-runner login --server https://self-hosted.example.com
-      Login to a self-hosted Do Worker server
+  agent-cloud-runner login --server https://self-hosted.example.com
+      Login to a self-hosted Agent Cloud server
 
-Use "do-worker-runner <command> --help" for more information about a command.`)
+Use "agent-cloud-runner <command> --help" for more information about a command.`)
 }

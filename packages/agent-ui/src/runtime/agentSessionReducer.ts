@@ -4,7 +4,7 @@ import {
   SessionSnapshotSchema,
   type SessionDeltaBatch,
   type SessionSnapshot,
-} from "@do-worker/proto/agent_workbench/v2/session_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/session_pb";
 import { applyAgentEvent } from "./agentSessionEventReducer";
 import {
   AgentSessionReductionError,

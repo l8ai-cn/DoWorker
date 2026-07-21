@@ -6,7 +6,7 @@ import (
 
 	"connectrpc.com/connect"
 
-	userv1 "github.com/anthropics/agentsmesh/proto/gen/go/user/v1"
+	userv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/user/v1"
 )
 
 // Limit constants mirror REST's binding rules (users.go:188:

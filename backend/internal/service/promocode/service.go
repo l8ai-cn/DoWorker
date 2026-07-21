@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/promocode"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/promocode"
 )
 
 var (

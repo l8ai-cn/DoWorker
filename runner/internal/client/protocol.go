@@ -1,8 +1,8 @@
-// Package client provides communication with AgentsMesh server via gRPC.
+// Package client provides communication with Agent Cloud server via gRPC.
 package client
 
 import (
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 )
 
 // MessageType defines the type of message (used for mock testing).

@@ -7,7 +7,7 @@ DEPLOY="${ROOT}/deploy/kubernetes/cluster-oilan/deploy.sh"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
-NS=agentsmesh
+NS=agentcloud
 GEN="${TMP}/gen"
 SEC="${GEN}/secrets"
 REG=registry.example.test
@@ -57,22 +57,22 @@ secret_value() {
 }
 
 test "$(mode "$SEC")" = 700
-for name in agentsmesh-secrets agentsmesh-pki-ca agentsmesh-access-token agentsmesh-regcred; do
+for name in agentcloud-secrets agentcloud-pki-ca agentcloud-access-token agentcloud-regcred; do
   test "$(mode "${SEC}/${name}.yaml")" = 600
 done
 
-app="${SEC}/agentsmesh-secrets.yaml"
+app="${SEC}/agentcloud-secrets.yaml"
 test "$(secret_value "$app" DB_PASSWORD)" = contract-db
 test "$(secret_value "$app" STORAGE_SECRET_KEY)" = contract-minio
 test "$(secret_value "$app" MARKETPLACE_DATABASE_URL)" = \
-  'postgres://agentsmesh:contract-db@postgres:5432/agentsmesh?sslmode=disable'
+  'postgres://agentcloud:contract-db@postgres:5432/agentcloud?sslmode=disable'
 
-secret_value "${SEC}/agentsmesh-pki-ca.yaml" ca.crt >"${TMP}/ca.crt"
+secret_value "${SEC}/agentcloud-pki-ca.yaml" ca.crt >"${TMP}/ca.crt"
 cmp "${GEN}/ca.crt" "${TMP}/ca.crt"
-secret_value "${SEC}/agentsmesh-access-token.yaml" public.pem >"${TMP}/public.pem"
+secret_value "${SEC}/agentcloud-access-token.yaml" public.pem >"${TMP}/public.pem"
 cmp "${GEN}/access-token-public.pem" "${TMP}/public.pem"
 
-registry="${SEC}/agentsmesh-regcred.yaml"
+registry="${SEC}/agentcloud-regcred.yaml"
 grep -Fq 'type: kubernetes.io/dockerconfigjson' "$registry"
 docker_config="$(secret_value "$registry" .dockerconfigjson)"
 test "$(jq -r '.auths["registry.example.test"].username' <<<"$docker_config")" = release-user

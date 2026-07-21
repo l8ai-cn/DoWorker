@@ -6,7 +6,7 @@ import (
 	"errors"
 	"testing"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/supportticket"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/supportticket"
 )
 
 // --- GetAttachmentURL tests ---

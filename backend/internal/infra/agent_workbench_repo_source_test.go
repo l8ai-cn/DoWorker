@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentworkbench"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentworkbench"
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
 )

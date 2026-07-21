@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/channel"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/channel"
 )
 
 func TestListChannels(t *testing.T) {

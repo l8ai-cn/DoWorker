@@ -10,9 +10,9 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/anthropics/agentsmesh/backend/internal/interfaces"
-	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/interfaces"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/runner"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 )
 
 // TestGRPCRunnerAdapter_Connect_Integration tests the full Connect flow.

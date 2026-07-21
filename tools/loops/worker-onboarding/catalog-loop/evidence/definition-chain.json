@@ -5,7 +5,7 @@
   "definition_bundle": "definition.json + NUL + AgentFile",
   "backend_consumer": "workercreation.workerTypeResolver",
   "checks": [
-    "DB_HOST=localhost DB_PORT=10002 DB_USER=agentsmesh DB_PASSWORD=agentsmesh_dev DB_NAME=agentsmesh DB_SSLMODE=disable PREVIEW_PUBLIC_ORIGIN=http://localhost:10007 WORKER_DEFINITIONS_DIR=config/worker-types go run ./backend/cmd/worker-definition-sync",
+    "DB_HOST=localhost DB_PORT=10002 DB_USER=agentcloud DB_PASSWORD=agentcloud_dev DB_NAME=agentcloud DB_SSLMODE=disable PREVIEW_PUBLIC_ORIGIN=http://localhost:10007 WORKER_DEFINITIONS_DIR=config/worker-types go run ./backend/cmd/worker-definition-sync",
     "bash tools/loops/worker-onboarding/catalog-loop/scripts/verify-dev-database-projection.sh"
   ],
   "projection_verified_slugs": [

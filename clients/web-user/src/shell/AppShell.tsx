@@ -319,18 +319,18 @@ export function AppShell() {
   // sessions OR the per-session snapshot (``activeSession``) for ALL
   // sessions including children. The sidebar list omits child (sub-agent)
   // rows, so for a user-added agent ``activeConv`` is null and only the
-  // snapshot carries ``omnigent.ui``/``do-worker.wrapper`` — without
+  // snapshot carries ``omnigent.ui``/``agent-cloud.wrapper`` — without
   // this merge an added claude-native agent loses its terminal-first
   // toggle. Snapshot wins on conflict; spreading undefined is a no-op.
   const sessionLabels = { ...activeConv?.labels, ...activeSession?.labels };
-  const terminalFirst = sessionLabels["do-worker.ui"] === "terminal";
-  const isClaudeNative = sessionLabels["do-worker.wrapper"] === "claude-code-native-ui";
+  const terminalFirst = sessionLabels["agent-cloud.ui"] === "terminal";
+  const isClaudeNative = sessionLabels["agent-cloud.wrapper"] === "claude-code-native-ui";
   const podKey = activeSession?.podKey ?? null;
   // Native-CLI wrapper of either family. Keys harness behavior gates
   // (composer slash commands, `/model`); terminal-first SDK sessions
   // (embedded Omnigent REPL terminal) have NO wrapper label and must
   // keep regular chat behavior. See TerminalFirstContext.tsx.
-  const isNativeWrapper = isNativeWrapperLabel(sessionLabels["do-worker.wrapper"]);
+  const isNativeWrapper = isNativeWrapperLabel(sessionLabels["agent-cloud.wrapper"]);
   const todos = useChatStore((s) => s.todos);
   const todosCompleted = todos.filter((t) => t.status === "completed").length;
   // Used for the header "Back to parent" link, which is hidden on
@@ -372,8 +372,8 @@ export function AppShell() {
   // Claude-native sub-agents have no terminal of their own — the parent
   // owns the tmux pane.
   const isClaudeNativeSubagent =
-    activeSession?.labels?.["do-worker.wrapper"] === "claude-code-native-ui-subagent" ||
-    activeConv?.labels?.["do-worker.wrapper"] === "claude-code-native-ui-subagent";
+    activeSession?.labels?.["agent-cloud.wrapper"] === "claude-code-native-ui-subagent" ||
+    activeConv?.labels?.["agent-cloud.wrapper"] === "claude-code-native-ui-subagent";
   // Hide the rail Shells tab only for claude-native sub-agents — they
   // have no terminals of their own (the parent owns the tmux pane).
   // Native top-level sessions get the same Shells rail as SDK ones;

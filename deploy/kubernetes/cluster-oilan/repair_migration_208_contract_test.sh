@@ -54,7 +54,7 @@ grep -Fq 'EXPECTED_SERVER_SHA="ef31fb47fb3daf27ebd5ee0cc855600f6bdc5de73c6211cb9
   "${HOTFIX_BUILD}"
 grep -Fq 'EXPECTED_IMAGE_DIGEST="sha256:9123f3b7385bef80b379690efd642bc00d26b9dc8b082cb05ca132fdaa3dfc7b"' \
   "${HOTFIX_BUILD}"
-[[ "$(grep -Fc 'agentsmesh.ai/verified-image-digest: "sha256:9123f3b7385bef80b379690efd642bc00d26b9dc8b082cb05ca132fdaa3dfc7b"' "${BACKEND_MANIFEST}")" == "2" ]]
+[[ "$(grep -Fc 'agentcloud.ai/verified-image-digest: "sha256:9123f3b7385bef80b379690efd642bc00d26b9dc8b082cb05ca132fdaa3dfc7b"' "${BACKEND_MANIFEST}")" == "2" ]]
 grep -Fq 'docker buildx build --no-cache --provenance=false --platform linux/amd64' \
   "${HOTFIX_BUILD}"
 grep -Fq -- '--build-arg SERVER_SHA="${EXPECTED_SERVER_SHA}"' "${HOTFIX_BUILD}"

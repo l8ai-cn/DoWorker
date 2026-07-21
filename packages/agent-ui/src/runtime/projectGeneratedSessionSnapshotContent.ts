@@ -1,7 +1,7 @@
 import type {
   ContentBlock,
   MediaContent,
-} from "@do-worker/proto/agent_workbench/v2/content_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/content_pb";
 
 import type {
   AgentActivityItem,

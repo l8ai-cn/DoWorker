@@ -3,7 +3,7 @@ package workercreation
 import (
 	"sort"
 
-	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/workerdefinition"
 )
 
 func modelResourceManagedFields(

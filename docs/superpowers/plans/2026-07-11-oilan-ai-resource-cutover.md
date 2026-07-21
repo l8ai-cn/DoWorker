@@ -23,13 +23,13 @@ Run:
 
 ```bash
 doops -session worker-ai-resource-cutover exec --target gw-oilan-node --cmd \
-  "kubectl exec -n agentsmesh deploy/postgres -- \
-  psql -U agentsmesh -d agentsmesh -Atc 'SELECT version, dirty FROM schema_migrations;'"
+  "kubectl exec -n agentcloud deploy/postgres -- \
+  psql -U agentcloud -d agentcloud -Atc 'SELECT version, dirty FROM schema_migrations;'"
 doops -session worker-ai-resource-cutover exec --target gw-oilan-node --cmd \
-  "kubectl get deploy/backend -n agentsmesh -o jsonpath='{.spec.template.spec.containers[0].image}'"
+  "kubectl get deploy/backend -n agentcloud -o jsonpath='{.spec.template.spec.containers[0].image}'"
 ```
 
-Verified: schema version is `188|f` (`dirty=false`); the backend image is `repo.aiedulab.cn:8443/agentsmesh/backend@sha256:811208b0d91f2e1eb97ec0606e1447b03dff94adcddd6f68a345b7b36f8ab611`.
+Verified: schema version is `188|f` (`dirty=false`); the backend image is `repo.aiedulab.cn:8443/agentcloud/backend@sha256:811208b0d91f2e1eb97ec0606e1447b03dff94adcddd6f68a345b7b36f8ab611`.
 
 Incident note: an initial recovery Job invoked `migrate force 188` after `f` was misread as dirty. It did not run migration SQL or alter application rows, and the resulting state remains `188|f`. No further force command is permitted in this cutover.
 
@@ -91,9 +91,9 @@ Create a Job named `ai-resource-schema-migrate-190-197-r2` with:
 command: ["/app/server", "migrate", "up", "5"]
 envFrom:
   - configMapRef:
-      name: agentsmesh-config
+      name: agentcloud-config
   - secretRef:
-      name: agentsmesh-secrets
+      name: agentcloud-secrets
 ```
 
 Use the exact digest from Step 3, not the previously deployed image that omits 188. The five required migrations are `190`, `194`, `195`, `196`, and `197`; golang-migrate counts applied migration files, not numeric gaps. `000191_add_grok_build_agent` belongs to a separate uncommitted stream and must not enter this recovery commit or image.
@@ -103,8 +103,8 @@ Use the exact digest from Step 3, not the previously deployed image that omits 1
 Run:
 
 ```bash
-kubectl -n agentsmesh wait --for=condition=complete job/ai-resource-schema-migrate-190-197-r2 --timeout=300s
-kubectl -n agentsmesh logs job/ai-resource-schema-migrate-190-197-r2
+kubectl -n agentcloud wait --for=condition=complete job/ai-resource-schema-migrate-190-197-r2 --timeout=300s
+kubectl -n agentcloud logs job/ai-resource-schema-migrate-190-197-r2
 ```
 
 Expected: Job completes and logs `migrate ok`.
@@ -137,7 +137,7 @@ Use the exact image from Task 2 Step 3. The Job must:
 /app/migrate-ai-resources --apply --created-by=2
 ```
 
-Pass `DB_*` and `JWT_SECRET` only from `agentsmesh-config` and `agentsmesh-secrets`. The CLI reuses the backend DB configuration when `DATABASE_URL` is absent. The legacy model belongs to organization `1`, whose owner is user `2`; use that verified user as `created_by`. Do not print the connection string, key, or decrypted credentials.
+Pass `DB_*` and `JWT_SECRET` only from `agentcloud-config` and `agentcloud-secrets`. The CLI reuses the backend DB configuration when `DATABASE_URL` is absent. The legacy model belongs to organization `1`, whose owner is user `2`; use that verified user as `created_by`. Do not print the connection string, key, or decrypted credentials.
 
 - [ ] **Step 2: Verify conversion output and model-resource mapping**
 
@@ -195,7 +195,7 @@ curl -fsS http://127.0.0.1:10007/health
 Expected:
 
 ```json
-{"service":"do-worker-api","status":"ok"}
+{"service":"agent-cloud-api","status":"ok"}
 ```
 
 - [ ] **Step 2: Verify the organization AI resource page in Chrome**

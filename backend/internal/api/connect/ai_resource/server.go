@@ -7,9 +7,9 @@ import (
 	"connectrpc.com/connect"
 	"go.opentelemetry.io/otel/trace"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	service "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	service "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
 )
 
 type Service interface {

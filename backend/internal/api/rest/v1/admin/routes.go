@@ -1,9 +1,9 @@
 package admin
 
 import (
-	"github.com/anthropics/agentsmesh/backend/internal/service/admin"
-	"github.com/anthropics/agentsmesh/backend/internal/service/auth"
-	"github.com/anthropics/agentsmesh/backend/internal/service/billing"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/admin"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/auth"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/billing"
 )
 
 // Services contains all admin-related services. Kept as a struct because

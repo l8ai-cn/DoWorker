@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { readSessionWorkspaceState, writeSessionWorkspaceState } from "./sessionWorkspaceState";
 
-const STORAGE_KEY = "do-worker:session-workspace-state";
+const STORAGE_KEY = "agent-cloud:session-workspace-state";
 // Mirrors MAX_SESSIONS in the source; the pruning tests below seed exactly this
 // many sessions to sit right at the cap.
 const MAX_SESSIONS = 100;

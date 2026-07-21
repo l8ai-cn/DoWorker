@@ -1,6 +1,6 @@
 package agentpod
 
-import "github.com/anthropics/agentsmesh/backend/internal/service/agent"
+import "github.com/l8ai-cn/agentcloud/backend/internal/service/agent"
 
 func withCoordinator(coord PodCoordinatorForOrchestrator) func(*PodOrchestratorDeps) {
 	return func(d *PodOrchestratorDeps) { d.PodCoordinator = coord }

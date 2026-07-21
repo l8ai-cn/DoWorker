@@ -44,8 +44,8 @@ export const usePushNotificationStore = create<PushNotificationState>()(
       setError: (error) => set({ error }),
     }),
     {
-      name: "do-worker-push-notifications",
-      storage: legacyPersistStorage("agentsmesh-push-notifications"),
+      name: "agent-cloud-push-notifications",
+      storage: legacyPersistStorage("agentcloud-push-notifications"),
       partialize: (state) => ({ preferences: state.preferences }),
     }
   )

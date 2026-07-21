@@ -6,9 +6,9 @@ import (
 
 	"connectrpc.com/connect"
 
-	billingsvc "github.com/anthropics/agentsmesh/backend/internal/service/billing"
-	invitationsvc "github.com/anthropics/agentsmesh/backend/internal/service/invitation"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
+	billingsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/billing"
+	invitationsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/invitation"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
 )
 
 // errInvitationEmptyToken is the sentinel returned for blank-token requests

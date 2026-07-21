@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/runner/internal/relay"
+	"github.com/l8ai-cn/agentcloud/runner/internal/relay"
 )
 
 func TestHandleAcpRelayCommandConfirmsAcceptedPrompt(t *testing.T) {

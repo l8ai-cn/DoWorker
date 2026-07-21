@@ -8,8 +8,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	podv1 "github.com/anthropics/agentsmesh/proto/gen/go/pod/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	podv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/pod/v1"
 )
 
 // Test the auth-guard. Heavy integration tests live alongside

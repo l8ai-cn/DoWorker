@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	coordinatordom "github.com/anthropics/agentsmesh/backend/internal/domain/coordinator"
+	coordinatordom "github.com/l8ai-cn/agentcloud/backend/internal/domain/coordinator"
 )
 
 const defaultLinearEndpoint = "https://api.linear.app/graphql"

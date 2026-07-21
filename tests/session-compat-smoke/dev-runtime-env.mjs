@@ -53,7 +53,7 @@ export function devUrl(name, fallback) {
       if (runtimeEnv.PRIMARY_DOMAIN) return `http://${runtimeEnv.PRIMARY_DOMAIN}`;
       return urlFromHostPort("127.0.0.1", runtimeEnv.HTTP_PORT, fallback);
     case "WEB_USER_AUTH_URL":
-      return runtimeEnv.VITE_DO_WORKER_API_URL ?? runtimeEnv.VITE_AGENTSMESH_API_URL ?? fallback;
+      return runtimeEnv.VITE_DO_WORKER_API_URL ?? runtimeEnv.VITE_AGENTCLOUD_API_URL ?? fallback;
     case "SESSION_COMPAT_API_URL":
       return urlFromHostPort(
         "localhost",

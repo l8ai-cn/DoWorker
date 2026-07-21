@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/extension"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/extension"
 )
 
 func (s *Service) InstallMcpFromMarket(ctx context.Context, orgID, repoID, userID, marketItemID int64, envVars map[string]string, scope string) (*extension.InstalledMcpServer, error) {

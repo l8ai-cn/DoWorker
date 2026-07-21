@@ -1,4 +1,4 @@
-use agentsmesh_protocol::{encode_json_message, MsgType};
+use agentcloud_protocol::{encode_json_message, MsgType};
 use serde::Serialize;
 
 use crate::types::ControlLeaseInfo;

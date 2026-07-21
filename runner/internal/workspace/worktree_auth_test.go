@@ -152,20 +152,20 @@ func envValues(env []string) map[string]string {
 
 func probeGitHarnessUnix(executable string) string {
 	return fmt.Sprintf(`#!/bin/sh
-exec %s -test.run=TestGitProbeHelperProcess -- agentsmesh-git-probe-helper "$@"
+exec %s -test.run=TestGitProbeHelperProcess -- agentcloud-git-probe-helper "$@"
 `, shellSingleQuote(executable))
 }
 
 func probeGitHarnessWindows(executable string) string {
 	return fmt.Sprintf(`@echo off
-"%s" -test.run=TestGitProbeHelperProcess -- agentsmesh-git-probe-helper %%*
+"%s" -test.run=TestGitProbeHelperProcess -- agentcloud-git-probe-helper %%*
 exit /b %%ERRORLEVEL%%
 `, strings.ReplaceAll(executable, `"`, `""`))
 }
 
 func TestGitProbeHelperProcess(t *testing.T) {
 	args := testHelperArgs(os.Args)
-	if len(args) == 0 || args[0] != "agentsmesh-git-probe-helper" {
+	if len(args) == 0 || args[0] != "agentcloud-git-probe-helper" {
 		return
 	}
 	gitArgs := args[1:]

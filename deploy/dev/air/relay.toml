@@ -11,7 +11,7 @@ include_ext = ["go"]
 include_dir = ["relay"]
 exclude_dir = [
   "assets", "tmp", "vendor", "testdata", "node_modules",
-  "bazel-bin", "bazel-out", "bazel-testlogs", "bazel-agentsmesh",
+  "bazel-bin", "bazel-out", "bazel-testlogs", "bazel-agentcloud",
   "clients", "deploy", "docs", "e2e", "packages", "proto/gen/ts",
 ]
 delay = 800

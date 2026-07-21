@@ -1,10 +1,10 @@
-# AgentsMesh 产品调研笔记
+# Agent Cloud 产品调研笔记
 
 基于深度代码调研（backend domain + services + runner + clients/web/src），总结产品的**真正业务模型**。本文档是后续 IA、flow、页面设计的依据。
 
 ## 一句话定位
 
-AgentsMesh 是**分布式 AI Agent 工作力调度与协作平台**。用公司的类比：
+Agent Cloud 是**分布式 AI Agent 工作力调度与协作平台**。用公司的类比：
 - Organization = 公司
 - Runner = 办公场所（自托管）
 - Pod = 员工工位（带终端和工具）

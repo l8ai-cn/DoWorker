@@ -1,4 +1,4 @@
-use agentsmesh_protocol::{decode_message, MsgType};
+use agentcloud_protocol::{decode_message, MsgType};
 
 use crate::control_lease::{encode_acquire, encode_release, encode_renew};
 use crate::dispatch::{dispatch_message, DispatchAction};

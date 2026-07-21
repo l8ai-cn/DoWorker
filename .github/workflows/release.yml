@@ -76,17 +76,17 @@ jobs:
           mkdir -p release-staging
           sign_script="${GITHUB_WORKSPACE}/runner/build/scripts/sign-darwin.sh"
 
-          for arch in dist/runner-release/do-worker-runner_*.tar.gz \
-                     dist/runner-release/do-worker-runner_*.zip; do
+          for arch in dist/runner-release/agent-cloud-runner_*.tar.gz \
+                     dist/runner-release/agent-cloud-runner_*.zip; do
               base="$(basename "$arch")"
-              new_name="${base/do-worker-runner_/do-worker-runner_${version}_}"
+              new_name="${base/agent-cloud-runner_/agent-cloud-runner_${version}_}"
               dest="${GITHUB_WORKSPACE}/release-staging/${new_name}"
 
               if [[ "$base" == *darwin*.tar.gz ]]; then
                   tmp="$(mktemp -d)"
                   tar -xzf "$arch" -C "$tmp"
-                  (cd "$tmp" && "$sign_script" do-worker-runner)
-                  tar -C "$tmp" -czf "$dest" do-worker-runner README.md LICENSE
+                  (cd "$tmp" && "$sign_script" agent-cloud-runner)
+                  tar -C "$tmp" -czf "$dest" agent-cloud-runner README.md LICENSE
                   rm -rf "$tmp"
               else
                   cp "$arch" "$dest"
@@ -95,7 +95,7 @@ jobs:
 
           (
               cd release-staging
-              sha256sum do-worker-runner_*.tar.gz do-worker-runner_*.zip > checksums.txt
+              sha256sum agent-cloud-runner_*.tar.gz agent-cloud-runner_*.zip > checksums.txt
           )
           ls -la release-staging/
           cat release-staging/checksums.txt
@@ -106,20 +106,20 @@ jobs:
           version="${GITHUB_REF#refs/tags/v}"
           previous_tag="$(git describe --tags --abbrev=0 "${GITHUB_REF}^" 2>/dev/null || echo "")"
           {
-            echo "## Do Worker Runner v${version}"
+            echo "## Agent Cloud Runner v${version}"
             echo ""
-            echo "Do Worker Runner is an AI Agent task executor that connects to the Do Worker server and executes AI agent tasks in isolated terminal environments."
+            echo "Agent Cloud Runner is an AI Agent task executor that connects to the Agent Cloud server and executes AI agent tasks in isolated terminal environments."
             echo ""
             echo "### Quick Install"
             echo ""
             echo '**macOS / Linux (one-line):**'
             echo '```bash'
-            echo 'curl -fsSL https://agentsmesh.ai/install.sh | sh'
+            echo 'curl -fsSL https://agentcloud.ai/install.sh | sh'
             echo '```'
             echo ""
             echo '**Windows (PowerShell):**'
             echo '```powershell'
-            echo 'irm https://agentsmesh.ai/install.ps1 | iex'
+            echo 'irm https://agentcloud.ai/install.ps1 | iex'
             echo '```'
             echo ""
             if [[ -n "$previous_tag" ]]; then
@@ -155,7 +155,7 @@ jobs:
               prerelease_flag="--prerelease"
           fi
           gh release create "${GITHUB_REF#refs/tags/}" \
-              --title "Do Worker Runner v${version}" \
+              --title "Agent Cloud Runner v${version}" \
               --notes-file release-notes.md \
               $prerelease_flag \
               release-staging/*

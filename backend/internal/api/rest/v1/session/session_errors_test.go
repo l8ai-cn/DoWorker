@@ -7,9 +7,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	agentsessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
-	"github.com/anthropics/agentsmesh/backend/internal/service/airesource"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
+	agentsessionsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentsession"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
 )

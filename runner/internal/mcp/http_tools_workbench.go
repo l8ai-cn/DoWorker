@@ -66,7 +66,7 @@ func workbenchArtifactInputSchema() map[string]interface{} {
 				"properties": map[string]interface{}{
 					"schema_version": map[string]interface{}{
 						"type":  "string",
-						"const": "agentsmesh.agent-workbench.artifact/v1",
+						"const": "agentcloud.agent-workbench.artifact/v1",
 					},
 					"artifact_id": identifier,
 					"revision": map[string]interface{}{

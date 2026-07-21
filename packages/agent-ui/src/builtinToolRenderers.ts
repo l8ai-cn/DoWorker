@@ -7,7 +7,7 @@ export function createBuiltinToolRenderers() {
   const registry = new ToolRendererRegistry<AgentToolRendererRegistration>();
   registry.register(
     {
-      namespace: "agentsmesh.acp",
+      namespace: "agentcloud.acp",
       schemaVersion: "1",
       semanticKey: "filesystem.edit",
     },

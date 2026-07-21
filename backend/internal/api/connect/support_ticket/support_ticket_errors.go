@@ -6,8 +6,8 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	supportticketsvc "github.com/anthropics/agentsmesh/backend/internal/service/supportticket"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	supportticketsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/supportticket"
 )
 
 // userIDFromCtx extracts the authenticated user ID for this user-scoped

@@ -28,7 +28,7 @@ const SAMPLE_HTML = `<!DOCTYPE html>
 
 const MARKDOWN_SAMPLE = `## Media preview demo
 
-![sample image](https://picsum.photos/seed/agentsmesh/480/240)
+![sample image](https://picsum.photos/seed/agentcloud/480/240)
 
 https://www.youtube.com/watch?v=dQw4w9WgXcQ
 

@@ -3,9 +3,9 @@ import {
   UI_MODE_LABEL_KEY,
   UI_MODE_TERMINAL_VALUE,
   WRAPPER_LABEL_KEY,
-} from "@/lib/do-worker/session-labels";
+} from "@/lib/agent-cloud/session-labels";
 
-export { UI_MODE_LABEL_KEY, UI_MODE_TERMINAL_VALUE, WRAPPER_LABEL_KEY } from "@/lib/do-worker/session-labels";
+export { UI_MODE_LABEL_KEY, UI_MODE_TERMINAL_VALUE, WRAPPER_LABEL_KEY } from "@/lib/agent-cloud/session-labels";
 
 export type NativeCodingAgentIconKind =
   | "claude"

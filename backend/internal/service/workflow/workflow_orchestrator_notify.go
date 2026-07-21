@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	workflowDomain "github.com/anthropics/agentsmesh/backend/internal/domain/workflow"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
-	eventsv1 "github.com/anthropics/agentsmesh/proto/gen/go/events/v1"
+	workflowDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workflow"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/eventbus"
+	eventsv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/events/v1"
 )
 
 func (o *WorkflowOrchestrator) publishRunEvent(orgID int64, eventType eventbus.EventType, run *workflowDomain.WorkflowRun) {

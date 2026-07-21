@@ -20,11 +20,11 @@ func TestGetPath(t *testing.T) {
 	assert.NotEmpty(t, path)
 	assert.True(t, filepath.IsAbs(path))
 	assert.Equal(t, "runner.pid", filepath.Base(path))
-	assert.Equal(t, ".do-worker", filepath.Base(filepath.Dir(path)))
+	assert.Equal(t, ".agent-cloud", filepath.Base(filepath.Dir(path)))
 }
 
 func TestWriteAndRemove(t *testing.T) {
-	// Use a temp dir to avoid touching the real ~/.agentsmesh
+	// Use a temp dir to avoid touching the real ~/.agentcloud
 	tmpDir := t.TempDir()
 	pidPath := filepath.Join(tmpDir, "runner.pid")
 
@@ -89,7 +89,7 @@ func TestParsePIDFile_Corrupt_NonNumericPID(t *testing.T) {
 	tmpDir := t.TempDir()
 	pidPath := filepath.Join(tmpDir, "runner.pid")
 
-	err := os.WriteFile(pidPath, []byte("notapid agentsmesh-runner\n"), 0644)
+	err := os.WriteFile(pidPath, []byte("notapid agentcloud-runner\n"), 0644)
 	require.NoError(t, err)
 
 	pid, exec, err := parsePIDFile(pidPath)
@@ -106,13 +106,13 @@ func TestParsePIDFile_Valid(t *testing.T) {
 	tmpDir := t.TempDir()
 	pidPath := filepath.Join(tmpDir, "runner.pid")
 
-	err := os.WriteFile(pidPath, []byte("12345 agentsmesh-runner\n"), 0644)
+	err := os.WriteFile(pidPath, []byte("12345 agentcloud-runner\n"), 0644)
 	require.NoError(t, err)
 
 	pid, exec, err := parsePIDFile(pidPath)
 	assert.NoError(t, err)
 	assert.Equal(t, 12345, pid)
-	assert.Equal(t, "agentsmesh-runner", exec)
+	assert.Equal(t, "agentcloud-runner", exec)
 
 	// File should still exist
 	_, err = os.Stat(pidPath)
@@ -122,7 +122,7 @@ func TestParsePIDFile_Valid(t *testing.T) {
 func TestCleanupStaleProcess_NoPIDFile(t *testing.T) {
 	// Temporarily override GetPath by just testing that it returns nil
 	// when no PID file exists. This test relies on the real GetPath
-	// pointing to ~/.agentsmesh/runner.pid which shouldn't exist in CI.
+	// pointing to ~/.agentcloud/runner.pid which shouldn't exist in CI.
 	// For safety, we test parsePIDFile directly with a nonexistent path.
 	pid, _, err := parsePIDFile("/tmp/nonexistent-pidfile-test")
 	assert.NoError(t, err)
@@ -135,7 +135,7 @@ func TestCleanupStaleProcess_DeadProcess(t *testing.T) {
 
 	// Use a PID that almost certainly doesn't exist
 	deadPID := 4999999
-	err := os.WriteFile(pidPath, []byte(fmt.Sprintf("%d agentsmesh-runner\n", deadPID)), 0644)
+	err := os.WriteFile(pidPath, []byte(fmt.Sprintf("%d agentcloud-runner\n", deadPID)), 0644)
 	require.NoError(t, err)
 
 	// Verify the process doesn't exist
@@ -146,7 +146,7 @@ func TestCleanupStaleProcess_DeadProcess(t *testing.T) {
 	pid, exec, err := parsePIDFile(pidPath)
 	assert.NoError(t, err)
 	assert.Equal(t, deadPID, pid)
-	assert.Equal(t, "agentsmesh-runner", exec)
+	assert.Equal(t, "agentcloud-runner", exec)
 
 	// The actual CleanupStaleProcess uses GetPath() which we can't override,
 	// but we can verify the logic by checking that syscall.Kill(deadPID, 0) fails
@@ -160,7 +160,7 @@ func TestRemove_MismatchedPID(t *testing.T) {
 
 	// Write a PID file with a different PID (simulating another instance)
 	otherPID := os.Getpid() + 1000
-	content := fmt.Sprintf("%d agentsmesh-runner\n", otherPID)
+	content := fmt.Sprintf("%d agentcloud-runner\n", otherPID)
 	err := os.WriteFile(pidPath, []byte(content), 0644)
 	require.NoError(t, err)
 

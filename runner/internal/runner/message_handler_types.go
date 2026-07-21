@@ -3,12 +3,12 @@ package runner
 import (
 	"context"
 
-	"github.com/anthropics/agentsmesh/runner/internal/autopilot"
-	"github.com/anthropics/agentsmesh/runner/internal/client"
-	"github.com/anthropics/agentsmesh/runner/internal/config"
-	"github.com/anthropics/agentsmesh/runner/internal/monitor"
-	"github.com/anthropics/agentsmesh/runner/internal/poddaemon"
-	"github.com/anthropics/agentsmesh/runner/internal/updater"
+	"github.com/l8ai-cn/agentcloud/runner/internal/autopilot"
+	"github.com/l8ai-cn/agentcloud/runner/internal/client"
+	"github.com/l8ai-cn/agentcloud/runner/internal/config"
+	"github.com/l8ai-cn/agentcloud/runner/internal/monitor"
+	"github.com/l8ai-cn/agentcloud/runner/internal/poddaemon"
+	"github.com/l8ai-cn/agentcloud/runner/internal/updater"
 )
 
 // --- Role interfaces (ISP: split by consumer usage clusters) ---

@@ -163,8 +163,8 @@ export const useWorkspaceStore = create<WorkspaceState>()(
       setHasHydrated: (state) => { set({ _hasHydrated: state }); },
     }),
     {
-      name: "do-worker-workspace",
-      storage: legacyPersistStorage("agentsmesh-workspace"),
+      name: "agent-cloud-workspace",
+      storage: legacyPersistStorage("agentcloud-workspace"),
       version: 4,
       partialize: (state) => ({
         panes: state.panes,

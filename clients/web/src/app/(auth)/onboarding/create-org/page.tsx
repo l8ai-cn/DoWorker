@@ -20,7 +20,7 @@ export default function CreateOrgPage() {
   const [slugEdited, setSlugEdited] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [siteHost, setSiteHost] = useState("agentsmesh.dev");
+  const [siteHost, setSiteHost] = useState("agentcloud.dev");
 
   useEffect(() => {
     setSiteHost(window.location.host);

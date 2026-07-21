@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationresource"
 	"github.com/stretchr/testify/require"
 )
 
@@ -161,7 +161,7 @@ func TestPlanRejectsRawSecretsWithoutEchoingThem(t *testing.T) {
 	}{
 		{"manifest", func(plan *Plan) {
 			plan.CanonicalManifest = json.RawMessage(`{
-				"apiVersion":"agentsmesh.io/v1alpha1",
+				"apiVersion":"agentcloud.io/v1alpha1",
 				"kind":"WorkerTemplate",
 				"metadata":{"name":"worker-one","namespace":"team-alpha"},
 				"spec":{"apiToken":"` + secret + `"}

@@ -73,7 +73,7 @@ real Runner results for code, HTML, image editing, presentations, and video.
   `revision <= latest_sequence`, and revision/sequence are either both zero or
   both nonzero.
 - Embedded artifact downloads reject cross-origin URLs before reading the
-  embedded session token. Published plain mounts add the `.do-worker-app` scope
+  embedded session token. Published plain mounts add the `.agent-cloud-app` scope
   class and remove it on unmount.
 - Narrow workbenches do not mount result renderers until the user opens Results.
   Video viewers load only the active version plus its poster and rebuild the
@@ -123,7 +123,7 @@ real Runner results for code, HTML, image editing, presentations, and video.
 - Switching `playable` to `original` changed the browser's `currentSrc` and the
   replacement video also reached `readyState=4`.
 - Published `dist-embed` JS/CSS was loaded in a standalone QA host. The mount
-  root received `.do-worker-app`; a scoped `h-8` probe computed to 32 px.
+  root received `.agent-cloud-app`; a scoped `h-8` probe computed to 32 px.
 - The current `29970` iframe session produced no console errors or warnings.
 - Real Office session `conv_f10bd1f1fc3feec9` on Pod
   `1-standalone-d815761f` generated and LibreOffice-validated a 1-page DOCX, a

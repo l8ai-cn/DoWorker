@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/billing"
-	"github.com/anthropics/agentsmesh/backend/internal/service/payment"
-	"github.com/anthropics/agentsmesh/backend/internal/service/payment/types"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/billing"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/payment"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/payment/types"
 )
 
 func (j *SubscriptionRenewJob) executeAlipayAgreementPay(ctx context.Context, sub *billing.Subscription, order *billing.PaymentOrder) error {
@@ -29,7 +29,7 @@ func (j *SubscriptionRenewJob) executeAlipayAgreementPay(ctx context.Context, su
 		OrderNo:        order.OrderNo,
 		Amount:         order.ActualAmount,
 		Currency:       order.Currency,
-		Description:    fmt.Sprintf("Do Worker Subscription Renewal - %s", sub.BillingCycle),
+		Description:    fmt.Sprintf("Agent Cloud Subscription Renewal - %s", sub.BillingCycle),
 		IdempotencyKey: order.OrderNo,
 	})
 	if err != nil {
@@ -76,7 +76,7 @@ func (j *SubscriptionRenewJob) executeWeChatAgreementPay(ctx context.Context, su
 		OrderNo:        order.OrderNo,
 		Amount:         order.ActualAmount,
 		Currency:       order.Currency,
-		Description:    fmt.Sprintf("Do Worker Subscription Renewal - %s", sub.BillingCycle),
+		Description:    fmt.Sprintf("Agent Cloud Subscription Renewal - %s", sub.BillingCycle),
 		IdempotencyKey: order.OrderNo,
 	})
 	if err != nil {

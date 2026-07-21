@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	ticketservice "github.com/anthropics/agentsmesh/backend/internal/service/ticket"
-	ticketrelationsv1 "github.com/anthropics/agentsmesh/proto/gen/go/ticket_relations/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	ticketservice "github.com/l8ai-cn/agentcloud/backend/internal/service/ticket"
+	ticketrelationsv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/ticket_relations/v1"
 )
 
 // fakeOrg and fakeOrgService mirror the repository connect test helpers —

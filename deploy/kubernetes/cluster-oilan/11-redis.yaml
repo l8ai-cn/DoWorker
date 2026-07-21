@@ -2,7 +2,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: redis-data
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   accessModes: ["ReadWriteOnce"]
   storageClassName: local-path
@@ -14,7 +14,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: redis
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   replicas: 1
   strategy:
@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
         - name: redis
-          image: repo.aiedulab.cn:8443/agentsmesh/redis:7-alpine
+          image: repo.aiedulab.cn:8443/agentcloud/redis:7-alpine
           imagePullPolicy: Always
           args: ["redis-server", "--appendonly", "yes"]
           ports:
@@ -53,13 +53,13 @@ spec:
           persistentVolumeClaim:
             claimName: redis-data
       imagePullSecrets:
-        - name: agentsmesh-regcred
+        - name: agentcloud-regcred
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: redis
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   selector:
     app: redis

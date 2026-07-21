@@ -37,7 +37,7 @@ if env \
   DOOPS_LOG="$LOG" \
   DOOPS_SESSION="ses-contract" \
   DOOPS_TARGET="contract-target" \
-  DOSQL_RELEASE_DB_TARGET="db_agentsmesh_prod_postgres" \
+  DOSQL_RELEASE_DB_TARGET="db_agentcloud_prod_postgres" \
   DOSQL_RELEASE_DB_MODE="production" \
   DOSQL_RELEASE_DB_SESSION="dosql-contract" \
   DOSQL_RELEASE_MIGRATION_VERSION="$(find "$ROOT/../../../backend/migrations" -name '*.up.sql' -exec basename {} \; | awk -F_ '{ print $1 }' | sort -n | tail -1)" \
@@ -77,13 +77,13 @@ line_number() {
 
 require_command 'kubectl apply -f 02-configmap.yaml'
 require_command 'kubectl apply -f 30-backend.yaml'
-require_command 'kubectl -n agentsmesh rollout status deploy/backend --timeout=240s'
-require_command 'kubectl -n agentsmesh exec deploy/backend -- /app/worker-definition-sync'
+require_command 'kubectl -n agentcloud rollout status deploy/backend --timeout=240s'
+require_command 'kubectl -n agentcloud exec deploy/backend -- /app/worker-definition-sync'
 require_command 'kubectl apply -f 31-relay.yaml -f 42-mobile.yaml -f 43-mobile-ingress.yaml'
 
 config_line="$(line_number 'kubectl apply -f 02-configmap.yaml')"
 backend_line="$(line_number 'kubectl apply -f 30-backend.yaml')"
-sync_line="$(line_number 'kubectl -n agentsmesh exec deploy/backend -- /app/worker-definition-sync')"
+sync_line="$(line_number 'kubectl -n agentcloud exec deploy/backend -- /app/worker-definition-sync')"
 workload_line="$(line_number 'kubectl apply -f 31-relay.yaml -f 42-mobile.yaml -f 43-mobile-ingress.yaml')"
 
 (( config_line < backend_line && backend_line < sync_line && sync_line < workload_line )) || {

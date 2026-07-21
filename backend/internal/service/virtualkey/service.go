@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/virtualkey"
-	airesourcesvc "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/virtualkey"
+	airesourcesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
 )
 
 var (

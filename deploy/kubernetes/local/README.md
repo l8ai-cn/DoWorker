@@ -16,7 +16,7 @@ This will:
 - Start docker infra only (postgres, traefik, …) — **no** compose runner containers
 - Build runner images locally via `docker compose build` (same images as compose mode)
 - Generate `deploy/dev/runtime/runners-k8s/manifest.yaml` from `.env` ports + dev SSL/SSH
-- `kubectl apply` the configured runner Deployments into namespace `agentsmesh`
+- `kubectl apply` the configured runner Deployments into namespace `agentcloud`
 
 ## Files
 
@@ -31,10 +31,10 @@ This will:
 ## Operations
 
 ```bash
-kubectl get pods -n agentsmesh
-kubectl logs -n agentsmesh deployment/runner-e2e-echo -f
+kubectl get pods -n agentcloud
+kubectl logs -n agentcloud deployment/runner-e2e-echo -f
 ./deploy/dev/dev.sh --reset-runners   # hot-swap rebuilt binary into K8s pods
-./deploy/dev/dev.sh --clean           # deletes namespace agentsmesh
+./deploy/dev/dev.sh --clean           # deletes namespace agentcloud
 ```
 
 Runners reach host backend/traefik via `host.docker.internal:<HTTP_PORT>` (worktree-aware).

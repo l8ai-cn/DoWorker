@@ -3,7 +3,7 @@ package workbench
 import (
 	"strings"
 
-	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
+	agentworkbenchv2 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2"
 )
 
 type toolDescriptor struct {
@@ -39,9 +39,9 @@ func resolveToolIdentity(
 	if !ok {
 		return nil, "", false
 	}
-	namespace := "agentsmesh." + sourceProtocol
+	namespace := "agentcloud." + sourceProtocol
 	if toolName == "workbench.publish_artifact" {
-		namespace = "agentsmesh.runner"
+		namespace = "agentcloud.runner"
 	}
 	return &agentworkbenchv2.ToolIdentity{
 		Namespace:      namespace,

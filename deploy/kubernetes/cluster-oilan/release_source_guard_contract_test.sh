@@ -71,7 +71,7 @@ mkdir -p "${TMP}/repo/deploy/kubernetes/cluster-oilan/release"
   printf '%s\n' 'images:'
   for image in $(release_platform_images); do
     printf '%s\n' \
-      "  - name: repo.aiedulab.cn:8443/agentsmesh/${image}" \
+      "  - name: repo.aiedulab.cn:8443/agentcloud/${image}" \
       '    digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
   done
 } > "${TMP}/repo/deploy/kubernetes/cluster-oilan/release/kustomization.yaml"
@@ -81,7 +81,7 @@ mkdir -p \
 cat > "${TMP}/repo/docker/agent-runtime/do-agent-release.json" <<'JSON'
 {
   "image": {
-    "repository": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent",
+    "repository": "repo.aiedulab.cn:8443/agentcloud/runner-do-agent",
     "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
   }
 }
@@ -91,7 +91,7 @@ cat > "${TMP}/repo/backend/internal/domain/workerruntime/runtime_catalog.lock.js
   "images": [
     {
       "slug": "video-studio-stable",
-      "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "reference": "repo.aiedulab.cn:8443/agentcloud/runner-video-studio@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
       "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
       "enabled": true
     }

@@ -9,11 +9,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/runner/internal/fsutil"
+	"github.com/l8ai-cn/agentcloud/runner/internal/fsutil"
 )
 
 func writeKnowledgeMountKey(sandboxRoot, privateKey, knownHosts string) (string, error) {
-	file, err := os.CreateTemp(sandboxRoot, ".agentsmesh-kb-key-*")
+	file, err := os.CreateTemp(sandboxRoot, ".agentcloud-kb-key-*")
 	if err != nil {
 		return "", fmt.Errorf("failed to create temporary SSH key: %w", err)
 	}

@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 
-	domainworkbench "github.com/anthropics/agentsmesh/backend/internal/domain/agentworkbench"
-	sessionfilesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionfile"
-	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
+	domainworkbench "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentworkbench"
+	sessionfilesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/sessionfile"
+	agentworkbenchv2 "github.com/l8ai-cn/agentcloud/proto/gen/go/agent_workbench/v2"
 )
 
 type ArtifactMaterialization struct {

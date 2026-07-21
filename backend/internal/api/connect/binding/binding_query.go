@@ -6,9 +6,9 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	bindingservice "github.com/anthropics/agentsmesh/backend/internal/service/binding"
-	bindingv1 "github.com/anthropics/agentsmesh/proto/gen/go/binding/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	bindingservice "github.com/l8ai-cn/agentcloud/backend/internal/service/binding"
+	bindingv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/binding/v1"
 )
 
 // Read-only RPCs: ListBindings, GetPendingBindings, GetBoundPods,

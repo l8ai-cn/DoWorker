@@ -1,10 +1,10 @@
 package billingconnect
 
 import (
-	billingdomain "github.com/anthropics/agentsmesh/backend/internal/domain/billing"
-	billingsvc "github.com/anthropics/agentsmesh/backend/internal/service/billing"
-	"github.com/anthropics/agentsmesh/backend/pkg/protoconv"
-	billingv1 "github.com/anthropics/agentsmesh/proto/gen/go/billing/v1"
+	billingdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/billing"
+	billingsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/billing"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/protoconv"
+	billingv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/billing/v1"
 )
 
 // toProtoPlan mirrors backend/internal/domain/billing/plan.go onto the wire.

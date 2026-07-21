@@ -7,9 +7,9 @@ import (
 	"log/slog"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/sso"
-	ssoprovider "github.com/anthropics/agentsmesh/backend/pkg/auth/sso"
-	"github.com/anthropics/agentsmesh/backend/pkg/crypto"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/sso"
+	ssoprovider "github.com/l8ai-cn/agentcloud/backend/pkg/auth/sso"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/crypto"
 )
 
 func (s *Service) buildProvider(ctx context.Context, cfg *sso.Config) (ssoprovider.Provider, error) {

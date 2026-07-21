@@ -1,6 +1,6 @@
 package main
 
-import workerplanner "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationworker"
+import workerplanner "github.com/l8ai-cn/agentcloud/backend/internal/service/orchestrationworker"
 
 type workerDispatchQueue interface {
 	TriggerDrain(int64)

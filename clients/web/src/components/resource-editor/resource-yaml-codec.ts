@@ -126,7 +126,7 @@ function assertResourceDraft(
   expectedKind: ResourceEditorKind,
 ): ResourceDraft {
   if (!isRecord(value) ||
-      value.apiVersion !== "agentsmesh.io/v1alpha1" ||
+      value.apiVersion !== "agentcloud.io/v1alpha1" ||
       value.kind !== expectedKind ||
       !isRecord(value.metadata) ||
       !isRecord(value.spec)) {

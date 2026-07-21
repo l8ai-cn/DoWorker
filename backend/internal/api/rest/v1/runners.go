@@ -1,9 +1,9 @@
 package v1
 
 import (
-	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	grantservice "github.com/anthropics/agentsmesh/backend/internal/service/grant"
-	runner "github.com/anthropics/agentsmesh/backend/internal/service/runner"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
+	grantservice "github.com/l8ai-cn/agentcloud/backend/internal/service/grant"
+	runner "github.com/l8ai-cn/agentcloud/backend/internal/service/runner"
 )
 
 // RunnerHandler handles runner-related requests.

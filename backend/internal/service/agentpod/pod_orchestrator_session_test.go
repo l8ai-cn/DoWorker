@@ -5,9 +5,9 @@ import (
 	"errors"
 	"testing"
 
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	sessionDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	podDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	sessionDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentsession"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 	"github.com/stretchr/testify/require"
 )
 

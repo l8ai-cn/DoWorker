@@ -4,11 +4,11 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/anthropics/agentsmesh/agentfile/capability"
-	"github.com/anthropics/agentsmesh/backend/internal/service/agent"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	"github.com/l8ai-cn/agentcloud/agentfile/capability"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/agent"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	podDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
 )
 
 func (o *PodOrchestrator) buildPodCommand(
@@ -159,7 +159,7 @@ func (o *PodOrchestrator) buildPodCommand(
 		if cmd.EnvVars == nil {
 			cmd.EnvVars = map[string]string{}
 		}
-		cmd.EnvVars["AGENTSMESH_RESUME_EXTERNAL_SESSION"] = extID
+		cmd.EnvVars["AGENTCLOUD_RESUME_EXTERNAL_SESSION"] = extID
 	}
 	return cmd, nil
 }

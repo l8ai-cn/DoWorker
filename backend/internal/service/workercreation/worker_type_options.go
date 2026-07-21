@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"os"
 
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 func (service *Service) listWorkerTypeOptions(
@@ -21,7 +21,7 @@ func (service *Service) listWorkerTypeOptions(
 		return nil, err
 	}
 	options := make([]WorkerTypeOption, 0, len(agents))
-	includeInternal := os.Getenv("AGENTSMESH_INCLUDE_INTERNAL_AGENTS") == "true"
+	includeInternal := os.Getenv("AGENTCLOUD_INCLUDE_INTERNAL_AGENTS") == "true"
 	for _, agent := range agents {
 		if agent == nil || !agent.IsActive ||
 			(agent.IsInternal && !includeInternal) ||

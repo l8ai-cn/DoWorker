@@ -117,7 +117,7 @@ test.describe("Resource-native orchestration editor", () => {
 
     await editor.getByRole("tab", { name: "YAML" }).click();
     await editor.getByTestId("resource-yaml-editor").fill([
-      "apiVersion: agentsmesh.io/v1alpha1",
+      "apiVersion: agentcloud.io/v1alpha1",
       "kind: Prompt",
       "metadata:",
       `  name: ${promptName}`,
@@ -302,7 +302,7 @@ async function fulfillPlan(
     operation: ResourceOperation.CREATE,
     ...(input.planId ? {
       canonicalJson: new TextEncoder().encode(JSON.stringify({
-        apiVersion: "agentsmesh.io/v1alpha1",
+        apiVersion: "agentcloud.io/v1alpha1",
         kind: "Prompt",
         metadata: {
           name: input.resourceName ?? promptName,

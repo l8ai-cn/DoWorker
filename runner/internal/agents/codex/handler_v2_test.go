@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/runner/internal/acp"
+	"github.com/l8ai-cn/agentcloud/runner/internal/acp"
 )
 
 func TestHandler_ItemCompleted_AgentMessageContentArray(t *testing.T) {

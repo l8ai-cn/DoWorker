@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/relay/internal/auth"
+	"github.com/l8ai-cn/agentcloud/relay/internal/auth"
 )
 
 // TestPreviewE2E_VideoRange verifies Range requests (and their 206 responses,

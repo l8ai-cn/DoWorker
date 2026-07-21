@@ -34,11 +34,11 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/infra/database"
-	adminservice "github.com/anthropics/agentsmesh/backend/internal/service/admin"
-	agentservice "github.com/anthropics/agentsmesh/backend/internal/service/agent"
-	expertsvc "github.com/anthropics/agentsmesh/backend/internal/service/expert"
-	"github.com/anthropics/agentsmesh/backend/internal/service/relay"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/database"
+	adminservice "github.com/l8ai-cn/agentcloud/backend/internal/service/admin"
+	agentservice "github.com/l8ai-cn/agentcloud/backend/internal/service/agent"
+	expertsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/expert"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/relay"
 )
 
 // Server implements proto.admin.v1.AdminService (dashboard + user +

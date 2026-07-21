@@ -15,8 +15,8 @@
 package ticketrelationsconnect
 
 import (
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	ticketservice "github.com/anthropics/agentsmesh/backend/internal/service/ticket"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	ticketservice "github.com/l8ai-cn/agentcloud/backend/internal/service/ticket"
 )
 
 // ServiceName mirrors proto.ticket_relations.v1.TicketRelationsService exactly

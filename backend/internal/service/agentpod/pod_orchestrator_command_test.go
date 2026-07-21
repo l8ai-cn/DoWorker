@@ -7,14 +7,14 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/ticket"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/user"
-	userService "github.com/anthropics/agentsmesh/backend/internal/service/user"
-	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	agentDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agent"
+	podDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/gitprovider"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/ticket"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/user"
+	userService "github.com/l8ai-cn/agentcloud/backend/internal/service/user"
+	workercreation "github.com/l8ai-cn/agentcloud/backend/internal/service/workercreation"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 // ==================== buildPodCommand Tests ====================

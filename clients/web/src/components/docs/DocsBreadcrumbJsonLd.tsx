@@ -13,7 +13,7 @@ export function DocsBreadcrumbJsonLd({
     "@type": "ListItem" as const,
     position: index + 1,
     name: labels[index],
-    ...(crumb.href ? { item: `https://agentsmesh.ai${crumb.href}` } : {}),
+    ...(crumb.href ? { item: `https://agentcloud.ai${crumb.href}` } : {}),
   }));
 
   return (

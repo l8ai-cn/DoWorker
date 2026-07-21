@@ -9,8 +9,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	fileservice "github.com/anthropics/agentsmesh/backend/internal/service/file"
-	filev1 "github.com/anthropics/agentsmesh/proto/gen/go/file/v1"
+	fileservice "github.com/l8ai-cn/agentcloud/backend/internal/service/file"
+	filev1 "github.com/l8ai-cn/agentcloud/proto/gen/go/file/v1"
 )
 
 func connectCodeOf(t *testing.T, err error) connect.Code {

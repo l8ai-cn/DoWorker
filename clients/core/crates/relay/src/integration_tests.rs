@@ -7,7 +7,7 @@ use std::sync::atomic::Ordering::SeqCst;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
-use agentsmesh_protocol::MsgType;
+use agentcloud_protocol::MsgType;
 
 use crate::pool::RelayConnectionPool;
 use crate::test_support::{

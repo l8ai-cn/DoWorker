@@ -5,7 +5,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/runner/internal/relay"
+	"github.com/l8ai-cn/agentcloud/runner/internal/relay"
 )
 
 // mockPodIO records calls to SendInput, RespondToPermission, CancelSession, and new control methods.

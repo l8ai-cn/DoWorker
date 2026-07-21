@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 
-	skilldomain "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
-	workerspecdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	workerspec "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
+	skilldomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/skill"
+	workerspecdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	workerspec "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
 )
 
 func (service *Service) PrepareMarketSnapshot(

@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
-	"github.com/anthropics/agentsmesh/runner/internal/config"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
+	"github.com/l8ai-cn/agentcloud/runner/internal/config"
 )
 
 const maxSandboxFsReadBytes = 8 << 20

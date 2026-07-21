@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   && rm -rf /var/lib/apt/lists/*
 COPY proto/ proto/
 COPY clients/core/ clients/core/
-COPY packages/do-worker-wasm/ packages/do-worker-wasm/
+COPY packages/agent-cloud-wasm/ packages/agent-cloud-wasm/
 COPY scripts/build-wasm.sh scripts/seed-rust-proto-stubs.sh scripts/
 RUN bash scripts/build-wasm.sh
 
@@ -36,7 +36,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/ packages/
 COPY proto/ proto/
 COPY clients/web/ clients/web/
-COPY --from=wasm /src/packages/do-worker-wasm packages/do-worker-wasm
+COPY --from=wasm /src/packages/agent-cloud-wasm packages/agent-cloud-wasm
 RUN pnpm config set registry https://registry.npmmirror.com \
   && pnpm install --frozen-lockfile
 ENV STANDALONE=1

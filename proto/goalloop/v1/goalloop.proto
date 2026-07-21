@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package proto.goalloop.v1;
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/goalloop/v1;goalloopv1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/goalloop/v1;goalloopv1";
 
 service GoalLoopService {
   rpc ListWorkerSnapshots(ListWorkerSnapshotsRequest) returns (ListWorkerSnapshotsResponse);

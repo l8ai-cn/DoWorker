@@ -9,7 +9,7 @@ import (
 	"github.com/lib/pq"
 	"gorm.io/gorm"
 
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 var (

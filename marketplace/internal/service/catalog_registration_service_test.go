@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/marketplace/internal/domain/catalog"
+	"github.com/l8ai-cn/agentcloud/marketplace/internal/domain/catalog"
 	"github.com/stretchr/testify/require"
 )
 

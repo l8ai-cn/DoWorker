@@ -33,7 +33,7 @@ delivery.
 
 ## Current-state findings
 
-`clients/mobile-lovable` is the `@do-worker/mobile` workspace package. It has a
+`clients/mobile-lovable` is the `@agent-cloud/mobile` workspace package. It has a
 dedicated image, OILAN Deployment, Service, ingress, CI validation, and local
 host-service support. It retains Session REST/SSE for session-centric work and
 adds direct Worker routes for mobile QR/canonical links.
@@ -55,7 +55,7 @@ flowchart LR
   Mobile --> Sessions["Session REST + SSE"]
   Mobile --> Conn["GetPodConnection"]
   Conn --> Backend["Backend authorization and subscription"]
-  Mobile --> Wasm["do-worker-wasm: WasmRelayManager"]
+  Mobile --> Wasm["agent-cloud-wasm: WasmRelayManager"]
   Wasm --> Relay["Relay browser WebSocket"]
   Backend --> Runner["Runner control stream"]
   Relay --> Runner
@@ -127,8 +127,8 @@ an executable state, not a cosmetic tab state.
 
 ## Frontend implementation
 
-1. Formalize `clients/mobile-lovable` as `@do-worker/mobile` in the pnpm
-   workspace and add `do-worker-wasm` as a workspace dependency.
+1. Formalize `clients/mobile-lovable` as `@agent-cloud/mobile` in the pnpm
+   workspace and add `agent-cloud-wasm` as a workspace dependency.
 2. Add a mobile Relay adapter around `WasmRelayManager`. It accepts direct Pod
    connection information, exposes ACP events or terminal output/status, and
    owns subscribe/unsubscribe.

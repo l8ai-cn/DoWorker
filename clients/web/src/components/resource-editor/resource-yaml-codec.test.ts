@@ -48,7 +48,7 @@ describe("resource YAML codec", () => {
 
   it("rejects duplicate keys without echoing their values", () => {
     const source = [
-      "apiVersion: agentsmesh.io/v1alpha1",
+      "apiVersion: agentcloud.io/v1alpha1",
       "kind: WorkerTemplate",
       "metadata:",
       "  name: reviewer",
@@ -80,7 +80,7 @@ describe("resource YAML codec", () => {
 
   it("rejects integers that JavaScript cannot represent exactly", () => {
     const source = [
-      "apiVersion: agentsmesh.io/v1alpha1",
+      "apiVersion: agentcloud.io/v1alpha1",
       "kind: GoalLoop",
       "metadata:",
       "  name: release-loop",

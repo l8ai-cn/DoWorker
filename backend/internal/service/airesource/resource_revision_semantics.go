@@ -1,6 +1,6 @@
 package airesource
 
-import domain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
+import domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
 
 func resourceRuntimeChanged(current, candidate *domain.ModelResource) bool {
 	return current.ModelID != candidate.ModelID ||

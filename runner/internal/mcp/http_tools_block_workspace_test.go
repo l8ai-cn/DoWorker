@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/anthropics/agentsmesh/runner/internal/mcp/tools"
+	"github.com/l8ai-cn/agentcloud/runner/internal/mcp/tools"
 )
 
 // Workspace discovery tools — verify the registration shape and that handlers

@@ -1,13 +1,13 @@
-import { PermissionDecision } from "@do-worker/proto/agent_workbench/v2/command_pb";
-import type { PermissionRequest } from "@do-worker/proto/agent_workbench/v2/session_pb";
-import { ToolPhase } from "@do-worker/proto/agent_workbench/v2/tool_pb";
+import { PermissionDecision } from "@agent-cloud/proto/agent_workbench/v2/command_pb";
+import type { PermissionRequest } from "@agent-cloud/proto/agent_workbench/v2/session_pb";
+import { ToolPhase } from "@agent-cloud/proto/agent_workbench/v2/tool_pb";
 import {
   PermissionRequestState,
   PlanStepStatus,
   SessionResourceStatus,
   SessionStatus,
   TimelineItemStatus,
-} from "@do-worker/proto/agent_workbench/v2/session_state_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/session_state_pb";
 
 import type {
   AgentActivityItem,

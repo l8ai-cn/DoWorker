@@ -29,7 +29,7 @@ export function AuthShell({ title, subtitle, children, footer }: AuthShellProps)
               <Logo />
             </div>
             <span className="font-headline text-2xl font-semibold tracking-normal text-foreground">
-              Do Worker
+              Agent Cloud
             </span>
           </Link>
         </div>

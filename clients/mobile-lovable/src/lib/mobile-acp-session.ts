@@ -1,5 +1,5 @@
 import { create, toBinary } from "@bufbuild/protobuf";
-import { AddPermissionRequestRequestSchema } from "@do-worker/proto/acp_state/v1/acp_state_pb";
+import { AddPermissionRequestRequestSchema } from "@agent-cloud/proto/acp_state/v1/acp_state_pb";
 
 export type MobileAcpManager = {
   add_content_chunk(podKey: string, text: string, role: string): void;

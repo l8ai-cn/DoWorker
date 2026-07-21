@@ -4,9 +4,9 @@ import (
 	"errors"
 	"time"
 
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	podDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 	"google.golang.org/protobuf/proto"
 )
 

@@ -1,10 +1,10 @@
-# AgentsMesh on doops-oilan
+# Agent Cloud on doops-oilan
 
 Deploys the full platform (backend, Marketplace API, Marketplace Storefront,
 relay, web, web-admin, mobile + Postgres/Redis/MinIO)
 to the single-node `doops-oilan` k3s cluster (`gpu-ampere01`, amd64) via DoOps,
 with all images served from the in-cluster Harbor
-(`repo.aiedulab.cn:8443/agentsmesh/*`, node-local so pulls are effectively free).
+(`repo.aiedulab.cn:8443/agentcloud/*`, node-local so pulls are effectively free).
 
 ## Worker model
 
@@ -22,7 +22,7 @@ pods**:
   first connect (the backend does not trust-on-first-use unknown node_ids).
 
 Runners authenticate to the backend over gRPC/mTLS using certs derived from a shared
-CA (`agentsmesh-pki-ca` secret, mounted at `/app/ssl`). The runner's TLS verification
+CA (`agentcloud-pki-ca` secret, mounted at `/app/ssl`). The runner's TLS verification
 is chain-only, so in-cluster runners dial `backend:9090` directly.
 
 Because Harbor is node-local, runner + backend-launcher image pull policy is `Always`
@@ -123,7 +123,7 @@ closed when the Backend does not expose Codex ACP/PTY mode metadata or exactly
 one default model resource:
 
 ```bash
-MOBILE_SMOKE_USERNAME=admin@agentsmesh.local \
+MOBILE_SMOKE_USERNAME=admin@agentcloud.local \
 MOBILE_SMOKE_PASSWORD='...' \
 ./verify-mobile-worker-access.sh
 ```
@@ -144,11 +144,11 @@ Each run is a **full reconcile**, not a DB-only reset:
    `DOSQL_RELEASE_DB_TARGET`, `DOSQL_RELEASE_DB_MODE`,
    `DOSQL_RELEASE_DB_SESSION`, `DOSQL_RELEASE_CHANGE_ID`, and
    `DOSQL_RELEASE_OPERATION_ID`. It verifies the canonical
-   `db_agentsmesh_prod_postgres` target identity, the change-specific
+   `db_agentcloud_prod_postgres` target identity, the change-specific
    hash-chained journal, the immutable evidence fingerprint, and the latest
    schema version. The deploy path never runs DDL/DML, creates a migration Job,
    or queries PostgreSQL directly.
-4. **`kubectl apply -f /tmp/agentsmesh-release.yaml`** — after the audited
+4. **`kubectl apply -f /tmp/agentcloud-release.yaml`** — after the audited
    database gate, re-apply every Deployment/ConfigMap/Ingress from git.
    Live hotfixes (`kubectl set env …`) are **overwritten** on the next deploy.
 5. **Storage and catalog jobs** — ensure the MinIO bucket and its one-day
@@ -160,17 +160,17 @@ The executable GitOps rollback procedure is in [`ROLLBACK.md`](ROLLBACK.md).
 change; normal deploy does not execute it.
 
 > The runner Go binary resolves its config dir via `config.UserConfigDir()`
-> (`~/.do-worker`, legacy `~/.agentsmesh`); older runner images that hardcoded
-> `~/.agentsmesh` fail with `Runner not registered` in a fresh container.
+> (`~/.agent-cloud`, legacy `~/.agentcloud`); older runner images that hardcoded
+> `~/.agentcloud` fail with `Runner not registered` in a fresh container.
 
 ## Endpoints
 
 Public hostnames, DNS, wildcard preview, and ingress notes are in
 [`ENDPOINTS.md`](ENDPOINTS.md).
 
-TLS cert secret `l8ai-wildcard-tls` must exist in `agentsmesh`. On the first
+TLS cert secret `l8ai-wildcard-tls` must exist in `agentcloud`. On the first
 deployment, `deploy.sh` copies it from `default`; later deployments keep and
-validate the existing `agentsmesh` Secret.
+validate the existing `agentcloud` Secret.
 
 ## Layout
 
@@ -189,6 +189,6 @@ validate the existing `agentsmesh` Secret.
 | `44-preview-ingress` | isolated HTTPS pod preview gateway |
 | `60-prepull-daemonset` | warm agent-runtime image cache |
 
-Secrets (`agentsmesh-secrets`, `agentsmesh-pki-ca`, `agentsmesh-regcred`) are
+Secrets (`agentcloud-secrets`, `agentcloud-pki-ca`, `agentcloud-regcred`) are
 applied by `deploy.sh`, not kustomize. Existing values are read from the cluster
 for each release; generated `_gen/` material is removed locally on every exit.

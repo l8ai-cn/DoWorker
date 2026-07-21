@@ -52,7 +52,7 @@ function KanbanBoard({ tickets }: { tickets: KanbanTicket[] }) {
           </div>
           <span className="text-xs font-semibold text-foreground ml-2">Kanban Board</span>
         </div>
-        <span className="text-[10px] px-2 py-0.5 bg-primary/20 text-primary rounded">Do Worker</span>
+        <span className="text-[10px] px-2 py-0.5 bg-primary/20 text-primary rounded">Agent Cloud</span>
       </div>
 
       {/* Columns */}

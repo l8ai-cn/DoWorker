@@ -14,7 +14,7 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	"github.com/anthropics/agentsmesh/runner/internal/tunnelframe"
+	"github.com/l8ai-cn/agentcloud/runner/internal/tunnelframe"
 )
 
 // fakeFrameSink collects RESP_*/WS_* frames emitted by serveLocalHTTP /

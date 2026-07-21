@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	podDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 	"github.com/gin-gonic/gin"
 )
 

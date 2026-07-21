@@ -23,7 +23,7 @@ syntax = "proto3";
 
 package proto.billing.v1;
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/billing/v1;billingv1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/billing/v1;billingv1";
 
 // ===========================================
 // Authenticated, org-scoped service

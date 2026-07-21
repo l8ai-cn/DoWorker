@@ -23,9 +23,9 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/infra/database"
-	adminservice "github.com/anthropics/agentsmesh/backend/internal/service/admin"
-	billingservice "github.com/anthropics/agentsmesh/backend/internal/service/billing"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/database"
+	adminservice "github.com/l8ai-cn/agentcloud/backend/internal/service/admin"
+	billingservice "github.com/l8ai-cn/agentcloud/backend/internal/service/billing"
 )
 
 const ServiceName = "proto.billing.v1.SubscriptionAdminService"

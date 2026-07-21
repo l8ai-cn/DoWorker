@@ -14,8 +14,8 @@ func TestConfigDefaults(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if cfg.ServerURL != "https://agentsmesh.ai" {
-		t.Errorf("ServerURL: got %v, want https://agentsmesh.ai", cfg.ServerURL)
+	if cfg.ServerURL != "https://agentcloud.ai" {
+		t.Errorf("ServerURL: got %v, want https://agentcloud.ai", cfg.ServerURL)
 	}
 
 	if cfg.MaxConcurrentPods != 5 {
@@ -100,9 +100,9 @@ resource_host_aliases:
 
 func TestConfigFromEnvironment(t *testing.T) {
 	// Set environment variables
-	os.Setenv("AGENTSMESH_SERVER_URL", "https://env.example.com")
+	os.Setenv("AGENTCLOUD_SERVER_URL", "https://env.example.com")
 	defer func() {
-		os.Unsetenv("AGENTSMESH_SERVER_URL")
+		os.Unsetenv("AGENTCLOUD_SERVER_URL")
 	}()
 
 	cfg, err := Load("")

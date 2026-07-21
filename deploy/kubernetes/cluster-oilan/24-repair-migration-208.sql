@@ -1,7 +1,7 @@
 \set ON_ERROR_STOP on
 
 BEGIN;
-SELECT pg_advisory_xact_lock(hashtext('agentsmesh-schema-migration-208-repair'));
+SELECT pg_advisory_xact_lock(hashtext('agentcloud-schema-migration-208-repair'));
 \ir repair-preconditions.sql
 
 SELECT NOT EXISTS (

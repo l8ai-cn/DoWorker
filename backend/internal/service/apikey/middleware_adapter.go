@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
 )
 
 var _ middleware.APIKeyValidator = (*MiddlewareAdapter)(nil)

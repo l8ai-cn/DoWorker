@@ -5,7 +5,7 @@ import {
   CommandReceiptSchema,
   CommandReceiptState,
   type CommandReceipt,
-} from "@do-worker/proto/agent_workbench/v2/command_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/command_pb";
 import { AgentSessionReductionError } from "./agentSessionState";
 
 const allowedTransitions = new Map<CommandReceiptState, ReadonlySet<CommandReceiptState>>([

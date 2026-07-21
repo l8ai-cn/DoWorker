@@ -5,10 +5,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/anthropics/agentsmesh/runner/internal/agentkit"
-	"github.com/anthropics/agentsmesh/runner/internal/agents/codex"
-	"github.com/anthropics/agentsmesh/runner/internal/agents/openclaw"
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/agentkit"
+	"github.com/l8ai-cn/agentcloud/runner/internal/agents/codex"
+	"github.com/l8ai-cn/agentcloud/runner/internal/agents/openclaw"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
 )
 
 // prepareAgentHome copies the user's agent config directory to a per-pod

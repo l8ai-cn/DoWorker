@@ -1,14 +1,14 @@
 #!/bin/bash
 # =============================================================================
-# AgentsMesh Self-Hosted Deployment Script
+# Agent Cloud Self-Hosted Deployment Script
 # =============================================================================
 #
-# One-command setup for self-hosted AgentsMesh using Docker Hub images.
+# One-command setup for self-hosted Agent Cloud using Docker Hub images.
 #
 # Usage:
-#   ./selfhost.sh --host app.agentsmesh.internal --preview-origin http://preview.agentsmesh.internal
-#   ./selfhost.sh --host agentsmesh.example.com --preview-origin http://preview.example.com
-#   ./selfhost.sh --host app.agentsmesh.internal --preview-origin http://preview.agentsmesh.internal --version sha-abc1234
+#   ./selfhost.sh --host app.agentcloud.internal --preview-origin http://preview.agentcloud.internal
+#   ./selfhost.sh --host agentcloud.example.com --preview-origin http://preview.example.com
+#   ./selfhost.sh --host app.agentcloud.internal --preview-origin http://preview.agentcloud.internal --version sha-abc1234
 #   ./selfhost.sh --clean
 #
 # =============================================================================
@@ -66,9 +66,9 @@ while [[ $# -gt 0 ]]; do
             echo "  --clean       Stop services and remove all data"
             echo ""
             echo "Examples:"
-            echo "  $0 --host app.agentsmesh.internal --preview-origin http://preview.agentsmesh.internal"
-            echo "  $0 --host agentsmesh.example.com --preview-origin http://preview.example.com"
-            echo "  $0 --host app.agentsmesh.internal --preview-origin http://preview.agentsmesh.internal --version sha-abc1234"
+            echo "  $0 --host app.agentcloud.internal --preview-origin http://preview.agentcloud.internal"
+            echo "  $0 --host agentcloud.example.com --preview-origin http://preview.example.com"
+            echo "  $0 --host app.agentcloud.internal --preview-origin http://preview.agentcloud.internal --version sha-abc1234"
             exit 0
             ;;
         *) error "Unknown option: $1"; exit 1 ;;
@@ -127,7 +127,7 @@ PREVIEW_HOST_REGEX="${PREVIEW_HOST//./\\.}"
 
 echo ""
 echo "=============================================="
-echo "  AgentsMesh Self-Hosted Deployment"
+echo "  Agent Cloud Self-Hosted Deployment"
 echo "=============================================="
 echo ""
 echo "  Host:    ${SERVER_HOST}"
@@ -180,7 +180,7 @@ else
 fi
 
 cat > "${ENV_FILE}" << EOF
-# AgentsMesh Self-Hosted Configuration
+# Agent Cloud Self-Hosted Configuration
 # Generated: $(date -Iseconds 2>/dev/null || date)
 
 VERSION=${VERSION}
@@ -194,7 +194,7 @@ PREVIEW_COOKIE_MODE=same-site
 HTTP_PORT=${HTTP_PORT}
 GRPC_PORT=${GRPC_PORT}
 
-COMPOSE_PROJECT_NAME=agentsmesh
+COMPOSE_PROJECT_NAME=agentcloud
 
 DB_PASSWORD=${DB_PASSWORD}
 JWT_SECRET=${JWT_SECRET}
@@ -221,12 +221,12 @@ else
     # CA key + cert (10 years)
     openssl ecparam -name prime256v1 -genkey -noout -out "${SSL_DIR}/ca.key" 2>/dev/null
     openssl req -new -x509 -days 3650 -key "${SSL_DIR}/ca.key" -out "${SSL_DIR}/ca.crt" \
-        -subj "/CN=AgentsMesh CA/O=AgentsMesh" 2>/dev/null
+        -subj "/CN=Agent Cloud CA/O=Agent Cloud" 2>/dev/null
 
     # Server key + CSR
     openssl ecparam -name prime256v1 -genkey -noout -out "${SSL_DIR}/server.key" 2>/dev/null
     openssl req -new -key "${SSL_DIR}/server.key" -out "${SSL_DIR}/server.csr" \
-        -subj "/CN=agentsmesh-backend/O=AgentsMesh" 2>/dev/null
+        -subj "/CN=agentcloud-backend/O=Agent Cloud" 2>/dev/null
 
     # SAN config
     cat > "${SSL_DIR}/server_ext.cnf" << EXTEOF
@@ -294,7 +294,7 @@ fi
 # =============================================================================
 info "[5/6] Running database migrations..."
 
-DB_URL="postgres://agentsmesh:${DB_PASSWORD}@postgres:5432/agentsmesh?sslmode=disable"
+DB_URL="postgres://agentcloud:${DB_PASSWORD}@postgres:5432/agentcloud?sslmode=disable"
 docker compose exec -T backend migrate -path /app/migrations -database "${DB_URL}" up 2>&1 | tail -5
 
 success "Migrations complete"
@@ -304,7 +304,7 @@ success "Migrations complete"
 # =============================================================================
 info "[6/6] Importing seed data..."
 
-docker compose exec -T postgres psql -U agentsmesh -d agentsmesh < "${SEED_FILE}" 2>&1 | grep -v "^$" | tail -5
+docker compose exec -T postgres psql -U agentcloud -d agentcloud < "${SEED_FILE}" 2>&1 | grep -v "^$" | tail -5
 
 success "Seed data imported"
 
@@ -324,11 +324,11 @@ echo "    Email:    admin@localhost.local"
 echo "    Password: Admin@123"
 echo ""
 echo "  Register a Runner:"
-echo "    curl -fsSL https://agentsmesh.ai/install.sh | sh"
-echo "    do-worker-runner register \\"
+echo "    curl -fsSL https://agentcloud.ai/install.sh | sh"
+echo "    agent-cloud-runner register \\"
 echo "      --server http://${SERVER_HOST}:${HTTP_PORT} \\"
 echo "      --token selfhost-runner-token"
-echo "    do-worker-runner run"
+echo "    agent-cloud-runner run"
 echo ""
 echo -e "  ${YELLOW}Change the admin password after first login!${NC}"
 echo ""

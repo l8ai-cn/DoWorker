@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	invitationDomain "github.com/anthropics/agentsmesh/backend/internal/domain/invitation"
+	invitationDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/invitation"
 )
 
 func (s *Service) GetByToken(ctx context.Context, token string) (*invitationDomain.Invitation, error) {

@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	virtualkeysvc "github.com/anthropics/agentsmesh/backend/internal/service/virtualkey"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	virtualkeysvc "github.com/l8ai-cn/agentcloud/backend/internal/service/virtualkey"
 	"github.com/gin-gonic/gin"
 )
 

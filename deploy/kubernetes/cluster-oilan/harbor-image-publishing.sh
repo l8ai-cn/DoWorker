@@ -10,12 +10,12 @@ ensure_project() {
   cred="$(harbor_creds "${REG}")"
   u="$(echo "${cred}" | python3 -c "import sys,json;print(json.load(sys.stdin)['Username'])")"
   p="$(echo "${cred}" | python3 -c "import sys,json;print(json.load(sys.stdin)['Secret'])")"
-  echo "==> ensuring Harbor project agentsmesh"
+  echo "==> ensuring Harbor project agentcloud"
   status="$(harbor_curl --silent --show-error -u "${u}:${p}" \
     -o /dev/null -w "%{http_code}" \
     -X POST "https://${REG}/api/v2.0/projects" \
     -H "Content-Type: application/json" \
-    -d '{"project_name":"agentsmesh","public":true}')"
+    -d '{"project_name":"agentcloud","public":true}')"
   [[ "${status}" == "201" || "${status}" == "409" ]] || {
     echo "create Harbor project failed: HTTP ${status}" >&2
     return 1

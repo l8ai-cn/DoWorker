@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/billing"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/billing"
 )
 
 func (s *Service) ActivateTrialSubscription(ctx context.Context, orgID int64, billingCycle string) error {

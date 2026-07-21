@@ -6,10 +6,10 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	domainmesh "github.com/anthropics/agentsmesh/backend/internal/domain/mesh"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	meshv1 "github.com/anthropics/agentsmesh/proto/gen/go/mesh/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	domainmesh "github.com/l8ai-cn/agentcloud/backend/internal/domain/mesh"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	meshv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/mesh/v1"
 )
 
 // tenantOrError returns the TenantContext from ctx (populated by

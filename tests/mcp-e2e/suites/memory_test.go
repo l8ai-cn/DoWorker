@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/tests/mcp-e2e/fixture"
+	"github.com/l8ai-cn/agentcloud/tests/mcp-e2e/fixture"
 )
 
 // TestMemoryRetrieve_FindsRecentlyCreated writes three blocks via block.create

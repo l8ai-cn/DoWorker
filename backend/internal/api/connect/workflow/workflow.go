@@ -6,9 +6,9 @@ import (
 
 	"connectrpc.com/connect"
 
-	workflowDomain "github.com/anthropics/agentsmesh/backend/internal/domain/workflow"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	workflowsvc "github.com/anthropics/agentsmesh/backend/internal/service/workflow"
+	workflowDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workflow"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	workflowsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/workflow"
 )
 
 const ServiceName = "proto.workflow.v1.WorkflowService"

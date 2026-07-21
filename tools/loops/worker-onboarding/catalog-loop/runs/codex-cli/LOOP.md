@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Run one Do Worker type through research, contracts, implementation, verification, and independent review.
+Run one Agent Cloud type through research, contracts, implementation, verification, and independent review.
 
 User goal: Bring one selected Worker slug to a verifiable, Definition-driven integration state.
 
@@ -121,6 +121,6 @@ Protected paths:
 ## Escalation
 
 - Condition: A human gate, blocker, budget exit, or no-progress exit is reached.
-- Owner: Do Worker maintainer
+- Owner: Agent Cloud maintainer
 - Channel: Codex thread
 - Message template: Worker loop stopped for {worker_slug}: {reason}. Evidence: {evidence_ref}.

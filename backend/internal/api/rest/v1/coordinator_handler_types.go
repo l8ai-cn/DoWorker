@@ -1,6 +1,6 @@
 package v1
 
-import coordinatordom "github.com/anthropics/agentsmesh/backend/internal/domain/coordinator"
+import coordinatordom "github.com/l8ai-cn/agentcloud/backend/internal/domain/coordinator"
 
 type createCoordinatorProjectRequest struct {
 	RepositoryID         int64                      `json:"repository_id" binding:"required"`

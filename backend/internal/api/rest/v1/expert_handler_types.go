@@ -1,6 +1,6 @@
 package v1
 
-import expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
+import expertdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/expert"
 
 type createExpertRequest struct {
 	Name            string                     `json:"name"`

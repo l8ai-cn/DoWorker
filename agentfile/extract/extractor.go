@@ -4,8 +4,8 @@
 package extract
 
 import (
-	"github.com/anthropics/agentsmesh/agentfile"
-	"github.com/anthropics/agentsmesh/agentfile/parser"
+	"github.com/l8ai-cn/agentcloud/agentfile"
+	"github.com/l8ai-cn/agentcloud/agentfile/parser"
 )
 
 // Extract walks a parsed AgentFile Program and extracts declarations into an AgentSpec.

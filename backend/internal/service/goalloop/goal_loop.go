@@ -5,13 +5,13 @@ import (
 	"errors"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/goalloop"
-	workerspecdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	agentpodsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
-	workerspecsvc "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/goalloop"
+	workerspecdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	agentpodsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
+	workercreation "github.com/l8ai-cn/agentcloud/backend/internal/service/workercreation"
+	workerspecsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 )
 
 var (

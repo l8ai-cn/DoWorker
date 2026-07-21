@@ -19,7 +19,7 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/anthropics/agentsmesh/runner/internal/agents/mockagent"
+	"github.com/l8ai-cn/agentcloud/runner/internal/agents/mockagent"
 )
 
 func main() {

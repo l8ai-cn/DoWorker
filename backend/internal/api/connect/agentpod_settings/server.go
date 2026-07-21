@@ -15,7 +15,7 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
 )
 
 // ServiceName mirrors proto.pod.v1.AgentPodSettingsService exactly. Connect

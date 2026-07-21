@@ -7,10 +7,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/runner/internal/client"
-	"github.com/anthropics/agentsmesh/runner/internal/config"
-	"github.com/anthropics/agentsmesh/runner/internal/relay"
-	"github.com/anthropics/agentsmesh/runner/internal/terminal/vt"
+	"github.com/l8ai-cn/agentcloud/runner/internal/client"
+	"github.com/l8ai-cn/agentcloud/runner/internal/config"
+	"github.com/l8ai-cn/agentcloud/runner/internal/relay"
+	"github.com/l8ai-cn/agentcloud/runner/internal/terminal/vt"
 )
 
 // TestOnSubscribePod_NoDeadlockWhenVTBusy verifies that OnSubscribePod

@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 
-	itemdomain "github.com/anthropics/agentsmesh/backend/internal/domain/conversationitem"
-	itemsvc "github.com/anthropics/agentsmesh/backend/internal/service/conversationitem"
+	itemdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/conversationitem"
+	itemsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/conversationitem"
 	"github.com/gin-gonic/gin"
 )
 

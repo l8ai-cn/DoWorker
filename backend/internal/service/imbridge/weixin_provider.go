@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/imbridge"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/imbridge"
 )
 
 // WeixinProvider implements personal WeChat via Tencent iLink (OpenClaw openclaw-weixin pattern).

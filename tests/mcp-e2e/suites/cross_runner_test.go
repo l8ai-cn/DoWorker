@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/tests/mcp-e2e/client"
-	"github.com/anthropics/agentsmesh/tests/mcp-e2e/fixture"
+	"github.com/l8ai-cn/agentcloud/tests/mcp-e2e/client"
+	"github.com/l8ai-cn/agentcloud/tests/mcp-e2e/fixture"
 )
 
 // Cross-runner pod_interaction. dev-runner-2 (added in docker-compose for

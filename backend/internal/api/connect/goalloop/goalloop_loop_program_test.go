@@ -10,10 +10,10 @@ import (
 	"connectrpc.com/connect"
 	"github.com/stretchr/testify/require"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/goalloop"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	goalloopsvc "github.com/anthropics/agentsmesh/backend/internal/service/goalloop"
-	goalloopv1 "github.com/anthropics/agentsmesh/proto/gen/go/goalloop/v1"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/goalloop"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	goalloopsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/goalloop"
+	goalloopv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/goalloop/v1"
 )
 
 const loopSource = `@id(n-checkout-fix)

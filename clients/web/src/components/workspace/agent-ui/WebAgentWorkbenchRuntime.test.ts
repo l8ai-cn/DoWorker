@@ -191,7 +191,7 @@ describe("WebAgentWorkbenchRuntime", () => {
             },
             contentId: "file_1",
             identity: {
-              namespace: "agentsmesh.session-file",
+              namespace: "agentcloud.session-file",
               schemaVersion: "1",
               semanticKey: "attachment",
             },

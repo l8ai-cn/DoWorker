@@ -22,10 +22,10 @@ import (
 
 	"connectrpc.com/connect"
 
-	agentservice "github.com/anthropics/agentsmesh/backend/internal/service/agent"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	meshservice "github.com/anthropics/agentsmesh/backend/internal/service/mesh"
-	ticketservice "github.com/anthropics/agentsmesh/backend/internal/service/ticket"
+	agentservice "github.com/l8ai-cn/agentcloud/backend/internal/service/agent"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	meshservice "github.com/l8ai-cn/agentcloud/backend/internal/service/mesh"
+	ticketservice "github.com/l8ai-cn/agentcloud/backend/internal/service/ticket"
 )
 
 const ServiceName = "proto.mesh.v1.MeshService"

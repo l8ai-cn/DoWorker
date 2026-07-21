@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/config"
-	"github.com/anthropics/agentsmesh/backend/internal/service/relay"
-	runnerservice "github.com/anthropics/agentsmesh/backend/internal/service/runner"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/relay"
+	runnerservice "github.com/l8ai-cn/agentcloud/backend/internal/service/runner"
 	"github.com/stretchr/testify/require"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -33,7 +33,7 @@ func TestConnectRunnerTunnelRetriesTransientReadinessFailure(t *testing.T) {
 	connectRunnerTunnel(
 		&config.Config{PrimaryDomain: "localhost:10000"},
 		db,
-		relay.NewTokenGenerator("secret", "agentsmesh-relay"),
+		relay.NewTokenGenerator("secret", "agentcloud-relay"),
 		sender,
 		7,
 	)

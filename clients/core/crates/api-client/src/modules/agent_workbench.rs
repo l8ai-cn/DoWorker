@@ -1,4 +1,4 @@
-use agentsmesh_types::proto_agent_workbench_v2 as v2;
+use agentcloud_types::proto_agent_workbench_v2 as v2;
 use futures::stream::Stream;
 
 use crate::connect_call::connect_call_with_bearer;

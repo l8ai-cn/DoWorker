@@ -11,19 +11,19 @@ import (
 
 	"github.com/kardianos/service"
 
-	"github.com/anthropics/agentsmesh/runner/internal/config"
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
-	"github.com/anthropics/agentsmesh/runner/internal/pidfile"
-	"github.com/anthropics/agentsmesh/runner/internal/runner"
+	"github.com/l8ai-cn/agentcloud/runner/internal/config"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/pidfile"
+	"github.com/l8ai-cn/agentcloud/runner/internal/runner"
 )
 
 // Module logger for service
 var log = logger.Service()
 
 const (
-	ServiceName        = "do-worker-runner"
-	ServiceDisplayName = "Do Worker Runner"
-	ServiceDescription = "Do Worker Runner - executes AI agent tasks"
+	ServiceName        = "agent-cloud-runner"
+	ServiceDisplayName = "Agent Cloud Runner"
+	ServiceDescription = "Agent Cloud Runner - executes AI agent tasks"
 )
 
 // Program implements the service.Interface for running as a system service.

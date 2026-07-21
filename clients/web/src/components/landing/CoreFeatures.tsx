@@ -57,10 +57,10 @@ function buildAgentPodFeature(t: TFn): FeatureData {
 
 function buildMeshFeature(t: TFn): FeatureData {
   return {
-    number: "02", title: t("landing.coreFeatures.agentsmesh.title"),
-    subtitle: t("landing.coreFeatures.agentsmesh.subtitle"),
-    description: t("landing.coreFeatures.agentsmesh.description"),
-    highlights: buildHighlights(t, "landing.coreFeatures.agentsmesh.highlights", 5),
+    number: "02", title: t("landing.coreFeatures.agentcloud.title"),
+    subtitle: t("landing.coreFeatures.agentcloud.subtitle"),
+    description: t("landing.coreFeatures.agentcloud.description"),
+    highlights: buildHighlights(t, "landing.coreFeatures.agentcloud.highlights", 5),
     diagram: {
       nodes: [
         { id: "agent1", label: "Claude Code", x: 20, y: 30 },

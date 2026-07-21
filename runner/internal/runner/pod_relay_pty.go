@@ -4,9 +4,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
-	"github.com/anthropics/agentsmesh/runner/internal/relay"
-	"github.com/anthropics/agentsmesh/runner/internal/safego"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/relay"
+	"github.com/l8ai-cn/agentcloud/runner/internal/safego"
 )
 
 // PTYPodRelay implements PodRelay for PTY-mode pods.

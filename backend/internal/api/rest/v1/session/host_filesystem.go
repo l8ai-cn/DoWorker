@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 	"github.com/gin-gonic/gin"
 )
 

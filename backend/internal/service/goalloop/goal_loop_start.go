@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/goalloop"
-	agentpodsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/goalloop"
+	agentpodsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
 )
 
 func (s *Service) Start(ctx context.Context, orgID, userID int64, slug string) (*domain.GoalLoop, error) {

@@ -4,7 +4,7 @@
   "definition_hash": "sha256:035450d5cbfc34fbe6671b00e5ee9cf76aaf0eee81988c4e7fc471bbedefb7ee",
   "platform": "linux/amd64",
   "observed_at": "2026-07-16T16:32:47.710Z",
-  "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-hermes:latest",
+  "image_reference": "agentcloud-codex-loop-blockly-mvp-runner-hermes:latest",
   "image_id": "sha256:f30bdc54e622e92e3d34cab69ecc868cbb1a38413986a633868ec39146426525",
   "probe_command": [
     "hermes",

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/agentfile/parser"
+	"github.com/l8ai-cn/agentcloud/agentfile/parser"
 )
 
 func writeStmt(b *strings.Builder, stmt parser.Statement, indent int) {

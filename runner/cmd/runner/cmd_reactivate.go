@@ -8,19 +8,19 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/anthropics/agentsmesh/runner/internal/config"
+	"github.com/l8ai-cn/agentcloud/runner/internal/config"
 )
 
 func runReactivate(args []string) {
 	fs := flag.NewFlagSet("reactivate", flag.ExitOnError)
-	serverURL := fs.String("server", "", "AgentsMesh server URL (default: from config)")
+	serverURL := fs.String("server", "", "Agent Cloud server URL (default: from config)")
 	token := fs.String("token", "", "Reactivation token from the web UI")
 
 	fs.Usage = func() {
 		fmt.Println(`Reactivate a runner with an expired certificate.
 
 Usage:
-  do-worker-runner reactivate --token <reactivation-token>
+  agent-cloud-runner reactivate --token <reactivation-token>
 
 Options:`)
 		fs.PrintDefaults()
@@ -31,7 +31,7 @@ you can generate a reactivation token from the web UI:
 1. Go to Runner management page
 2. Find your runner and click "Reactivate"
 3. Copy the generated token
-4. Run: do-worker-runner reactivate --token <token>
+4. Run: agent-cloud-runner reactivate --token <token>
 
 The runner will receive new certificates and can reconnect.`)
 	}
@@ -49,7 +49,7 @@ The runner will receive new certificates and can reconnect.`)
 	sURL := *serverURL
 	if sURL == "" {
 		home, _ := os.UserHomeDir()
-		cfgFile := filepath.Join(home, ".agentsmesh", "config.yaml")
+		cfgFile := filepath.Join(home, ".agentcloud", "config.yaml")
 		cfg, err := config.Load(cfgFile)
 		if err == nil && cfg.ServerURL != "" {
 			sURL = cfg.ServerURL

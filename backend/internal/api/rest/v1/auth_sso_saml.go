@@ -5,10 +5,10 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/sso"
-	"github.com/anthropics/agentsmesh/backend/internal/service/auth"
-	ssoservice "github.com/anthropics/agentsmesh/backend/internal/service/sso"
-	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/sso"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/auth"
+	ssoservice "github.com/l8ai-cn/agentcloud/backend/internal/service/sso"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/apierr"
 	"github.com/gin-gonic/gin"
 )
 

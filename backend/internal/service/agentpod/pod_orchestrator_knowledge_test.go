@@ -8,9 +8,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	kbDomain "github.com/anthropics/agentsmesh/backend/internal/domain/knowledgebase"
-	kbservice "github.com/anthropics/agentsmesh/backend/internal/service/knowledgebase"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	kbDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/knowledgebase"
+	kbservice "github.com/l8ai-cn/agentcloud/backend/internal/service/knowledgebase"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 )
 
 type mockKnowledgeResolver struct {

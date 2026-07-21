@@ -6,8 +6,8 @@ import (
 	"reflect"
 	"sort"
 
-	resource "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
-	workerspec "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	resource "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationresource"
+	workerspec "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
 )
 
 func definitionDocuments(

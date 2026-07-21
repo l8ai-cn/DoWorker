@@ -84,18 +84,18 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: agentsmesh_migrations
+          POSTGRES_DB: agentcloud_migrations
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U postgres -d agentsmesh_migrations"
+          --health-cmd "pg_isready -U postgres -d agentcloud_migrations"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
     env:
       CI: "true"
-      MIGRATIONS_POSTGRES_TEST_DSN: postgres://postgres:postgres@localhost:5432/agentsmesh_migrations?sslmode=disable
-      MARKETPLACE_POSTGRES_TEST_DSN: postgres://postgres:postgres@localhost:5432/agentsmesh_migrations?sslmode=disable
+      MIGRATIONS_POSTGRES_TEST_DSN: postgres://postgres:postgres@localhost:5432/agentcloud_migrations?sslmode=disable
+      MARKETPLACE_POSTGRES_TEST_DSN: postgres://postgres:postgres@localhost:5432/agentcloud_migrations?sslmode=disable
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-go@v5
@@ -202,12 +202,12 @@ jobs:
           set -euo pipefail
           cd dist/runner-release
           expected=(
-            do-worker-runner_linux_amd64.tar.gz
-            do-worker-runner_linux_arm64.tar.gz
-            do-worker-runner_darwin_amd64.tar.gz
-            do-worker-runner_darwin_arm64.tar.gz
-            do-worker-runner_windows_amd64.zip
-            do-worker-runner_windows_arm64.zip
+            agent-cloud-runner_linux_amd64.tar.gz
+            agent-cloud-runner_linux_arm64.tar.gz
+            agent-cloud-runner_darwin_amd64.tar.gz
+            agent-cloud-runner_darwin_arm64.tar.gz
+            agent-cloud-runner_windows_amd64.zip
+            agent-cloud-runner_windows_arm64.zip
             checksums.txt
           )
           for f in "${expected[@]}"; do
@@ -239,10 +239,10 @@ jobs:
         working-directory: clients/core
         run: |
           bash ../../scripts/seed-rust-proto-stubs.sh
-          cargo run -p do_worker_proto_gen --bin gen-proto
+          cargo run -p agent_cloud_proto_gen --bin gen-proto
       - name: cargo test --workspace
         working-directory: clients/core
-        run: cargo test --workspace --exclude do_worker_wasm
+        run: cargo test --workspace --exclude agent_cloud_wasm
 
   web:
     name: Web (lint + type-check + vitest)
@@ -275,7 +275,7 @@ jobs:
       - run: pnpm run web:lint
       - run: pnpm run web:typecheck
       - run: pnpm run web:test
-      - run: pnpm --filter @do-worker/agent-ui test
+      - run: pnpm --filter @agent-cloud/agent-ui test
       - run: pnpm run web-admin:typecheck
       - run: pnpm run marketplace-web:check
 
@@ -371,7 +371,7 @@ jobs:
           context: .
           file: ${{ matrix.file }}
           push: false
-          tags: agentsmesh/${{ matrix.service }}:ci
+          tags: agentcloud/${{ matrix.service }}:ci
           cache-from: type=gha,scope=${{ matrix.service }}
           cache-to: type=gha,mode=max,scope=${{ matrix.service }}
 
@@ -385,7 +385,7 @@ jobs:
       matrix:
         shard: [1, 2]
     env:
-      AGENTSMESH_WORKTREE_NAME: head-shard${{ matrix.shard }}
+      AGENTCLOUD_WORKTREE_NAME: head-shard${{ matrix.shard }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-go@v5
@@ -422,7 +422,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Cleanup previous dev-stack residue
         run: |
-          PROJECT="agentsmesh-${AGENTSMESH_WORKTREE_NAME}"
+          PROJECT="agentcloud-${AGENTCLOUD_WORKTREE_NAME}"
           docker container ls -a --filter "label=com.docker.compose.project=${PROJECT}" -q \
             | xargs -r docker rm -f
           docker volume ls -q --filter "label=com.docker.compose.project=${PROJECT}" \
@@ -458,7 +458,7 @@ jobs:
           source deploy/dev/.env
           for i in {1..60}; do
             online=$(docker exec "${COMPOSE_PROJECT_NAME}-postgres-1" \
-              psql -U agentsmesh -d agentsmesh -Atc \
+              psql -U agentcloud -d agentcloud -Atc \
               "SELECT count(*) FROM runners
                WHERE node_id IN ('dev-runner','dev-runner-2')
                  AND status='online'
@@ -633,9 +633,9 @@ jobs:
           RUNNER_2_MCP_PORT: ${{ steps.ports.outputs.RUNNER_2_MCP_PORT }}
           BACKEND_HTTP_PORT: ${{ steps.ports.outputs.BACKEND_HTTP_PORT }}
           POSTGRES_PORT: ${{ steps.ports.outputs.POSTGRES_PORT }}
-          POSTGRES_USER: agentsmesh
-          POSTGRES_PASSWORD: agentsmesh_dev
-          POSTGRES_DB: agentsmesh
+          POSTGRES_USER: agentcloud
+          POSTGRES_PASSWORD: agentcloud_dev
+          POSTGRES_DB: agentcloud
         run: go test -count=1 ./tests/mcp-e2e/suites/... -timeout 25m
       - name: Dump logs on failure
         if: failure()

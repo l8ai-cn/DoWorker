@@ -2,7 +2,7 @@ import {
   AgentSessionConnection,
   AgentSessionRuntimeV2,
   AgentWorkbenchConnectTransport,
-} from "@do-worker/agent-ui";
+} from "@agent-cloud/agent-ui";
 import { describe, expect, it, vi } from "vitest";
 
 import { EmbeddedTerminalRuntime } from "./EmbeddedTerminalRuntime";

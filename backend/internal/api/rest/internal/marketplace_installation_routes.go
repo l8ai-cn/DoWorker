@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"strconv"
 
-	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
-	expertsvc "github.com/anthropics/agentsmesh/backend/internal/service/expert"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	expertdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/expert"
+	expertsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/expert"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 	"github.com/gin-gonic/gin"
 )
 

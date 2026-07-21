@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use agentsmesh_api_client::ApiClient;
-use agentsmesh_types::proto_grant_v1 as gp;
+use agentcloud_api_client::ApiClient;
+use agentcloud_types::proto_grant_v1 as gp;
 use prost::Message;
 
 pub struct GrantService {

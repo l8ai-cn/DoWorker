@@ -56,16 +56,16 @@ importers:
       '@dnd-kit/utilities':
         specifier: ^3.2.2
         version: 3.2.2(react@19.2.4)
-      '@do-worker/agent-ui':
+      '@agent-cloud/agent-ui':
         specifier: workspace:*
         version: link:packages/agent-ui
-      '@do-worker/proto':
+      '@agent-cloud/proto':
         specifier: workspace:*
         version: link:proto
-      '@do-worker/service-interface':
+      '@agent-cloud/service-interface':
         specifier: workspace:*
         version: link:packages/service-interface
-      '@do-worker/service-runtime':
+      '@agent-cloud/service-runtime':
         specifier: workspace:*
         version: link:packages/service-runtime
       '@fontsource-variable/space-grotesk':
@@ -176,9 +176,9 @@ importers:
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
-      do-worker-wasm:
+      agent-cloud-wasm:
         specifier: workspace:*
-        version: link:packages/do-worker-wasm
+        version: link:packages/agent-cloud-wasm
       framer-motion:
         specifier: ^12.38.0
         version: 12.38.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -435,9 +435,9 @@ importers:
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
-      do-worker-wasm:
+      agent-cloud-wasm:
         specifier: workspace:*
-        version: link:../../packages/do-worker-wasm
+        version: link:../../packages/agent-cloud-wasm
       embla-carousel-react:
         specifier: ^8.6.0
         version: 8.6.0(react@19.2.4)
@@ -556,7 +556,7 @@ importers:
       '@connectrpc/connect-web':
         specifier: 2.1.2
         version: 2.1.2(@bufbuild/protobuf@2.12.0)(@connectrpc/connect@2.1.2(@bufbuild/protobuf@2.12.0))
-      '@do-worker/proto':
+      '@agent-cloud/proto':
         specifier: workspace:*
         version: link:../../proto
       '@xterm/addon-fit':
@@ -618,18 +618,18 @@ importers:
         specifier: 4.0.18
         version: 4.0.18(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(jiti@2.7.0)(jsdom@28.1.0)(lightningcss@1.32.0)(yaml@2.9.0)
 
-  packages/do-worker-wasm: {}
+  packages/agent-cloud-wasm: {}
 
   packages/service-interface: {}
 
   packages/service-runtime:
     dependencies:
-      '@do-worker/service-interface':
+      '@agent-cloud/service-interface':
         specifier: workspace:*
         version: link:../service-interface
-      do-worker-wasm:
+      agent-cloud-wasm:
         specifier: workspace:*
-        version: link:../do-worker-wasm
+        version: link:../agent-cloud-wasm
 
   proto: {}
 

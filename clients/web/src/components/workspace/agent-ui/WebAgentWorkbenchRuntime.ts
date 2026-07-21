@@ -11,7 +11,7 @@ import {
   type AgentPermissionResolution,
   type AgentSessionRuntime,
   type AgentSessionSnapshot,
-} from "@do-worker/agent-ui";
+} from "@agent-cloud/agent-ui";
 import { CommandEnvelopeSchema } from "@proto/agent_workbench/v2/command_pb";
 import { defaultWebAgentWorkbenchRuntimeDeps } from "./webAgentWorkbenchRuntimeDefaults";
 import { createWebAgentWorkbenchAttachmentUploader } from "./webAgentWorkbenchAttachmentRuntime";

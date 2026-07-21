@@ -4,11 +4,11 @@ import (
 	"errors"
 	"net/http"
 
-	expertdomain "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
-	workerspecdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
-	"github.com/anthropics/agentsmesh/backend/pkg/policy"
+	expertdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/expert"
+	workerspecdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/apierr"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/policy"
 	"github.com/gin-gonic/gin"
 )
 

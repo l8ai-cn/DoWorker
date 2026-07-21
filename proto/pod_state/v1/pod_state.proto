@@ -25,7 +25,7 @@ package proto.pod_state.v1;
 
 import "pod/v1/pod.proto";
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/pod_state/v1;podstatev1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/pod_state/v1;podstatev1";
 
 // ---------------------------------------------------------------------------
 // Insert — workspace just created a new pod. The CreatePod modal success

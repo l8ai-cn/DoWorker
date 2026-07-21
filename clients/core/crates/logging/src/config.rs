@@ -28,7 +28,7 @@ impl LogConfig {
             level: level.into(),
             file: Some(FileSink {
                 dir: dir.into(),
-                prefix: "agentsmesh".into(),
+                prefix: "agentcloud".into(),
                 max_files: 7,
             }),
             json: true,

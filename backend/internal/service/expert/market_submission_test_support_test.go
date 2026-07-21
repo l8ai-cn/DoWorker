@@ -8,8 +8,8 @@ import (
 	"github.com/lib/pq"
 	"github.com/stretchr/testify/require"
 
-	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
-	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
+	expertdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/expert"
+	skilldom "github.com/l8ai-cn/agentcloud/backend/internal/domain/skill"
 )
 
 type marketServiceFixture struct {

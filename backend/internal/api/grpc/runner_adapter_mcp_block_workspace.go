@@ -3,7 +3,7 @@ package grpc
 import (
 	"context"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
 )
 
 // Cross-bundle: mirrors REST routes in blockstore_ops.go for the runner→backend MCP bridge.

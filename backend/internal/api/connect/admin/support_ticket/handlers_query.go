@@ -7,9 +7,9 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	supportticketsvc "github.com/anthropics/agentsmesh/backend/internal/service/supportticket"
-	supportticketv1 "github.com/anthropics/agentsmesh/proto/gen/go/support_ticket/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	supportticketsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/supportticket"
+	supportticketv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/support_ticket/v1"
 )
 
 // ListSupportTickets mirrors REST's List (support_tickets.go:52).

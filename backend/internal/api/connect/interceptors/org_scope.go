@@ -6,7 +6,7 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
 )
 
 // OrgScopedRequest is implemented by every Connect-RPC request message whose

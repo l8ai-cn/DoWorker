@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/gitprovider"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workerdependency"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	workercreation "github.com/l8ai-cn/agentcloud/backend/internal/service/workercreation"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
 )
 
 type WorkerSnapshotPreparer interface {

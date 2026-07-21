@@ -3,10 +3,10 @@ package main
 import (
 	"testing"
 
-	workerruntime "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
-	"github.com/anthropics/agentsmesh/backend/internal/service/organization"
-	"github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
-	"github.com/anthropics/agentsmesh/backend/internal/testkit"
+	workerruntime "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerruntime"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/organization"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/workercreation"
+	"github.com/l8ai-cn/agentcloud/backend/internal/testkit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

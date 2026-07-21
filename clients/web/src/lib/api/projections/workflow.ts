@@ -1,5 +1,5 @@
-import type { Workflow as ProtoWorkflow, WorkflowRun as ProtoWorkflowRun } from "@do-worker/proto/workflow/v1/workflow_pb";
-import type { WorkflowData, WorkflowRunData } from "@do-worker/service-interface";
+import type { Workflow as ProtoWorkflow, WorkflowRun as ProtoWorkflowRun } from "@agent-cloud/proto/workflow/v1/workflow_pb";
+import type { WorkflowData, WorkflowRunData } from "@agent-cloud/service-interface";
 import { parseJSONObject } from "./parse-json";
 
 // Single source of truth for the proto.workflow.v1 → WorkflowData projection.

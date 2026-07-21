@@ -1,4 +1,4 @@
-import type { TerminalResource } from "@do-worker/agent-ui";
+import type { TerminalResource } from "@agent-cloud/agent-ui";
 import type { EmbeddedSession, EmbedRelayConnection } from "./embed-session-api";
 
 interface SessionWire {

@@ -36,7 +36,7 @@ syntax = "proto3";
 
 package proto.events.v1;
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/events/v1;eventsv1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/events/v1;eventsv1";
 
 service EventsService {
   // Subscribes to org-scoped real-time events. The stream stays open

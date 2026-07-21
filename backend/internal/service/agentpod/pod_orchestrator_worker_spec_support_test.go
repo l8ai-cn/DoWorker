@@ -3,11 +3,11 @@ package agentpod
 import (
 	"context"
 
-	poddomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	poddomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	workercreation "github.com/l8ai-cn/agentcloud/backend/internal/service/workercreation"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
+	runnerv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner/v1"
 	"gorm.io/gorm"
 )
 

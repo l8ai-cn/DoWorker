@@ -33,7 +33,7 @@ const artifact: AgentArtifactItem = {
 const tool: AgentToolActivityItem = {
   id: "tool-1",
   identity: {
-    namespace: "agentsmesh.image",
+    namespace: "agentcloud.image",
     schemaVersion: "1",
     semanticKey: "edit",
   },

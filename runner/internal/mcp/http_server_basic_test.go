@@ -108,7 +108,7 @@ func TestHTTPServerGenerateMCPConfig(t *testing.T) {
 		t.Fatal("mcpServers should exist")
 	}
 
-	if _, ok := mcpServers["agentsmesh-collaboration"]; !ok {
-		t.Error("agentsmesh-collaboration server should exist")
+	if _, ok := mcpServers["agentcloud-collaboration"]; !ok {
+		t.Error("agentcloud-collaboration server should exist")
 	}
 }

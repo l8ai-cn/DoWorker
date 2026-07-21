@@ -5,17 +5,17 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
 )
 
 // TempBaseDir returns the base temporary directory for the runner.
-// On Unix (macOS/Linux): /tmp/do-worker — a predictable, easy-to-find path.
-// On Windows: os.TempDir()/do-worker — since /tmp doesn't exist.
+// On Unix (macOS/Linux): /tmp/agent-cloud — a predictable, easy-to-find path.
+// On Windows: os.TempDir()/agent-cloud — since /tmp doesn't exist.
 func TempBaseDir() string {
 	if runtime.GOOS == "windows" {
-		return filepath.Join(os.TempDir(), "do-worker")
+		return filepath.Join(os.TempDir(), "agent-cloud")
 	}
-	return "/tmp/do-worker"
+	return "/tmp/agent-cloud"
 }
 
 // GetWorkspace returns the workspace directory path.

@@ -6,7 +6,7 @@
     },
     "mission": {
       "title": "Nuestra Mision",
-      "content": "Do Worker existe para ayudar a las organizaciones a escalar mas alla del headcount. Estamos construyendo la plataforma que permite a cada miembro del equipo gestionar un squad de agentes IA — asignando tareas, coordinando la colaboracion y entregando trabajo a un ritmo que antes era imposible sin contratar a diez personas mas."
+      "content": "Agent Cloud existe para ayudar a las organizaciones a escalar mas alla del headcount. Estamos construyendo la plataforma que permite a cada miembro del equipo gestionar un squad de agentes IA — asignando tareas, coordinando la colaboracion y entregando trabajo a un ritmo que antes era imposible sin contratar a diez personas mas."
     },
     "vision": {
       "title": "Lo que creemos",
@@ -25,7 +25,7 @@
     },
     "contact": {
       "title": "Ponte en contacto",
-      "content": "Quieres saber como Do Worker puede escalar la produccion de tu equipo?",
+      "content": "Quieres saber como Agent Cloud puede escalar la produccion de tu equipo?",
       "email": "Contactanos",
       "careers": "Unete a nuestro equipo"
     }
@@ -48,21 +48,21 @@
       },
       "producer": {
         "title": "Builder",
-        "description": "Los Builders transforman infraestructura en productos que los usuarios aman. Cerraras la brecha entre capacidades tecnicas y necesidades del usuario, convirtiendo cada interaccion con Do Worker en una experiencia intuitiva y poderosa.",
+        "description": "Los Builders transforman infraestructura en productos que los usuarios aman. Cerraras la brecha entre capacidades tecnicas y necesidades del usuario, convirtiendo cada interaccion con Agent Cloud en una experiencia intuitiva y poderosa.",
         "resp1": "Traducir necesidades del usuario en requisitos y funcionalidades del producto",
         "resp2": "Transformar capacidades de la plataforma en productos pulidos orientados al usuario",
         "resp3": "Recopilar feedback e iterar para ofrecer experiencias de usuario excepcionales"
       },
       "growthHacker": {
         "title": "GTM (Go to Market)",
-        "description": "Los especialistas GTM llevan nuestro producto al mercado con estrategias creativas y basadas en datos. Ayudaras a los desarrolladores a descubrir Do Worker, ejecutaras experimentos rapidos y convertiras a los early adopters en defensores apasionados.",
+        "description": "Los especialistas GTM llevan nuestro producto al mercado con estrategias creativas y basadas en datos. Ayudaras a los desarrolladores a descubrir Agent Cloud, ejecutaras experimentos rapidos y convertiras a los early adopters en defensores apasionados.",
         "resp1": "Disenar y ejecutar experimentos de crecimiento basados en datos",
         "resp2": "Construir relaciones con comunidades de desarrolladores e impulsar la adopcion",
         "resp3": "Optimizar funnels de adquisicion e impulsar la retencion de usuarios"
       }
     },
     "whyJoin": {
-      "title": "Por que unirte a Do Worker?",
+      "title": "Por que unirte a Agent Cloud?",
       "innovation": {
         "title": "Tecnologia de vanguardia",
         "content": "Trabaja con las ultimas tecnologias de IA y moldea el futuro del desarrollo de software."
@@ -85,7 +85,7 @@
   "blog": {
     "hero": {
       "title": "Blog",
-      "subtitle": "Insights tecnicos, actualizaciones de producto e historias del equipo Do Worker."
+      "subtitle": "Insights tecnicos, actualizaciones de producto e historias del equipo Agent Cloud."
     },
     "minRead": "min de lectura",
     "backToList": "Volver al Blog",
@@ -100,7 +100,7 @@
     "onpremise": {
       "title": "Despliegue",
       "titleHighlight": "Privado",
-      "description": "Despliega Do Worker completamente dentro de tu infraestructura. Tu codigo, tus agentes, tus reglas — cero exposicion externa."
+      "description": "Despliega Agent Cloud completamente dentro de tu infraestructura. Tu codigo, tus agentes, tus reglas — cero exposicion externa."
     }
   }
 }

@@ -6,8 +6,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	workerspecdom "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	podv1 "github.com/anthropics/agentsmesh/proto/gen/go/pod/v1"
+	workerspecdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	podv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/pod/v1"
 )
 
 type workerSpecLoaderStub struct {

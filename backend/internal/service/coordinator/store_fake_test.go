@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 
-	coordinatordom "github.com/anthropics/agentsmesh/backend/internal/domain/coordinator"
+	coordinatordom "github.com/l8ai-cn/agentcloud/backend/internal/domain/coordinator"
 )
 
 // fakeStore is an in-memory coordinatordom.Repository for service tests. Only

@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
+	expertdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/expert"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

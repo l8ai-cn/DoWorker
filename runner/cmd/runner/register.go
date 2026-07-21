@@ -10,9 +10,9 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/anthropics/agentsmesh/runner/internal/client"
-	"github.com/anthropics/agentsmesh/runner/internal/config"
-	"github.com/anthropics/agentsmesh/runner/internal/envpath"
+	"github.com/l8ai-cn/agentcloud/runner/internal/client"
+	"github.com/l8ai-cn/agentcloud/runner/internal/config"
+	"github.com/l8ai-cn/agentcloud/runner/internal/envpath"
 	"gopkg.in/yaml.v3"
 )
 
@@ -50,9 +50,9 @@ func registerInteractive(ctx context.Context, serverURL, nodeID string, headless
 
 	fmt.Printf("✓ Organization: %s\n", result.OrgSlug)
 	fmt.Printf("✓ gRPC Endpoint: %s\n", result.GRPCEndpoint)
-	fmt.Printf("✓ Certificates saved to ~/.agentsmesh/certs/\n")
+	fmt.Printf("✓ Certificates saved to ~/.agentcloud/certs/\n")
 	fmt.Println("\nYou can now start the runner with:")
-	fmt.Println("  do-worker-runner run")
+	fmt.Println("  agent-cloud-runner run")
 
 	return nil
 }
@@ -75,9 +75,9 @@ func registerWithGRPCToken(ctx context.Context, serverURL, token, nodeID string)
 
 	fmt.Printf("✓ Organization: %s\n", result.OrgSlug)
 	fmt.Printf("✓ gRPC Endpoint: %s\n", result.GRPCEndpoint)
-	fmt.Printf("✓ Certificates saved to ~/.agentsmesh/certs/\n")
+	fmt.Printf("✓ Certificates saved to ~/.agentcloud/certs/\n")
 	fmt.Println("\nYou can now start the runner with:")
-	fmt.Println("  do-worker-runner run")
+	fmt.Println("  agent-cloud-runner run")
 
 	return nil
 }
@@ -104,9 +104,9 @@ func reactivateRunner(ctx context.Context, serverURL, token string) error {
 	}
 
 	fmt.Println("✓ Runner reactivated successfully!")
-	fmt.Println("✓ New certificates saved to ~/.agentsmesh/certs/")
+	fmt.Println("✓ New certificates saved to ~/.agentcloud/certs/")
 	fmt.Println("\nYou can now start the runner with:")
-	fmt.Println("  do-worker-runner run")
+	fmt.Println("  agent-cloud-runner run")
 
 	return nil
 }
@@ -150,7 +150,7 @@ func backupExistingConfig(configDir string) {
 	}
 }
 
-// saveGRPCConfig saves gRPC registration result to ~/.agentsmesh/
+// saveGRPCConfig saves gRPC registration result to ~/.agentcloud/
 func saveGRPCConfig(nodeID, serverURL, orgSlug, certPEM, keyPEM, caCertPEM, grpcEndpoint string) error {
 	// Ensure config directory exists first
 	home, err := os.UserHomeDir()
@@ -158,7 +158,7 @@ func saveGRPCConfig(nodeID, serverURL, orgSlug, certPEM, keyPEM, caCertPEM, grpc
 		return fmt.Errorf("failed to get home directory: %w", err)
 	}
 
-	configDir := filepath.Join(home, ".agentsmesh")
+	configDir := filepath.Join(home, ".agentcloud")
 	if err := os.MkdirAll(configDir, 0700); err != nil {
 		return fmt.Errorf("failed to create config directory: %w", err)
 	}
@@ -231,7 +231,7 @@ func defaultWorkspaceRoot() string {
 	return config.TempBaseDir() + "-workspace"
 }
 
-// savedGRPCConfig represents the gRPC configuration saved to ~/.agentsmesh/config.yaml
+// savedGRPCConfig represents the gRPC configuration saved to ~/.agentcloud/config.yaml
 type savedGRPCConfig struct {
 	ServerURL         string `yaml:"server_url"`
 	NodeID            string `yaml:"node_id"`

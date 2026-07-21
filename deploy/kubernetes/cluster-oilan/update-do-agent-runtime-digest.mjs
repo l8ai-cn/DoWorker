@@ -8,7 +8,7 @@ import {
   writeRecoverably,
 } from "./video-runtime-digest-transaction.mjs";
 
-const IMAGE = "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent";
+const IMAGE = "repo.aiedulab.cn:8443/agentcloud/runner-do-agent";
 const DIGEST_RE = /^sha256:[a-f0-9]{64}$/;
 const COMMIT_RE = /^[a-f0-9]{40}$/;
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));

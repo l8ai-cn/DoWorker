@@ -5,11 +5,11 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	agentsessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
-	"github.com/anthropics/agentsmesh/backend/internal/service/airesource"
-	"github.com/anthropics/agentsmesh/backend/internal/service/billing"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
+	agentsessionsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentsession"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/billing"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
 	"github.com/gin-gonic/gin"
 )
 

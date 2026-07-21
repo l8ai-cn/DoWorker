@@ -1,8 +1,8 @@
 package infra
 
 import (
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	workerspecservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	workerspecservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
 	"gorm.io/gorm"
 )
 

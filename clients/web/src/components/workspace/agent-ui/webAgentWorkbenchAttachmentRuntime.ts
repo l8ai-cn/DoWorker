@@ -1,4 +1,4 @@
-import type { AgentSessionRuntime } from "@do-worker/agent-ui";
+import type { AgentSessionRuntime } from "@agent-cloud/agent-ui";
 
 import type { WebAgentWorkbenchRuntimeDeps } from "./webAgentWorkbenchRuntimeTypes";
 

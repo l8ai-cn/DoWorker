@@ -12,7 +12,7 @@ import (
 )
 
 const validSubmissionJSON = `{
-  "apiVersion": "agentsmesh.io/v1alpha1",
+  "apiVersion": "agentcloud.io/v1alpha1",
   "kind": "WorkerTemplate",
   "metadata": {
     "name": "worker-one",
@@ -73,7 +73,7 @@ func TestDecodeJSONSubmissionRejectsTrailingDocument(t *testing.T) {
 
 func TestDecodeJSONSubmissionRequiresMetadataObject(t *testing.T) {
 	for _, value := range []string{"null", "[]", `"metadata"`} {
-		source := `{"apiVersion":"agentsmesh.io/v1alpha1","kind":"WorkerTemplate",` +
+		source := `{"apiVersion":"agentcloud.io/v1alpha1","kind":"WorkerTemplate",` +
 			`"metadata":` + value + `,"spec":{"runtime":"codex"}}`
 		_, err := DecodeJSONSubmission([]byte(source))
 		require.Error(t, err)
@@ -224,7 +224,7 @@ func TestEncodeJSONEnforcesSafeJSONStructure(t *testing.T) {
 
 func nestedSubmissionJSON(depth int) []byte {
 	return []byte(`{
-		"apiVersion":"agentsmesh.io/v1alpha1",
+		"apiVersion":"agentcloud.io/v1alpha1",
 		"kind":"WorkerTemplate",
 		"metadata":{"name":"worker-one","namespace":"team-one"},
 		"spec":` + string(nestedSpecJSON(depth)) + `
@@ -252,7 +252,7 @@ func submissionWithFinalField(field string) string {
 	if field != "" {
 		field = "," + field
 	}
-	return `{"apiVersion":"agentsmesh.io/v1alpha1","kind":"WorkerTemplate",
+	return `{"apiVersion":"agentcloud.io/v1alpha1","kind":"WorkerTemplate",
 		"metadata":{"name":"worker-one","namespace":"team-one"}` + field + `}`
 }
 

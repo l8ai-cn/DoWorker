@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	channelDomain "github.com/anthropics/agentsmesh/backend/internal/domain/channel"
-	notifDomain "github.com/anthropics/agentsmesh/backend/internal/domain/notification"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	channelDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/channel"
+	notifDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/notification"
 )
 
 // --- Mock UserNameResolver ---

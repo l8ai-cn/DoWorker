@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	channelDomain "github.com/anthropics/agentsmesh/backend/internal/domain/channel"
+	channelDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/channel"
 )
 
 func (s *Service) ArchiveChannel(ctx context.Context, channelID int64) error {

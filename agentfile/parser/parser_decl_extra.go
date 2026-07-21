@@ -3,8 +3,8 @@ package parser
 import (
 	"strings"
 
-	"github.com/anthropics/agentsmesh/agentfile/capability"
-	"github.com/anthropics/agentsmesh/agentfile/lexer"
+	"github.com/l8ai-cn/agentcloud/agentfile/capability"
+	"github.com/l8ai-cn/agentcloud/agentfile/lexer"
 )
 
 func (p *Parser) parseSetupDecl(pos Position) *SetupDecl {

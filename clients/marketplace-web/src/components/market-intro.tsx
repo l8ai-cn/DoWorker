@@ -16,7 +16,7 @@ export function MarketIntro({ market }: { market: Market }) {
           <ShieldCheck aria-hidden="true" size={20} />
           <span>
             <strong>先评估，再启用</strong>
-            <small>查看结果、接入条件、权限和市场额度后，再跳转至 Do Worker 完成启用。</small>
+            <small>查看结果、接入条件、权限和市场额度后，再跳转至 Agent Cloud 完成启用。</small>
           </span>
         </div>
         <span className="intro-direction">

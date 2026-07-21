@@ -25,7 +25,7 @@ describe("OttoEyes", () => {
     // OttoIcon's decorative aria-hidden default; losing the override would
     // silently hide the brand image from screen readers.
     expect(svg).toHaveAttribute("role", "img");
-    expect(svg).toHaveAttribute("aria-label", "Do Worker");
+    expect(svg).toHaveAttribute("aria-label", "Agent Cloud");
     expect(svg).toHaveAttribute("aria-hidden", "false");
     expect(svg).toHaveClass("h-18");
   });

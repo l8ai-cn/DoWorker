@@ -95,7 +95,7 @@ function tool(id: string): AgentTimelineItem {
   return {
     id,
     identity: {
-      namespace: "agentsmesh.acp",
+      namespace: "agentcloud.acp",
       schemaVersion: "1",
       semanticKey: "shell",
     },

@@ -39,7 +39,7 @@
     "response": "After the WASM rebuild, the service filtered ModelBinding rows correctly but the Connect handler returned the pre-policy filter, whose protocol adapter list was empty."
   },
   "repairs": [
-    "Rebuilt do-worker-wasm after Rust proto generation.",
+    "Rebuilt agent-cloud-wasm after Rust proto generation.",
     "Added ResourceListPage.AppliedFilter and populated it after server-side Worker Definition policy resolution.",
     "Returned the resolved filter from ListResources and covered the response contract in Connect tests.",
     "Required every config document definition to declare required explicitly."

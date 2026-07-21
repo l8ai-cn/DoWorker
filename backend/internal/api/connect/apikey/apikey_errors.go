@@ -6,8 +6,8 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	apikeyservice "github.com/anthropics/agentsmesh/backend/internal/service/apikey"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	apikeyservice "github.com/l8ai-cn/agentcloud/backend/internal/service/apikey"
 )
 
 // requireOrgAdmin gates write/read access — apikeys are sensitive secrets.

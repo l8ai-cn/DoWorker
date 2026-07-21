@@ -6,8 +6,8 @@ cluster_secret_data() {
   local secret_name="$1" secret_key="$2" escaped_key
   escaped_key="${secret_key//./\\.}"
   doops -session "${SESSION}" exec --target "${TARGET}" \
-    --cmd "printf '__AGENTSMESH_SECRET__'; kubectl -n ${NS} get secret ${secret_name} --ignore-not-found -o jsonpath='{.data.${escaped_key}}'" |
-    sed -n 's/^__AGENTSMESH_SECRET__//p' |
+    --cmd "printf '__AGENTCLOUD_SECRET__'; kubectl -n ${NS} get secret ${secret_name} --ignore-not-found -o jsonpath='{.data.${escaped_key}}'" |
+    sed -n 's/^__AGENTCLOUD_SECRET__//p' |
     tr -d '\r\n'
 }
 
@@ -65,17 +65,17 @@ docker_config_json() {
 
 restore_app_secret_env() {
   local db_password jwt_secret internal_secret minio_password
-  db_password="$(cluster_secret_data agentsmesh-secrets DB_PASSWORD)"
-  jwt_secret="$(cluster_secret_data agentsmesh-secrets JWT_SECRET)"
-  internal_secret="$(cluster_secret_data agentsmesh-secrets INTERNAL_API_SECRET)"
-  minio_password="$(cluster_secret_data agentsmesh-secrets MINIO_ROOT_PASSWORD)"
+  db_password="$(cluster_secret_data agentcloud-secrets DB_PASSWORD)"
+  jwt_secret="$(cluster_secret_data agentcloud-secrets JWT_SECRET)"
+  internal_secret="$(cluster_secret_data agentcloud-secrets INTERNAL_API_SECRET)"
+  minio_password="$(cluster_secret_data agentcloud-secrets MINIO_ROOT_PASSWORD)"
 
   if [[ -z "${db_password}${jwt_secret}${internal_secret}${minio_password}" ]]; then
     return 0
   fi
   [[ -n "${db_password}" && -n "${jwt_secret}" &&
       -n "${internal_secret}" && -n "${minio_password}" ]] || {
-    echo "agentsmesh-secrets is incomplete" >&2
+    echo "agentcloud-secrets is incomplete" >&2
     return 1
   }
   {
@@ -90,13 +90,13 @@ restore_app_secret_env() {
 
 generate_cluster_secrets() {
   mkdir -p "${SEC}"
-  restore_secret_file agentsmesh-pki-ca ca.crt "${GEN}/ca.crt"
-  restore_secret_file agentsmesh-pki-ca ca.key "${GEN}/ca.key"
+  restore_secret_file agentcloud-pki-ca ca.crt "${GEN}/ca.crt"
+  restore_secret_file agentcloud-pki-ca ca.key "${GEN}/ca.key"
   [[ -f "${GEN}/ca.crt" && -f "${GEN}/ca.key" ]] || {
     echo "==> generating runner mTLS CA"
     openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:prime256v1 -out "${GEN}/ca.key"
     openssl req -x509 -new -key "${GEN}/ca.key" -days 3650 -out "${GEN}/ca.crt" \
-      -subj "/CN=AgentsMesh Runner CA/O=agentsmesh"
+      -subj "/CN=Agent Cloud Runner CA/O=agentcloud"
   }
   openssl x509 -in "${GEN}/ca.crt" -noout
   openssl pkey -in "${GEN}/ca.key" -noout
@@ -119,8 +119,8 @@ generate_cluster_secrets() {
     } > "${GEN}/env"
     chmod 600 "${GEN}/env"
   }
-  restore_secret_file agentsmesh-access-token private.pem "${GEN}/access-token-private.pem"
-  restore_secret_file agentsmesh-access-token public.pem "${GEN}/access-token-public.pem"
+  restore_secret_file agentcloud-access-token private.pem "${GEN}/access-token-private.pem"
+  restore_secret_file agentcloud-access-token public.pem "${GEN}/access-token-public.pem"
   [[ -f "${GEN}/access-token-private.pem" ]] || {
     echo "==> generating access token RSA key pair"
     openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 \
@@ -142,10 +142,10 @@ generate_cluster_secrets() {
   ACCESS_TOKEN_KEY_ID="oilan-$(printf '%s' "${public_digest}" | awk '{print substr($2,1,16)}')"
   # shellcheck disable=SC1090
   source "${GEN}/env"
-  MARKETPLACE_DATABASE_URL="postgres://agentsmesh:${DB_PASSWORD}@postgres:5432/agentsmesh?sslmode=disable"
+  MARKETPLACE_DATABASE_URL="postgres://agentcloud:${DB_PASSWORD}@postgres:5432/agentcloud?sslmode=disable"
   MARKETPLACE_MIGRATION_DATABASE_URL="${MARKETPLACE_DATABASE_URL}&x-migrations-table=marketplace_schema_migrations"
 
-  write_encoded_secret_manifest "${SEC}/agentsmesh-secrets.yaml" agentsmesh-secrets Opaque \
+  write_encoded_secret_manifest "${SEC}/agentcloud-secrets.yaml" agentcloud-secrets Opaque \
     DB_PASSWORD "$(encode_secret_value "${DB_PASSWORD}")" \
     JWT_SECRET "$(encode_secret_value "${JWT_SECRET}")" \
     ACCESS_TOKEN_KEY_ID "$(encode_secret_value "${ACCESS_TOKEN_KEY_ID}")" \
@@ -155,11 +155,11 @@ generate_cluster_secrets() {
     MINIO_ROOT_PASSWORD "$(encode_secret_value "${MINIO_ROOT_PASSWORD}")" \
     STORAGE_SECRET_KEY "$(encode_secret_value "${MINIO_ROOT_PASSWORD}")"
 
-  write_encoded_secret_manifest "${SEC}/agentsmesh-pki-ca.yaml" agentsmesh-pki-ca Opaque \
+  write_encoded_secret_manifest "${SEC}/agentcloud-pki-ca.yaml" agentcloud-pki-ca Opaque \
     ca.crt "$(encode_secret_file "${GEN}/ca.crt")" \
     ca.key "$(encode_secret_file "${GEN}/ca.key")"
 
-  write_encoded_secret_manifest "${SEC}/agentsmesh-access-token.yaml" agentsmesh-access-token Opaque \
+  write_encoded_secret_manifest "${SEC}/agentcloud-access-token.yaml" agentcloud-access-token Opaque \
     private.pem "$(encode_secret_file "${GEN}/access-token-private.pem")" \
     public.pem "$(encode_secret_file "${GEN}/access-token-public.pem")"
 
@@ -171,6 +171,6 @@ generate_cluster_secrets() {
   }
   cred="$(echo "${REG}" | "docker-credential-${store}" get)"
   docker_config="$(printf '%s' "${cred}" | docker_config_json "${REG}")"
-  write_encoded_secret_manifest "${SEC}/agentsmesh-regcred.yaml" agentsmesh-regcred \
+  write_encoded_secret_manifest "${SEC}/agentcloud-regcred.yaml" agentcloud-regcred \
     kubernetes.io/dockerconfigjson .dockerconfigjson "$(encode_secret_value "${docker_config}")"
 }

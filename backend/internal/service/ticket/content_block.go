@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"time"
 
-	bnpkg "github.com/anthropics/agentsmesh/backend/pkg/blocknote"
+	bnpkg "github.com/l8ai-cn/agentcloud/backend/pkg/blocknote"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/blockstore"
-	blockstoreservice "github.com/anthropics/agentsmesh/backend/internal/service/blockstore"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/blockstore"
+	blockstoreservice "github.com/l8ai-cn/agentcloud/backend/internal/service/blockstore"
 	"github.com/google/uuid"
 )
 

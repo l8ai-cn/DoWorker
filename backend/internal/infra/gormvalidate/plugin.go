@@ -11,12 +11,12 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 type Plugin struct{}
 
-func (p *Plugin) Name() string { return "agentsmesh:identifier_validator" }
+func (p *Plugin) Name() string { return "agentcloud:identifier_validator" }
 
 func (p *Plugin) Initialize(db *gorm.DB) error {
 	cb := db.Callback()

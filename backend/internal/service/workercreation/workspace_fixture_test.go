@@ -3,11 +3,11 @@ package workercreation
 import (
 	"context"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/envbundle"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/knowledgebase"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/skill"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/envbundle"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/gitprovider"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/knowledgebase"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/skill"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
 )
 
 type repositoryAccess struct {

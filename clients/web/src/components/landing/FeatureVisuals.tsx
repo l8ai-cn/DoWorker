@@ -205,7 +205,7 @@ function ArchitectureDiagram({ t }: { t: TFunc }) {
       <div className="text-center relative z-10">
         <div className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-2.5 surface-card rounded-full shadow-lg max-w-full">
           <div className="w-2 h-2 rounded-full bg-success animate-pulse flex-shrink-0" />
-          <span className="text-xs sm:text-sm font-medium text-foreground truncate">{t("landing.coreDemo.architecture.agentsmeshCloud")}</span>
+          <span className="text-xs sm:text-sm font-medium text-foreground truncate">{t("landing.coreDemo.architecture.agentcloudCloud")}</span>
         </div>
       </div>
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent opacity-50 pointer-events-none" />

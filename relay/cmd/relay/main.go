@@ -7,9 +7,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/anthropics/agentsmesh/relay/internal/config"
-	otelinit "github.com/anthropics/agentsmesh/relay/internal/otel"
-	"github.com/anthropics/agentsmesh/relay/internal/server"
+	"github.com/l8ai-cn/agentcloud/relay/internal/config"
+	otelinit "github.com/l8ai-cn/agentcloud/relay/internal/otel"
+	"github.com/l8ai-cn/agentcloud/relay/internal/server"
 )
 
 func main() {
@@ -19,10 +19,10 @@ func main() {
 	})
 	slog.SetDefault(slog.New(handler))
 
-	slog.Info("Starting AgentsMesh Relay Server")
+	slog.Info("Starting Agent Cloud Relay Server")
 
 	// Initialize OpenTelemetry
-	otelProvider, err := otelinit.InitProvider(context.Background(), "do-worker-relay", "1.0.0")
+	otelProvider, err := otelinit.InitProvider(context.Background(), "agent-cloud-relay", "1.0.0")
 	if err != nil {
 		slog.Warn("OpenTelemetry initialization failed, continuing without tracing", "error", err)
 	} else {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"net"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/admin"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/admin"
 )
 
 func (s *Service) LogAction(ctx context.Context, entry *admin.AuditLogEntry) error {

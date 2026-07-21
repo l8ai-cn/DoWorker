@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/ticket"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/git"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/ticket"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/git"
 )
 
 func (s *MRSyncService) FindOrCreateMR(ctx context.Context, orgID int64, t *ticket.Ticket, mrData *MRData, podID *int64) (*ticket.MergeRequest, error) {

@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use agentsmesh_api_client::{ApiClient, AuthTokenStore};
-use agentsmesh_services::OrchestrationResourceService;
+use agentcloud_api_client::{ApiClient, AuthTokenStore};
+use agentcloud_services::OrchestrationResourceService;
 use orchestration_resource_proto::proto::orchestration_resource::v1 as resource;
 use prost::Message;
 use wiremock::matchers::{body_bytes, method, path};

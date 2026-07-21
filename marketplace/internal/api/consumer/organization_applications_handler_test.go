@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	actorapi "github.com/anthropics/agentsmesh/marketplace/internal/api/actor"
-	"github.com/anthropics/agentsmesh/marketplace/internal/service"
+	actorapi "github.com/l8ai-cn/agentcloud/marketplace/internal/api/actor"
+	"github.com/l8ai-cn/agentcloud/marketplace/internal/service"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
 )
@@ -18,7 +18,7 @@ func TestListOrganizationApplicationsUsesAuthenticatedActor(t *testing.T) {
 		items: []service.OrganizationApplication{
 			{
 				InstallationID: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
-				MarketSlug:     "do-worker-market",
+				MarketSlug:     "agent-cloud-market",
 				ListingSlug:    "software-delivery-expert",
 				DisplayName:    "软件交付专家",
 				Tagline:        "把需求变成可验证的代码交付",
@@ -46,7 +46,7 @@ func TestListOrganizationApplicationsUsesAuthenticatedActor(t *testing.T) {
 	require.JSONEq(t, `{
 	  "applications":[{
 	    "installation_id":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
-	    "market_slug":"do-worker-market",
+	    "market_slug":"agent-cloud-market",
 	    "listing_slug":"software-delivery-expert",
 	    "display_name":"软件交付专家",
 	    "tagline":"把需求变成可验证的代码交付",

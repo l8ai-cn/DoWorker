@@ -1,7 +1,7 @@
 package mockagent
 
 import (
-	"github.com/anthropics/agentsmesh/runner/internal/acp"
+	"github.com/l8ai-cn/agentcloud/runner/internal/acp"
 )
 
 // emit_* helpers compose the ACP session/update payloads consumed by the

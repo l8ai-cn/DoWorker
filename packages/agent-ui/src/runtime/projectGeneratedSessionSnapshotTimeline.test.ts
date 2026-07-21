@@ -3,18 +3,18 @@ import { describe, expect, it } from "vitest";
 
 import {
   ContentBlockSchema,
-} from "@do-worker/proto/agent_workbench/v2/content_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/content_pb";
 import {
   MessageTimelineItemSchema,
   SessionSnapshotSchema,
   TimelineItemContentSchema,
   TimelineItemSchema,
-} from "@do-worker/proto/agent_workbench/v2/session_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/session_pb";
 import {
   MessageRole,
   SessionStatus,
   TimelineItemStatus,
-} from "@do-worker/proto/agent_workbench/v2/session_state_pb";
+} from "@agent-cloud/proto/agent_workbench/v2/session_state_pb";
 import { projectGeneratedSessionSnapshot } from "./projectGeneratedSessionSnapshot";
 
 const encoder = new TextEncoder();

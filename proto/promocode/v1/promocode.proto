@@ -19,7 +19,7 @@ syntax = "proto3";
 
 package proto.promocode.v1;
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/promocode/v1;promocodev1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/promocode/v1;promocodev1";
 
 // ============================================================================
 // PromoCodeService — org-scoped (membership for Validate / History, owner for

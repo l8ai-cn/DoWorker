@@ -21,8 +21,8 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/infra/database"
-	adminservice "github.com/anthropics/agentsmesh/backend/internal/service/admin"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/database"
+	adminservice "github.com/l8ai-cn/agentcloud/backend/internal/service/admin"
 )
 
 const ServiceName = "proto.promocode.v1.PromoCodeAdminService"

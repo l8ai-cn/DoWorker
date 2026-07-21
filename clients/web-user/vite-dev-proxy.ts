@@ -99,5 +99,5 @@ export function createDevProxyConfig(target: string): Record<string, ProxyOption
 }
 
 export function resolveDevProxyTarget(): string {
-  return process.env.DO_WORKER_API_URL ?? process.env.AGENTSMESH_API_URL ?? "http://localhost:10000";
+  return process.env.DO_WORKER_API_URL ?? process.env.AGENTCLOUD_API_URL ?? "http://localhost:10000";
 }

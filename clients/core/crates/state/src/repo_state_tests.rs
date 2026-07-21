@@ -1,4 +1,4 @@
-use agentsmesh_types::proto_repository_v1::{Branch, Repository};
+use agentcloud_types::proto_repository_v1::{Branch, Repository};
 
 use crate::repo_state::RepoState;
 

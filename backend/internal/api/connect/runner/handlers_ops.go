@@ -10,10 +10,10 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	"github.com/anthropics/agentsmesh/backend/pkg/policy"
-	runnerapiv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner_api/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/policy"
+	runnerapiv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/runner_api/v1"
 )
 
 // Operational handlers — long-running side effects on a registered runner:

@@ -67,7 +67,7 @@ export default function DocsShell({
                 <SheetHeader className="mb-4">
                   <SheetTitle>{t("docs.title")}</SheetTitle>
                 </SheetHeader>
-                <nav aria-label="Do Worker" className="mb-5 grid border-b pb-5">
+                <nav aria-label="Agent Cloud" className="mb-5 grid border-b pb-5">
                   {marketingRoutes.map((route) => {
                     const active = isMarketingRouteActive(pathname, route.href);
                     return (
@@ -96,14 +96,14 @@ export default function DocsShell({
                 <Logo />
               </div>
               <span className="text-base sm:text-xl font-semibold text-[var(--azure-light-ink)] truncate">
-                Do Worker
+                Agent Cloud
               </span>
             </Link>
             <span className="hidden sm:inline-block ml-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--azure-light-cyan-ink)]">
               Docs
             </span>
           </div>
-          <nav aria-label="Do Worker" className="hidden items-center gap-4 lg:flex">
+          <nav aria-label="Agent Cloud" className="hidden items-center gap-4 lg:flex">
             {marketingRoutes.map((route) => {
               const active = isMarketingRouteActive(pathname, route.href);
               return (
@@ -166,7 +166,7 @@ export default function DocsShell({
         <div className="px-4 md:px-5 py-10">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-[var(--azure-light-ink-muted)]">
-              &copy; {new Date().getFullYear()} Do Worker.{" "}
+              &copy; {new Date().getFullYear()} Agent Cloud.{" "}
               {t("common.allRightsReserved")}
             </p>
             <div className="flex gap-8">

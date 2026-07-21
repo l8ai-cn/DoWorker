@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/infra"
-	userService "github.com/anthropics/agentsmesh/backend/internal/service/user"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra"
+	userService "github.com/l8ai-cn/agentcloud/backend/internal/service/user"
 )
 
 func TestRegisterWithUserService(t *testing.T) {

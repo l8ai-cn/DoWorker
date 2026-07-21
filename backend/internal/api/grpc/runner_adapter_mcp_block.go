@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/blockstore"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	blockstoreservice "github.com/anthropics/agentsmesh/backend/internal/service/blockstore"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/blockstore"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	blockstoreservice "github.com/l8ai-cn/agentcloud/backend/internal/service/blockstore"
 )
 
 // One tool call → one op. Batch writes stay REST-only.

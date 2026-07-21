@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/anthropics/agentsmesh/runner/internal/safego"
-	"github.com/anthropics/agentsmesh/runner/internal/workbench"
+	"github.com/l8ai-cn/agentcloud/runner/internal/safego"
+	"github.com/l8ai-cn/agentcloud/runner/internal/workbench"
 )
 
 func (f *acpWorkbenchForwarder) queueOfficePreview(

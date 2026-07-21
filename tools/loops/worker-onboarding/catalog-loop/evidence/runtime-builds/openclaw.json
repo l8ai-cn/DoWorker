@@ -2,11 +2,11 @@
   "schema_version": 1,
   "worker_slug": "openclaw",
   "validated_at": "2026-07-12T19:14:49Z",
-  "image": "do-worker/runner-openclaw:latest",
+  "image": "agent-cloud/runner-openclaw:latest",
   "image_id": "sha256:a9b067dc3ecc13402b96143922d6cf638e285e845f85a3cefc33ab83e5bcb809",
   "platform": "linux/amd64",
   "build_command": "FORCE_REBUILD=1 BUILD_RETRIES=1 bash docker/agent-runtime/build.sh openclaw",
-  "smoke_command": "docker run --rm --platform linux/amd64 --entrypoint sh do-worker/runner-openclaw:latest -lc '<checks>'",
+  "smoke_command": "docker run --rm --platform linux/amd64 --entrypoint sh agent-cloud/runner-openclaw:latest -lc '<checks>'",
   "checks": {
     "container_user": "runner",
     "cli_path": "/usr/local/bin/openclaw",

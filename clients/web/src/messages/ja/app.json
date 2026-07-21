@@ -30,7 +30,7 @@
     }
   },
   "mesh": {
-    "title": "Do Worker",
+    "title": "Agent Cloud",
     "channels": "チャンネル",
     "newChannel": "新規チャンネル",
     "topology": "トポロジー",
@@ -315,7 +315,7 @@
     "workspaceDescription": "ターミナルワークスペース",
     "goToTickets": "チケットへ移動",
     "ticketsDescription": "チケットの表示と管理",
-    "goToMesh": "Do Workerへ移動",
+    "goToMesh": "Agent Cloudへ移動",
     "meshDescription": "ネットワークトポロジー",
     "goToChannels": "Go to Channels",
     "channelsDescription": "Team collaboration channels",

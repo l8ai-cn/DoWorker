@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use agentsmesh_api_client::{ApiClient, AuthTokenStore};
-use agentsmesh_types::proto_goalloop_v1 as lp;
+use agentcloud_api_client::{ApiClient, AuthTokenStore};
+use agentcloud_types::proto_goalloop_v1 as lp;
 use prost::Message;
 use wiremock::matchers::{body_bytes, method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};

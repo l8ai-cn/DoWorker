@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerInfo } from "@/lib/CapabilitiesContext";
 import { sandboxOptionLabel } from "@/lib/capabilities";
-import { getDoWorkerHostConfig } from "@/lib/host";
+import { getAgentCloudHostConfig } from "@/lib/host";
 import {
   collapseInternalWorkspaceHostsForPicker,
   hostSupportsAgent,
@@ -37,7 +37,7 @@ export function useNewChatLocationState({
   const info = useServerInfo();
   const managedSandboxesEnabled = info !== "loading" && info.managed_sandboxes_enabled;
   const sandboxLabel = sandboxOptionLabel(info !== "loading" ? info.sandbox_provider : null);
-  const docsLinks = getDoWorkerHostConfig().docsLinks;
+  const docsLinks = getAgentCloudHostConfig().docsLinks;
   const { data: hosts } = useHosts();
   const [selectedHostId, setSelectedHostId] = useState<string | null>(
     () => landingDraft?.selectedHostId ?? null,

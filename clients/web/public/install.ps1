@@ -1,13 +1,13 @@
-# Do Worker Runner Installation Script for Windows
-# Usage: irm https://agentsmesh.ai/install.ps1 | iex
+# Agent Cloud Runner Installation Script for Windows
+# Usage: irm https://agentcloud.ai/install.ps1 | iex
 #
-# For macOS/Linux, use: curl -fsSL https://agentsmesh.ai/install.sh | sh
+# For macOS/Linux, use: curl -fsSL https://agentcloud.ai/install.sh | sh
 
 $ErrorActionPreference = "Stop"
 
 # GitHub release repository
-$GITHUB_REPO = "l8ai-cn/DoWorker"
-$BINARY_NAME = "do-worker-runner.exe"
+$GITHUB_REPO = "l8ai-cn/AgentCloud"
+$BINARY_NAME = "agent-cloud-runner.exe"
 
 # Colors
 function Write-Info { Write-Host "==> " -ForegroundColor Blue -NoNewline; Write-Host $args }
@@ -38,10 +38,10 @@ function Get-Platform {
         "AMD64" { return "windows_amd64" }
         "ARM64" { return "windows_arm64" }
         "x86" {
-            throw "Unsupported architecture: x86 (32-bit). Do Worker Runner requires 64-bit Windows (x64 or ARM64)."
+            throw "Unsupported architecture: x86 (32-bit). Agent Cloud Runner requires 64-bit Windows (x64 or ARM64)."
         }
         default {
-            throw "Unsupported architecture: $arch. Do Worker Runner supports Windows x64 and ARM64 only. Download manually from: https://github.com/$GITHUB_REPO/releases/latest"
+            throw "Unsupported architecture: $arch. Agent Cloud Runner supports Windows x64 and ARM64 only. Download manually from: https://github.com/$GITHUB_REPO/releases/latest"
         }
     }
 }
@@ -70,7 +70,7 @@ function Get-InstallDir {
     $candidates = @(
         "$env:USERPROFILE\.local\bin",
         "$env:USERPROFILE\bin",
-        "$env:LOCALAPPDATA\Programs\agentsmesh"
+        "$env:LOCALAPPDATA\Programs\agentcloud"
     )
 
     foreach ($dir in $candidates) {
@@ -80,7 +80,7 @@ function Get-InstallDir {
     }
 
     # Default to LocalAppData
-    $installDir = "$env:LOCALAPPDATA\Programs\agentsmesh"
+    $installDir = "$env:LOCALAPPDATA\Programs\agentcloud"
     return $installDir
 }
 
@@ -105,13 +105,13 @@ function Install-Runner {
         [string]$Platform
     )
 
-    $downloadUrl = "https://github.com/$GITHUB_REPO/releases/download/v$Version/do-worker-runner_${Version}_${Platform}.zip"
+    $downloadUrl = "https://github.com/$GITHUB_REPO/releases/download/v$Version/agent-cloud-runner_${Version}_${Platform}.zip"
     $installDir = Get-InstallDir
 
     Write-Info "Downloading from: $downloadUrl"
 
     # Create temp directory
-    $tempDir = Join-Path $env:TEMP "agentsmesh-install-$(Get-Random)"
+    $tempDir = Join-Path $env:TEMP "agentcloud-install-$(Get-Random)"
     New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
 
     try {
@@ -124,7 +124,7 @@ function Install-Runner {
         Expand-Archive -Path $zipPath -DestinationPath $tempDir -Force
 
         # Find binary
-        $binaryPath = Get-ChildItem -Path $tempDir -Filter "do-worker-runner.exe" -Recurse | Select-Object -First 1
+        $binaryPath = Get-ChildItem -Path $tempDir -Filter "agent-cloud-runner.exe" -Recurse | Select-Object -First 1
         if (-not $binaryPath) {
             throw "Binary not found in archive"
         }
@@ -149,7 +149,7 @@ function Install-Runner {
         # Add to PATH
         Add-ToPath -Directory $installDir
 
-        Write-Success "Do Worker Runner v$Version installed successfully!"
+        Write-Success "Agent Cloud Runner v$Version installed successfully!"
         return $destPath
     }
     finally {
@@ -179,15 +179,15 @@ function Show-NextSteps {
     Write-Success "Next steps:"
     Write-Host ""
     Write-Host "  1. Register your runner:" -ForegroundColor White
-    Write-Host "     do-worker-runner register --server https://agentsmesh.ai --token <YOUR_TOKEN>" -ForegroundColor Blue
+    Write-Host "     agent-cloud-runner register --server https://agentcloud.ai --token <YOUR_TOKEN>" -ForegroundColor Blue
     Write-Host ""
     Write-Host "  2. Start the runner:" -ForegroundColor White
-    Write-Host "     do-worker-runner run" -ForegroundColor Blue
+    Write-Host "     agent-cloud-runner run" -ForegroundColor Blue
     Write-Host ""
     Write-Host "  Get your registration token from: Settings > Runners > Create Token" -ForegroundColor Gray
     Write-Host ""
     Write-Host "  For more options, run: " -ForegroundColor White -NoNewline
-    Write-Host "do-worker-runner --help" -ForegroundColor Blue
+    Write-Host "agent-cloud-runner --help" -ForegroundColor Blue
     Write-Host ""
     Write-Host "------------------------------------------------------------------------" -ForegroundColor DarkGray
 }
@@ -196,8 +196,8 @@ function Show-NextSteps {
 function Test-Scoop {
     if (Get-Command scoop -ErrorAction SilentlyContinue) {
         Write-Host ""
-        Write-Warn "Scoop detected! Install do-worker-runner via direct download (see install.ps1) or from GitHub Releases:"
-        Write-Host "     https://github.com/l8ai-cn/DoWorker/releases/latest" -ForegroundColor Blue
+        Write-Warn "Scoop detected! Install agent-cloud-runner via direct download (see install.ps1) or from GitHub Releases:"
+        Write-Host "     https://github.com/l8ai-cn/AgentCloud/releases/latest" -ForegroundColor Blue
         Write-Host ""
         $response = Read-Host "Continue with direct installation? [Y/n]"
         if ($response -match "^[nN]") {

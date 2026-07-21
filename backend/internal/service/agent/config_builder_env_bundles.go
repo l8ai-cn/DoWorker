@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 
-	envbundleservice "github.com/anthropics/agentsmesh/backend/internal/service/envbundle"
+	envbundleservice "github.com/l8ai-cn/agentcloud/backend/internal/service/envbundle"
 )
 
 func (b *ConfigBuilder) buildEnvBundleContext(

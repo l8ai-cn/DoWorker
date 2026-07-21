@@ -1,6 +1,6 @@
 import { create } from "@bufbuild/protobuf";
 
-import { SessionCursorSchema } from "@do-worker/proto/agent_workbench/v2/session_pb";
+import { SessionCursorSchema } from "@agent-cloud/proto/agent_workbench/v2/session_pb";
 
 export interface InitialConnection {
   promise: Promise<void>;

@@ -3,19 +3,19 @@
 End-user agent workbench — chat, terminal, files, session collaboration.
 
 UI vendored from [Omnigent](https://github.com/omnigent-ai/omnigent) `web/` (Apache-2.0, see `THIRD_PARTY.md`).
-Wired to **Do Worker Backend** via `/v1/*` session API + JWT auth.
+Wired to **Agent Cloud Backend** via `/v1/*` session API + JWT auth.
 
 ## Client layer
 
-All Do Worker integration lives under `src/lib/do-worker/`:
+All Agent Cloud integration lives under `src/lib/agent-cloud/`:
 
 | Module | Role |
 |--------|------|
-| `auth-session.ts` | JWT storage (`do-worker-auth/*`, shared key shape with `clients/web`) |
+| `auth-session.ts` | JWT storage (`agent-cloud-auth/*`, shared key shape with `clients/web`) |
 | `host-config.ts` | Embed host transport + WebSocket URL resolution |
 | `api-client.ts` | Authenticated fetch with org slug headers |
 | `server-info.ts` | `GET /v1/info` capabilities probe |
-| `session-labels.ts` | Session label key SSOT (`do-worker.ui`, `do-worker.wrapper`, …) |
+| `session-labels.ts` | Session label key SSOT (`agent-cloud.ui`, `agent-cloud.wrapper`, …) |
 | `cli-commands.ts` | Runner reconnect command snippets |
 | `storage-keys.ts` | localStorage key prefix + legacy `omnigent:` migration |
 
@@ -25,7 +25,7 @@ All Do Worker integration lives under `src/lib/do-worker/`:
 |---------|------|-------|
 | `clients/web` | Org dashboard, IDE, pods, channels | Next.js + Rust WASM |
 | `clients/web-admin` | System admin console | Next.js |
-| **`clients/web-user`** | **Direct agent usage for end users** | Vite + React + Do Worker `/v1` API |
+| **`clients/web-user`** | **Direct agent usage for end users** | Vite + React + Agent Cloud `/v1` API |
 
 ## Dev
 

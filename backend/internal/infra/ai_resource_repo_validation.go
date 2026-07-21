@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )

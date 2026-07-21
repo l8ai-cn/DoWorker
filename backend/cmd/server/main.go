@@ -6,21 +6,21 @@ import (
 	"log/slog"
 	"os"
 
-	grpcserver "github.com/anthropics/agentsmesh/backend/internal/api/grpc"
-	"github.com/anthropics/agentsmesh/backend/internal/api/rest"
-	"github.com/anthropics/agentsmesh/backend/internal/config"
-	"github.com/anthropics/agentsmesh/backend/internal/infra"
-	blockstoreinfra "github.com/anthropics/agentsmesh/backend/internal/infra/blockstore"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/database"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/logger"
-	otelinit "github.com/anthropics/agentsmesh/backend/internal/infra/otel"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/websocket"
-	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	channelService "github.com/anthropics/agentsmesh/backend/internal/service/channel"
-	notifService "github.com/anthropics/agentsmesh/backend/internal/service/notification"
-	"github.com/anthropics/agentsmesh/backend/internal/service/relay"
-	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
-	"github.com/anthropics/agentsmesh/backend/internal/service/ticket"
+	grpcserver "github.com/l8ai-cn/agentcloud/backend/internal/api/grpc"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/rest"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra"
+	blockstoreinfra "github.com/l8ai-cn/agentcloud/backend/internal/infra/blockstore"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/database"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/logger"
+	otelinit "github.com/l8ai-cn/agentcloud/backend/internal/infra/otel"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/websocket"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
+	channelService "github.com/l8ai-cn/agentcloud/backend/internal/service/channel"
+	notifService "github.com/l8ai-cn/agentcloud/backend/internal/service/notification"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/relay"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/runner"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/ticket"
 )
 
 func main() {
@@ -55,7 +55,7 @@ func main() {
 	appLogger.SetDefault()
 	slog.Info("Logger initialized", "level", cfg.Log.Level, "file", cfg.Log.FilePath)
 
-	otelProvider, err := otelinit.InitProvider(context.Background(), "do-worker-backend", "1.0.0")
+	otelProvider, err := otelinit.InitProvider(context.Background(), "agent-cloud-backend", "1.0.0")
 	if err != nil {
 		slog.Warn("OpenTelemetry initialization failed, continuing without tracing", "error", err)
 		otelProvider = &otelinit.Provider{}
@@ -125,7 +125,7 @@ func main() {
 	podCoordinator.SetTokenUsageService(services.tokenUsage)
 
 	relayManager := relay.NewManagerWithOptions()
-	relayTokenGenerator := relay.NewTokenGenerator(cfg.JWT.Secret, "agentsmesh-relay")
+	relayTokenGenerator := relay.NewTokenGenerator(cfg.JWT.Secret, "agentcloud-relay")
 	relayDNSService, relayACMEManager := initializeRelayServices(cfg)
 	slog.Info("Relay services initialized")
 

@@ -16,7 +16,7 @@
 #   ./dev-lite.sh --frontends     # 栈已起时只重启 web
 #   ./dev-lite.sh --clean         # 同 dev.sh --clean
 #
-# 可选: 无 Rust toolchain 时需预构建 packages/do-worker-wasm
+# 可选: 无 Rust toolchain 时需预构建 packages/agent-cloud-wasm
 # =============================================================================
 
 set -euo pipefail
@@ -34,7 +34,7 @@ fi
 info_banner() {
     echo ""
     echo "=========================================="
-    echo "  AgentsMesh dev-lite（低内存模式）"
+    echo "  Agent Cloud dev-lite（低内存模式）"
     echo "  Go: air  |  Runner: 按需  |  Web: 仅主站"
     echo "=========================================="
     echo ""

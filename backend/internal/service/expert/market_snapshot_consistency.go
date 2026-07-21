@@ -8,9 +8,9 @@ import (
 
 	"github.com/lib/pq"
 
-	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
-	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	expertdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/expert"
+	skilldom "github.com/l8ai-cn/agentcloud/backend/internal/domain/skill"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
 )
 
 func validateExpertMatchesWorkerSpec(

@@ -20,7 +20,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-2xl font-semibold mb-4">1. Introduction</h2>
             <p className="text-muted-foreground leading-relaxed">
-              Do Worker, Inc. (&quot;Do Worker,&quot; &quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our multi-agent AI code collaboration platform (the &quot;Service&quot;). Please read this privacy policy carefully. If you do not agree with the terms of this privacy policy, please do not access the Service.
+              Agent Cloud, Inc. (&quot;Agent Cloud,&quot; &quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our multi-agent AI code collaboration platform (the &quot;Service&quot;). Please read this privacy policy carefully. If you do not agree with the terms of this privacy policy, please do not access the Service.
             </p>
           </section>
 
@@ -63,7 +63,7 @@ export default function PrivacyPage() {
               <li>Ticket descriptions and content</li>
             </ul>
             <p className="text-muted-foreground leading-relaxed mt-4">
-              <strong>For self-hosted runner deployments, your code remains entirely within your infrastructure and is never transmitted to Do Worker servers.</strong>
+              <strong>For self-hosted runner deployments, your code remains entirely within your infrastructure and is never transmitted to Agent Cloud servers.</strong>
             </p>
 
             <h3 className="text-xl font-medium mb-3 mt-6">2.4 Automatically Collected Information</h3>
@@ -170,8 +170,8 @@ export default function PrivacyPage() {
             </ul>
             <p className="text-muted-foreground leading-relaxed mt-4">
               To exercise these rights, contact us at{" "}
-              <a href="mailto:privacy@agentsmesh.ai" className="text-primary hover:underline">
-                privacy@agentsmesh.ai
+              <a href="mailto:privacy@agentcloud.ai" className="text-primary hover:underline">
+                privacy@agentcloud.ai
               </a>
             </p>
           </section>
@@ -225,10 +225,10 @@ export default function PrivacyPage() {
               If you have questions about this Privacy Policy or our data practices, please contact us at:
             </p>
             <div className="mt-4 surface-card p-4 text-muted-foreground">
-              <p><strong>Do Worker, Inc.</strong></p>
+              <p><strong>Agent Cloud, Inc.</strong></p>
               <p>Email:{" "}
-                <a href="mailto:privacy@agentsmesh.ai" className="text-primary hover:underline">
-                  privacy@agentsmesh.ai
+                <a href="mailto:privacy@agentcloud.ai" className="text-primary hover:underline">
+                  privacy@agentcloud.ai
                 </a>
               </p>
             </div>

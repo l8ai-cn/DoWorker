@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/channel"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/channel"
 )
 
 func (s *Service) CreateBinding(ctx context.Context, orgID int64, initiatorPod, targetPod string, scopes []string) (*channel.PodBinding, error) {

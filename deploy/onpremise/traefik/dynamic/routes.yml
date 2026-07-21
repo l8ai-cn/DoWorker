@@ -2,7 +2,7 @@
 # Traefik Dynamic Routing Configuration
 # =============================================================================
 #
-# All HTTP routes for AgentsMesh services
+# All HTTP routes for Agent Cloud services
 # File-based configuration (no Docker socket required)
 #
 # =============================================================================

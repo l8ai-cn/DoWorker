@@ -6,8 +6,8 @@ import (
 
 	"connectrpc.com/connect"
 
-	userservice "github.com/anthropics/agentsmesh/backend/internal/service/user"
-	authv1 "github.com/anthropics/agentsmesh/proto/gen/go/auth/v1"
+	userservice "github.com/l8ai-cn/agentcloud/backend/internal/service/user"
+	authv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/auth/v1"
 )
 
 // VerifyEmail mirrors REST POST /api/v1/auth/verify-email. After verification

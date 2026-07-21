@@ -297,7 +297,7 @@ func TestServerCert_WithExtraSANs(t *testing.T) {
 		CACertFile:     certFile,
 		CAKeyFile:      keyFile,
 		ValidityDays:   365,
-		ServerCertSANs: []string{"api.agentsmesh.cn", "agentsmesh.cn"},
+		ServerCertSANs: []string{"api.agentcloud.cn", "agentcloud.cn"},
 	}
 
 	service, err := NewService(cfg)
@@ -314,8 +314,8 @@ func TestServerCert_WithExtraSANs(t *testing.T) {
 	assert.Contains(t, x509Cert.DNSNames, "backend")
 	assert.Contains(t, x509Cert.DNSNames, "agentmesh-backend")
 	// Extra SANs from config
-	assert.Contains(t, x509Cert.DNSNames, "api.agentsmesh.cn")
-	assert.Contains(t, x509Cert.DNSNames, "agentsmesh.cn")
+	assert.Contains(t, x509Cert.DNSNames, "api.agentcloud.cn")
+	assert.Contains(t, x509Cert.DNSNames, "agentcloud.cn")
 }
 
 func TestServerCert_ExtraSANs_Deduplicated(t *testing.T) {

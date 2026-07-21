@@ -6,9 +6,9 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	orgv1 "github.com/anthropics/agentsmesh/proto/gen/go/org/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	orgv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/org/v1"
 )
 
 // ListMembers returns the org's members with user details. Membership check

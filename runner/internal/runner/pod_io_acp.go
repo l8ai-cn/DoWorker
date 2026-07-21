@@ -5,8 +5,8 @@ import (
 	"slices"
 	"sync"
 
-	"github.com/anthropics/agentsmesh/runner/internal/acp"
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/acp"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
 )
 
 // ACPPodIO wraps an ACPClient to implement PodIO for ACP-mode pods.

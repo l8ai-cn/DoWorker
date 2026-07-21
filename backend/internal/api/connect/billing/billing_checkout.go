@@ -10,13 +10,13 @@ import (
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	billingdomain "github.com/anthropics/agentsmesh/backend/internal/domain/billing"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	billingsvc "github.com/anthropics/agentsmesh/backend/internal/service/billing"
-	"github.com/anthropics/agentsmesh/backend/internal/service/payment"
-	"github.com/anthropics/agentsmesh/backend/pkg/protoconv"
-	billingv1 "github.com/anthropics/agentsmesh/proto/gen/go/billing/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	billingdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/billing"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	billingsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/billing"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/payment"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/protoconv"
+	billingv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/billing/v1"
 )
 
 func (s *Server) CreateCheckout(

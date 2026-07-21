@@ -6,7 +6,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/anthropics/agentsmesh/marketplace/internal/service"
+	"github.com/l8ai-cn/agentcloud/marketplace/internal/service"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
 	"gorm.io/gorm"

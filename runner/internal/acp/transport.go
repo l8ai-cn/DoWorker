@@ -45,7 +45,7 @@ type Transport interface {
 	SendControlRequest(sessionID string, subtype string, payload map[string]any) (map[string]any, error)
 
 	// SupportedPermissionModes returns the permission-mode wire values the agent
-	// advertised via agentsmeshExtensions.permissionModes, or nil if it advertised
+	// advertised via agentcloudExtensions.permissionModes, or nil if it advertised
 	// none (caller falls back to the Claude default set).
 	SupportedPermissionModes() []string
 	SupportedArtifactActions() []string

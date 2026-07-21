@@ -3,7 +3,7 @@ package grpc
 import (
 	"time"
 
-	workflowDomain "github.com/anthropics/agentsmesh/backend/internal/domain/workflow"
+	workflowDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workflow"
 )
 
 type mcpWorkflowSummary struct {

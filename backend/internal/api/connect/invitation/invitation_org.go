@@ -5,10 +5,10 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	invitationsvc "github.com/anthropics/agentsmesh/backend/internal/service/invitation"
-	invitationv1 "github.com/anthropics/agentsmesh/proto/gen/go/invitation/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	invitationsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/invitation"
+	invitationv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/invitation/v1"
 )
 
 // ListInvitations returns pending + accepted invitations for the org.

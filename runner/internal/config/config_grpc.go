@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/runner/internal/textutil"
+	"github.com/l8ai-cn/agentcloud/runner/internal/textutil"
 )
 
 // ==================== gRPC/mTLS Configuration ====================
@@ -149,11 +149,12 @@ func UpdateGRPCEndpointInFile(configFile, newEndpoint string) error {
 // LoadGRPCConfig auto-detects certificate paths if not already set in config.
 func (c *Config) LoadGRPCConfig() error {
 	certsDirs := []string{c.GetCertsDir()}
-	if home, err := os.UserHomeDir(); err == nil {
-		legacy := filepath.Join(home, legacyConfigDirName, "certs")
-		if legacy != certsDirs[0] {
-			certsDirs = append(certsDirs, legacy)
+	for _, base := range userConfigSearchPaths() {
+		legacy := filepath.Join(base, "certs")
+		if legacy == certsDirs[0] {
+			continue
 		}
+		certsDirs = append(certsDirs, legacy)
 	}
 
 	for _, certsDir := range certsDirs {

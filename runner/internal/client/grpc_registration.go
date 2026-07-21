@@ -12,7 +12,7 @@ import (
 
 	"github.com/pkg/browser"
 
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
 )
 
 // ==================== Tailscale-style Interactive Registration ====================

@@ -3,7 +3,7 @@ package merge
 import (
 	"testing"
 
-	"github.com/anthropics/agentsmesh/agentfile/extract"
+	"github.com/l8ai-cn/agentcloud/agentfile/extract"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

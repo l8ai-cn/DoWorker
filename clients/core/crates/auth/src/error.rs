@@ -1,4 +1,4 @@
-use agentsmesh_types::ServiceError;
+use agentcloud_types::ServiceError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]

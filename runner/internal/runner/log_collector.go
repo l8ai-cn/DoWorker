@@ -10,8 +10,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/runner/internal/config"
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/config"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
 )
 
 // maxArchiveBytes is the total file size limit for log collection (100 MB).
@@ -25,7 +25,7 @@ func CollectLogs(ctx context.Context) (tarPath string, sizeBytes int64, err erro
 	logDir := config.TempBaseDir()
 
 	// Create temporary archive file
-	tmpFile, err := os.CreateTemp(os.TempDir(), "agentsmesh-logs-*.tar.gz")
+	tmpFile, err := os.CreateTemp(os.TempDir(), "agentcloud-logs-*.tar.gz")
 	if err != nil {
 		return "", 0, fmt.Errorf("failed to create temp file: %w", err)
 	}

@@ -6,10 +6,10 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	channeldomain "github.com/anthropics/agentsmesh/backend/internal/domain/channel"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	channelv1 "github.com/anthropics/agentsmesh/proto/gen/go/channel/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	channeldomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/channel"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	channelv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/channel/v1"
 )
 
 const (

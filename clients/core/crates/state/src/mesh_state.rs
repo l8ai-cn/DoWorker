@@ -1,4 +1,4 @@
-use agentsmesh_types::proto_mesh_v1::{ChannelInfo, MeshEdge, MeshNode, MeshTopology, RunnerInfo};
+use agentcloud_types::proto_mesh_v1::{ChannelInfo, MeshEdge, MeshNode, MeshTopology, RunnerInfo};
 
 #[derive(Debug, Default)]
 pub struct MeshState {

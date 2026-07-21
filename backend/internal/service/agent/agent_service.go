@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agent"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agent"
 )
 
 var (
@@ -41,10 +41,10 @@ func NewAgentService(repo agent.AgentRepository) *AgentService {
 
 func (s *AgentService) ListBuiltinAgents(ctx context.Context) ([]*agent.Agent, error) {
 	// dev/e2e backends opt into surfacing internal agents (e2e-echo etc.)
-	// to the user-facing list by exporting AGENTSMESH_INCLUDE_INTERNAL_AGENTS=true
+	// to the user-facing list by exporting AGENTCLOUD_INCLUDE_INTERNAL_AGENTS=true
 	// before boot. Production never sets this; the default keeps test
 	// fixtures hidden. See ADR 2026-05-26-test-fixture-isolation.
-	if os.Getenv("AGENTSMESH_INCLUDE_INTERNAL_AGENTS") == "true" {
+	if os.Getenv("AGENTCLOUD_INCLUDE_INTERNAL_AGENTS") == "true" {
 		return s.repo.ListBuiltinAll(ctx)
 	}
 	return s.repo.ListBuiltinActive(ctx)

@@ -1,4 +1,4 @@
-use agentsmesh_types::proto_events_v1::Event;
+use agentcloud_types::proto_events_v1::Event;
 use bytes::Bytes;
 use futures::stream::{self, Stream, StreamExt};
 use prost::Message;

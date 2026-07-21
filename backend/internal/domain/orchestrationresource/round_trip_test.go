@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
 )
@@ -37,7 +37,7 @@ const roundTripWorkerJSON = `{
       "name": "code-review-system",
       "namespace": "team-alpha",
       "kind": "Prompt",
-      "apiVersion": "agentsmesh.io/v1alpha1"
+      "apiVersion": "agentcloud.io/v1alpha1"
     },
     "modelBindingRef": {"revision": 7, "name": "coding-primary", "kind": "ModelBinding"}
   },
@@ -48,14 +48,14 @@ const roundTripWorkerJSON = `{
     "name": "canonical-worker"
   },
   "kind": "WorkerTemplate",
-  "apiVersion": "agentsmesh.io/v1alpha1"
+  "apiVersion": "agentcloud.io/v1alpha1"
 }`
 
 const roundTripWorkerJSONVariant = `{"kind":"WorkerTemplate",
 "metadata":{"name":"canonical-worker","namespace":"team-alpha","displayName":"Canonical Worker",
-"labels":{"role":"reviewer","track":"phase-one"}},"apiVersion":"agentsmesh.io/v1alpha1",
+"labels":{"role":"reviewer","track":"phase-one"}},"apiVersion":"agentcloud.io/v1alpha1",
 "spec":{"modelBindingRef":{"kind":"ModelBinding","name":"coding-primary","revision":7},
-"promptRef":{"apiVersion":"agentsmesh.io/v1alpha1","kind":"Prompt","namespace":"team-alpha",
+"promptRef":{"apiVersion":"agentcloud.io/v1alpha1","kind":"Prompt","namespace":"team-alpha",
 "name":"code-review-system","revision":4},"toolBindingRef":{"kind":"ToolBinding","name":"repository-tools"},
 "credentialRef":{"name":"registry-credentials","key":"access-token","revision":3},
 "configuration":{"runtime":{"mode":"autonomous","limits":{"maxParallel":3,"timeoutSeconds":900}},
@@ -63,7 +63,7 @@ const roundTripWorkerJSONVariant = `{"kind":"WorkerTemplate",
 "features":["review","test"],"environment":[{"name":"GOFLAGS","value":"-count=1"},{"name":"CI","value":"true"}]}}}`
 
 const roundTripWorkerYAML = `kind: WorkerTemplate
-apiVersion: "agentsmesh.io/v1alpha1"
+apiVersion: "agentcloud.io/v1alpha1"
 metadata:
   namespace: team-alpha
   labels:
@@ -75,7 +75,7 @@ spec:
   promptRef:
     name: code-review-system
     revision: 4
-    apiVersion: agentsmesh.io/v1alpha1
+    apiVersion: agentcloud.io/v1alpha1
     kind: Prompt
     namespace: team-alpha
   modelBindingRef:
@@ -114,7 +114,7 @@ spec:
 const roundTripWorkerYAMLVariant = `# Equivalent draft with flow collections, blank lines, and different quoting.
 metadata: {labels: {track: 'phase-one', role: reviewer}, namespace: "team-alpha",
   displayName: 'Canonical Worker', name: canonical-worker}
-apiVersion: agentsmesh.io/v1alpha1
+apiVersion: agentcloud.io/v1alpha1
 
 spec:
   toolBindingRef: {kind: ToolBinding, name: repository-tools}
@@ -128,7 +128,7 @@ spec:
     modelParameters: {stopSequences: [DONE, 'HALT'], temperature: 0.2, maxOutputTokens: 4096}
     features: [review, "test"]
   promptRef: {revision: 4, kind: Prompt, name: code-review-system,
-    namespace: team-alpha, apiVersion: "agentsmesh.io/v1alpha1"}
+    namespace: team-alpha, apiVersion: "agentcloud.io/v1alpha1"}
 kind: 'WorkerTemplate'
 `
 

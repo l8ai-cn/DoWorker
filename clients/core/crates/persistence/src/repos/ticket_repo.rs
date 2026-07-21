@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use agentsmesh_types::proto_ticket_v1::Ticket;
+use agentcloud_types::proto_ticket_v1::Ticket;
 
 use crate::backend::StorageBackend;
 use crate::error::Result;

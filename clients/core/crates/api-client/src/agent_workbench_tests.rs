@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex};
 
-use agentsmesh_types::proto_agent_workbench_v2 as v2;
+use agentcloud_types::proto_agent_workbench_v2 as v2;
 use futures::StreamExt;
 use prost::Message;
 use wiremock::matchers::{body_bytes, header, method, path};

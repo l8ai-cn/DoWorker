@@ -8,8 +8,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
-	runnerDomain "github.com/anthropics/agentsmesh/backend/internal/domain/runner"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/gitprovider"
+	runnerDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/runner"
 )
 
 type routingRepositoryService struct {

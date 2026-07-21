@@ -2,7 +2,7 @@
 title: "Por Que o Desenvolvimento com IA Precisa de um Centro de Comando, e Não de Mais uma IDE"
 excerpt: "Agentes de IA são multi-habilidosos. Quando a troca de habilidades desaparece, os cargos se dissolvem, e os processos de engenharia baseados na Lei de Conway precisam ser reinventados. O que os desenvolvedores precisam agora não é uma IDE melhor — é um centro de comando para orquestrar frotas de agentes em escala."
 date: "2026-02-23"
-author: "Do Worker Team"
+author: "Agent Cloud Team"
 category: "Insight"
 readTime: 10
 ---
@@ -72,9 +72,9 @@ Pense na diferença entre um piloto e um controlador de tráfego aéreo.
 
 Os dados confirmam isso: em nossas observações, a IA proporciona ganhos de eficiência de 50x em tarefas de execução (gerar código, testes, refatoração) mas quase zero melhoria em tarefas de decisão (debugar problemas em produção, escolher arquiteturas, definir prioridades). **A execução está sendo comoditizada. O julgamento está se tornando o gargalo.**
 
-## Do Worker: Construído para Esta Realidade
+## Agent Cloud: Construído para Esta Realidade
 
-O Do Worker foi projetado desde o início como um **Centro de Comando de Frotas de Agentes**.
+O Agent Cloud foi projetado desde o início como um **Centro de Comando de Frotas de Agentes**.
 
 A primeira camada de valor é o próprio centro de comando:
 
@@ -108,8 +108,8 @@ Estamos em um ponto de inflexão. As ferramentas que vínhamos usando foram proj
 
 O que está emergindo é algo novo: desenvolvedores individuais com a produção de equipes inteiras, comandando frotas de agentes de IA através de centros de comando em vez de escrever código em IDEs.
 
-O Do Worker foi construído para esse futuro. Não como mais uma IDE com funcionalidades de IA acopladas, mas como o centro de comando que torna as operações de frotas de agentes possíveis.
+O Agent Cloud foi construído para esse futuro. Não como mais uma IDE com funcionalidades de IA acopladas, mas como o centro de comando que torna as operações de frotas de agentes possíveis.
 
 A questão não é se essa mudança vai acontecer. É se você estará pronto quando ela chegar.
 
-[Comece a usar o Do Worker hoje.](https://agentsmesh.ai)
+[Comece a usar o Agent Cloud hoje.](https://agentcloud.ai)

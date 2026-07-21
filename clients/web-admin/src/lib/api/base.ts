@@ -12,7 +12,7 @@ function getApiUrl(): string {
 
   // Browser: always use current page origin to inherit correct protocol (http/https)
   // This avoids Next.js build-time constant folding issues with USE_HTTPS env var,
-  // and works naturally with Traefik routing (admin.agentsmesh.ai/api → backend)
+  // and works naturally with Traefik routing (admin.agentcloud.ai/api → backend)
   if (typeof window !== "undefined") {
     return window.location.origin;
   }

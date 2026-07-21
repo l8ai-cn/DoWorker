@@ -3,8 +3,8 @@ package v1
 import (
 	"context"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/grant"
-	"github.com/anthropics/agentsmesh/backend/pkg/policy"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/grant"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/policy"
 )
 
 func (h *PodHandler) podResourceWithGrants(ctx context.Context, podKey string, orgID, createdByID int64) policy.ResourceContext {

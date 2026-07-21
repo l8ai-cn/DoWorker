@@ -1,9 +1,9 @@
 package runner
 
 import (
-	"github.com/anthropics/agentsmesh/runner/internal/terminal"
-	"github.com/anthropics/agentsmesh/runner/internal/terminal/aggregator"
-	"github.com/anthropics/agentsmesh/runner/internal/terminal/vt"
+	"github.com/l8ai-cn/agentcloud/runner/internal/terminal"
+	"github.com/l8ai-cn/agentcloud/runner/internal/terminal/aggregator"
+	"github.com/l8ai-cn/agentcloud/runner/internal/terminal/vt"
 )
 
 // PTYComponents holds PTY-specific infrastructure shared between PTYPodIO and PTYPodRelay.

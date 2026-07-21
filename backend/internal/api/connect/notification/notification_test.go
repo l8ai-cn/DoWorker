@@ -9,10 +9,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	notifDomain "github.com/anthropics/agentsmesh/backend/internal/domain/notification"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	notifService "github.com/anthropics/agentsmesh/backend/internal/service/notification"
-	notificationv1 "github.com/anthropics/agentsmesh/proto/gen/go/notification/v1"
+	notifDomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/notification"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	notifService "github.com/l8ai-cn/agentcloud/backend/internal/service/notification"
+	notificationv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/notification/v1"
 )
 
 // --- Test fixtures ---------------------------------------------------------

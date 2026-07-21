@@ -70,18 +70,18 @@ version = "0.1.0"
 publish = false
 
 [workspace.dependencies]
-agentsmesh_logging = { path = "crates/logging" }
-agentsmesh_protocol = { path = "crates/protocol" }
-agentsmesh_types = { path = "crates/types" }
-agentsmesh_persistence = { path = "crates/persistence" }
-agentsmesh_transport = { path = "crates/transport" }
-agentsmesh_api_client = { path = "crates/api-client" }
-agentsmesh_events = { path = "crates/events" }
-agentsmesh_auth = { path = "crates/auth" }
-agentsmesh_state = { path = "crates/state" }
-agentsmesh_services = { path = "crates/services" }
-agentsmesh_relay = { path = "crates/relay" }
-agentsmesh_wasm = { path = "crates/wasm" }
+agentcloud_logging = { path = "crates/logging" }
+agentcloud_protocol = { path = "crates/protocol" }
+agentcloud_types = { path = "crates/types" }
+agentcloud_persistence = { path = "crates/persistence" }
+agentcloud_transport = { path = "crates/transport" }
+agentcloud_api_client = { path = "crates/api-client" }
+agentcloud_events = { path = "crates/events" }
+agentcloud_auth = { path = "crates/auth" }
+agentcloud_state = { path = "crates/state" }
+agentcloud_services = { path = "crates/services" }
+agentcloud_relay = { path = "crates/relay" }
+agentcloud_wasm = { path = "crates/wasm" }
 agent_workbench_proto = { path = "crates/proto/agent_workbench" }
 agent_proto = { path = "crates/proto/agent" }
 ai_resource_proto = { path = "crates/proto/ai_resource" }

@@ -17,7 +17,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const latestMigrationVersion = 231
+const latestMigrationVersion = 232
 
 //go:embed testdata/legacy_000209/*.sql
 var legacy000209Fixtures embed.FS

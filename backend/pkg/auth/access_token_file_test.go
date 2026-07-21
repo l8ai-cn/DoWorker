@@ -39,15 +39,15 @@ func TestLoadAccessTokenManager(t *testing.T) {
 		PrivateKeyFile: privatePath,
 		PublicKeyFile:  publicPath,
 		KeyID:          "core-2026-07",
-		Issuer:         "agentsmesh",
-		Audiences:      []string{"agentsmesh-api"},
+		Issuer:         "agentcloud",
+		Audiences:      []string{"agentcloud-api"},
 		Duration:       time.Hour,
 	})
 	require.NoError(t, err)
 
 	token, err := manager.GenerateToken(42, "user@example.com", "user", 0, "")
 	require.NoError(t, err)
-	claims, err := manager.ValidateToken(token, "agentsmesh-api")
+	claims, err := manager.ValidateToken(token, "agentcloud-api")
 	require.NoError(t, err)
 	require.Equal(t, int64(42), claims.UserID)
 }
@@ -57,8 +57,8 @@ func TestLoadAccessTokenManagerRejectsMissingKeyFile(t *testing.T) {
 		PrivateKeyFile: filepath.Join(t.TempDir(), "missing-private.pem"),
 		PublicKeyFile:  filepath.Join(t.TempDir(), "missing-public.pem"),
 		KeyID:          "core-2026-07",
-		Issuer:         "agentsmesh",
-		Audiences:      []string{"agentsmesh-api"},
+		Issuer:         "agentcloud",
+		Audiences:      []string{"agentcloud-api"},
 		Duration:       time.Hour,
 	})
 	require.Error(t, err)

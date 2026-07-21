@@ -15,7 +15,7 @@ function authKey() {
   const u = new URL(WEB_USER_AUTH_BASE);
   const port = u.port ? `_${u.port}` : "";
   const raw = `${u.protocol.replace(":", "")}_${u.hostname.toLowerCase()}${port}`;
-  return `do-worker-auth/${raw.replace(/[^a-zA-Z0-9]/g, "_").slice(0, 64)}/session`;
+  return `agent-cloud-auth/${raw.replace(/[^a-zA-Z0-9]/g, "_").slice(0, 64)}/session`;
 }
 
 async function login() {
@@ -52,7 +52,7 @@ async function main() {
   await page.screenshot({ path: join(OUT, "06-web-user-session-chat.png"), fullPage: true });
 
   const body = await page.locator("body").innerText();
-  if (page.url().includes("/login") || /Sign in|Welcome to Do Worker/i.test(body)) {
+  if (page.url().includes("/login") || /Sign in|Welcome to Agent Cloud/i.test(body)) {
     throw new Error("web-user session smoke reached login instead of the session page");
   }
   const hasUserMsg = /Say hello in one sentence/i.test(body);

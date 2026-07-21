@@ -8,7 +8,7 @@
 
 ## Decision
 
-AgentsMesh will use `WorkerSpecSnapshot` as the only reusable runtime
+Agent Cloud will use `WorkerSpecSnapshot` as the only reusable runtime
 configuration contract. Expert, Workflow, GoalLoop, Mesh Ticket, marketplace
 installation, and direct Worker creation must all resolve to one immutable
 snapshot before a Pod can be created.

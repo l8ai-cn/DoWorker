@@ -5,7 +5,7 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	"github.com/anthropics/agentsmesh/relay/internal/protocol"
+	"github.com/l8ai-cn/agentcloud/relay/internal/protocol"
 )
 
 // handlePublisherDisconnect handles publisher disconnect with double identity check

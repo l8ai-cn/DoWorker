@@ -8,9 +8,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	imbridgesvc "github.com/anthropics/agentsmesh/backend/internal/service/imbridge"
-	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	imbridgesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/imbridge"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/apierr"
 )
 
 type IMBridgeHandler struct {

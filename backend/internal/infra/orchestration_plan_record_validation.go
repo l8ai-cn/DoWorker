@@ -1,6 +1,6 @@
 package infra
 
-import "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
+import "github.com/l8ai-cn/agentcloud/backend/internal/domain/orchestrationcontrol"
 
 func (record orchestrationPlanRecord) validateShape() error {
 	if err := record.validateBaseShape(); err != nil {

@@ -1,7 +1,7 @@
 import { clone, equals } from "@bufbuild/protobuf";
 
-import type { SessionSnapshot } from "@do-worker/proto/agent_workbench/v2/session_pb";
-import { SessionSnapshotSchema } from "@do-worker/proto/agent_workbench/v2/session_pb";
+import type { SessionSnapshot } from "@agent-cloud/proto/agent_workbench/v2/session_pb";
+import { SessionSnapshotSchema } from "@agent-cloud/proto/agent_workbench/v2/session_pb";
 import { AgentSessionReductionError } from "./agentSessionReducer";
 
 export function validateSnapshotAdvance(

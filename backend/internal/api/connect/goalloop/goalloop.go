@@ -6,10 +6,10 @@ import (
 
 	"connectrpc.com/connect"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/goalloop"
-	workerspecdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	goalloopsvc "github.com/anthropics/agentsmesh/backend/internal/service/goalloop"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/goalloop"
+	workerspecdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	goalloopsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/goalloop"
 )
 
 const ServiceName = "proto.goalloop.v1.GoalLoopService"

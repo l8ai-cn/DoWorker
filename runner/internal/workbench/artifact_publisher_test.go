@@ -29,7 +29,7 @@ func TestPublishArtifactDeclarationWritesValidatedArtifactAtomically(t *testing.
 	require.Equal(t, uint64(1), published.Revision)
 	require.Equal(
 		t,
-		".do-worker/workbench/artifacts/demo-video.json",
+		".agent-cloud/workbench/artifacts/demo-video.json",
 		published.DeclarationPath,
 	)
 	observer, observerErr := NewArtifactObserver(root)
@@ -52,7 +52,7 @@ func TestPublishArtifactDeclarationRejectsInvalidRevisionWithoutReplacingCurrent
 	require.NoError(t, err)
 	path := filepath.Join(
 		root,
-		filepath.FromSlash(".do-worker/workbench/artifacts/demo-video.json"),
+		filepath.FromSlash(".agent-cloud/workbench/artifacts/demo-video.json"),
 	)
 	before, err := os.ReadFile(path)
 	require.NoError(t, err)
@@ -107,7 +107,7 @@ func TestPublishArtifactDeclarationRejectsDeclarationDirectorySymlink(t *testing
 	outside := t.TempDir()
 	require.NoError(t, os.Symlink(
 		outside,
-		filepath.Join(root, ".do-worker"),
+		filepath.Join(root, ".agent-cloud"),
 	))
 
 	_, err := PublishArtifactDeclaration(
@@ -183,12 +183,12 @@ func TestPublishArtifactDeclarationRejectsNonFinalVideoStage(t *testing.T) {
 
 func validPublishedVideoDeclaration(revision uint64) string {
 	return `{
-		"schema_version":"agentsmesh.agent-workbench.artifact/v1",
+		"schema_version":"agentcloud.agent-workbench.artifact/v1",
 		"artifact_id":"demo-video",
 		"revision":` + jsonNumber(revision) + `,
 		"role":"preview",
 		"primary_representation_id":"playable",
-		"producer":{"namespace":"agentsmesh.mcp","type":"artifact.publish"},
+		"producer":{"namespace":"agentcloud.mcp","type":"artifact.publish"},
 		"representations":[{
 			"representation_id":"playable",
 			"path":"output/demo.mp4",

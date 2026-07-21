@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
-	"github.com/anthropics/agentsmesh/backend/pkg/audit"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/audit"
 )
 
 func recordAudit(ctx context.Context, recorder AuditRecorder, actor Actor, action, resourceType string, resourceID int64, connection *domain.Connection, result string, details audit.Details) error {

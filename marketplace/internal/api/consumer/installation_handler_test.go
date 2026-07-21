@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	authpkg "github.com/anthropics/agentsmesh/backend/pkg/auth"
-	actorapi "github.com/anthropics/agentsmesh/marketplace/internal/api/actor"
-	"github.com/anthropics/agentsmesh/marketplace/internal/service"
+	authpkg "github.com/l8ai-cn/agentcloud/backend/pkg/auth"
+	actorapi "github.com/l8ai-cn/agentcloud/marketplace/internal/api/actor"
+	"github.com/l8ai-cn/agentcloud/marketplace/internal/service"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
 )

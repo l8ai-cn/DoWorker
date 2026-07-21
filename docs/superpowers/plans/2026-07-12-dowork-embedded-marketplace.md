@@ -1,6 +1,6 @@
-# DoWorker Embedded Marketplace Implementation Plan
+# AgentCloud Embedded Marketplace Implementation Plan
 
-**Goal:** close Marketplace inside the DoWorker organization workflow while
+**Goal:** close Marketplace inside the AgentCloud organization workflow while
 retaining independent Marketplace API data ownership.
 
 ## Acceptance Scenarios
@@ -12,7 +12,7 @@ retaining independent Marketplace API data ownership.
 3. Given a Listing is not runtime-installable, when a member views it, then the
    UI states the missing integration and never presents a succeeding action.
 4. Given a legacy market URL, when visited, then it redirects to canonical
-   DoWorker organization market.
+   AgentCloud organization market.
 
 ## Steps And Checks
 

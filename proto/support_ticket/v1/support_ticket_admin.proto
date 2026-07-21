@@ -30,7 +30,7 @@ package proto.support_ticket.v1;
 
 import "codegen/v1/options.proto";
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/support_ticket/v1;supportticketv1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/support_ticket/v1;supportticketv1";
 
 // Convert codegen target — emits support_ticket_admin_convert.amesh.go into
 // the backend admin/support_ticket connect handler tree so it can reach
@@ -56,7 +56,7 @@ service SupportTicketAdminService {
 // which the user-facing SupportTicket message omits by design.
 message AdminSupportTicket {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/domain/supportticket.SupportTicket"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/supportticket.SupportTicket"
   };
 
   int64 id = 1 [(amesh.codegen.v1.field_rename) = "ID"];
@@ -83,7 +83,7 @@ message AdminSupportTicketUser {
 // (storage_key hidden — internal).
 message AdminSupportTicketAttachment {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/domain/supportticket.SupportTicketAttachment"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/supportticket.SupportTicketAttachment"
   };
 
   int64 id = 1 [(amesh.codegen.v1.field_rename) = "ID"];
@@ -100,7 +100,7 @@ message AdminSupportTicketAttachment {
 // admin detail page (with eager-loaded User + Attachments).
 message AdminSupportTicketMessage {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/domain/supportticket.SupportTicketMessage"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/supportticket.SupportTicketMessage"
   };
 
   int64 id = 1 [(amesh.codegen.v1.field_rename) = "ID"];

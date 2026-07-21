@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	agentfileschema "github.com/anthropics/agentsmesh/agentfile/schema"
+	agentfileschema "github.com/l8ai-cn/agentcloud/agentfile/schema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

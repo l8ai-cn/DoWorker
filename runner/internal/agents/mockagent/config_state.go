@@ -2,7 +2,7 @@ package mockagent
 
 import "sync"
 
-// configState holds the mock's per-process view of the AgentsMesh control
+// configState holds the mock's per-process view of the Agent Cloud control
 // plane (permission_mode, model, thinking_level). Writes flow through
 // handleControlRequest; reads can come from any goroutine. The single mutex
 // is RWMutex because reads are far more frequent than writes (every render

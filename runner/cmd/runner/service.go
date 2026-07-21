@@ -7,7 +7,7 @@ import (
 
 	"github.com/kardianos/service"
 
-	svc "github.com/anthropics/agentsmesh/runner/internal/service"
+	svc "github.com/l8ai-cn/agentcloud/runner/internal/service"
 )
 
 // runService handles the "service" subcommand for system service management.
@@ -43,10 +43,10 @@ func runService(args []string) {
 }
 
 func printServiceUsage() {
-	fmt.Println(`Manage Do Worker Runner as a system service.
+	fmt.Println(`Manage Agent Cloud Runner as a system service.
 
 Usage:
-  do-worker-runner service <action> [options]
+  agent-cloud-runner service <action> [options]
 
 Actions:
   install     Install runner as a system service
@@ -57,13 +57,13 @@ Actions:
   status      Show service status
 
 Options for 'install':
-  --config    Path to config file (default: ~/.agentsmesh/config.yaml)
+  --config    Path to config file (default: ~/.agentcloud/config.yaml)
 
 Examples:
-  do-worker-runner service install
-  do-worker-runner service install --config /etc/agentsmesh/config.yaml
-  do-worker-runner service start
-  do-worker-runner service status`)
+  agent-cloud-runner service install
+  agent-cloud-runner service install --config /etc/agentcloud/config.yaml
+  agent-cloud-runner service start
+  agent-cloud-runner service status`)
 }
 
 func runServiceInstall(args []string) {
@@ -83,7 +83,7 @@ func runServiceInstall(args []string) {
 	// Check if config exists
 	if _, err := os.Stat(cfgPath); os.IsNotExist(err) {
 		fmt.Printf("Error: Config file not found at %s\n", cfgPath)
-		fmt.Println("Please run 'do-worker-runner register' first to create the configuration.")
+		fmt.Println("Please run 'agent-cloud-runner register' first to create the configuration.")
 		os.Exit(1)
 	}
 
@@ -93,7 +93,7 @@ func runServiceInstall(args []string) {
 	}
 
 	fmt.Println("Service installed successfully.")
-	fmt.Println("Use 'do-worker-runner service start' to start the service.")
+	fmt.Println("Use 'agent-cloud-runner service start' to start the service.")
 }
 
 func runServiceUninstall() {

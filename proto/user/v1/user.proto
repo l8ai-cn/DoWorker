@@ -40,7 +40,7 @@ package proto.user.v1;
 
 import "codegen/v1/options.proto";
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/user/v1;userv1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/user/v1;userv1";
 
 // Convert codegen target — emits user_convert.amesh.go into the backend
 // connect handler tree so it can reach the domain layer (which proto/gen/go
@@ -76,7 +76,7 @@ service UserService {
 // admin console reads it; including it here closes a known drift.
 message User {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/domain/user.User"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/user.User"
   };
 
   int64 id = 1 [(amesh.codegen.v1.field_rename) = "ID"];
@@ -103,7 +103,7 @@ message User {
 // refresh_token_encrypted.
 message Identity {
   option (amesh.codegen.v1.go_domain) = {
-    type: "github.com/anthropics/agentsmesh/backend/internal/domain/user.Identity"
+    type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/user.Identity"
   };
 
   int64 id = 1 [(amesh.codegen.v1.field_rename) = "ID"];

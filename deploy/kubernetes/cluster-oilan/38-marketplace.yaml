@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: marketplace
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   replicas: 1
   selector:
@@ -14,23 +14,23 @@ spec:
         app: marketplace
     spec:
       imagePullSecrets:
-        - name: agentsmesh-regcred
+        - name: agentcloud-regcred
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
       containers:
         - name: marketplace
-          image: repo.aiedulab.cn:8443/agentsmesh/marketplace:latest
+          image: repo.aiedulab.cn:8443/agentcloud/marketplace:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
               name: http
           envFrom:
             - configMapRef:
-                name: agentsmesh-config
+                name: agentcloud-config
             - secretRef:
-                name: agentsmesh-secrets
+                name: agentcloud-secrets
           env:
             - name: GIN_MODE
               value: release
@@ -57,7 +57,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: marketplace
-  namespace: agentsmesh
+  namespace: agentcloud
 spec:
   selector:
     app: marketplace

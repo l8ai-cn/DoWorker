@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
-	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	expertdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/expert"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 )
 
 func (s *Service) Delete(ctx context.Context, orgID, id int64) error {

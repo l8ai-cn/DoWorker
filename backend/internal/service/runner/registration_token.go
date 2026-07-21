@@ -9,8 +9,8 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/runner"
-	"github.com/anthropics/agentsmesh/backend/internal/interfaces"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/runner"
+	"github.com/l8ai-cn/agentcloud/backend/internal/interfaces"
 )
 
 func (s *Service) GenerateGRPCRegistrationToken(ctx context.Context, orgID, userID int64, req *GenerateGRPCRegistrationTokenRequest, serverURL string) (*GenerateGRPCRegistrationTokenResponse, error) {

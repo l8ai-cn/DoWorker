@@ -1,4 +1,4 @@
-import type { AgentAttachmentReference } from "@do-worker/agent-ui";
+import type { AgentAttachmentReference } from "@agent-cloud/agent-ui";
 
 type EmbeddedRequest = (path: string, init?: RequestInit) => Promise<Response>;
 

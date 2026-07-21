@@ -7,8 +7,8 @@ package schema
 import (
 	"fmt"
 
-	"github.com/anthropics/agentsmesh/agentfile/extract"
-	"github.com/anthropics/agentsmesh/agentfile/parser"
+	"github.com/l8ai-cn/agentcloud/agentfile/extract"
+	"github.com/l8ai-cn/agentcloud/agentfile/parser"
 )
 
 // AgentSchema is the combined config + credential schema for one agent.

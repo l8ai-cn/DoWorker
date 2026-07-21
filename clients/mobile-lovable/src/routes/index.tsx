@@ -1,7 +1,7 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { FolderPlus, GitBranch, Loader2, Search, Server, Zap } from "lucide-react";
 import { useMemo, useState } from "react";
-import { DoWorkerLogo } from "@/components/do-worker-logo";
+import { AgentCloudLogo } from "@/components/agent-cloud-logo";
 import { NotificationCenter } from "@/components/notification-center";
 import { MobileFrame } from "@/components/mobile-frame";
 import { StatusPill } from "@/components/status-pill";
@@ -63,7 +63,7 @@ function Home() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <div className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-primary/10 p-1.5 ring-1 ring-primary/30">
-                <DoWorkerLogo className="h-full w-full" />
+                <AgentCloudLogo className="h-full w-full" />
                 {authed && <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-success ring-2 ring-background" />}
               </div>
               <div>

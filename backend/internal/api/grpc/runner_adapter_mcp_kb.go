@@ -5,8 +5,8 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	kbservice "github.com/anthropics/agentsmesh/backend/internal/service/knowledgebase"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	kbservice "github.com/l8ai-cn/agentcloud/backend/internal/service/knowledgebase"
 )
 
 func (a *GRPCRunnerAdapter) mcpKbList(ctx context.Context, tc *middleware.TenantContext) (interface{}, *mcpError) {

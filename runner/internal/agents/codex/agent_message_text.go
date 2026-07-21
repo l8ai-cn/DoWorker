@@ -3,7 +3,7 @@ package codex
 import (
 	"strings"
 
-	"github.com/anthropics/agentsmesh/runner/internal/acp"
+	"github.com/l8ai-cn/agentcloud/runner/internal/acp"
 )
 
 type agentMessageContentPart struct {

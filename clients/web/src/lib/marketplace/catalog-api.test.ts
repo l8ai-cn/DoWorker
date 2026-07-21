@@ -27,7 +27,7 @@ describe("marketplace catalog API", () => {
     await fetchMarketplaceListings();
 
     expect(fetchMock).toHaveBeenCalledWith(
-      expect.stringContaining("/api/marketplace/v1/markets/do-worker-market/listings"),
+      expect.stringContaining("/api/marketplace/v1/markets/agent-cloud-market/listings"),
       expect.objectContaining({
         headers: expect.objectContaining({ Authorization: "Bearer market-token" }),
       }),

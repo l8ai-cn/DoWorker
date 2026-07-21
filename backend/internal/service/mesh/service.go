@@ -5,12 +5,12 @@ import (
 	"errors"
 	"log/slog"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/channel"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/mesh"
-	podService "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	bindingService "github.com/anthropics/agentsmesh/backend/internal/service/binding"
-	channelService "github.com/anthropics/agentsmesh/backend/internal/service/channel"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/channel"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/mesh"
+	podService "github.com/l8ai-cn/agentcloud/backend/internal/service/agentpod"
+	bindingService "github.com/l8ai-cn/agentcloud/backend/internal/service/binding"
+	channelService "github.com/l8ai-cn/agentcloud/backend/internal/service/channel"
 )
 
 var (

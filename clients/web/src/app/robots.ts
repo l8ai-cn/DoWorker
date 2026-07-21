@@ -20,6 +20,6 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: "https://agentsmesh.ai/sitemap.xml",
+    sitemap: "https://agentcloud.ai/sitemap.xml",
   };
 }

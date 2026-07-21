@@ -3,20 +3,20 @@ package rest
 import (
 	"context"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/rest/v1"
-	sessionapi "github.com/anthropics/agentsmesh/backend/internal/api/rest/v1/session"
-	"github.com/anthropics/agentsmesh/backend/internal/config"
-	"github.com/anthropics/agentsmesh/backend/internal/infra"
-	sessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
-	itemsvc "github.com/anthropics/agentsmesh/backend/internal/service/conversationitem"
-	permissionpolicysvc "github.com/anthropics/agentsmesh/backend/internal/service/permissionpolicy"
-	commentsvc "github.com/anthropics/agentsmesh/backend/internal/service/sessioncomment"
-	sessionfilesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionfile"
-	sessionmessagesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionmessage"
-	permgrantsvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionpermission"
-	sessionusagesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionusage"
-	tokenquotasvc "github.com/anthropics/agentsmesh/backend/internal/service/tokenquota"
-	"github.com/anthropics/agentsmesh/backend/pkg/embedtoken"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/rest/v1"
+	sessionapi "github.com/l8ai-cn/agentcloud/backend/internal/api/rest/v1/session"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra"
+	sessionsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/agentsession"
+	itemsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/conversationitem"
+	permissionpolicysvc "github.com/l8ai-cn/agentcloud/backend/internal/service/permissionpolicy"
+	commentsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/sessioncomment"
+	sessionfilesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/sessionfile"
+	sessionmessagesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/sessionmessage"
+	permgrantsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/sessionpermission"
+	sessionusagesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/sessionusage"
+	tokenquotasvc "github.com/l8ai-cn/agentcloud/backend/internal/service/tokenquota"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/embedtoken"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
@@ -64,7 +64,7 @@ func registerSessionRoutes(
 		VirtualKeys:        svc.VirtualKey,
 		TokenQuotas:        tokenquotasvc.NewService(infra.NewTokenQuotaRepository(db), db),
 		EmbedTokens:        embedtoken.NewService(cfg.JWT.Secret, redisClient),
-		Version:            "do-worker-dev",
+		Version:            "agent-cloud-dev",
 	}
 	sessionDeps.Stream = sessionapi.NewSessionStreamPublisher(
 		sessionDeps.Hub, sessionDeps.Items, sessionDeps.Sessions, sessionDeps.Elicitations,

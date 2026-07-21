@@ -11,8 +11,8 @@
 package ticketconnect
 
 import (
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	"github.com/anthropics/agentsmesh/backend/internal/service/ticket"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/ticket"
 )
 
 // ServiceName mirrors proto.ticket.v1.TicketService exactly — Connect

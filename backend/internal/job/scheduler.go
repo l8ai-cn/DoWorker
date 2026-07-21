@@ -8,8 +8,8 @@ import (
 
 	"go.opentelemetry.io/otel"
 
-	"github.com/anthropics/agentsmesh/backend/internal/config"
-	"github.com/anthropics/agentsmesh/backend/internal/infra/email"
+	"github.com/l8ai-cn/agentcloud/backend/internal/config"
+	"github.com/l8ai-cn/agentcloud/backend/internal/infra/email"
 	"gorm.io/gorm"
 )
 
@@ -62,7 +62,7 @@ func (s *SubscriptionScheduler) Stop() {
 }
 
 func (s *SubscriptionScheduler) runInitialJobs() {
-	ctx, span := otel.Tracer("do-worker-backend").Start(context.Background(), "job.initial")
+	ctx, span := otel.Tracer("agent-cloud-backend").Start(context.Background(), "job.initial")
 	defer span.End()
 
 	if err := s.renewJob.FreezeExpiredSubscriptions(ctx); err != nil {
@@ -79,7 +79,7 @@ func (s *SubscriptionScheduler) runHourlyJobs() {
 		case <-s.stopCh:
 			return
 		case <-ticker.C:
-			ctx, span := otel.Tracer("do-worker-backend").Start(context.Background(), "job.hourly")
+			ctx, span := otel.Tracer("agent-cloud-backend").Start(context.Background(), "job.hourly")
 
 			if err := s.renewJob.FreezeExpiredSubscriptions(ctx); err != nil {
 				s.logger.Error("failed to freeze expired subscriptions", "error", err)
@@ -121,7 +121,7 @@ func (s *SubscriptionScheduler) runDailyJobs() {
 }
 
 func (s *SubscriptionScheduler) runDailyJobsOnce() {
-	ctx, span := otel.Tracer("do-worker-backend").Start(context.Background(), "job.daily")
+	ctx, span := otel.Tracer("agent-cloud-backend").Start(context.Background(), "job.daily")
 	defer span.End()
 
 	if err := s.emailJob.Run(ctx); err != nil {

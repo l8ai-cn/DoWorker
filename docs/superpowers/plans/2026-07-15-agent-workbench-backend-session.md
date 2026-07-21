@@ -66,7 +66,7 @@ git commit -m "feat(backend): persist workbench session streams"
 
 ```go
 event := mapper.ToolCall(acpToolCallWithImageAndUnknownBlock())
-require.Equal(t, "agentsmesh.acp", event.GetToolExecution().Identity.Namespace)
+require.Equal(t, "agentcloud.acp", event.GetToolExecution().Identity.Namespace)
 require.NotNil(t, event.GetToolExecution().ResultBlocks[1].GetUnsupported())
 ```
 

@@ -7,10 +7,10 @@ import (
 	"strings"
 	"testing"
 
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/organization"
-	"github.com/anthropics/agentsmesh/backend/pkg/crypto"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	domain "github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/organization"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/crypto"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

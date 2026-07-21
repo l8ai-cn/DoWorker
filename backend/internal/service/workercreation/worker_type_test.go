@@ -5,12 +5,12 @@ import (
 	"regexp"
 	"testing"
 
-	agentdomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
-	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
-	agentservice "github.com/anthropics/agentsmesh/backend/internal/service/agent"
-	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
-	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
-	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+	agentdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/agent"
+	specdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/workerspec"
+	agentservice "github.com/l8ai-cn/agentcloud/backend/internal/service/agent"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/workerdefinition"
+	specservice "github.com/l8ai-cn/agentcloud/backend/internal/service/workerspec"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/slugkit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -155,7 +155,7 @@ func TestWorkerTypeResolverProjectsCredentialRequirementGroups(t *testing.T) {
 }
 
 func TestWorkerTypeResolverRejectsUnavailableDefinitions(t *testing.T) {
-	t.Setenv("AGENTSMESH_INCLUDE_INTERNAL_AGENTS", "false")
+	t.Setenv("AGENTCLOUD_INCLUDE_INTERNAL_AGENTS", "false")
 	source := "AGENT codex\n"
 	tests := []struct {
 		name  string
@@ -221,7 +221,7 @@ func TestWorkerTypeResolverRejectsUnavailableDefinitions(t *testing.T) {
 }
 
 func TestWorkerTypeResolverAllowsInternalDefinitionsInE2EEnvironment(t *testing.T) {
-	t.Setenv("AGENTSMESH_INCLUDE_INTERNAL_AGENTS", "true")
+	t.Setenv("AGENTCLOUD_INCLUDE_INTERNAL_AGENTS", "true")
 	source := "AGENT echo\nEXECUTABLE e2e-mock-agent\nMODE pty\n"
 	agent := activeWorkerTypeAgentFor("e2e-echo", "e2e-mock-agent", source)
 	agent.IsInternal = true

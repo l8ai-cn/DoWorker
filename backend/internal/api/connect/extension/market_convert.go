@@ -3,10 +3,10 @@ package extensionconnect
 import (
 	"encoding/json"
 
-	extdom "github.com/anthropics/agentsmesh/backend/internal/domain/extension"
-	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
-	"github.com/anthropics/agentsmesh/backend/pkg/protoconv"
-	extensionv1 "github.com/anthropics/agentsmesh/proto/gen/go/extension/v1"
+	extdom "github.com/l8ai-cn/agentcloud/backend/internal/domain/extension"
+	skilldom "github.com/l8ai-cn/agentcloud/backend/internal/domain/skill"
+	"github.com/l8ai-cn/agentcloud/backend/pkg/protoconv"
+	extensionv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/extension/v1"
 )
 
 // toProtoSkillMarketItem projects a unified-catalog skill row onto the

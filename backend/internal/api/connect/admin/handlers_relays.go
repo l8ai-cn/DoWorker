@@ -6,9 +6,9 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/admin"
-	adminv1 "github.com/anthropics/agentsmesh/proto/gen/go/admin/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/api/connect/interceptors"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/admin"
+	adminv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/admin/v1"
 )
 
 // errRelayManagerUnavailable matches REST's apierr.ServiceUnavailable for

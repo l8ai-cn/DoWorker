@@ -6,12 +6,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { buildReconnectCommand, type ReconnectState } from "@/lib/do-worker/cli-commands";
+import { buildReconnectCommand, type ReconnectState } from "@/lib/agent-cloud/cli-commands";
 import { CliCommandBlock } from "./CliCommandBlock";
 import { ForkSessionForm } from "./ForkSessionDialog";
 
-export type { ReconnectState } from "@/lib/do-worker/cli-commands";
-export { buildReconnectCommand } from "@/lib/do-worker/cli-commands";
+export type { ReconnectState } from "@/lib/agent-cloud/cli-commands";
+export { buildReconnectCommand } from "@/lib/agent-cloud/cli-commands";
 
 const HOST_OWNER_DESCRIPTION =
   "This session's host is offline. Run the command below from the host machine to reconnect.";
@@ -42,7 +42,7 @@ const RUN_DESCRIPTION =
  * The default tab is Reconnect, except for the non-owner `host_offline`
  * case where reconnecting is impossible and Clone is the only action.
  *
- * @param wrapper - The conversation's `do-worker.wrapper` label
+ * @param wrapper - The conversation's `agent-cloud.wrapper` label
  *   (`"claude-code-native-ui"` for `omnigent claude` sessions). Picks
  *   the `local_stranded` command form.
  * @param state - Which unreachable state we're reconnecting from.

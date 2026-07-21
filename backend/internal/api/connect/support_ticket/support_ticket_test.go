@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	supportticketsvc "github.com/anthropics/agentsmesh/backend/internal/service/supportticket"
-	supportticketv1 "github.com/anthropics/agentsmesh/proto/gen/go/support_ticket/v1"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
+	supportticketsvc "github.com/l8ai-cn/agentcloud/backend/internal/service/supportticket"
+	supportticketv1 "github.com/l8ai-cn/agentcloud/proto/gen/go/support_ticket/v1"
 )
 
 func ctxAsUser(userID int64) context.Context {

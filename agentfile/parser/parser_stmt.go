@@ -1,6 +1,6 @@
 package parser
 
-import "github.com/anthropics/agentsmesh/agentfile/lexer"
+import "github.com/l8ai-cn/agentcloud/agentfile/lexer"
 
 // tryParseStatement attempts to parse a build-logic statement from the current token.
 func (p *Parser) tryParseStatement(tok lexer.Token) Statement {

@@ -4,7 +4,7 @@ package client
 import (
 	"sync/atomic"
 
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
 )
 
 // HeartbeatMonitor tracks the heartbeat send/ack cycle for upstream liveness detection.

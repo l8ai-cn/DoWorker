@@ -1,4 +1,4 @@
-// AgentsMesh codegen annotations.
+// Agent Cloud codegen annotations.
 //
 // Marks proto messages with binding metadata so `tools/protoc-gen-amesh-convert`
 // can generate Go domain↔proto convert functions (`*_convert.gen.go`).
@@ -18,7 +18,7 @@ package amesh.codegen.v1;
 
 import "google/protobuf/descriptor.proto";
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/codegen/v1;codegenv1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/codegen/v1;codegenv1";
 
 // GoDomain — message-level binding. Declares the Go domain struct this proto
 // message corresponds to, plus codegen direction(s).
@@ -26,7 +26,7 @@ option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/codegen/v1;co
 // Example:
 //   message Pod {
 //     option (amesh.codegen.v1.go_domain) = {
-//       type: "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod.Pod"
+//       type: "github.com/l8ai-cn/agentcloud/backend/internal/domain/agentpod.Pod"
 //       generate_to_proto: true
 //       generate_from_proto: false
 //     };

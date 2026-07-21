@@ -12,11 +12,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
+	"github.com/l8ai-cn/agentcloud/runner/internal/logger"
 )
 
 // TryReclaimPort attempts to reclaim a port held by a stale runner process.
-// It finds the process listening on the port, verifies it's an do-worker-runner,
+// It finds the process listening on the port, verifies it's an agent-cloud-runner,
 // and kills it (SIGTERM then SIGKILL). Returns true if the port was freed.
 //
 // Called in two places:
@@ -36,9 +36,9 @@ func TryReclaimPort(port int) bool {
 		return false
 	}
 
-	// Verify it's an do-worker-runner process
+	// Verify it's an agent-cloud-runner process
 	name := getProcessName(pid)
-	if !strings.Contains(name, "do-worker-runner") && !strings.Contains(name, "agentsmesh-runn") {
+	if !strings.Contains(name, "agent-cloud-runner") && !strings.Contains(name, "agentcloud-runn") {
 		log.Info("Port held by non-runner process, skipping reclaim",
 			"port", port, "pid", pid, "process", name)
 		return false
@@ -88,7 +88,7 @@ func findListenerPID(port int) (int, error) {
 }
 
 // findListenerPIDViaSS uses ss to find the PID listening on a port.
-// Output format: "users:(("agentsmesh-runn",pid=1436796,fd=7))"
+// Output format: "users:(("agentcloud-runn",pid=1436796,fd=7))"
 func findListenerPIDViaSS(port int) (int, error) {
 	out, err := exec.Command("ss", "-tlnp", fmt.Sprintf("sport = :%d", port)).Output()
 	if err != nil {

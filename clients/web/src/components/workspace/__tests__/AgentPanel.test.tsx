@@ -69,7 +69,7 @@ vi.mock("@/stores/workspace", () => ({
     }),
 }));
 
-vi.mock("@do-worker/agent-ui", () => ({
+vi.mock("@agent-cloud/agent-ui", () => ({
   AgentWorkspace: ({
     presentation,
     readOnly,

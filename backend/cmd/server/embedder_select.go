@@ -5,7 +5,7 @@ import (
 	"os"
 	"strconv"
 
-	blockstoreservice "github.com/anthropics/agentsmesh/backend/internal/service/blockstore"
+	blockstoreservice "github.com/l8ai-cn/agentcloud/backend/internal/service/blockstore"
 )
 
 // selectEmbedder wires the BlockstoreService's embedding provider from env.

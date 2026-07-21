@@ -3,7 +3,7 @@ package schema
 import (
 	"strings"
 
-	"github.com/anthropics/agentsmesh/agentfile/parser"
+	"github.com/l8ai-cn/agentcloud/agentfile/parser"
 )
 
 // ConfigFile describes a JSON (or other) config file the agent reads at runtime.

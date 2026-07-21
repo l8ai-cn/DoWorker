@@ -39,8 +39,8 @@ user-invocable: true
 cd <当前worktree根目录>/deploy/dev
 
 # 例如：
-# /Users/stone/Works/AIO/AgentsMesh-Worktrees/feature-payment-membership/deploy/dev
-# /Users/stone/Works/AIO/AgentsMesh-Worktrees/feature-xxx/deploy/dev
+# /Users/stone/Works/AIO/Agent Cloud-Worktrees/feature-payment-membership/deploy/dev
+# /Users/stone/Works/AIO/Agent Cloud-Worktrees/feature-xxx/deploy/dev
 ```
 
 ### 2. 获取当前环境的端口配置
@@ -59,16 +59,16 @@ echo "REDIS_PORT: ${REDIS_PORT}"       # Redis 端口
 
 ### 3. Docker 容器命名规则
 
-容器名称包含 worktree 目录名，格式为：`agentsmesh-<worktree-dir>-<service>-1`
+容器名称包含 worktree 目录名，格式为：`agentcloud-<worktree-dir>-<service>-1`
 
 ```bash
 # 查看当前环境的容器
 docker compose ps
 
 # 示例容器名：
-# agentsmesh-feature-payment-membership-postgres-1
-# agentsmesh-feature-payment-membership-backend-1
-# agentsmesh-feature-payment-membership-web-1
+# agentcloud-feature-payment-membership-postgres-1
+# agentcloud-feature-payment-membership-backend-1
+# agentcloud-feature-payment-membership-web-1
 ```
 
 ### 4. 确认环境运行中
@@ -111,10 +111,10 @@ source deploy/dev/.env
 
 # 获取容器名（基于 worktree 目录名）
 WORKTREE_DIR=$(basename "$(git rev-parse --show-toplevel)")
-POSTGRES_CONTAINER="agentsmesh-${WORKTREE_DIR}-postgres-1"
+POSTGRES_CONTAINER="agentcloud-${WORKTREE_DIR}-postgres-1"
 
 # 执行 SQL
-docker exec ${POSTGRES_CONTAINER} psql -U agentsmesh -d agentsmesh -c "SELECT 1"
+docker exec ${POSTGRES_CONTAINER} psql -U agentcloud -d agentcloud -c "SELECT 1"
 ```
 
 ---
@@ -123,7 +123,7 @@ docker exec ${POSTGRES_CONTAINER} psql -U agentsmesh -d agentsmesh -c "SELECT 1"
 
 | 数据 | 值 |
 |------|-----|
-| 测试用户邮箱 | dev@agentsmesh.local |
+| 测试用户邮箱 | dev@agentcloud.local |
 | 测试用户密码 | AdminAb123456 |
 | 测试组织 slug | dev-org |
 | 账单页面路径 | /dev-org/settings?scope=organization&tab=billing |
@@ -190,7 +190,7 @@ echo "浏览器访问: http://localhost:${WEB_PORT}"
    mcp__chrome-devtools__new_page(url: "http://localhost:${WEB_PORT}/login")
 
 3. 登录（如需要）
-   mcp__chrome-devtools__fill(uid: "email-input", value: "dev@agentsmesh.local")
+   mcp__chrome-devtools__fill(uid: "email-input", value: "dev@agentcloud.local")
    mcp__chrome-devtools__fill(uid: "password-input", value: "AdminAb123456")
    mcp__chrome-devtools__click(uid: "login-button")
 
@@ -242,7 +242,7 @@ source .env
 
 TOKEN=$(curl -s -X POST "http://localhost:${WEB_PORT}/api/v1/auth/login" \
   -H "Content-Type: application/json" \
-  -d '{"email":"dev@agentsmesh.local","password":"AdminAb123456"}' | jq -r '.token')
+  -d '{"email":"dev@agentcloud.local","password":"AdminAb123456"}' | jq -r '.token')
 
 echo "Token: ${TOKEN}"
 ```
@@ -280,7 +280,7 @@ POSTGRES_CONTAINER=$(docker compose ps -q postgres)
 
 # 方法2：根据 worktree 目录名构建
 WORKTREE_DIR=$(basename "$(git rev-parse --show-toplevel)")
-POSTGRES_CONTAINER="agentsmesh-${WORKTREE_DIR}-postgres-1"
+POSTGRES_CONTAINER="agentcloud-${WORKTREE_DIR}-postgres-1"
 ```
 
 ### 执行 SQL 查询
@@ -289,7 +289,7 @@ POSTGRES_CONTAINER="agentsmesh-${WORKTREE_DIR}-postgres-1"
 source deploy/dev/.env
 WORKTREE_DIR=$(basename "$(git rev-parse --show-toplevel)")
 
-docker exec agentsmesh-${WORKTREE_DIR}-postgres-1 psql -U agentsmesh -d agentsmesh -c "
+docker exec agentcloud-${WORKTREE_DIR}-postgres-1 psql -U agentcloud -d agentcloud -c "
   SELECT status, plan_id, seat_count
   FROM subscriptions
   WHERE organization_id = (SELECT id FROM organizations WHERE slug = 'dev-org');
@@ -301,15 +301,15 @@ docker exec agentsmesh-${WORKTREE_DIR}-postgres-1 psql -U agentsmesh -d agentsme
 ```bash
 source deploy/dev/.env
 WORKTREE_DIR=$(basename "$(git rev-parse --show-toplevel)")
-POSTGRES_CONTAINER="agentsmesh-${WORKTREE_DIR}-postgres-1"
+POSTGRES_CONTAINER="agentcloud-${WORKTREE_DIR}-postgres-1"
 
 # 执行 setup SQL
-docker exec ${POSTGRES_CONTAINER} psql -U agentsmesh -d agentsmesh -c "
+docker exec ${POSTGRES_CONTAINER} psql -U agentcloud -d agentcloud -c "
   INSERT INTO promo_codes (code, ...) VALUES ('TESTCODE', ...);
 "
 
 # 执行 cleanup SQL
-docker exec ${POSTGRES_CONTAINER} psql -U agentsmesh -d agentsmesh -c "
+docker exec ${POSTGRES_CONTAINER} psql -U agentcloud -d agentcloud -c "
   DELETE FROM promo_code_uses WHERE ...;
 "
 ```
@@ -443,7 +443,7 @@ Step 3: [操作描述] ❌ FAIL - 期望 "xxx"，实际 "yyy"
 | 输入 | `mcp__chrome-devtools__fill` |
 | 等待文本 | `mcp__chrome-devtools__wait_for` |
 | API 调用 | `curl -s "http://localhost:${WEB_PORT}/api/v1/..."` |
-| 数据库查询 | `docker exec <container> psql -U agentsmesh -d agentsmesh -c "SQL"` |
+| 数据库查询 | `docker exec <container> psql -U agentcloud -d agentcloud -c "SQL"` |
 
 ---
 

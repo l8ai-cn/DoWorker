@@ -30,7 +30,7 @@ metadata:
   name: {{ .Name }}
   namespace: {{ .Namespace }}
   labels:
-    app.kubernetes.io/name: agentsmesh-runner
+    app.kubernetes.io/name: agentcloud-runner
     app.kubernetes.io/component: coordinator-provisioned
 spec:
   restartPolicy: Never
@@ -52,7 +52,7 @@ spec:
           value: {{ quote .RunnerOrgSlug }}
         - name: MAX_CONCURRENT_PODS
           value: {{ quote (printf "%d" .MaxConcurrentPods) }}
-        - name: AGENTSMESH_MCP_BIND
+        - name: AGENTCLOUD_MCP_BIND
           value: "0.0.0.0"
 {{- if .SSLHostPath }}
       volumeMounts:

@@ -1,7 +1,7 @@
 // Wasm contract test. Type-only file — no runtime body, no asserts.
 // `pnpm run web:typecheck` is the gate: if any of the listed wasm-bindgen
 // method signatures the stores actually call drifts away from what's
-// exported in `do-worker-wasm` (wasm-pack output under packages/do-worker-wasm),
+// exported in `agent-cloud-wasm` (wasm-pack output under packages/agent-cloud-wasm),
 // these type assertions fail and the build fails.
 //
 // This catches the regression class that motivated this PR: the renderer
@@ -37,7 +37,7 @@ import type {
   WasmBlockstoreService,
   WasmAuthManager,
   WasmOrchestrationResourceService,
-} from "do-worker-wasm";
+} from "agent-cloud-wasm";
 
 // Plain identity helper — `_Sig<F>` accepts any function type. We use it
 // only to surface a type error if the wasm method's signature changes

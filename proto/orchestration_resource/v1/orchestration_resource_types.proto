@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package proto.orchestration_resource.v1;
 
-option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/orchestration_resource/v1;orchestrationresourcev1";
+option go_package = "github.com/l8ai-cn/agentcloud/proto/gen/go/orchestration_resource/v1;orchestrationresourcev1";
 
 enum SourceFormat {
   SOURCE_FORMAT_UNSPECIFIED = 0;

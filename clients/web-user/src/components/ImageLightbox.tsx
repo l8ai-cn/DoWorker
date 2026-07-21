@@ -1,7 +1,7 @@
 import {
   ImageLightboxProvider as AgentImageLightboxProvider,
   type ImageLightboxProviderProps,
-} from "@do-worker/agent-ui";
+} from "@agent-cloud/agent-ui";
 
 import { getEmbedRoot } from "@/lib/host";
 
@@ -15,5 +15,5 @@ export function ImageLightboxProvider({
   );
 }
 
-export { useLightbox, ZoomableImage } from "@do-worker/agent-ui";
-export type { ZoomableImageProps } from "@do-worker/agent-ui";
+export { useLightbox, ZoomableImage } from "@agent-cloud/agent-ui";
+export type { ZoomableImageProps } from "@agent-cloud/agent-ui";

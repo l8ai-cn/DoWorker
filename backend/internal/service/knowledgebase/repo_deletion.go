@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	kbdomain "github.com/anthropics/agentsmesh/backend/internal/domain/knowledgebase"
+	kbdomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/knowledgebase"
 )
 
 func (s *Service) failCreateAndCleanupRepo(ctx context.Context, repoName string, cause error) error {

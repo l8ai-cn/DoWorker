@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	otelinit "github.com/anthropics/agentsmesh/runner/internal/otel"
-	"github.com/anthropics/agentsmesh/runner/internal/safego"
+	otelinit "github.com/l8ai-cn/agentcloud/runner/internal/otel"
+	"github.com/l8ai-cn/agentcloud/runner/internal/safego"
 )
 
 // isHandshakeError checks if the error is a WebSocket handshake failure

@@ -13,7 +13,7 @@ UPDATE_DIGEST="${ROOT}/deploy/kubernetes/cluster-oilan/update-video-runtime-dige
 RUNTIME_LOCK="${ROOT}/backend/internal/domain/workerruntime/runtime_catalog.lock.json"
 RUNTIME_BUILD="${ROOT}/tools/loops/worker-onboarding/catalog-loop/evidence/runtime-builds/video-studio.json"
 EVIDENCE_MATRIX="${ROOT}/tools/loops/worker-onboarding/catalog-loop/catalog/worker-evidence-matrix.json"
-IMAGE="repo.aiedulab.cn:8443/agentsmesh/runner-video-studio"
+IMAGE="repo.aiedulab.cn:8443/agentcloud/runner-video-studio"
 OBSERVED_AT="2026-07-17T19:05:45+08:00"
 DIGEST="$(
   node -e '
@@ -112,7 +112,7 @@ grep -Fq "image: $IMAGE@$NEXT_DIGEST" \
   "$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan/60-prepull-daemonset.yaml"
 jq -e --arg digest "$NEXT_DIGEST" --arg observed_at "$OBSERVED_AT" '
   .validated_at == $observed_at and
-  .image == "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@\($digest)" and
+  .image == "repo.aiedulab.cn:8443/agentcloud/runner-video-studio@\($digest)" and
   .image_id == $digest and
   .checks.video_runtime_contract == "passed" and
   .verdict == "published_runtime_smoke_verified"

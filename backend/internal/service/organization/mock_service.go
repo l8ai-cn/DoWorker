@@ -4,8 +4,8 @@ import (
 	"context"
 	"sync"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/organization"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/organization"
+	"github.com/l8ai-cn/agentcloud/backend/internal/middleware"
 )
 
 type MockService struct {

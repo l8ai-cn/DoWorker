@@ -3,9 +3,9 @@ package agentpod
 import (
 	"context"
 
-	resourcedomain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
-	resourcesvc "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
+	resourcedomain "github.com/l8ai-cn/agentcloud/backend/internal/domain/airesource"
+	"github.com/l8ai-cn/agentcloud/backend/internal/domain/workerdependency"
+	resourcesvc "github.com/l8ai-cn/agentcloud/backend/internal/service/airesource"
 )
 
 type pinnedModelCredentialResolver interface {

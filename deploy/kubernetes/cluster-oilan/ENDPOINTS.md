@@ -8,7 +8,7 @@
 - Organization marketplace: https://dowork.l8ai.cn/dev-org/marketplace
 - Admin console: https://admin.l8ai.cn (separate host, no `/admin` basePath)
 - Object storage (presigned URLs): https://minio.dowork.l8ai.cn
-- Test account: `admin@agentsmesh.local / Ab123456`
+- Test account: `admin@agentcloud.local / Ab123456`
 
 DNS for `dowork.l8ai.cn`, `market.l8ai.cn`, `mobile.l8ai.cn`,
 `admin.l8ai.cn`, `*.l8ai.cn`, and `minio.dowork.l8ai.cn` must point at the

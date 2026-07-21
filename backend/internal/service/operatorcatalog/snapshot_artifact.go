@@ -3,7 +3,7 @@ package operatorcatalog
 import (
 	"context"
 
-	"github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
+	"github.com/l8ai-cn/agentcloud/backend/internal/service/workercreation"
 )
 
 func (bootstrapper *Bootstrapper) createSnapshotArtifact(

@@ -586,7 +586,7 @@
       "noPaymentMethod": "暂无支付方式",
       "addPaymentMethod": "添加支付方式",
       "noSubscription": "暂无有效订阅",
-      "choosePlan": "选择一个方案开始使用 Do Worker",
+      "choosePlan": "选择一个方案开始使用 Agent Cloud",
       "selectPlan": "选择方案",
       "retry": "重试",
       "failedToLoad": "加载账单数据失败",

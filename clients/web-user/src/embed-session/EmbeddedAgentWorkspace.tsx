@@ -7,7 +7,7 @@ import {
   type AgentWorkspaceLocale,
   type ContentRendererRegistry,
   type ToolRendererRegistry,
-} from "@do-worker/agent-ui";
+} from "@agent-cloud/agent-ui";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 

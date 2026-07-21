@@ -4,7 +4,7 @@ Normal Oilan deploys do not run DDL/DML. Schema changes and seed changes must be
 applied first through an audited DoSql change, then `deploy.sh` receives:
 
 ```bash
-DOSQL_RELEASE_DB_TARGET=db_agentsmesh_prod_postgres \
+DOSQL_RELEASE_DB_TARGET=db_agentcloud_prod_postgres \
 DOSQL_RELEASE_DB_MODE=production \
 DOSQL_RELEASE_DB_SESSION=<dosql-session> \
 DOSQL_RELEASE_CHANGE_ID=<change-id> \
@@ -22,7 +22,7 @@ namespace, migration version, and artifact fingerprint.
 The canonical asset was verified through `gw-oilan-node` on July 21, 2026:
 
 - PostgreSQL `server_version_num=160014` (16.14);
-- database `agentsmesh`;
+- database `agentcloud`;
 - `schema_migrations` exists;
 - migration version `231`, `dirty=false` after the approved direct update.
 
