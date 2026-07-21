@@ -4,82 +4,82 @@
     {
       "slug": "aider",
       "definition_path": "config/worker-types/aider/definition.json",
-      "definition_hash": "sha256:9eb65b2ea0e82ebb214d564f42a296525dea8cfa89d23f3c84c078000893d352"
+      "definition_hash": "sha256:63c16f677de51ab5d891f269c9e67f50311fbae80cdad06cf3b22cdcf6ceb147"
     },
     {
       "slug": "claude-code",
       "definition_path": "config/worker-types/claude-code/definition.json",
-      "definition_hash": "sha256:f7dd1bfec7f293ded406006f514e6d7e25aaefcd29d78272bbe2e875ce9d205c"
+      "definition_hash": "sha256:97148bcff03ef55f58ae1ecb672f61c49b5df7f1c95171e8f58a7916e9ceda63"
     },
     {
       "slug": "codex-cli",
       "definition_path": "config/worker-types/codex-cli/definition.json",
-      "definition_hash": "sha256:60cfdaef2e79d55d66daeb348f52feae205474ccd5af79ad8c18f41200676a4d"
+      "definition_hash": "sha256:1eeddc77cf917bc11cb1cf4b4ef75493d6b6851d0bd00ac6b65e8fe71949748b"
     },
     {
       "slug": "cursor-cli",
       "definition_path": "config/worker-types/cursor-cli/definition.json",
-      "definition_hash": "sha256:8e8284ba68d3a15ed74906926b7491dc8f1ef86e00bd14ac43950188cfe06d2e"
+      "definition_hash": "sha256:bef6f9ac23015e68994d94d80c5deae36dcdc42e152284cab7fea50a2bad4dcc"
     },
     {
       "slug": "do-agent",
       "definition_path": "config/worker-types/do-agent/definition.json",
-      "definition_hash": "sha256:e79be1769fe5b2d4de307d3748b9edcfa8a31eafec0a5a51a4b2dfb36b0a8337"
+      "definition_hash": "sha256:0a264e7ea7a1b077b8f3b89e5e1ca57b9945dacd6cea5e63c0ddb82c85a20249"
     },
     {
       "slug": "e2e-echo",
       "definition_path": "config/worker-types/e2e-echo/definition.json",
-      "definition_hash": "sha256:5f7bcc931f925692e0a5b60a99002bd148070b37112d653dee851ce90587e945"
+      "definition_hash": "sha256:18045fb2a2b1400677872bc21ea01fd67b97178f3cd3609f23e1dfaa30da7db6"
     },
     {
       "slug": "gemini-cli",
       "definition_path": "config/worker-types/gemini-cli/definition.json",
-      "definition_hash": "sha256:deed6b7513abcc40aca9e7cc5f09ca90dd3bab5a54233efdd3422bee09f582e8"
+      "definition_hash": "sha256:cbbf0dfff7c83a9690fc1f3a7b03806267bea7f2fa5cedbb27adc53561a46840"
     },
     {
       "slug": "grok-build",
       "definition_path": "config/worker-types/grok-build/definition.json",
-      "definition_hash": "sha256:0f76d4f5531ddb50791f5b887993feb750d637838f02b266a14e484c6610b2c2"
+      "definition_hash": "sha256:4eb00bebe671c33a69048e8bc403e0aaf1997e68f4e494ea40747db249cc4620"
     },
     {
       "slug": "hermes",
       "definition_path": "config/worker-types/hermes/definition.json",
-      "definition_hash": "sha256:035450d5cbfc34fbe6671b00e5ee9cf76aaf0eee81988c4e7fc471bbedefb7ee"
+      "definition_hash": "sha256:e06c265b04eec75f2f4693b0d925e9ec677b406f338d128662ea28812bd0d4da"
     },
     {
       "slug": "loopal",
       "definition_path": "config/worker-types/loopal/definition.json",
-      "definition_hash": "sha256:29c0b8aa03cda214e72282983db4de6938b54f7c28e943c038d8cfa94966039b"
+      "definition_hash": "sha256:2cf52cd6f0792d611642e4832a77c8a5cb7df78a105f1c52bd0c05c3b762fbe2"
     },
     {
       "slug": "minimax-cli",
       "definition_path": "config/worker-types/minimax-cli/definition.json",
-      "definition_hash": "sha256:d7c0fe3c67243528c4bf4b8fe7cffb0fee29406188d0a833c92603cea01cf2be"
+      "definition_hash": "sha256:566d537e3b416af4a4ce0c543839fe039be196d547aa44c68288652ad333c98e"
     },
     {
       "slug": "openclaw",
       "definition_path": "config/worker-types/openclaw/definition.json",
-      "definition_hash": "sha256:d0b3265258c995968bb5e738b1bd535f839075c73faecbad6a8412b0b9d4ab0b"
+      "definition_hash": "sha256:26c9db5491015b3fb17b15aba0275a54803029b796acee675342379ece12a979"
     },
     {
       "slug": "opencode",
       "definition_path": "config/worker-types/opencode/definition.json",
-      "definition_hash": "sha256:6681ce02048799d625df1b48fb1834233365eb8d586a28cbe948158eaa26c6f4"
+      "definition_hash": "sha256:66e356adb710783ffbc7250f6e5b6700da9533b9a2929ccfd8507eb33a255d74"
     },
     {
       "slug": "pattern-designer",
       "definition_path": "config/worker-types/pattern-designer/definition.json",
-      "definition_hash": "sha256:4f5cf080d9655c4de274f0fc45b44866e9a0edd9dc10338d4917b582d02bdf01"
+      "definition_hash": "sha256:2ba32046210b2536a94f9469d78ea3ab48065b71947f6be3cdcf1f32e7ea048b"
     },
     {
       "slug": "seedance-expert",
       "definition_path": "config/worker-types/seedance-expert/definition.json",
-      "definition_hash": "sha256:9b6833ce7a61b29c0dc967cb524517bc2a4e35f03038cfe39c96d0000835ed9d"
+      "definition_hash": "sha256:b1ac169f01cf0a359308b204215b6b5f8f53cdc7adad0cdcdfd460abe598d5ce"
     },
     {
       "slug": "video-studio",
       "definition_path": "config/worker-types/video-studio/definition.json",
-      "definition_hash": "sha256:da0739415f4a7de3009d3c17d8402eb8b032e05ed744178cd9ef25d54e3e10ec"
+      "definition_hash": "sha256:f95a4862a7121495c5db8abed84b9c3afb3d777641b0bbd1c7e57e1af415884a"
     }
   ]
 }

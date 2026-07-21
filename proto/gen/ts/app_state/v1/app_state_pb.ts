@@ -19,7 +19,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file app_state/v1/app_state.proto.
  */
 export const file_app_state_v1_app_state: GenFile = /*@__PURE__*/
-  fileDesc("ChxhcHBfc3RhdGUvdjEvYXBwX3N0YXRlLnByb3RvEhJwcm90by5hcHBfc3RhdGUudjEiKgoURGlzcGF0Y2hFdmVudFJlcXVlc3QSEgoKZXZlbnRfanNvbhgBIAEoCUJHWkVnaXRodWIuY29tL2FudGhyb3BpY3MvYWdlbnRzbWVzaC9wcm90by9nZW4vZ28vYXBwX3N0YXRlL3YxO2FwcHN0YXRldjFiBnByb3RvMw");
+  fileDesc("ChxhcHBfc3RhdGUvdjEvYXBwX3N0YXRlLnByb3RvEhJwcm90by5hcHBfc3RhdGUudjEiKgoURGlzcGF0Y2hFdmVudFJlcXVlc3QSEgoKZXZlbnRfanNvbhgBIAEoCUJEWkJnaXRodWIuY29tL2w4YWktY24vYWdlbnRjbG91ZC9wcm90by9nZW4vZ28vYXBwX3N0YXRlL3YxO2FwcHN0YXRldjFiBnByb3RvMw");
 
 /**
  * Dispatch a serialised RealtimeEvent into the app-level fan-out router.

@@ -18,7 +18,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file mesh_state/v1/mesh_state.proto.
  */
 export const file_mesh_state_v1_mesh_state: GenFile = /*@__PURE__*/
-  fileDesc("Ch5tZXNoX3N0YXRlL3YxL21lc2hfc3RhdGUucHJvdG8SE3Byb3RvLm1lc2hfc3RhdGUudjEiRwoWUmVwbGFjZVRvcG9sb2d5UmVxdWVzdBItCgh0b3BvbG9neRgBIAEoCzIbLnByb3RvLm1lc2gudjEuTWVzaFRvcG9sb2d5QklaR2dpdGh1Yi5jb20vYW50aHJvcGljcy9hZ2VudHNtZXNoL3Byb3RvL2dlbi9nby9tZXNoX3N0YXRlL3YxO21lc2hzdGF0ZXYxYgZwcm90bzM", [file_mesh_v1_mesh]);
+  fileDesc("Ch5tZXNoX3N0YXRlL3YxL21lc2hfc3RhdGUucHJvdG8SE3Byb3RvLm1lc2hfc3RhdGUudjEiRwoWUmVwbGFjZVRvcG9sb2d5UmVxdWVzdBItCgh0b3BvbG9neRgBIAEoCzIbLnByb3RvLm1lc2gudjEuTWVzaFRvcG9sb2d5QkZaRGdpdGh1Yi5jb20vbDhhaS1jbi9hZ2VudGNsb3VkL3Byb3RvL2dlbi9nby9tZXNoX3N0YXRlL3YxO21lc2hzdGF0ZXYxYgZwcm90bzM", [file_mesh_v1_mesh]);
 
 /**
  * Replace the cached mesh topology — used after MeshService.fetch_topology
