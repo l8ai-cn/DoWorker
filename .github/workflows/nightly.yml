@@ -7,7 +7,7 @@
 # Why a separate file (vs. extending release.yml): release.yml stamps
 # `${GITHUB_REF#refs/tags/v}` at every step. Mixing schedule + tag
 # triggers in one file forks every version-deriving expression. SRP
-# split mirrors deploy.yml ↔ release.yml.
+# split keeps scheduled prerelease mechanics isolated from tagged releases.
 #
 # Job graph:
 #   check-changes → version → runner-release → cleanup-old-nightlies

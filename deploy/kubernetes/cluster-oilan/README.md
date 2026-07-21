@@ -43,7 +43,9 @@ git add deploy/kubernetes/cluster-oilan/release \
   config/worker-types tools/loops/worker-onboarding/catalog-loop
 git commit
 git push
-DOOPS_TARGET=gw-oilan-node ./deploy.sh         # secrets + manifests + jobs via DoOps
+# wait for GitHub CI and release checks to succeed
+DOOPS_SESSION=<release-session> \
+  DOOPS_TARGET=gw-oilan-node ./deploy.sh
 ```
 
 When the build host cannot reach the node-local Harbor, dispatch the
@@ -68,8 +70,8 @@ Promotion refuses a staging manifest from a different `main` commit, pulls
 and verifies every source before changing Harbor, checks each `linux/amd64`
 platform and source revision label, pushes all layers, and requires the Harbor
 digest to equal the staged digest. It then updates the immutable release lock
-and provenance metadata. Commit and push those generated files before running
-`deploy.sh`.
+and provenance metadata. Commit and push those generated files, wait for CI,
+then run `deploy.sh` from a trusted operator machine.
 
 Runner runtime builds resolve their Node base only through the locked
 `runner-node-base@sha256:...` Harbor reference and fail before building if its

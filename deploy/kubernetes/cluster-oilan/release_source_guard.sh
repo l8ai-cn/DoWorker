@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
 RELEASE_GUARD_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=release_ci_gate.sh
-source "${RELEASE_GUARD_DIR}/release_ci_gate.sh"
 # shellcheck source=release_image_provenance.sh
 source "${RELEASE_GUARD_DIR}/release_image_provenance.sh"
 
@@ -36,6 +34,65 @@ release_require_pushed_clean_tree() {
 
   release_require_ci_success "${head}" || return 1
   export RELEASE_SOURCE_COMMIT="${head}"
+}
+
+release_require_ci_success() {
+  local head="${1:?commit is required}"
+  local repository="${RELEASE_REPOSITORY:-l8ai-cn/DoWorker}"
+  local checks
+
+  command -v gh >/dev/null || {
+    echo "release requires gh for CI verification" >&2
+    return 1
+  }
+  command -v jq >/dev/null || {
+    echo "release requires jq for CI verification" >&2
+    return 1
+  }
+  checks="$(
+    gh api --paginate --slurp \
+      "repos/${repository}/commits/${head}/check-runs?per_page=100"
+  )" || return 1
+  jq -e '
+    [
+      "Runtime release contracts",
+      "Loop and sandbox security regressions",
+      "Web-user artifact preview"
+    ] as $required
+    | [
+        "Deploy US West",
+        "Deploy US West Relay 01",
+        "Deploy US West Relay Beijing 02",
+        "Migrate US West",
+        "Deploy CN",
+        "Deploy CN Relay 01",
+        "Migrate CN"
+      ] as $deployments
+    | [.[] | .check_runs[]] as $checks
+    | [
+        $checks[]
+        | select(.status == "completed" and .conclusion == "success")
+        | .name
+      ] as $successful
+    | (.[0].total_count == ($checks | length))
+    and (($required - $successful | length) == 0)
+    and all(
+      $checks[];
+      . as $check
+      | ($deployments | index($check.name)) != null
+        or (
+          $check.status == "completed"
+          and (
+            $check.conclusion == "success"
+            or $check.conclusion == "neutral"
+            or $check.conclusion == "skipped"
+          )
+        )
+    )
+  ' <<< "${checks}" >/dev/null || {
+    echo "release requires completed successful GitHub checks for ${head}" >&2
+    return 1
+  }
 }
 
 release_write_source_metadata() {
