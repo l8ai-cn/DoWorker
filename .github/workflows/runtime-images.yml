@@ -33,7 +33,7 @@ jobs:
           go-version-file: go.mod
       - name: Install codegen tools
         run: bash scripts/ci-install-codegen-tools.sh
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v4
       - name: Prepare runtime build context
         run: bash docker/agent-runtime/prepare_binaries.sh docker/agent-runtime/_context ${{ matrix.runtime }}
       - name: Log in to Docker Hub
